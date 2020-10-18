@@ -1,0 +1,72 @@
+gcc -E -x c ../apps/main/kernels/main.p > temp.p
+../../tools/compiler/compiler -I ../apps/main/kernels/main.m temp.p
+Build for integer model 
+Process p-file
+Process m-file
+gcc -E -x c ../apps/nn/kernels/conv.p > temp.p
+../../tools/compiler/compiler -I ../apps/nn/kernels/conv.m temp.p
+Build for integer model 
+Process p-file
+Process m-file
+gcc -E -x c ../apps/nn/kernels/fcn.p > temp.p
+../../tools/compiler/compiler -I ../apps/nn/kernels/fcn.m temp.p
+Build for integer model 
+Process p-file
+Process m-file
+gcc -E -x c ../apps/color/kernels/color.p > temp.p
+../../tools/compiler/compiler -I ../apps/color/kernels/color.m temp.p
+Build for integer model 
+Process p-file
+Process m-file
+gcc -E -x c ../apps/resize/kernels/resize.p > temp.p
+../../tools/compiler/compiler -I ../apps/resize/kernels/resize.m temp.p
+Build for integer model 
+Process p-file
+Process m-file
+gcc -E -x c ../apps/equalize/kernels/equalize.p > temp.p
+../../tools/compiler/compiler -I ../apps/equalize/kernels/equalize.m temp.p
+Build for integer model 
+Process p-file
+Process m-file
+gcc -E -x c ../apps/gaussian/kernels/gaussian.p > temp.p
+../../tools/compiler/compiler -I ../apps/gaussian/kernels/gaussian.m temp.p
+Build for integer model 
+Process p-file
+Process m-file
+gcc -E -x c ../apps/canny/kernels/canny.p > temp.p
+../../tools/compiler/compiler -I ../apps/canny/kernels/canny.m temp.p
+Build for integer model 
+Process p-file
+Process m-file
+gcc -E -x c ../apps/harris/kernels/harris.p > temp.p
+../../tools/compiler/compiler -I ../apps/harris/kernels/harris.m temp.p
+Build for integer model 
+Process p-file
+Process m-file
+gcc -E -x c ../apps/of/kernels/of.p > temp.p
+../../tools/compiler/compiler -I ../apps/of/kernels/of.m temp.p
+Build for integer model 
+Process p-file
+Process m-file
+~/mips-elf/bin/mips-elf-gcc -c ../base/task.s -o ../base/task.o -O3 -mips1
+~/mips-elf/bin/mips-elf-gcc -c ../base/ztam.c -DZTA_DEBUG2 -o ../base/ztam.o -O3 -mips1
+~/mips-elf/bin/mips-elf-gcc -c ../apps/main/kernels/main.m.c -DZTA_DEBUG2 -o ../apps/main/kernels/main.o -O3 -mips1
+~/mips-elf/bin/mips-elf-gcc -c ../apps/nn/kernels/conv.m.c -DZTA_DEBUG2 -o ../apps/nn/kernels/conv.o -O3 -mips1
+~/mips-elf/bin/mips-elf-gcc -c ../apps/nn/kernels/fcn.m.c -DZTA_DEBUG2 -o ../apps/nn/kernels/fcn.o -O3 -mips1
+~/mips-elf/bin/mips-elf-gcc -c ../apps/color/kernels/color.m.c -DZTA_DEBUG2 -o ../apps/color/kernels/color.o -O3 -mips1
+~/mips-elf/bin/mips-elf-gcc -c ../apps/resize/kernels/resize.m.c -DZTA_DEBUG2 -o ../apps/resize/kernels/resize.o -O3 -mips1
+~/mips-elf/bin/mips-elf-gcc -c ../apps/equalize/kernels/equalize.m.c -DZTA_DEBUG2 -o ../apps/equalize/kernels/equalize.o -O3 -mips1
+~/mips-elf/bin/mips-elf-gcc -c ../apps/gaussian/kernels/gaussian.m.c -DZTA_DEBUG2 -o ../apps/gaussian/kernels/gaussian.o -O3 -mips1
+~/mips-elf/bin/mips-elf-gcc -c ../apps/canny/kernels/canny.m.c -DZTA_DEBUG2 -o ../apps/canny/kernels/canny.o -O3 -mips1
+~/mips-elf/bin/mips-elf-gcc -c ../apps/harris/kernels/harris.m.c -DZTA_DEBUG2 -o ../apps/harris/kernels/harris.o -O3 -mips1
+~/mips-elf/bin/mips-elf-gcc -c ../apps/of/kernels/of.m.c -DZTA_DEBUG2 -o ../apps/of/kernels/of.o -O3 -mips1
+../../tools/compiler/compiler -L mcore.ld ../apps/main/kernels/main.hex ../apps/nn/kernels/conv.hex ../apps/nn/kernels/fcn.hex ../apps/color/kernels/color.hex ../apps/resize/kernels/resize.hex ../apps/equalize/kernels/equalize.hex ../apps/gaussian/kernels/gaussian.hex ../apps/canny/kernels/canny.hex ../apps/harris/kernels/harris.hex ../apps/of/kernels/of.hex 
+~/mips-elf/bin/mips-elf-gcc -O3 -Tmcore.ld -mips1 ../base/task.o ../base/ztam.o ../apps/main/kernels/main.o ../apps/nn/kernels/conv.o ../apps/nn/kernels/fcn.o ../apps/color/kernels/color.o ../apps/resize/kernels/resize.o ../apps/equalize/kernels/equalize.o ../apps/gaussian/kernels/gaussian.o ../apps/canny/kernels/canny.o ../apps/harris/kernels/harris.o ../apps/of/kernels/of.o -o temp
+/home/vuong/mips-elf/lib/gcc/mips-elf/4.9.0/../../../../mips-elf/bin/ld: Warning: temp uses -mhard-float (set by crtbegin.o), ../base/task.o uses -msoft-float
+echo ""
+
+echo "> Generate mcore.hex"
+> Generate mcore.hex
+~/mips-elf/bin/mips-elf-objcopy -O ihex temp mcore.hex
+objdump --syms temp > ztachip.map
+../../tools/compiler/compiler -M mcore.hex ztachip.map ztachip.hex

@@ -1,0 +1,59 @@
+
+DFLAG=ZTA_DEBUG2
+
+MIPS=~/mips-elf/bin
+
+KOBJ = \
+../apps/main/kernels/main.hex \
+../apps/nn/kernels/conv.hex \
+../apps/nn/kernels/fcn.hex \
+../apps/color/kernels/color.hex \
+../apps/resize/kernels/resize.hex \
+../apps/equalize/kernels/equalize.hex \
+../apps/gaussian/kernels/gaussian.hex \
+../apps/canny/kernels/canny.hex \
+../apps/harris/kernels/harris.hex \
+../apps/of/kernels/of.hex
+
+OBJ = \
+../base/ztam.o \
+../base/task.o \
+../apps/main/kernels/main.o \
+../apps/nn/kernels/conv.o \
+../apps/nn/kernels/fcn.o \
+../apps/color/kernels/color.o \
+../apps/resize/kernels/resize.o \
+../apps/equalize/kernels/equalize.o \
+../apps/gaussian/kernels/gaussian.o \
+../apps/canny/kernels/canny.o \
+../apps/harris/kernels/harris.o \
+../apps/of/kernels/of.o
+
+
+%.o: %.c
+	$(MIPS)/mips-elf-gcc -c $< -D$(DFLAG) -o $@ -O3 -mips1
+
+%.o: %.s
+	$(MIPS)/mips-elf-gcc -c $< -o $@ -O3 -mips1
+
+%.m.c %.hex: %.p %.m
+	gcc -E -x c $< > temp.p
+	../../tools/compiler/compiler -I $(subst .p,.m,$<) temp.p
+
+%.o : %.m.c
+	$(MIPS)/mips-elf-gcc -c $< -D$(DFLAG) -o $@ -O3 -mips1
+
+ztachip.hex: $(KOBJ) $(OBJ)
+	../../tools/compiler/compiler -L mcore.ld $(KOBJ) 
+	$(MIPS)/mips-elf-gcc -O3 -Tmcore.ld -mips1 $(OBJ) -o temp
+	$(MIPS)/mips-elf-objcopy -O ihex temp mcore.hex
+	objdump --syms temp > ztachip.map
+	../../tools/compiler/compiler -M mcore.hex ztachip.map ztachip.hex
+	rm -f mcore.hex
+
+all: ztachip.hex 
+
+clean:
+	rm -f $(KOBJ) $(OBJ) ztachip.hex
+
+
