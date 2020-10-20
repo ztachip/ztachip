@@ -16,7 +16,7 @@ Unlike many other AI acceleration architectures, ztachip is flexible enough to r
 
 ztachip hardware architecture is composed of the following components
 
-### pcores
+### **pcores**
 
 ztachip has an array of light weight processors (pcores).
 
@@ -32,7 +32,7 @@ Each thread also has its own private memory space.
 
 pcore memory space is further partitioned into 2 seperate process space. This allows for memory cycle to one process to overlap with execution cycle on the other process.
 
-### mcore
+### **mcore**
 
 Controller (MIPS based) that executes high level tensor instructions such as tensor memory operations like tensor copy,resize,reshape,reordering...
 
@@ -44,11 +44,19 @@ This helps ztachip achieves good computing efficiency.
 
 NeuralNet convolution is executed with 90% efficiency compared with peak performance.
 
+### **Stream processor**
+
+There is a stream processor that intercepts data transfer between pcore arrays and external memory bus.
+
+This allows for streaming operations to be applied to data read/written to external memory.
+
+Stream processor can implement arbitrary non-linear processing via table lookup.
+
 # Software
 
 ztachip software are layered in the following way:
 
-###pcore programs
+###**pcore programs**
 
 pcore programs run on an array of VLIW processors called pcores.
 
@@ -62,7 +70,7 @@ pcore programs are files with suffix *.p
 
 [Click here] for more information on how to program pcore
 
-###mcore programs
+###**mcore programs**
 
 Program the runs on a MIPS based controller called mcore. 
 
@@ -78,7 +86,7 @@ Together mcore and pcore programs form the ztachip tensor programming paradym
 
 [Click here] for more information on how to program mcore.  
 
-###graph nodes
+###**graph nodes**
 
 These are C++ objects used by host processor to request executions of mcore+pcore programs above.
 
@@ -86,11 +94,11 @@ Executions are scheduled as a graph.
 
 Graph nodes send requests to mcores as messages to a special hardware queue.
 
-[Click here](https://github.com/ztachip/ztachip/blob/master/software/target/apps/resize/resize.c) for example of a graph node implementing interface to image_resize acceleration functions.
+[Click here](https://github.com/ztachip/ztachip/blob/master/software/target/apps/resize/resize.cpp) for example of a graph node implementing interface to image_resize acceleration functions.
 
 [Click here] for more information on how to use graph.
 
-###User applications
+###**User applications**
 
 User applications use ztachip via graph nodes execution above
 
