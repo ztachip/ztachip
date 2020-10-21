@@ -12,7 +12,9 @@ The hardware does not have to be rewire for different applications, making ztach
 
 Unlike many other AI acceleration architectures, ztachip is flexible enough to run not just neural-network functions, but also a wide range of image processing such as image resizing, edge detection, image blurring, optical flow, harris corner feature extraction,...  
 
-# Hardware
+# Hardware architecture
+
+![ztachip hardware architecture](Documentation/images/ztachip_hw_architecture.png)
 
 ztachip hardware architecture is composed of the following components
 
@@ -34,15 +36,27 @@ pcore memory space is further partitioned into 2 seperate process space. This al
 
 ### **mcore**
 
-Controller (MIPS based) that executes high level tensor instructions such as tensor memory operations like tensor copy,resize,reshape,reordering...
+Processor (MIPS based) that dispatches high level tensor instructions to Tensor Engine.
 
-mcore also schedules pcore arrays to execute tensor operators.
+Tensor instructions sent to Tensor Engine include instructions to do complex tensor data transfer and tensor operator requests to be executed by pcore array.
 
 There can be 2 threads running on mcore. This allows for one thread memory cycles to overlap with the other thread execution cycles.
 
 This helps ztachip achieves good computing efficiency.
 
 NeuralNet convolution is executed with 90% efficiency compared with peak performance.
+
+### **Tensor engine**
+
+Special hardware block that executes high level tensor instructions that are dispatched from mcore.
+
+Tensor instructions performed by Tensor Engine are:
+
+- Complex tensor data transfer such as tensor reshape,resize,reorder,scatter-gather transfer. 
+
+- Schedules pcore array to perform tensor operators.
+
+- Coordinate data transfer between scratch-pad memory, pcore memory and external memory. 
 
 ### **Stream processor**
 
@@ -52,7 +66,9 @@ This allows for streaming operations to be applied to data read/written to exter
 
 Stream processor can implement arbitrary non-linear processing via table lookup.
 
-# Software
+# Software architecture
+
+![ztachip software architecture](Documentation/images/ztachip_sw_architecture.png)
 
 ztachip software are layered in the following way:
 
@@ -68,13 +84,13 @@ pcore programs are files with suffix *.p
 
 [Click here](https://github.com/ztachip/ztachip/blob/master/software/target/apps/nn/kernels/conv.p) for an example of a pcore program implementing convolution operator.
 
-[Click here] for more information on how to program pcore
+[Click here](https://github.com/ztachip/ztachip/blob/master/Documentation/pcore_programmer_guide.md) for more information on how to program pcore
 
 ###**mcore programs**
 
-Program the runs on a MIPS based controller called mcore. 
+Program that runs on a MIPS based controller called mcore. 
 
-mcore programs are C programs with special extensions (begins line with '>') to handle tensor memory operations such as tensor copy,resize,reshape,reordering...
+mcore programs are C programs with special extensions (special extensions begin line with '>') to handle tensor memory operations such as tensor copy,resize,reshape,reordering...
 
 Execution on tensors are invoked by calling tensor operators implemented by pcore programs.
 
@@ -84,7 +100,7 @@ mcore programs are files with suffix *.m
 
 Together mcore and pcore programs form the ztachip tensor programming paradym
 
-[Click here] for more information on how to program mcore.  
+[Click here](https://github.com/ztachip/ztachip/blob/master/Documentation/mcore_programmer_guide.md) for more information on how to program mcore.  
 
 ###**graph nodes**
 
@@ -96,7 +112,7 @@ Graph nodes send requests to mcores as messages to a special hardware queue.
 
 [Click here](https://github.com/ztachip/ztachip/blob/master/software/target/apps/resize/resize.cpp) for example of a graph node implementing interface to image_resize acceleration functions.
 
-[Click here] for more information on how to use graph.
+[Click here](https://github.com/ztachip/ztachip/blob/master/Documentation/app_programmer_guide.md) for more information on how to use graph.
 
 ###**User applications**
 
