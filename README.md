@@ -72,7 +72,7 @@ Stream processor can implement arbitrary non-linear processing via table lookup.
 
 ztachip software are layered in the following way:
 
-###**pcore programs**
+### **pcore programs**
 
 pcore programs run on an array of VLIW processors called pcores.
 
@@ -86,7 +86,7 @@ pcore programs are files with suffix *.p
 
 [Click here](https://github.com/ztachip/ztachip/blob/master/Documentation/pcore_programmer_guide.md) for more information on how to program pcore
 
-###**mcore programs**
+### **mcore programs**
 
 Program that runs on a MIPS based controller called mcore. 
 
@@ -102,7 +102,7 @@ Together mcore and pcore programs form the ztachip tensor programming paradym
 
 [Click here](https://github.com/ztachip/ztachip/blob/master/Documentation/mcore_programmer_guide.md) for more information on how to program mcore.  
 
-###**graph nodes**
+### **graph nodes**
 
 These are C++ objects used by host processor to request executions of mcore+pcore programs above.
 
@@ -114,7 +114,7 @@ Graph nodes send requests to mcores as messages to a special hardware queue.
 
 [Click here](https://github.com/ztachip/ztachip/blob/master/Documentation/app_programmer_guide.md) for more information on how to use graph.
 
-###**User applications**
+### **User applications**
 
 User applications use ztachip via graph nodes execution above
 
