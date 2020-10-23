@@ -12,6 +12,10 @@ The hardware does not have to be rewire for different applications, making ztach
 
 Unlike many other AI acceleration architectures, ztachip is flexible enough to run not just neural-network functions, but also a wide range of image processing such as image resizing, edge detection, image blurring, optical flow, harris corner feature extraction,...  
 
+Run objectDetection,edgeDetection,motionDetection and featureOfInterest extraction together at same time.
+
+![ObjectDetect+EdgeDetection+OpticalFlow+Harris](Documentation/images/all.gif)
+
 # Hardware architecture
 
 ![ztachip hardware architecture](Documentation/images/ztachip_hw_architecture.png)
