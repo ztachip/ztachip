@@ -1,6 +1,6 @@
 # Hardware architecture
 
-![ztachip hardware architecture](Documentation/images/ztachip_hw_architecture.png)
+![ztachip hardware architecture](images/ztachip_hw_architecture.png)
 
 ztachip hardware architecture is composed of the following components
 
