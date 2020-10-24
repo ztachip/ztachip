@@ -19,11 +19,11 @@ Run objectDetection,edgeDetection,motionDetection and featureOfInterest extracti
 
 ![ObjectDetect+EdgeDetection+OpticalFlow+Harris](Documentation/images/all.gif)
 
-Run object detection using SSD-MobiNetv1.0
+Run object detection using SSD-MobiNetv1.0 from Google TensorFlowLite (no retraining required)
 
 ![Object Detection](Documentation/images/obj_detect.gif)
 
-Run image classfication using MobiNetv2.0
+Run image classfication using MobiNetv2.0 from Google TensorFlowLite (no retraining required)
 
 ![Classifier](Documentation/images/classifier.gif)
 
