@@ -35,6 +35,9 @@ Run HarrisCorner feature of interest extraction
 
 ![HarrisCorner](Documentation/images/harris_corner.gif)
 
+This demonstration runs on [DE10_NANO FPGA board](https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&CategoryNo=165&No=1046)
+
+![FPGA board](Documentation/images/de10_nano.png)
 
 # Getting started 
 
