@@ -1,4 +1,4 @@
-#Build procedure
+# Build procedure
 
 This document describes the steps to build ztachip software stack 
 
@@ -6,13 +6,13 @@ This installation procedure is targetting [DE10-Nano Kit](https://www.terasic.co
 
 But installation procedure can be adapted for other hardware platforms.
 
-##Install ubuntu
+## Install ubuntu
 
 ztachip is built under 64bit Linux environment.
 
 This build procedure has been verified to be built successfully with Ubuntu 18.04 or later
 
-##Install Intel Embedded Studio
+## Install Intel Embedded Studio
 
 Install the following packages required by Intel Embedded Studio
 
@@ -28,7 +28,7 @@ Run Intel Embedded Studio installer
 
       sudo ./SoCEDSSetup-17.0.0.595-linux.run
 
-##Install MIPS GNU cross-compiler and linker
+## Install MIPS GNU cross-compiler and linker
 
 ztachip kernel modules are executed on a VLIW pcore arrays and a MIPS based microcontroller(mcore).
 
@@ -74,7 +74,7 @@ This section, we install the GNU crosscompiler for MIPS.
        make install-gcc
 ```
 
-##Build ztachip
+## Build ztachip
 - Install the following packages.
 ```
       sudo apt-get install -y bison
@@ -97,7 +97,7 @@ This section, we install the GNU crosscompiler for MIPS.
       make all
 ```
 
-##Prepare target board
+## Prepare target board
 
 In this document, target board is [DE10-NANO from Terasic](https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&CategoryNo=165&No=1046&PartNo=1)
 
@@ -125,7 +125,7 @@ Tell Linux to use only the top 512K of memory and the bottom 512K of memory is r
       saveenv
       reset
 ```
-##Run examples
+## Run examples
 Archive your built ztachip folder and then unarchive it on the target
 
 On your Ubuntu machine
