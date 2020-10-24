@@ -54,7 +54,7 @@ Run HarrisCorner feature of interest extraction
 
 # Copyright and license 
 
-Copyright: Vuong Nguyen For licensing details please visit [LICENSE.md](https://github.com/ztachip/ztachip/blob/master/LICENSE.md)
+Copyright: Vuong Nguyen (vuongdnguyen@hotmail.com) For licensing details please visit [LICENSE.md](https://github.com/ztachip/ztachip/blob/master/LICENSE.md)
 
 
 
