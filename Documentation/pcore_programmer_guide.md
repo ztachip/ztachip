@@ -69,9 +69,9 @@ Example below is a PCORE program which defines matrix addition operation.
 
 Different classes defined within the same *.p file are overlayed in the same memory region.
 
-Memory region used for classes allocation can be private or shared PCORE memory space.
-
 Which means when you switch to using a different class, the current class variable values will be overwritten. 
+
+Memory region used for classes allocation can be private or shared PCORE memory space.
 
 ### 4.2 Class declaration
 
@@ -180,7 +180,51 @@ For example:
    }
 ```
 
-## Examples
+### 4.6 Special syntax
+
+#### 4.6.1 _VMASK
+
+This is a special integer variable where each bit controls a vector ALU lane.
+
+For example:
+
+_VMASK=1 enables only the first lane of the vector ALU. 
+
+_VMASK=3 enables the first and second lane of vector ALU.
+
+To enable all the lanes, set _VMASK=-1
+
+#### 4.6.2 GE(v1,v2)
+Test for v1 >= v2. Result is an integer where each bit corresponds to condition being true for the vector lane.
+
+You would normally assigned the result to _VMASK.
+
+#### 4.6.2 GT(v1,v2)
+Test for v1 > v2. Result is an integer where each bit corresponds to condition being true for the vector lane.
+
+You would normally assigned the result to _VMASK.
+
+#### 4.6.2 LE(v1,v2)
+Test for v1 <= v2. Result is an integer where each bit corresponds to condition being true for the vector lane.
+
+You would normally assigned the result to _VMASK.
+
+#### 4.6.2 LT(v1,v2)
+Test for v1 < v2. Result is an integer where each bit corresponds to condition being true for the vector lane.
+
+You would normally assigned the result to _VMASK.
+
+#### 4.6.2 EQ(v1,v2)
+Test for v1 == v2. Result is an integer where each bit corresponds to condition being true for the vector lane.
+
+You would normally assigned the result to _VMASK.
+
+#### 4.6.2 NE(v1,v2)
+Test for v1 != v2. Result is an integer where each bit corresponds to condition being true for the vector lane.
+
+You would normally assigned the result to _VMASK.
+
+## 5. Examples
 
 [Example of a pcore program implementing convolution operator](https://github.com/ztachip/ztachip/blob/master/software/target/apps/nn/kernels/conv.p)
 
