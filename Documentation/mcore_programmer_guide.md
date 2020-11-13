@@ -104,9 +104,9 @@ Where:
    
 Example
 ```
-PCORE(8)[0:7].thread(0:15).class::private_variable[:]
+PCORE(8)[0:7].thread[0:15].class::private_variable[:]
 
-PCORE(4,2)[0:3][0:1].thread(0:15).class::private_variable[:]
+PCORE(4,2)[0:3][0:1].thread[0:15].class::private_variable[:]
 
 ```
 
