@@ -34,7 +34,7 @@ PCORE memory space is further partitioned into 2 independent process space. This
 
 #### 3.1.2 Tensor syntax
 
-##### 3.1.2.1 DDR Tensor syntax
+##### 3.1.2.1 DDR Tensor
 External DDR tensor has the syntax below. It specifies a tensor as a subset of another tensor by specifying a dimension index range.
 ```
    DDR(pointer,dimension,dimension,...)[begin:stride:end][begin:stride:end]...
@@ -70,7 +70,7 @@ If end of index range is ignored, then end of dimension range is assumed.
    DDR(p,100,200)[0:][20:]
 ```
 
-##### 3.1.2.2 Scratch-pad Tensor syntax
+##### 3.1.2.2 Scratch-pad tensor
 Tensor that is allocated in scratch-pad memory space.
 
 It has similar syntax to DDR tensor syntax except the keyword is SCRATCH
@@ -80,12 +80,13 @@ Example:
    SRATCH(p,100,200)[0:19][20:29]
 ```
 
-#### 3.1.2.3 PCORE tensor in private memory syntax
+#### 3.1.2.3 PCORE tensor in private memory
 
 Tensors that are allocated in PCORE private memory space have the following syntax
 
 ```
 PCORE(dimension,...)[begin:stride:end][begin:stride:end].thread[begin:stride:end].class::variable
+```
 
 Where:
 
@@ -109,12 +110,13 @@ PCORE(4,2)[0:3][0:1].thread(0:15).class::private_variable(:)
 
 ```
 
-#### 3.1.2.3 PCORE tensor in shared memory syntax
+#### 3.1.2.3 PCORE tensor in shared memory
 
 Tensors that are allocated in PCORE shared memory space have the following syntax
 
 ```
 PCORE(dimension,...)[begin:stride:end][begin:stride:end].class::variable
+```
 
 Where:
 
