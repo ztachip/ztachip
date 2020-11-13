@@ -91,7 +91,7 @@ PCORE(dimension,...)[begin:stride:end][begin:stride:end].thread[begin:stride:end
 Where:
 
    - dimension: PCORE array can be laid out as an 1D array or 2D array.
-   - 
+
    - begin: starting index of dimension range.
 
    - stride: stride of the dimension range.
@@ -104,9 +104,9 @@ Where:
    
 Example
 ```
-PCORE(8)[0:7].thread(0:15).class::private_variable(:)
+PCORE(8)[0:7].thread(0:15).class::private_variable[:]
 
-PCORE(4,2)[0:3][0:1].thread(0:15).class::private_variable(:)
+PCORE(4,2)[0:3][0:1].thread(0:15).class::private_variable[:]
 
 ```
 
@@ -121,7 +121,7 @@ PCORE(dimension,...)[begin:stride:end][begin:stride:end].class::variable
 Where:
 
    - dimension: PCORE array can be laid out as an 1D array or 2D array.
-   - 
+
    - begin: starting index of dimension range.
 
    - stride: stride of the dimension range.
