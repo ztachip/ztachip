@@ -149,7 +149,7 @@ These instructions move data from one memory space/location to another.
 
 In addition to memory transfer, it can also perform tensor reshape,dimension resize,stream processing...
 
-### 4.1 Basic tensor data tramsfer 
+### 4.1 Basic tensor data transfer 
 
 Example below transfers data from DDR tensor data object to PCORE tensor data object resided in PCORE private memory space. 
 In this example, there are 8 PCOREs (NP) with 16 threads (NT) in each PCORE. And each thread holds a variable var of dimension 8 in the PCORE private memory space.
@@ -180,6 +180,73 @@ Scratch-pad tensor is a 2 dimensional tensor of dimension 100x200
 ```
 >SCRATCH(0,100,200)[0:dy-1][0:dx-1] <= DDR(p,1000,2000)[0:dy-1][0:dx-1];
 ```
+
+### 4.2 Tensor reshape
+
+Example below transfers data from DDR tensor data object as tensor of dimension 8x16x8 eventhough actual tensor dimension is 100x200x8.
+
+Tensor data associated with out-of-bound dimension index are padded with zero for read operation and skipped for write operation.
+```
+>PCORE(8)[0:7].THREAD[0:15].myclass::myfunc.var[0:7] <= DDR(p,100,200,8)[0:7][0:15][0:7];
+```
+
+### 4.3 Tensor dimenstion casting
+
+You can cast the dimension of some components of PCORE tensor to different dimension.
+
+Example:
+
+```
+>PCORE(8)[:].THREAD[0:15].myclass::myvar[0:15] <= DDR(p)[0:8*16*16-1];
+```
+recast THREAD dimension from 16 to 4x4. And recast myvar dimension from 16 to 4x4
+```
+>PCORE(8)[:].THREAD(4,4)[0:3][0:3].myclass::myvar(4,4)[0:3][0:3] <= DDR(p)[0:8*16*16-1];
+```
+
+### 4.4 Tensor data reordering
+
+The way data are read/written to tensors is like a nested FOR loop.
+
+And the dimension on the right is the inner loop.
+
+And the dimension of the left is the outer loop.
+
+However, the order can be changed by using FOR directive below 
+
+```
+>FOR(I=0:15) FOR(J=0:7) FOR(K=0:15) PCORE(8)[J].THREAD[I].myclass::myvar[K] <= DDR(p)[0:8*16*16-1];
+```
+In example above, the order in which data are written to PCORE are:
+```
+   THREAD[0:15]
+      PCORE[0:8]
+         myvar[0:15]
+```
+
+### 4.5 Tensor scatter transfer
+
+In example below, transfer innermost loop is scattered among consecutive vector words. 
+
+This is not efficient since the transfer is not a vector transfer. And the innerloop takes 8 clocks to complete.
+
+```
+>FOR(I=0:7) PCORE(8)[0:7].THREAD[0:15].myclass::myvar(8,8)[:][I] <= DDR(p)[0:8*16*8*8-1];
+```
+
+By adding SCATTER(0) directive, the transfer is interleaved among all the PCOREs so that each PCORE will have 8 clocks to complete the innerloop transfer to myvar. This way transfer can still occur in vector mode.
+
+```
+>SCATTER(0) FOR(I=0:7) PCORE(8)[0:7].THREAD[0:15].myclass::myvar(8,8)[:][I] <= DDR(p)[0:8*16*8*8-1];
+```
+
+Below is another scatter transfer where THREAD block is the innermost loop
+
+```
+>SCATTER(0) FOR(I=0:7) FOR(J=0:7) PCORE(8)[0:7].THREAD(2,8)[:][:].myclass::myvar[J] <= DDR(p)[0:8*16*8*8-1];
+```
+
+
 
 
 
