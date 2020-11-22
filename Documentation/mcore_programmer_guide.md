@@ -365,7 +365,7 @@ To check if task has been terminated.
 
 Where:
 
-   pid: 0 for main main thread, 1 for child thread
+   - pid: 0 for main main thread, 1 for child thread
 
 ### 9.3 ztamTaskYield() 
 
