@@ -49,11 +49,11 @@ This demonstration runs on [DE10_NANO FPGA board](https://www.terasic.com.tw/cgi
 
 [ztachip Software Architecture](https://github.com/ztachip/ztachip/blob/master/Documentation/SoftwareArchitecture.md)
 
-[Programmer Guide (pcore)](https://github.com/ztachip/ztachip/blob/master/Documentation/pcore_programmer_guide.md)
+[PCORE Programmer Guide](https://github.com/ztachip/ztachip/blob/master/Documentation/pcore_programmer_guide.md)
 
-[Programmer Guide (mcore)](https://github.com/ztachip/ztachip/blob/master/Documentation/mcore_programmer_guide.md)
+[MCORE Programmer Guide](https://github.com/ztachip/ztachip/blob/master/Documentation/mcore_programmer_guide.md)
 
-[Programmer Guide (app)](https://github.com/ztachip/ztachip/blob/master/Documentation/app_programmer_guide.md)
+[Application Programmer Guide](https://github.com/ztachip/ztachip/blob/master/Documentation/app_programmer_guide.md)
 
 # Copyright and license 
 
