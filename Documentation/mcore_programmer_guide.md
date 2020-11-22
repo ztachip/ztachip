@@ -303,6 +303,74 @@ In the example, as data being transfered from DDR to PCORE, data is also being p
 
 And as data being transfered from PCORE to DDR, data is also being processed by stream processor's program #1
 
+## 7. CALLBACK
+
+MCORE instructions to TensorEngine are queued for processing.
+
+CALLBACK construct is used to trigger a function callback whenever MCORE executions have reached a check point.
+
+This is normally used to send back responses to host applications at completion of TensorEngine executions.
+
+### 7.1 Syntax
+```
+>CALLBACK(callback_function,int parm);
+```
+Where:
+
+   - callback_function: function to be called whenever TensorEngine execution has reached this point.
+
+   - parm: integer to be passed to callback_function.
+
+## 8. Host communication API
+
+MCORE is communicating with host applications via message queues.
+
+Functions below are API to read/write to/from the message queue.
+
+### 8.1 ztamMsgqReadPointer
+Read a DDR memory pointer passed from host applications.
+
+### 8.2 ztamMsgqReadInt
+Read a 32-bit interger value passed from host applications.
+
+### 8.3 ztamMsgqWritePointer
+Send a DDR memory pointer to host applications.
+
+### 8.4 ztamMsgqWriteInt
+Send a 32-bit integer value to host applications.
+
+## 9. Thread management API
+
+MCORE can have 2 processing threads: a main thread and a child thread.
+
+Thread switching is not automatic but manual by calling to ztamTaskYield function below.
+
+Normally, each thread will manage a seperate PCORE process space. This way you can interleave between memory cycle and execution cycle of the 2 PCORE processes. This is done to reduce/eliminate DDR memory access from delaying PCORE execution.
+
+### 9.1 ztamTaskSpawn(void (*func)(void*,int),void *parm,int pid)
+
+To spawn a child thread
+
+Where:
+
+   - func: task entry point function
+
+   - parm: pointer to be passed to task entry point function.
+
+   - pid: 0 for main thread,1 for child thread. 
+
+### 9.2 ztamTaskStatus(int pid)
+
+To check if task has been terminated.
+
+Where:
+
+   pid: 0 for main main thread, 1 for child thread
+
+### 9.3 ztamTaskYield() 
+
+Yield execution to the other thread.
+
 
 
 
