@@ -250,6 +250,8 @@ TENSOR object is defined in [tensor.h](https://github.com/ztachip/ztachip/blob/m
 
 There are 3 types of objects that compose a graph: Graph,GraphNode and GraphSinkerNode.
 
+Graph is defined and implemented in [graph.h](https://github.com/ztachip/ztachip/blob/master/software/target/base/graph.h) and [graph.cpp](https://github.com/ztachip/ztachip/blob/master/software/target/base/graph.cpp)
+
 #### 4.2.1 Graph object 
 
 Object that represents a graph processing chain. There are GraphNode objects attached to the Graph object.
