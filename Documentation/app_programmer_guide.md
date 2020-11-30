@@ -200,6 +200,136 @@ void do_convolution(int queue)
 
 And the 32-bit value returned by ztahostGetExportFunction is the handle to be passed to MCORE to identify the remote function call.
 
+## 4. Graph API
+
+Task execution to be accelerated by ztachip are presented as a graph.
+
+Graphs are composed of one or more nodes that are added to the graph through node creation functions. 
+
+Graph in ztachip must be created ahead of processing time and verified by the implementation, after which they can be processed as many times are needed.
+
+### 4.1 TENSOR data object 
+
+Input and output to/from graph are represented as object TENSOR.
+
+TENSOR can have different numeric data types as defined in TensorDataType enumeration.
+
+   - TensorDataTypeInt8
+
+   - TensorDataTypeUint8
+
+   - TensorDataTypeInt16
+
+   - TensorDataTypeUint16
+
+   - TensorDataTypeFloat32
+
+TENSOR data format is defined in TensorFormat enumeration
+
+   - TensorFormatInterleaved: format where data layout is as if the order of first and last dimension are interchanged.
+
+   - TensorFormatSplit: format where data layout is in the order of the dimensions.
+
+TENSOR types are defined as TensorSemantic enumeration. TENSOR can have the following types:
+
+   - TensorSemanticRGB: Image with pixel color in RGB order
+
+   - TensorSemanticBGR: Image with pixel color in BGR order 
+
+   - TensorSemanticYUYV: Image with YUYV pixel (2bytes per pixel)
+
+   - TensorSemanticMonochrome: Image monochrome but with 3 color plane (R=G=B) 
+
+   - TensorSemanticMonochromeSingleChannel: Image monochrome but 1 color plane 
+
+TENSOR can have an arbitrary number of dimensions.
+
+TENSOR object is defined in [tensor.h](https://github.com/ztachip/ztachip/blob/master/software/target/base/tensor.h)
+
+### 4.2 Graph
+
+There are 3 types of objects that compose a graph: Graph,GraphNode and GraphSinkerNode.
+
+#### 4.2.1 Graph object 
+
+Object that represents a graph processing chain. There are GraphNode objects attached to the Graph object.
+
+There can be multiple graphs representing mutiple parallel graph processing.
+
+The last node of a graph must be a sinker node of class GraphNodeSinker. This node is where applications assign output tensors.
+
+The normal steps for graph processing are:
+
+   - Add nodes to graph with Graph::Add
+
+   - Verify graph with Graph::Verify
+
+   - Schedule graph for execution with Graph::Schedule
+
+   - Wait for result with Graph::Wait
+
+   - Getting results with Graph::GetOutputTensor or Graph::GetOutputBuf.
+
+   - Indicate that results have been consumed with call to Graph::Consume
+ 
+#### 4.2.2 GraphNode
+
+This object is the node that is attached to Graph object.
+
+ztachip acceleration tasks are represented as object derived from GraphNode.
+
+GraphNode is added to Graph object with function Graph::Add
+
+#### 4.2.3 GraphNodeSinker
+
+This object is derived from GraphNode. It specifies the output tensors that hold the results of the graph processing. Last node of a graph must be a GraphNodeSinker object.
+
+
+#### 4.2.4 Graph example
+
+Below is example [from](https://github.com/ztachip/ztachip/blob/master/examples/blur/blur.cpp)
+
+```
+   if(BitmapRead(argv[1],&tensorInput) != ZtaStatusOk) {
+      printf("Unable to load image file. Image file format must be 24-bit BMP \n");
+      exit(-1);
+   }
+
+   // Create graph nodes...
+   // Create Gaussian filter graph node
+   rc=nodeGaussian.Create(&tensorInput,&tensor[0]);
+   assert(rc==ZtaStatusOk);
+   nodeGaussian.SetSigma(1.5);
+   // Create sinker graph node
+   rc=nodeSinker.Create(1,&tensor[0]);
+   assert(rc==ZtaStatusOk);
+
+   // Attach graph nodes to graph
+
+   graph.Add(&nodeGaussian);
+   graph.Add(&nodeSinker);
+
+   // Verify graph
+   graph.Verify();
+
+   // Schedule graph for execution
+   graph.Schedule();
+
+   // Wait for result
+   while(graph.Wait(0) != ZtaStatusOk);
+
+   // Write result to file
+   BitmapWrite("blur.bmp",graph.GetOutputTensor(0));
+
+```
+
+You can find other examples of graph [here](https://github.com/ztachip/ztachip/blob/master/examples) 
+
+    
+
+
+
+
 
 
 
