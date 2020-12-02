@@ -41,19 +41,19 @@ This demonstration runs on [DE10_NANO FPGA board](https://www.terasic.com.tw/cgi
 
 # Getting started 
 
-Ztachip Build Procedure
+**Ztachip Build Procedure**
 
    - [Software Build Procedure](https://github.com/ztachip/ztachip/blob/master/Documentation/BuildProcedure.md)
 
    - [FPGA Build Procedure](https://github.com/ztachip/ztachip/blob/master/Documentation/HardwareBuildProcedure.md)
 
-Ztachip Architecture - How it works
+**Ztachip Architecture - How it works**
 
    - [ztachip Hardware Architecture](https://github.com/ztachip/ztachip/blob/master/Documentation/HardwareArchitecture.md)
 
    - [ztachip Software Architecture](https://github.com/ztachip/ztachip/blob/master/Documentation/SoftwareArchitecture.md)
 
-Programmers Guide - How to program ztachip
+**Programmers Guide - How to program ztachip**
 
    - [PCORE Programmer Guide](https://github.com/ztachip/ztachip/blob/master/Documentation/pcore_programmer_guide.md)
 
@@ -61,11 +61,11 @@ Programmers Guide - How to program ztachip
 
    - [Application Programmer Guide](https://github.com/ztachip/ztachip/blob/master/Documentation/app_programmer_guide.md)
 
-AI stack - How to build AI applications with ztachip
+**AI stack - How to build AI applications with ztachip**
 
    - [AI Stack Programmer Guide](https://github.com/ztachip/ztachip/blob/master/Documentation/ai_programmer_guide.md)
 
-Vision stack - How to build embedded vision applications with ztachip
+**Vision stack - How to build embedded vision applications with ztachip**
 
    - [Vision Stack Programmer Guide](https://github.com/ztachip/ztachip/blob/master/Documentation/vision_programer_guide.md)
 
