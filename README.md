@@ -67,7 +67,7 @@ AI stack - How to build AI applications with ztachip
 
 Vision stack - How to build embedded vision applications with ztachip
 
-   - [Vision Stack Programmer Guide](https://github.com/ztachip/ztachip/blob/master/Documentation/vision_programmer_guide.md)
+   - [Vision Stack Programmer Guide](https://github.com/ztachip/ztachip/blob/master/Documentation/vision_programer_guide.md)
 
 
 # Copyright and license 
