@@ -61,6 +61,14 @@ Programmers Guide - How to program ztachip
 
    - [Application Programmer Guide](https://github.com/ztachip/ztachip/blob/master/Documentation/app_programmer_guide.md)
 
+AI stack - How to build AI applications with ztachip
+
+   - [AI Stack Programmer Guide](https://github.com/ztachip/ztachip/blob/master/Documentation/ai_programmer_guide.md)
+
+Vision stack - How to build embedded vision applications with ztachip
+
+   - [Vision Stack Programmer Guide](https://github.com/ztachip/ztachip/blob/master/Documentation/vision_programmer_guide.md)
+
 
 # Copyright and license 
 
