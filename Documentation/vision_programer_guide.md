@@ -124,7 +124,7 @@ Constructor to create color conversion and image reshaping graph node.
 
 #### 2.5.2 Example
 
-[Color conversion example](https://github.com/ztachip/ztachip/blob/master/software/target/apps/color/color.cpp)
+[Color conversion example](https://github.com/ztachip/ztachip/blob/master/examples/greyscale/greyscale.cpp)
 
 
 ### 2.6 Optical Flow
