@@ -23,6 +23,10 @@ This example is based on reference design DE10_NANO_SoC_FB.qpf provided by the b
 
 ztachip is integrated to a FPGA design as a Qsys component. 
 
+ztachip QSYS component is defined in [ztachip_hw.tcl](https://github.com/ztachip/ztachip/blob/master/hardware/HDL/ztachip_hw.tcl)
+
+After QSYS IP search path is set to ~/ztachip/hardware/HDL, QSYS should detect ztachip component package and make it available to be inserted to model.
+
 Picture below shows ztachip qsys configuration as defined in ~/ztachip/hardware/examples/DE10_NANO_SoC_FB/soc_system.qsys
 
 ![ztachip qsys](images/ztachip_qsys.png)
