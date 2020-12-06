@@ -51,6 +51,8 @@ In the qsys configuration above, we have the following ztachip elements:
 
    - dclock: Tied to dclk/dreset clock domain.
 
+   - 0x80000-0xFFFFF: This is the memory mapped address for ztachip register access. This value is to be entered to ztahostInit as described in [Application Programmer Guide](https://github.com/ztachip/ztachip/blob/master/Documentation/app_programmer_guide.md)
+
 The 4 clock domains above are injected into QSYS model by this [top component](https://github.com/ztachip/ztachip/blob/master/hardware/examples/DE10_NANO_SoC_FB/DE10_NANO_SOC_FB.v).
 
 Also include [ztachip.qip](https://github.com/ztachip/ztachip/blob/master/hardware/HDL/ztachip.qip) to your project build. This will include all ztachip HDL files.
