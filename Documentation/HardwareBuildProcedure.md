@@ -17,11 +17,46 @@ This document assumes that you are familiar with Quartus/Qsys development enviro
 
 Open ~/ztachip/hardware/examples/DE10_NANO_SoC_FB/DE10_NANO_SoC_FB.qpf
 
-### Open Qsys design file
+### How to integrate ztachip to your FPGA project 
+
+This example is based on reference design DE10_NANO_SoC_FB.qpf provided by the board vendor.
 
 ztachip is integrated to a FPGA design as a Qsys component. 
 
-Refer to this Qsys design file as reference if you would like to integrate ztachip to other FPGA hardware.
+Picture below shows ztachip qsys configuration as defined in ~/ztachip/hardware/examples/DE10_NANO_SoC_FB/soc_system.qsys
+
+![ztachip qsys](images/ztachip_qsys.png)
+
+In the qsys configuration above, we have the following ztachip elements:
+
+   - clk/reset: This is clock domain (50mhz) for Host to FPGA register access memory bus.
+
+   - pclk/preset: This is clock domain (140mhz) for pcore processors.
+
+   - mclk/mreset: This is clock domain (120mhz) for mcore processor.
+
+   - dclk/dreset: This is clock domain (180mhz) for FPGA to DDR memory bus.
+
+   - s0: This is Host to FPGA register access bus. It runs on clk/reset clock domain.
+
+   - m0: This is first FPGA to DDR access memory bus. It runs on dclk/dreset clock domain.
+
+   - m1: This is second FPGA to DDR access memory bus. It runs on dclk/dreset clock domain.
+
+   - hclock: Tied to clk/reset clock domain.
+
+   - mclock: Tied to mclk/mreset clock domain.
+
+   - pclock: Tied to pclk/preset clock domain.
+
+   - dclock: Tied to dclk/dreset clock domain.
+
+The 4 clock domains above are injected into QSYS model by this [top component](https://github.com/ztachip/ztachip/blob/master/hardware/examples/DE10_NANO_SoC_FB/DE10_NANO_SOC_FB.v).
+
+Also include [ztachip.qip](https://github.com/ztachip/ztachip/blob/master/hardware/HDL/ztachip.qip) to your project build. This will include all ztachip HDL files.
+
+
+### Build Qsys 
 
 - Under Tools->Qsys,open ~/ztachip/hardware/examples/DE10_NANO_SoC_FB/soc_system.qsys
 
