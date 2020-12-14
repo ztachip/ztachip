@@ -39,7 +39,7 @@ Data transfers are almost always done in vector block transfer in the examples p
 
 There are many [examples](https://github.com/ztachip/ztachip/tree/master/examples) provided that show how ztachip can be used to accelerate not just for AI applications but many vision tasks as well.
 
-Unlike some ASIC solutions such as TPU edge, ztachip is fully programmable for any custom applications. The project comes with all necessary tools and compiler to build custom applications.
+Unlike some accelerator solutions such as Google's TPU edge or Nvidia's NVDLA, ztachip is fully programmable for a wide range of custom applications, and not restricted to just AI acceleration. The project comes with all necessary tools and compiler to build custom applications.
 
 ztachip also comes with an AI stack and vision stack to help you jump start with your vision AI edge applications.
 
