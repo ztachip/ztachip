@@ -6,7 +6,7 @@ Domain Specific Architecture defines the hardware/software architectures that ca
 
 ztachip has the full hardware implementation available in VHDL source code.
 
-ztachip hardware can be deployed to FPGA hardware or custom ASIC.
+ztachip hardware can be deployed to [FPGA hardware](https://en.wikipedia.org/wiki/Field-programmable_gate_array) or [custom ASIC](https://en.wikipedia.org/wiki/Application-specific_integrated_circuit).
 
 ztachip is fully software programmable by using a special tensor programming paradigm. 
 
