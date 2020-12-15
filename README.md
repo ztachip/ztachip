@@ -12,6 +12,8 @@ ztachip is fully software programmable by using a special tensor programming par
 
 Unlike many other AI hardware architectures, ztachip is flexible enough to run not just neural-network functions, but also a wide range of image processing such as image resizing, edge detection, image blurring, optical flow, harris corner feature extraction,...  
 
+Latest results based on SSD-MobiNet AI inference performance show ztachip to be 5.5x more computational efficient than Nvidia's Jetson Nano and 37x more computational efficient than Google's TPU edge. Click [here](https://github.com/ztachip/ztachip/blob/master/Documentation/conclusion.md) for detailed performance analysis. 
+
 # Demonstration 
 
 
@@ -73,9 +75,9 @@ This demonstration runs on [DE10_NANO FPGA board](https://www.terasic.com.tw/cgi
 
 I created this project as a community project for us to experiment on some research idea in the area of Domain Specific Architecture.
 
-So how ztachip measured up against other solutions? Is it worth while to continue? 
+So how ztachip measured up against other solutions? 
 
-In my opinion, it is promising. Click [here](https://github.com/ztachip/ztachip/blob/master/Documentation/conclusion.md) for result analysis.
+Results up to now look very promising. Click [here](https://github.com/ztachip/ztachip/blob/master/Documentation/conclusion.md) for result analysis.
 
 Please send me your feedback comments and ideas. Much appreciated.
 
