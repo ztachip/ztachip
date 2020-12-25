@@ -8,7 +8,7 @@ Simulation mode is important during hardware development.
 
 Application program is simulated with tcl script [ztachip/hardware/simulation/host.tcl](https://github.com/ztachip/ztachip/blob/master/hardware/simulation/host.tcl)
 
-MCORE and PCORE programs being simulated are [hardware/simulation/software/mcore.m](https://github.com/ztachip/ztachip/blob/master/hardware/simulation/software/mcore.m) and [hardware/simulation/software/pcore.p](https://github.com/ztachip/ztachip/blob/master/hardware/simulation/software/pcore.p)
+MCORE and PCORE programs being simulated are [hardware/simulation/software/main.m](https://github.com/ztachip/ztachip/blob/master/hardware/simulation/software/main.m) and [hardware/simulation/software/main.p](https://github.com/ztachip/ztachip/blob/master/hardware/simulation/software/main.p)
 
 The example provided is a simple vector addition by 1. 
 
@@ -26,7 +26,7 @@ To simulate, following the steps below...
 
 - Click Compile->Compile All
 
-- Open View window by making sure View->Wave option is checked.
+- Open Wave window by making sure View->Wave option is checked.
 
 - Click Simulate->Start Simulation. Then open work/testbench component
 
