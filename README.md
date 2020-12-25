@@ -63,6 +63,10 @@ This demonstration runs on [DE10_NANO FPGA board](https://www.terasic.com.tw/cgi
 
    - [Application Programmer Guide](https://github.com/ztachip/ztachip/blob/master/Documentation/app_programmer_guide.md)
 
+**Hardware Simulation Guide - How to simulate ztachip**
+
+   - [Simulation Guide](https://github.com/ztachip/ztachip/blob/master/Documentation/simulation_guide.md)
+
 **AI stack - How to build AI applications with ztachip**
 
    - [AI Stack Programmer Guide](https://github.com/ztachip/ztachip/blob/master/Documentation/ai_programmer_guide.md)
