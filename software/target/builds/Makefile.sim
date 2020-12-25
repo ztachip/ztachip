@@ -1,0 +1,41 @@
+TARGET=ztachip_sim.hex
+
+DFLAG=ZTA_DEBUG2
+
+MIPS=~/mips-elf/bin
+
+KOBJ = \
+../../../hardware/simulation/software/main.hex
+
+OBJ = \
+../../../software/target/base/ztam.o \
+../../../software/target/base/task.o \
+../../../hardware/simulation/software/main.o
+
+%.o: %.c
+	$(MIPS)/mips-elf-gcc -c $< -D$(DFLAG) -o $@ -O3 -mips1
+
+%.o: %.s
+	$(MIPS)/mips-elf-gcc -c $< -o $@ -O3 -mips1
+
+%.m.c %.hex: %.p %.m
+	gcc -E -x c $< > temp.p
+	../../../software/tools/compiler/compiler -I $(subst .p,.m,$<) temp.p
+
+%.o : %.m.c
+	$(MIPS)/mips-elf-gcc -c $< -D$(DFLAG) -o $@ -O3 -mips1
+
+$(TARGET): $(KOBJ) $(OBJ)
+	../../../software/tools/compiler/compiler -L mcore.ld $(TARGET) $(KOBJ) 
+	$(MIPS)/mips-elf-gcc -O3 -Tmcore.ld -mips1 $(OBJ) -o temp
+	$(MIPS)/mips-elf-objcopy -O ihex temp mcore.hex
+	objdump --syms temp > ztachip.map
+	../../../software/tools/compiler/compiler -M mcore.hex ztachip.map $(TARGET) 
+	rm -f mcore.hex
+
+all: $(TARGET) 
+
+clean:
+	rm -f $(KOBJ) $(OBJ) $(TARGET) 
+
+

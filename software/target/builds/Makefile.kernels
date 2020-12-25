@@ -44,7 +44,7 @@ OBJ = \
 	$(MIPS)/mips-elf-gcc -c $< -D$(DFLAG) -o $@ -O3 -mips1
 
 ztachip.hex: $(KOBJ) $(OBJ)
-	../../tools/compiler/compiler -L mcore.ld $(KOBJ) 
+	../../tools/compiler/compiler -L mcore.ld ztachip.hex $(KOBJ) 
 	$(MIPS)/mips-elf-gcc -O3 -Tmcore.ld -mips1 $(OBJ) -o temp
 	$(MIPS)/mips-elf-objcopy -O ihex temp mcore.hex
 	objdump --syms temp > ztachip.map

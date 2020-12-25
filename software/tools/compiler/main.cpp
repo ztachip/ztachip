@@ -192,17 +192,19 @@ int buildLdFile(char *ldFileName,int numFiles,char **fileName)
    fprintf(fp,".text : {\n");
    fprintf(fp,"_ftext = . ;\n");
    fprintf(fp,"PROVIDE (eprol = .);\n");
-   fprintf(fp,"*(EXCLUDE_FILE (\n");
-   for(int i=0;i < numFiles;i++) {
-      char fname[256];
-      strcpy(fname,fileName[i]);
-      p=strstr(fname,".hex");
-      if(!p)
-         return -1;
-      strcpy(p,".o");
-	   fprintf(fp,"%s\n",fname);
+   if(numFiles > 0) {
+      fprintf(fp,"*(EXCLUDE_FILE (\n");
+      for(int i=0;i < numFiles;i++) {
+         char fname[256];
+         strcpy(fname,fileName[i]);
+         p=strstr(fname,".hex");
+         if(!p)
+            return -1;
+         strcpy(p,".o");
+         fprintf(fp,"%s\n",fname);
+      }
+      fprintf(fp,").text*)\n");
    }
-   fprintf(fp,").text*)\n");
    fprintf(fp,"}\n");
    fprintf(fp,".init : {\n");
    fprintf(fp,"KEEP (*(.init))\n");
@@ -382,11 +384,11 @@ argv[4]="FORK=1";
    if(argc >= 2 && strcasecmp(argv[1], "-L")==0)
    {
       if(argc < 5) {
-         printf("\n Invalid argument. Usage compiler2 -F LD_FIILE_NAME FILES... \n");
+         printf("\n Invalid argument. Usage compiler2 -L LD_FIILE_NAME OUTPUT_FILE FILES... \n");
          exit(-1);
       }
-      buildLdFile(argv[2],argc-4,&argv[4]);
-      buildKernelFile("ztachip.hex",argc-3,&argv[3]);
+      buildLdFile(argv[2],argc-5,&argv[5]);
+      buildKernelFile(argv[3],argc-4,&argv[4]);
       return 0;
    }
    if(argc >= 2 && strcasecmp(argv[1], "-M")==0)
