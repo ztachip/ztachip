@@ -2,6 +2,7 @@ all:
 	make -C ./software/tools/compiler all 
 	make -C ./software/target/builds all 
 	make -C ./software/target/builds -f Makefile.kernels all 
+	make -C ./software/target/builds -f Makefile.sim all 
 	make -C ./examples/test all 
 	make -C ./examples/blur all 
 	make -C ./examples/classifier all 
@@ -14,6 +15,7 @@ clean:
 	make -C ./software/tools/compiler clean 
 	make -C ./software/target/builds clean 
 	make -C ./software/target/builds -f Makefile.kernels clean 
+	make -C ./software/target/builds -f Makefile.sim clean 
 	make -C ./examples/test clean 
 	make -C ./examples/blur clean 
 	make -C ./examples/classifier clean 
