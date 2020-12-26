@@ -1,0 +1,40 @@
+# Ignore some simulation files
+hardware/simulation/work/*
+!hardware/simulation/work/_info
+hardware/simulation/.sim.tcl.swp
+hardware/simulation/transcript
+
+# Ignore generated ztachip image
+*.hex
+
+# Ignore generate object files
+*.o
+!./software/target/builds/crt0.o
+!./software/target/builds/crtbegin.o
+!./software/target/builds/crtend.o
+!./software/target/builds/crti.o
+!./software/target/builds/crtn.o
+
+# Ignore generated mcore preprocessor files
+*.m.c
+
+# Ignore generated bison files
+software/tools/compiler/Parser.tab.c
+software/tools/compiler/lex.yy.c
+
+# Ignore generated library files
+*.a
+!software/target/builds/mips-elf/lib/*.a
+
+# Ignore generated binary image
+examples/blur/blur
+examples/classifier/classifier
+examples/edge_detect/edge_detect
+examples/greyscale/greyscale
+examples/harris_corner/harris_corner
+examples/objdetect/objdetect
+examples/resize/resize
+examples/test/test
+software/tools/compiler/compiler
+
+
