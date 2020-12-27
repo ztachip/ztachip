@@ -6,16 +6,18 @@ But you can adapt this reference design to other FPGA platforms.
 
 This document assumes that you are familiar with Quartus/Qsys development environment
 
+In this example, Quartus tools are installed under Windows. And ztachip is installed under a VirtualBox's shared folder (WORKSPACE) so that both Ubuntu and Windows can have access to ztachip installation folder. 
+
 ### Download ztachip from github
 
 ```
-   cd ~
+   cd [WORKSPACE] 
    git clone https://github.com/ztachip/ztachip.git ztachip
 ```
 
 ### Open reference design project file
 
-Open ~/ztachip/hardware/examples/DE10_NANO_SoC_FB/DE10_NANO_SoC_FB.qpf
+Open [WORKSPACE]/ztachip/hardware/examples/DE10_NANO_SoC_FB/DE10_NANO_SoC_FB.qpf
 
 ### How to integrate ztachip to your FPGA project 
 
@@ -64,9 +66,9 @@ Also include [ztachip.qip](https://github.com/ztachip/ztachip/blob/master/hardwa
 
 ### Build Qsys 
 
-- Under Tools->Qsys,open ~/ztachip/hardware/examples/DE10_NANO_SoC_FB/soc_system.qsys
+- Under Tools->Qsys,open [WORKSPACE]/ztachip/hardware/examples/DE10_NANO_SoC_FB/soc_system.qsys
 
-- Under Tools->Option,set IP SearchPath=~/ztachip/hardware/HDL
+- Under Tools->Option,set IP SearchPath=[WORKSPACE]/ztachip/hardware/HDL
 
 - File -> RefreshSystem
 
@@ -79,6 +81,21 @@ Also include [ztachip.qip](https://github.com/ztachip/ztachip/blob/master/hardwa
 Processing -> Start compilation
 
 ### Install FPGA image on target
+
+Quartus produces FPGA image in SOF format. 
+
+Open a Windows Command Prompt and convert the output FPGA image to RBF format with following commands
+
+```
+   cd [WORKSPACE]/ztachip/hardware/examples/DE10_NANO_SoC_FB/output_files
+   sof_to_rbf.bat
+```
+
+The steps above produces FPGA image file named soc_system.rbf 
+
+Plug DE10_NANO's MicroSD card to the PC, you should find in its folder a FPGA image with suffix rbf.
+
+Rename the newly generated soc_system.rbf to the FPGA rbf file name found on MicroSD and then copy it to MicroSD.
 
 There are also steps to build bootloader image that corresponds to a FPGA image.
 

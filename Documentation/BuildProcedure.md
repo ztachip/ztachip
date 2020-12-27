@@ -6,6 +6,8 @@ This installation procedure is targetting [DE10-Nano Kit](https://www.terasic.co
 
 But installation procedure can be adapted for other hardware platforms.
 
+In this example, ztachip is installed under a user chosen folder [WORKSPACE].
+
 ## Install ubuntu
 
 ztachip is built under 64bit Linux environment.
@@ -34,8 +36,10 @@ This MIPS GNU toolchain is used to build mcore programs.
 
 Do the commands below to install a prebuilt version of the toolchain.
 
+Note that mips-elf must be installed under home directory.
+
 ```
-       cd ~
+       cd ~ 
        git clone https://github.com/ztachip/mips-elf.git
 ```
 
@@ -50,7 +54,7 @@ For information on how to build the toolchain yourself, refer to this [document]
 ```
 - Get ztachip from github
 ```
-      cd ~   
+      cd [WORKSPACE]   
       git clone github.com/ztachip/ztachip.git
 ```
 - Setup build environment 
@@ -60,7 +64,7 @@ For information on how to build the toolchain yourself, refer to this [document]
 ```
 - Build ztachip
 ```
-      cd ~/ztachip
+      cd [WORKSPACE]/ztachip
       make clean
       make all
 ```
@@ -98,7 +102,7 @@ Archive your built ztachip folder and then unarchive it on the target
 
 On your Ubuntu machine
 ```
-      cd ~
+      cd [WORKSPACE] 
       tar -zcvf ztachip.tar.gz ztachip
       scp ztachip.tar.gz root@[YOUR_TARGET_BOARD_IPADDRESS]:/home/root/.
 ```
