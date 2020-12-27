@@ -30,6 +30,8 @@ Run Intel Embedded Studio installer
 
 ## Install MIPS GNU cross-compiler and linker
 
+This MIPS GNU toolchain is used to build mcore programs.
+
 Do the commands below to install a prebuilt version of the toolchain.
 
 ```

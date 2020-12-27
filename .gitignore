@@ -6,14 +6,18 @@ hardware/simulation/transcript
 
 # Ignore generated ztachip image
 *.hex
+software/target/builds/mcore.ld
+software/target/builds/temp
+software/target/builds/temp.p
+software/target/builds/ztachip.map
 
 # Ignore generate object files
 *.o
-!./software/target/builds/crt0.o
-!./software/target/builds/crtbegin.o
-!./software/target/builds/crtend.o
-!./software/target/builds/crti.o
-!./software/target/builds/crtn.o
+!software/target/builds/crt0.o
+!software/target/builds/crtbegin.o
+!software/target/builds/crtend.o
+!software/target/builds/crti.o
+!software/target/builds/crtn.o
 
 # Ignore generated mcore preprocessor files
 *.m.c
