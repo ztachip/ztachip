@@ -47,9 +47,9 @@ This demonstration runs on [DE10_NANO FPGA board](https://www.terasic.com.tw/cgi
 
 **Ztachip Build Procedure**
 
-   - [Software Build Procedure](https://github.com/ztachip/ztachip/blob/master/Documentation/BuildProcedure.md)
-
    - [FPGA Build Procedure](https://github.com/ztachip/ztachip/blob/master/Documentation/HardwareBuildProcedure.md)
+
+   - [Software Build Procedure](https://github.com/ztachip/ztachip/blob/master/Documentation/BuildProcedure.md)
 
 **Ztachip Architecture - How it works**
 

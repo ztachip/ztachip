@@ -2,15 +2,15 @@
 
 This document describes the steps to build ztachip software stack 
 
-This installation procedure is targetting [DE10-Nano Kit](https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&CategoryNo=165&No=1046) based on Intel CycloneV FPGA.
-
-But installation procedure can be adapted for other hardware platforms.
-
-In this example, ztachip is installed under a user chosen folder [WORKSPACE].
+You should complete the [FPGA Build Procedure](https://github.com/ztachip/ztachip/blob/master/Documentation/HardwareBuildProcedure.md) first before proceeding with this document's procedure.
 
 ## Install ubuntu
 
-ztachip is built under 64bit Linux environment.
+ztachip is built under 64bit Linux Ubuntu environment. 
+
+In this example, we install Linux Ubuntu within [VirtualBox](https://www.virtualbox.org).
+
+Create a VirtualBox's shared folder that maps [WORKSPACE] to Ubuntu's file system. [Click here](https://helpdeskgeek.com/virtualization/virtualbox-share-folder-host-guest/) for information on mapping shared folder.
 
 This build procedure has been verified to be built successfully with Ubuntu 18.04 or later
 
@@ -52,11 +52,8 @@ For information on how to build the toolchain yourself, refer to this [document]
       sudo apt-get install -y bison
       sudo apt install flex
 ```
-- Get ztachip from github
-```
-      cd [WORKSPACE]   
-      git clone github.com/ztachip/ztachip.git
-```
+- From previous [FPGA Build Procedure](https://github.com/ztachip/ztachip/blob/master/Documentation/HardwareBuildProcedure.md), you should already have ztachip installed under [WORKSPACE] 
+
 - Setup build environment 
 ```
       cd ~/intelFPGA/17.0/embedded
@@ -71,20 +68,7 @@ For information on how to build the toolchain yourself, refer to this [document]
 
 ## Prepare target board
 
-In this document, target board is [DE10-NANO from Terasic](https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&CategoryNo=165&No=1046&PartNo=1)
-
-Procedure should also be similar for other targets.
-
-For documentation and boot images for this board. Go [here](https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&CategoryNo=165&No=1046&PartNo=4)
-
-In this example, boot the board with [Linux LXDE Desktop version](https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&CategoryNo=165&No=1046&PartNo=4) provided by the DE10-NANO manufacturer Terasic.
-
-When installing Linux LXDE Desktop version, replace FPGA image (rbf file) with the one provided by ztachip/hardware/soc_system.rbf
-
-But if you are running a different target board, refer to Documentation/HardwareBuildProcedure.md for information on how 
-to build FPGA image from HDL (Hardware description language) source codes.
-
-ztachip also needs some physical memory. Modify UBOOT parameter to reserve some physical memory (512K in this example).
+ztachip needs some physical memory. Modify UBOOT parameter to reserve some physical memory (512K in this example).
 
 Tell Linux to use only the top 512K of memory and the bottom 512K of memory is reserved for ztachip.
 

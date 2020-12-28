@@ -2,13 +2,17 @@
 
 This document describes FPGA build procedure targeting [DE10-NANO board](https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&CategoryNo=165&No=1046) running [Linux Xfce Desktop](https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&CategoryNo=165&No=1046&PartNo=4)
 
-But you can adapt this reference design to other FPGA platforms.
+You should start first by installing [Linux Xfce Desktop](https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&CategoryNo=165&No=1046&PartNo=4) to your DE10-NANO board.
 
-This document assumes that you are familiar with Quartus/Qsys development environment
+### Download and install Intel Quartus Development Suite.
 
-In this example, Quartus tools are installed under Windows. And ztachip is installed under a VirtualBox's shared folder (WORKSPACE) so that both Ubuntu and Windows can have access to ztachip installation folder. 
+Download and install [Quartus Prime Lite Edition version 17.0](https://fpgasoftware.intel.com/17.0/?edition=lite)
+
+Here we use the Windows version of Quartus.
 
 ### Download ztachip from github
+
+Choose a folder [WORKSPACE] as a place to download ztachip.
 
 ```
    cd [WORKSPACE] 
