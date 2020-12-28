@@ -3,6 +3,7 @@ hardware/simulation/work/*
 !hardware/simulation/work/_info
 hardware/simulation/.sim.tcl.swp
 hardware/simulation/transcript
+hardware/simulation/vsim.wlf
 
 # Ignore generated ztachip image
 *.hex
@@ -41,4 +42,15 @@ examples/resize/resize
 examples/test/test
 software/tools/compiler/compiler
 
+# Igore Quartus generated files
+hardware/examples/DE10_NANO_SoC_FB/output_files/*
+!hardware/examples/DE10_NANO_SoC_FB/output_files/sof_to_rbf.bat
+hardware/examples/DE10_NANO_SoC_FB/soc_system/*
+hardware/examples/DE10_NANO_SoC_FB/.qsys_edit/*
+hardware/examples/DE10_NANO_SoC_FB/c5_pin_model_dump.txt
+hardware/examples/DE10_NANO_SoC_FB/db/*
+hardware/examples/DE10_NANO_SoC_FB/hps_isw_handoff/*
+hardware/examples/DE10_NANO_SoC_FB/hps_sdram_p0_summary.csv
+hardware/examples/DE10_NANO_SoC_FB/incremental_db/*
+hardware/examples/DE10_NANO_SoC_FB/soc_system.sopcinfo
 
