@@ -93,13 +93,7 @@ Open a Windows Command Prompt and convert the output FPGA image to RBF format wi
 
 The steps above produces FPGA image file named soc_system.rbf 
 
-Plug DE10_NANO's MicroSD card to the PC, you should find in its folder a FPGA image with suffix rbf.
+Plug DE10_NANO's MicroSD card to the PC, you should find in its folder a FPGA image with suffix rbf. Upgrade this FPGA image with the newly generated soc_system.rbf (Keep name the same when upgrade)
 
-Rename the newly generated soc_system.rbf to the FPGA rbf file name found on MicroSD and then copy it to MicroSD.
-
-There are also steps to build bootloader image that corresponds to a FPGA image.
-
-Refer to Quartus documentation on how to install FPGA image on target boards.
- 
-
+Associate with every FPGA image, especially when there is a change to FPGA-DDR memory interface, you also need to build and flash a new preloader image to MicroSD card. [Click here](https://rocketboards.org/foswiki/Documentation/SoCSWWS1IntroToAlteraSoCDevicesLab1Preloader#Generating_the_Preloader_with_BSP_Editor_GUI) for information about preloader.
 
