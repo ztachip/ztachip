@@ -14,6 +14,8 @@ Unlike many other AI hardware architectures, ztachip is flexible enough to run n
 
 Latest results based on SSD-MobiNet AI inference performance show ztachip to be 5.5x more computational efficient than Nvidia's Jetson Nano and 37x more computational efficient than Google's TPU edge. Click [here](https://github.com/ztachip/ztachip/blob/master/Documentation/conclusion.md) for detailed performance analysis. 
 
+This is a great YouTube video about why the future of computing is Domain Specific Architecture. [Stanford Seminar - New Golden Age for Computer Architecture](https://www.youtube.com/watch?v=bfPV4x-HrUI&t=115s) presented by John Hennessy, 2017 Turing Award Recipient / Chairman, Alphabet 
+
 To follow latest update/news of this project, please follow us on [Twitter](https://twitter.com/ztachip)
 
 # Demonstration 
