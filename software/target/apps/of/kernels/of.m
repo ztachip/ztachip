@@ -95,10 +95,10 @@ static void of_phase_0(void *_p,int pid) {
          // Copy input to PCORE array...
 
          >SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM+2*pad-1) FOR(II=0:NUM_PCORE-1) FOR(J=pad:pad+TILE_DX_DIM-1) PCORE(NUM_PCORE)[II].of::inbuf1(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[I][J][K] <= 
-         >(ushort)MEM(input[0]|inputLen,h,TILE_DY_DIM+,req->src_w)[y*VECTOR_WIDTH:y*VECTOR_WIDTH+VECTOR_WIDTH-1][0:TILE_DY_DIM+2*pad-1][x*dx+x_off:x*dx+dx2+x_off-1];
+         >(ushort)MEM(input[0],inputLen(h,TILE_DY_DIM+,req->src_w))[y*VECTOR_WIDTH:y*VECTOR_WIDTH+VECTOR_WIDTH-1][0:TILE_DY_DIM+2*pad-1][x*dx+x_off:x*dx+dx2+x_off-1];
 
          >SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM+2*pad-1) FOR(II=0:NUM_PCORE-1) FOR(J=pad:pad+TILE_DX_DIM-1) PCORE(NUM_PCORE)[II].of::inbuf2(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[I][J][K] <= 
-         >(ushort)MEM(input[1]|inputLen,h,TILE_DY_DIM+,req->src_w)[y*VECTOR_WIDTH:y*VECTOR_WIDTH+VECTOR_WIDTH-1][0:TILE_DY_DIM+2*pad-1][x*dx+x_off:x*dx+dx2+x_off-1];
+         >(ushort)MEM(input[1],inputLen(h,TILE_DY_DIM+,req->src_w))[y*VECTOR_WIDTH:y*VECTOR_WIDTH+VECTOR_WIDTH-1][0:TILE_DY_DIM+2*pad-1][x*dx+x_off:x*dx+dx2+x_off-1];
 
          // Copy the gap from adjacent tile.
 
@@ -221,13 +221,13 @@ static void of_phase_1(void *_p,int pid) {
          }
          // Copy input to PCORE array...
          >SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:OF1_TILE_DY_DIM+2*pad-1) FOR(II=0:NUM_PCORE-1) FOR(J=pad:pad+OF1_TILE_DX_DIM-1) (int) PCORE(NUM_PCORE)[II].of1::x_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[I][J][K] <= 
-         >(int)MEM(x_gradient|x_gradientLen,h2,OF1_TILE_DY_DIM+,w)[y*VECTOR_WIDTH:y*VECTOR_WIDTH+VECTOR_WIDTH-1][0:OF1_TILE_DY_DIM+2*pad-1][x*dx:x*dx+dx2-1];
+         >(int)MEM(x_gradient,x_gradientLen(h2,OF1_TILE_DY_DIM+,w))[y*VECTOR_WIDTH:y*VECTOR_WIDTH+VECTOR_WIDTH-1][0:OF1_TILE_DY_DIM+2*pad-1][x*dx:x*dx+dx2-1];
 
          >SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:OF1_TILE_DY_DIM+2*pad-1) FOR(II=0:NUM_PCORE-1) FOR(J=pad:pad+OF1_TILE_DX_DIM-1) (int) PCORE(NUM_PCORE)[II].of1::y_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[I][J][K] <= 
-         >(int)MEM(y_gradient|y_gradientLen,h2,OF1_TILE_DY_DIM+,w)[y*VECTOR_WIDTH:y*VECTOR_WIDTH+VECTOR_WIDTH-1][0:OF1_TILE_DY_DIM+2*pad-1][x*dx:x*dx+dx2-1];
+         >(int)MEM(y_gradient,y_gradientLen(h2,OF1_TILE_DY_DIM+,w))[y*VECTOR_WIDTH:y*VECTOR_WIDTH+VECTOR_WIDTH-1][0:OF1_TILE_DY_DIM+2*pad-1][x*dx:x*dx+dx2-1];
 
          >SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:OF1_TILE_DY_DIM+2*pad-1) FOR(II=0:NUM_PCORE-1) FOR(J=pad:pad+OF1_TILE_DX_DIM-1) (int) PCORE(NUM_PCORE)[II].of1::t_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[I][J][K] <= 
-         >(int)MEM(t_gradient|t_gradientLen,h2,OF1_TILE_DY_DIM+,w)[y*VECTOR_WIDTH:y*VECTOR_WIDTH+VECTOR_WIDTH-1][0:OF1_TILE_DY_DIM+2*pad-1][x*dx:x*dx+dx2-1];
+         >(int)MEM(t_gradient,t_gradientLen(h2,OF1_TILE_DY_DIM+,w))[y*VECTOR_WIDTH:y*VECTOR_WIDTH+VECTOR_WIDTH-1][0:OF1_TILE_DY_DIM+2*pad-1][x*dx:x*dx+dx2-1];
 
          // Copy the gap from adjacent tile.
 

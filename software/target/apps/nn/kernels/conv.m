@@ -633,11 +633,11 @@ static void do_add_process(void *_p,int pid)
       to=req->size;
    }
    for(i=from;i < to;i+=step) { 
-      > (fmt)PCORE(np)[:].THREAD[:].add::exe.x1 <= PROC(1) <= (fmt)MEM(req->input[0]|req->size,req->size)[i:i+step2-1];
-      > (fmt)PCORE(np)[:].THREAD[:].add::exe.x2 <= PROC(2) <= (fmt)MEM(req->input[1]|req->size,req->size)[i:i+step2-1];
+      > (fmt)PCORE(np)[:].THREAD[:].add::exe.x1 <= PROC(1) <= (fmt)MEM(req->input[0],req->size(req->size))[i:i+step2-1];
+      > (fmt)PCORE(np)[:].THREAD[:].add::exe.x2 <= PROC(2) <= (fmt)MEM(req->input[1],req->size(req->size))[i:i+step2-1];
       > EXE_LOCKSTEP(add::exe,np);
       ztamTaskYield();
-      > (fmt)MEM(req->output|req->size,req->size)[i:i+step2-1] <= PROC(0) <= (fmt)PCORE(np)[:].THREAD[:].add::exe.y;
+      > (fmt)MEM(req->output,req->size(req->size))[i:i+step2-1] <= PROC(0) <= (fmt)PCORE(np)[:].THREAD[:].add::exe.y;
    }
 }
 

@@ -162,13 +162,13 @@ static void yuyv2rgb(void *_p,int pid) {
             }
          } else {
             if(clip) {
-               > (ushort)MEM(output|(dx2*dy2),dy2,dx2)[y2:y2+step2_y-1][x2:x2+step2_x-1] <= PROC(0) <= (ushort) SCATTER(0) FOR(X=0:PCORE_DY-1) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].yuyv2rgb::rgb(3,RGB_BUF_SIZE/24,8,8)[0][:][:][L];
-               > (ushort)MEM(output1|(dx2*dy2),dy2,dx2)[y2:y2+step2_y-1][x2:x2+step2_x-1] <= PROC(0) <= (ushort) SCATTER(0) FOR(X=0:PCORE_DY-1) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].yuyv2rgb::rgb(3,RGB_BUF_SIZE/24,8,8)[1][:][:][L];
-               > (ushort)MEM(output2|(dx2*dy2),dy2,dx2)[y2:y2+step2_y-1][x2:x2+step2_x-1] <= PROC(0) <= (ushort) SCATTER(0) FOR(X=0:PCORE_DY-1) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].yuyv2rgb::rgb(3,RGB_BUF_SIZE/24,8,8)[2][:][:][L];
+               > (ushort)MEM(output,(dx2*dy2)(dy2,dx2))[y2:y2+step2_y-1][x2:x2+step2_x-1] <= PROC(0) <= (ushort) SCATTER(0) FOR(X=0:PCORE_DY-1) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].yuyv2rgb::rgb(3,RGB_BUF_SIZE/24,8,8)[0][:][:][L];
+               > (ushort)MEM(output1,(dx2*dy2)(dy2,dx2))[y2:y2+step2_y-1][x2:x2+step2_x-1] <= PROC(0) <= (ushort) SCATTER(0) FOR(X=0:PCORE_DY-1) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].yuyv2rgb::rgb(3,RGB_BUF_SIZE/24,8,8)[1][:][:][L];
+               > (ushort)MEM(output2,(dx2*dy2)(dy2,dx2))[y2:y2+step2_y-1][x2:x2+step2_x-1] <= PROC(0) <= (ushort) SCATTER(0) FOR(X=0:PCORE_DY-1) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].yuyv2rgb::rgb(3,RGB_BUF_SIZE/24,8,8)[2][:][:][L];
             } else {
-               > (ushort)MEM(output|(dx2*dy2),dy2,dx2)[y2][x2:x2+step2_x-1] <= PROC(0) <= (ushort) SCATTER(0) FOR(X=0:PCORE_DY-1) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].yuyv2rgb::rgb(3,RGB_BUF_SIZE/24,8,8)[0][:][:][L];
-               > (ushort)MEM(output1|(dx2*dy2),dy2,dx2)[y2][x2:x2+step2_x-1] <= PROC(0) <= (ushort) SCATTER(0) FOR(X=0:PCORE_DY-1) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].yuyv2rgb::rgb(3,RGB_BUF_SIZE/24,8,8)[1][:][:][L];
-               > (ushort)MEM(output2|(dx2*dy2),dy2,dx2)[y2][x2:x2+step2_x-1] <= PROC(0) <= (ushort) SCATTER(0) FOR(X=0:PCORE_DY-1) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].yuyv2rgb::rgb(3,RGB_BUF_SIZE/24,8,8)[2][:][:][L];
+               > (ushort)MEM(output,(dx2*dy2)(dy2,dx2))[y2][x2:x2+step2_x-1] <= PROC(0) <= (ushort) SCATTER(0) FOR(X=0:PCORE_DY-1) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].yuyv2rgb::rgb(3,RGB_BUF_SIZE/24,8,8)[0][:][:][L];
+               > (ushort)MEM(output1,(dx2*dy2)(dy2,dx2))[y2][x2:x2+step2_x-1] <= PROC(0) <= (ushort) SCATTER(0) FOR(X=0:PCORE_DY-1) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].yuyv2rgb::rgb(3,RGB_BUF_SIZE/24,8,8)[1][:][:][L];
+               > (ushort)MEM(output2,(dx2*dy2)(dy2,dx2))[y2][x2:x2+step2_x-1] <= PROC(0) <= (ushort) SCATTER(0) FOR(X=0:PCORE_DY-1) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].yuyv2rgb::rgb(3,RGB_BUF_SIZE/24,8,8)[2][:][:][L];
             }
          }
       }

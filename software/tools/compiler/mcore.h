@@ -180,7 +180,7 @@ public:
    static char *scan_include(char *line);
    static char *scan_define(FILE *out,char *line);
    static char *scan_transfer(FILE *out,char *line);
-   static char *scan_specifier(std::vector<cMcoreSpecifier> *_specifier,char *line);
+   static char *scan_specifier(std::vector<cMcoreSpecifier> *_specifier,char *line,int _level=0);
    static char *skipWS(char *line);
 private:
    static bool M_beginBlock;

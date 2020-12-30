@@ -2029,7 +2029,7 @@ char *cMcore::scan(char *line,char *delimiter,char *token)
 // Scan specifier section of a memory term
 char *cMcore::scan_specifier(std::vector<cMcoreSpecifier> *_specifier,char *line,int _level)
 {
-   char *p2,*p3,*p4,*p5;
+   char *p2,*p4,*p5;
    int count,count2;
    char item[MAX_LINE];
    char temp[MAX_LINE];
@@ -2071,9 +2071,6 @@ char *cMcore::scan_specifier(std::vector<cMcoreSpecifier> *_specifier,char *line
       p2=scan_item(p2,item,',');
       while(p2)
       {
-         p3=strstr(item,"|");
-         if(p3)
-            *p3=0;
          trim(item);
          if(strlen(item)>0 && item[strlen(item)-1]=='+')
          {
@@ -2082,77 +2079,69 @@ char *cMcore::scan_specifier(std::vector<cMcoreSpecifier> *_specifier,char *line
          }
          else
             plus=false;
-         if(p3)
-         {
-            _specifier->push_back(cMcoreSpecifier(item,skipWS(p3+1),plus));
-         }
-         else
-         {
             // Check if this is a nested specifier
-            p4=item;
-            count2=0;
+         p4=item;
+         count2=0;
+         nested=false;
+         while(*p4) {
+            if(*p4==')')
+               count2--;
+            else if(*p4=='(') {
+               if(count2==0 && p4 != item) {
+                  nested=true;
+                  break;
+               }
+               count2++;
+            }
+            p4++;
+         }
+         if(nested) {
+            // There is an open '(', nested is possible but check if the '(' might be just
+            // part of an expression
+            p5=p4-1;
             nested=false;
-            while(*p4) {
-               if(*p4==')')
-                  count2--;
-               else if(*p4=='(') {
-                  if(count2==0 && p4 != item) {
+            while(p5 != item) {
+               if(!isWS(*p5)) {
+                  if(isalnum(*p5) || *p5=='_' || *p5==')')
                      nested=true;
-                     break;
-                  }
-                  count2++;
+                  break;
                }
-               p4++;
+               p5--;
             }
-            if(nested) {
-               // There is an open '(', nested is possible but check if the '(' might be just
-               // part of an expression
-               p5=p4-1;
-               nested=false;
-               while(p5 != item) {
-                  if(!isWS(*p5)) {
-                     if(isalnum(*p5) || *p5=='_' || *p5==')')
-                        nested=true;
-                     break;
-                  }
-                  p5--;
-               }
+         }
+         if(nested) {
+            int numItems;
+            if(_level==0 && numNested > 0) {
+               error(cMcore::M_currLine,"Invalid dimension specification");
             }
-            if(nested) {
-                int numItems;
-                if(_level==0 && numNested > 0) {
-                   error(cMcore::M_currLine,"Invalid dimension specification");
-                }
-                if(_level > 0) {
-                   error(cMcore::M_currLine,"Invalid dimension specification");
-                }
-                numNested++;
-                numItems=(*_specifier).size();
-            	scan_specifier(_specifier,p4,_level++);
-                *p4=0;
-                trim(item);
-                if(numItems==0) {
-                    error(cMcore::M_currLine,"Invalid dimension specification");
-                }
-                else if(numItems==1) {
-                   // Bound on total size
-                   (*_specifier)[0].m_v2=item;
-                } else {
-                   // Bound on last 2 dimension
-                   if(((*_specifier).size()-numItems) != 2) {
-                       error(cMcore::M_currLine,"Invalid dimension specification");
-                   }
-                   sprintf(temp2,"((%s)-((%s)-1)*(%s))",item,
-                                                        (*_specifier)[(*_specifier).size()-2].m_v.c_str(),
-                                                        (*_specifier)[(*_specifier).size()-1].m_v.c_str());
-                   (*_specifier)[(*_specifier).size()-1].m_v2=temp2;
-                }
+            if(_level > 0) {
+               error(cMcore::M_currLine,"Invalid dimension specification");
+            }
+            numNested++;
+            numItems=(*_specifier).size();
+            scan_specifier(_specifier,p4,_level++);
+            *p4=0;
+            trim(item);
+            if(numItems==0) {
+                error(cMcore::M_currLine,"Invalid dimension specification");
+            } else if(numItems==1) {
+                // Bound on total size
+               (*_specifier)[0].m_v2=item;
             } else {
-                if(_level==0 && numNested > 0) {
+                // Bound on last 2 dimension
+               if(((*_specifier).size()-numItems) != 2) {
                    error(cMcore::M_currLine,"Invalid dimension specification");
-                }
-               _specifier->push_back(cMcoreSpecifier(item,0,plus));
+               }
+               sprintf(temp2,"((%s)-((%s)-1)*(%s))",item,
+                                                    (*_specifier)[(*_specifier).size()-2].m_v.c_str(),
+                                                    (*_specifier)[(*_specifier).size()-1].m_v.c_str());
+               (*_specifier)[(*_specifier).size()-1].m_v2=temp2;
             }
+         } else {
+             if(_level==0 && numNested > 0) {
+                error(cMcore::M_currLine,"Invalid dimension specification");
+             }
+            _specifier->push_back(cMcoreSpecifier(item,0,plus));
          }
          p2=scan_item(p2,item,',');
       }

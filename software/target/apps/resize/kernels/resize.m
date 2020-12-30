@@ -49,7 +49,7 @@ static void resize(void *_p,int pid) {
    int h,x,y;
    int remain,left,from,to;
    int idx;
-   int dst_num_tiles,dst_last_tile;
+   int dst_num_tiles;
    int dst_w,dst_h;
 
    // Input pixel position (For every output X/Y pixel position)
@@ -147,8 +147,7 @@ static void resize(void *_p,int pid) {
    dxcnt=(req->w+dx-1)/dx;
    dycnt=(req->h+dy1-1)/dy1;
    h=(req->h+VECTOR_WIDTH-1)/VECTOR_WIDTH;
-   dst_num_tiles=(req->dst_w+req->scale-1)/req->scale,
-   dst_last_tile=req->dst_w-(dst_num_tiles-1)*req->scale;
+   dst_num_tiles=(req->dst_w+req->scale-1)/req->scale;
 
    for(i=0;i < req->scale;i++) {
       >PCORE(NUM_PCORE)[*].resize::fract0[i] <= SHORT(req->ws.scale0[i]);
@@ -189,7 +188,7 @@ static void resize(void *_p,int pid) {
             if(remain > VECTOR_WIDTH)
                remain=VECTOR_WIDTH;
             >SCATTER(req->ws.scratch) FOR(K=0:remain-1) FOR(I=0:TILE_DIM+TILE_PAD-1) FOR(II=0:NUM_PCORE-1) FOR(J=0:TILE_DIM-1) PCORE(NUM_PCORE)[II].resize::inbuf(TILE_DIM+TILE_PAD,TILE_DIM+TILE_PAD,VECTOR_WIDTH)[I][J][K] <= 
-            >(ushort)MEM(input|inputLen2,h,VECTOR_WIDTH+,req->src_w)[y*VECTOR_WIDTH:y*VECTOR_WIDTH+remain-1][0:TILE_DIM+TILE_PAD-1][x*dx+req->x_off:x*dx+dx+req->x_off-1];
+            >(ushort)MEM(input,inputLen2(h,VECTOR_WIDTH+,req->src_w))[y*VECTOR_WIDTH:y*VECTOR_WIDTH+remain-1][0:TILE_DIM+TILE_PAD-1][x*dx+req->x_off:x*dx+dx+req->x_off-1];
             >FLUSH;
             if(x==dxcnt-1) {
                int ii;
@@ -217,7 +216,7 @@ static void resize(void *_p,int pid) {
             }
 
             // Copy result tiles back to memory
-            >(ushort)MEM(output,req->dst_h,dst_num_tiles,req->scale|dst_last_tile)[y*dy2:y*dy2+req->scale*VECTOR_WIDTH-1][x*NUM_PCORE:x*NUM_PCORE+NUM_PCORE-1][0:TILE_DIM-1] <= PROC(0) <=
+            >(ushort)MEM(output,req->dst_h,req->dst_w(dst_num_tiles,req->scale))[y*dy2:y*dy2+req->scale*VECTOR_WIDTH-1][x*NUM_PCORE:x*NUM_PCORE+NUM_PCORE-1][0:TILE_DIM-1] <= PROC(0) <=
             >SCATTER(req->ws.scratch) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:req->scale-1) FOR(II=0:NUM_PCORE-1) FOR(J=0:TILE_DIM-1) (ushort) PCORE(NUM_PCORE)[II].resize::outbuf(TILE_DIM,TILE_DIM,VECTOR_WIDTH)[I][J][K];
          }
       }
