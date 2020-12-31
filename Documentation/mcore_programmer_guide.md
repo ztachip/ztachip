@@ -70,9 +70,9 @@ It has similar syntax to DDR tensor syntax except the keyword is SCRATCH
 
 Example:
 ```
-   SRATCH(p,100,200)[0:19][20:29]
+   SCRATCH(p,100,200)[0:19][20:29]
 
-   SRATCH(p,dy,dx)[y:dy-1][x:dx-1]
+   SCRATCH(p,dy,dx)[y:dy-1][x:dx-1]
 ```
 
 ### 3.3 Tensor data objects in PCORE private memory space
@@ -88,13 +88,15 @@ PCORE(dimension,...)[begin:stride:end][begin:stride:end].thread[begin:stride:end
 
 Where:
 
-   - dimension: PCORE array can be laid out as an 1D array or 2D array.
+   - dimension: PCORE array can be laid out as an 1D array or 2D array. Dimension must be in power of 2.
 
    - begin: starting index of dimension range.
 
    - stride: stride of the dimension range.
 
    - end: ending index of dimension range.
+
+   - thread: thread block
 
    - class: class name that variable associated with as defined in associated PCORE programs.
 
@@ -123,7 +125,7 @@ PCORE(dimension,...)[begin:stride:end][begin:stride:end].class::variable
 
 Where:
 
-   - dimension: PCORE array can be laid out as an 1D array or 2D array.
+   - dimension: PCORE array can be laid out as an 1D array or 2D array. Dimension must be in power of 2.
 
    - begin: starting index of dimension range.
 
@@ -153,9 +155,11 @@ They are inserted to MCORE C-programs with special syntax line begins with '>'
 
 These instructions move data from one memory space to another.
 
+The way data are read/written to tensors is like a nested FOR loop. The order starts with index from right to left.
+
 In addition to memory transfer, it can also perform tensor reshape,dimension resize,stream processing...
 
-### 4.1 Basic tensor data transfer from DDR to PCORE private memory space
+### 4.1 Tensor data transfer from DDR to PCORE private memory space
 
 ```
 >PCORE[0:1].THREAD[0:1].myclass::myfunc.var[0:1] <= DDR(p)[0:2*2*2-1];
@@ -176,7 +180,7 @@ PCORE   THREAD  private_var      <=  DDR
 1       1       private_var[0]       p[6]
 1       1       private_var[1]       p[7]
 ```
-### 4.2 Basic tensor data transfer from DDR to PCORE shared memory space.
+### 4.2 Tensor data transfer from DDR to PCORE shared memory space.
 
 ```
 >PCORE[0:1].myclass::myfunc.shared_var[0:1] <= DDR(p)[0:2*2-1];
@@ -193,7 +197,7 @@ PCORE   shared_var    <=   DDR
 1       shared_var[0]      p[2]
 1       shared_var[1]      p[3]
 ```
-### 4.3 Basic tensor data transfer from DDR to SCRATCH-PAD memory space.
+### 4.3 Tensor data transfer from DDR to SCRATCH-PAD memory space.
 
 ```
 int len=4;
@@ -215,7 +219,7 @@ SCRATCH[1]  <=   p[1]
 SCRATCH[2]  <=   p[2]
 SCRATCH[3]  <=   p[3]
 ```
-### 4.4 Basic tensor data transfer from DDR to SCRATCH-PAD memory space.
+### 4.4 Tensor data transfer from DDR to SCRATCH-PAD memory space. Multi-dimensional case.
 
 ```
 int dx=2;
@@ -249,7 +253,7 @@ SCRATCH[3][1] <= p[3][1]
 >PCORE[0].THREAD[0:2].myclass::myfunc.var[0:3] <= DDR(p,100,2,2)[0][0:2][0:3];
 ```
 
-Example above transfers data from DDR tensor data object as tensor of dimension 8x16x8 eventhough actual tensor dimension is 100x200x8.
+Example above transfers data from DDR tensor data object but the DDR dimension indexes are going out-of-bound in some cases.
 
 Tensor data associated with out-of-bound dimension index are padded with zero for read operation and skipped for write operation.
 
@@ -280,7 +284,7 @@ Example:
 ```
 >PCORE(8)[:].THREAD[0:15].myclass::myvar[0:15] <= DDR(p)[0:8*16*16-1];
 ```
-recast THREAD dimension from 16 to 4x4. And recast myvar dimension from 16 to 4x4
+recast THREAD component dimension from 16 to 4x4. And recast component myvar dimension from 16 to 4x4
 ```
 >PCORE(8)[:].THREAD(4,4)[0:3][0:3].myclass::myvar(4,4)[0:3][0:3] <= DDR(p)[0:8*16*16-1];
 ```
@@ -333,19 +337,31 @@ myvar     THREAD        PCORE       <=  DDR
 
 ### 4.8 Tensor scatter transfer
 
+This is one of the key and unique capabilities of ztachip.
+
+SIMD in general is very economical to implement in hardware. But to work efficiently, it requires data to be formatted in vector format.
+
+However this restriction may not match application data format. And also transfering non-vector formatted data is not efficient since transfer cannot be done in vector mode.
+
+Scatter transfer is the solution to this problem by transfering/transforming non-vector formatted data to vector formatted data in an efficient way.
+
+This method is used extensively in the provided vision and AI stack.
+
 #### 4.8.1 Tensor scatter transfer by vector word.
 
 ```
 >FOR(I=0:7) PCORE(8)[0:7].THREAD[0:15].myclass::myvar(8,8)[:][I] <= DDR(p)[0:8*16*8*8-1];
 ```
 
-In example above, transfer of innermost loop is scattered among consecutive vector words.
+In example above, transfer units of innermost loop is a vector word (float8) but scattered among consecutive vector words.
 
-This is not efficient since the transfer is not a vector transfer. And the innerloop takes 8 clocks to complete.
+This is not efficient since the innerloop takes 8 clocks to complete each float8 vector transfer.
 
-By adding SCATTER(0) directive, the transfer is rearranged and interleaved among all the PCOREs so that each PCORE will have 8 clocks to complete the innerloop transfer to myvar. 
+By adding SCATTER(0) directive, the transfer is rearranged and interleaved among all the PCOREs so that the 8-clock cycles required for each unit transfers are overlapped between all the PCOREs. 
 
-Since transfers are interleaved among the PCORES, there is no wait state. This way transfer can still occur in vector mode at rate of 1 vector per clock.
+This way transfer can still occur in vector mode at rate of 1 vector per clock.
+
+The transfer now becomes...
 
 ```
 >SCATTER(0) FOR(I=0:7) PCORE(8)[0:7].THREAD[0:15].myclass::myvar(8,8)[:][I] <= DDR(p)[0:8*16*8*8-1];
@@ -357,14 +373,101 @@ Since transfers are interleaved among the PCORES, there is no wait state. This w
 >FOR(I=0:7) FOR(J=0:7) PCORE(8)[0:7].THREAD(2,8)[:][:].myclass::myvar[J] <= DDR(p)[0:8*16*8*8-1];
 ```
 
-In example above, transfer of innermost loop is scattered among different threads.
+In example above, transfer units of innermost loop is a vector word (float8) but scattered among different threads.
 
-This is not efficient since the transfer is not a vector transfer. And the innerloop takes 8 clocks to complete.
+This is not efficient since the innerloop takes 8 clocks to complete each float8 vector.
 
-By adding SCATTER(0) directive, the transfer is rearranged and interleaved among all the PCOREs so that each PCORE will have 8 clocks to complete the innerloop transfer.
+By adding SCATTER(0) directive, the transfer is rearranged and interleaved among all the PCOREs so that the 8-clock cycles required for each unit transfers are overlapped between all the PCOREs. 
 
-Since transfers are interleaved among the PCORES, there is no wait state. This way transfer can still occur in vector mode at rate of 1 vector per clock.
+This way transfer can still occur in vector mode at rate of 1 vector per clock.
 
+The transfer now becomes...
+
+```
+>SCATTER(0) FOR(I=0:7) FOR(J=0:7) PCORE(8)[0:7].THREAD(2,8)[:][:].myclass::myvar[J] <= DDR(p)[0:8*16*8*8-1];
+```
+
+### 4.9 Tensor transfer with boundary check disabled.
+
+Normally the dimension index are bounded by the tensor dimension. If index is out-of-bound, then a read operation is padded with zero and a write operation is skipped.
+
+However, you can disable this behaviour by adding '+' after tensor dimension.
+
+Repeat example in 4.5, but now we add '+' after the last 2 dimension of DDR tensor.
+ 
+```
+>PCORE[0].THREAD[0:2].myclass::myfunc.var[0:3] <= DDR(p,100,2+,2+)[0][0:2][0:3];
+```
+
+Now, indexes of the last 2 dimensions of DDR tensor are no longer used for dimension boundary check. Read/Write access to out-of-bound index are carried out as if the index is valid.
+
+This capability is commonly used to transfer tensors that are partially overlaped.
+
+### 4.10 Tensor transfer with overlapped dimension
+
+Tensor can be defined to have 2 overlapped dimension definitions.
+
+This is useful in-order to add additional boundary checks on the tensor read/write access.
+
+#### 4.10.1 Tensor transfer with overlapped dimension - Usecase 1
+
+```
+DDR(p,1000(100,200))[:][:]
+```
+Tensor above is defined as dimension 100x200 but also as single dimension 1000.
+
+Boundary check is performed on both dimension definitions.
+ 
+In addition to the index boundary check for dimension 100x200, any access beyond the 1000th word are padded with zero for read access and skipped for write access.
+
+This syntax is useful in mapping arbitrary dimensioned tensor in DDR to a tensor in PCORE memory space where tensor dimensions are regular.
+
+#### 4.10.2 Tensor transfer with overlapped dimension - Usecase 2
+
+```
+DDR(p,100,32,152(10,16))[:][:][:]
+```
+Tensor above is defined as dimension 32x10x16 but also as dimension 32x152
+
+Boundary check is performed on both dimension definitions.
+
+For tensor 32x10x16, each element of first index should have size=10x16=160. But because 10x16 sub-tensor is also constrained by 152 in size, therefore, 
+the elements of the second index are having size=16 except for the last element which has size=152-(10-1)*16=8.
+
+This syntax is useful in mapping arbitrary dimensioned tensor in DDR to a tensor in PCORE memory space where tensor dimensions are regular.
+
+### 4.11 Tensor padding values
+
+Tensor read/write accesses are checked against dimension boundary. 
+
+Any out-of-bound read accesses are padded with zero by default.
+
+Any out-of-bound write accesses are skipped.
+
+But you can set different padding values for out-of-bound read accesses with PAD keyword.
+
+In example below, any out-of-bound read accesses from DDR tensor are padded with 0xff.
+```
+>PCORE[0].THREAD[0:2].myclass::myfunc.var[0:3] <= PAD(0xff) DDR(p,100,2,2)[0][0:2][0:3];
+```
+
+### 4.12 Tensor data types
+
+Tensors can have the following data types
+
+   - DP_DATA_TYPE_UINT8 : unsigned 8 bit integer
+
+   - DP_DATA_TYPE_INT8  : signed 8 bit integer
+
+   - DP_DATA_TYPE_INT16 : signed 16 bit integer
+
+Data types are specified as first qualifier of the tensor.
+
+Below is an example of tensor transfer in UINT8 format.
+```
+int fmt=DP_DATA_TYPE_UINT8;
+>(fmt)PCORE[0].THREAD[0:2].myclass::myfunc.var[0:3] <= (fmt)PAD(0xff) DDR(p,100,2,2)[0][0:2][0:3];
+```
 
 ## 5. Tensor operator execution
 
@@ -375,8 +478,6 @@ These functions operate on tensors allocated within PCORE memory space.
 Input and results associated with tensor operators are then transfered to/from PCORE memory space to/from external DDR or sratch-pad memory space by TensorEngine under the instructions of MCORE program.
 
 ### 5.1 Syntax
-
-Invoking a tensor operator from MCORE has the following syntax
 
 Example below invokes a tensor operator exe of class convolution defined in corresponding PCORE program
 
@@ -470,7 +571,11 @@ MCORE can have 2 processing threads: a main thread and a child thread.
 
 Thread switching is not automatic but manual by calling to ztamTaskYield function below.
 
-Normally, each thread will manage a seperate PCORE process space. This way you can interleave between memory cycle and execution cycle of the 2 PCORE processes. This is done to reduce/eliminate DDR memory access from delaying PCORE execution.
+Normally, each thread will manage a seperate PCORE process space. 
+
+This way you can interleave between memory cycle and execution cycle of the 2 PCORE processes. That means TensorEngine is setting up/retrieving results from one PCORE memory space 
+while PCOREs are executing tensor operators on the other PCORE memory space.
+
 
 ### 9.1 ztamTaskSpawn(void (*func)(void*,int),void *parm,int pid)
 
