@@ -57,6 +57,7 @@
 #define TOKEN_SPU             "SPU"
 #define TOKEN_PCORE_PROG      "PROG"
 #define TOKEN_EXPORT          "EXPORT"
+#define TOKEN_VAR             "VAR"
 
 // Datatypes
 #define TOKEN_DATATYPE_INT    "INT"
@@ -94,6 +95,7 @@
 #define CMD_PRINT       8
 #define CMD_EXPORT      9
 #define CMD_INCLUDE     10
+#define CMD_VAR         11
 
 #define MAX_DP_STRIDE   6
 
@@ -122,9 +124,8 @@ static int STR_DPREG_STRIDE_MAX[MAX_DP_STRIDE]={DPREG_STRIDE0_MAX,DPREG_STRIDE1_
 static int STR_DPREG_STRIDE_MIN[MAX_DP_STRIDE]={DPREG_STRIDE0_MIN,DPREG_STRIDE1_MIN,DPREG_STRIDE2_MIN,DPREG_STRIDE3_MIN,DPREG_STRIDE4_MIN,DPREG_BURST_MIN};
 
 int cMcore::M_currLine=0;
+int cMcore::M_currDepth=0;
 int cMcore::M_beginBlock=true;
-static cMcoreDefine M_define[MAX_MCORE_DEFINE];
-static int M_numDefine=0;
 cMcoreVariable cMcore::M_vars[DP_TEMPLATE_MAX];
 std::vector<std::string> cMcore::M_export;
 
@@ -156,24 +157,13 @@ cMcoreSpecifier::cMcoreSpecifier(const cMcoreSpecifier &other)
    m_plus = other.m_plus;
 }
 
-
-// Constructor for class described a memory reference template
-cMcoreDefine::cMcoreDefine()
-{
-}
-
-// Destructor for cMcoreDefine
-cMcoreDefine::~cMcoreDefine()
-{
-}
-
 // Constructor for class described a memory reference template
 cMcoreVariable::cMcoreVariable()
 {
    m_parmIndex = -1;
 }
 
-// Destructor for cMcoreDefine
+// Destructor for cMcoreVariable
 cMcoreVariable::~cMcoreVariable()
 {
 }
@@ -189,23 +179,23 @@ std::string cMcoreVariable::getLine(cMcoreRange &range)
    return line;
 }
 
-int cMcoreVariable::set(char *line, int parmIndex)
+int cMcoreVariable::Define(char *line, int parmIndex)
 {
    m_line = line;
    m_parmIndex = parmIndex;
    return 0;
 }
 
-// Find a match for a define name
-cMcoreDefine *cMcoreDefine::find(char *name)
-{
-   int i;
-   for(i=M_numDefine-1;i >= 0;i--)
-   {
-      if(M_define[i].m_name==name)
-         return &M_define[i];
-   }
-   return 0;
+void cMcoreVariable::Clear() {
+   m_line="";
+   m_parmIndex=0;
+   m_depth=0;
+   m_name="";
+}
+
+void cMcoreVariable::Declare(char *name,int depth) {
+   m_name=name;
+   m_depth=depth;
 }
 
 // Constructor for cMcoreTerm
@@ -396,6 +386,8 @@ int cMcoreTerm::Validate()
    }
    else if (decodeVarName((char *)m_name.c_str(),&var))
    {
+      if(!cMcore::M_vars[var].IsDefined())
+         error(cMcore::M_currLine,"Variable has not been defined");
       m_id=cMcoreTerm::eMcoreTermTypeVar;
       m_var = var;
    }
@@ -1772,17 +1764,40 @@ int cMcoreTerm::Gen(FILE *out,int _parm,cMcoreRange *_parmRange)
    return 0;
 }
 
-char *cMcoreTerm::decodeVarName(char *name,int *var)
+bool cMcoreTerm::decodeVarName(char *name,int *var)
 {
-   if ((name[0] == '$') && (name[1] >= '0' && name[1] <= '9'))
+   int i;
+   char token[MAX_LINE];
+   if (name[0] == '$')
    {
-      *var=(int)(name[1] - '0');
-      return name + 2;
-   }
-   else
-   {
+      // Look for a variable previously defined
+      cMcore::scan_name(name+1,token);
+      for(i=0;i < DP_TEMPLATE_MAX;i++) {
+         if(cMcore::M_vars[i].m_name==token)
+            break;
+      }
+      if( i >= DP_TEMPLATE_MAX) {
+         // Not found. So create a new entry for this variable
+         for(i=0;i < DP_TEMPLATE_MAX;i++) {
+            if(!cMcore::M_vars[i].IsDeclared()) {
+               cMcore::M_vars[i].Declare(token,cMcore::M_currDepth);
+               break;
+            }
+         }
+         if(i >= DP_TEMPLATE_MAX) {
+            error(cMcore::M_currLine,"Too many variables defined");
+         }
+      }
+      if(i < DP_TEMPLATE_MAX) {
+         *var=i;
+         return true;
+      } else {
+         *var=-1;
+         return false;
+      }
+   } else {
       *var = -1;
-      return 0;
+      return false;
    }
 }
 
@@ -2448,7 +2463,7 @@ char *cMcore::scan_define(FILE *out,char *line)
    line=scan_term(line,&term);
    term.m_var = var;
    term.Validate();
-   M_vars[var].set(varLine,term.m_varIndex); // Remember this variable definition...
+   M_vars[var].Define(varLine,term.m_varIndex); // Remember this variable definition...
    fprintf(out,"{");
    term.GenDef(out);
    term.Gen(out,-1,0);
@@ -2564,6 +2579,29 @@ char *cMcore::scan_print(FILE *out,char *line)
    fprintf(out,"ZTAM_GREG(0,%d,0)=(int)(%s);",REG_DP_INDICATION_PARM1,specifier[1].m_v.c_str());
    fprintf(out,"%s;ZTAM_GREG(0,%d,_task_curr2)=(%d+(%d<<3));",s_ztamFifoReady,REG_DP_RUN,
                 DP_OPCODE_PRINT,0);
+   return line;
+}
+
+// Scan for variable declaration
+char *cMcore::scan_var(FILE *out,char *line)
+{
+   char token[MAX_LINE];
+   int v;
+   line=scan_name(line,token);
+   line=skipWS(line);
+   for(;;) {
+      line=scan_name(line,token);
+      if(!token[0])
+         break;
+      cMcoreTerm::decodeVarName(token,&v);
+      line=skipWS(line);
+      if(line[0]==',') {
+         line++;
+         line=skipWS(line);
+      } else {
+         break;
+      }
+   }
    return line;
 }
 
@@ -2837,7 +2875,6 @@ char *cMcore::get_token(char *line,char *token)
 char *cMcore::substDefine(char *line,char *outLine)
 {
    char token[MAX_LINE];
-   cMcoreDefine *def;
    outLine[0]=0;
    for(;;)
    {
@@ -2852,57 +2889,8 @@ char *cMcore::substDefine(char *line,char *outLine)
       }
       else
       {
-         def=cMcoreDefine::find(token);
-         if(def)
-         {
-            std::vector<cMcoreSpecifier> specifier;
-            char temp[MAX_LINE];
-            line=scan_specifier(&specifier,line);
-            genDefine(def,&specifier,temp);
-            strcat(outLine,temp);
-            if(!line)
-               error(cMcore::M_currLine,"syntax error");
-         }
-         else
-            strcat(outLine,token);
-      }
-   }
-}
-
-// Generate macro expansion based on input parameter
-char *cMcore::genDefine(cMcoreDefine *def,std::vector<cMcoreSpecifier> *specifier,char *outLine)
-{
-   char token[MAX_LINE];
-   char *line;
-   int i;
-   outLine[0]=0;
-   line=(char *)def->m_define.c_str();
-   if(specifier->size() != def->m_specifier.size())
-      error(cMcore::M_currLine,"Invalid parameters for variable");
-   for(;;)
-   {
-      if(!line[0])
-         return 0;
-      line=get_token(line,token);
-      if(token[0]==0)
-      {
-         token[0]=*line++;
-         token[1]=0;
          strcat(outLine,token);
       }
-      else
-      {
-         for(i=0;i < (int)def->m_specifier.size();i++)
-         {
-            if(def->m_specifier[i]==token)
-            {
-               strcat(outLine,specifier->at(i).m_v.c_str());
-               break;
-            }
-         }
-         if(i >= (int)def->m_specifier.size())
-            strcat(outLine,token);
-       }
    }
 }
 
@@ -3143,6 +3131,11 @@ char *cMcore::decode(char *line,FILE *out,int *cmd)
       *cmd=CMD_NOP;
       return scan_flush(out,line);
    }
+   if(strcasecmp(token,TOKEN_VAR)==0)
+   {
+      *cmd=CMD_VAR;
+      return scan_var(out,line);
+   }
    if(strstr(line,":="))
    {
       *cmd=CMD_ASSIGN;
@@ -3222,11 +3215,27 @@ bool cMcore::processLine(char *line,FILE *out)
 {
    int count;
    int cmd;
+   int i;
    char *p;
    char temp[MAX_LINE];
    static char currLine[MAX_LINE]={0};
    if(line[strlen(line)-1] != '\n')
       strcat(line,"\n");
+   p=line;
+   while(*p) {
+      if(*p=='{')
+         M_currDepth++;
+      else if(*p=='}') {
+         M_currDepth--;
+         for(i=0;i < DP_TEMPLATE_MAX;i++) {
+            if(cMcore::M_vars[i].m_depth > M_currDepth) {
+               // Variables are going out of context so remove it.
+               cMcore::M_vars[i].Clear();
+            }
+         }
+      }
+      p++;
+   }
    p=line;
    count=0;
    while(*p != '\n')

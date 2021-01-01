@@ -34,26 +34,21 @@ public:
    bool m_plus;
 };
 
-class cMcoreDefine
-{
-public:
-   cMcoreDefine();
-   ~cMcoreDefine();
-   static cMcoreDefine *find(char *name);
-   char *genDefine(std::vector<std::string> *specifier,char *line);
-   std::string m_name;
-   std::vector<std::string> m_specifier;
-   std::string m_define;
-};
-
 class cMcoreVariable
 {
 public:
    cMcoreVariable();
    ~cMcoreVariable();
-   int set(char *line, int parmIndex);
+   bool IsDeclared() {return m_name.length()>0;}
+   bool IsDefined() {return m_line.length()>0;}
+   void Declare(char *name,int depth);
+   int Define(char *line, int parmIndex);
+   void Clear();
    std::string getLine(cMcoreRange &range);
    int getParmIndex() { return m_parmIndex; }
+public:
+   std::string m_name;
+   int m_depth;
 private:
    int m_parmIndex;
    std::string m_line;
@@ -100,7 +95,7 @@ public:
    cMcoreTerm();
    ~cMcoreTerm();
    void Print();
-   static char *decodeVarName(char *name,int *var);
+   static bool decodeVarName(char *name,int *var);
    void ScratchCreate(cMcoreTerm *term,char *cast,char *scratchAddr,std::string &forkCount);
    void ScratchReorder(cMcoreTerm *term,bool scatter);
    int GetParmRange();
@@ -157,7 +152,6 @@ public:
    static bool preprocess(char *line);
    static char *substDefine(char *line,char *outLine);
    static char *get_token(char *line,char *token);
-   static char *genDefine(cMcoreDefine *def,std::vector<cMcoreSpecifier> *specifier,char *outLine);
    static void gen_transfer(FILE *out,cMcoreTerm &left,cMcoreTerm &right,char *flushCondition,std::vector<cMcoreSpecifier> *stream_id,bool priority);
    static void gen_global_assign(FILE *out,cMcoreTerm &left,cMcoreTerm &right);
    static char *decode(char *line,FILE *out,int *cmd);
@@ -179,6 +173,7 @@ public:
    static char *scan_export(char *line);
    static char *scan_include(char *line);
    static char *scan_define(FILE *out,char *line);
+   static char *scan_var(FILE *out,char *line);
    static char *scan_transfer(FILE *out,char *line);
    static char *scan_specifier(std::vector<cMcoreSpecifier> *_specifier,char *line,int _level=0);
    static char *skipWS(char *line);
@@ -186,6 +181,7 @@ private:
    static bool M_beginBlock;
 public:
    static int M_currLine;
+   static int M_currDepth;
    static cMcoreVariable M_vars[DP_TEMPLATE_MAX];
    static std::vector<std::string> M_export;
 };

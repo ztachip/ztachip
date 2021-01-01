@@ -117,25 +117,24 @@ static void convolution_3x3(void *_p,int pid) {
       from=ROUND(req->topcnt/2,step);
       to=req->topcnt;
    }
-   > $0 := (weightfmt)PCORE(group,groupsz)[:][*].convolution::coef[0:kz-1][:];
-   > $1 := PCORE(np)[*].convolution::bot[0:x*y-1];
-   > $2 := (biasfmt)PCORE(group,groupsz)[:][*].convolution::biasHi[:];
+   > $coef_pcore := (weightfmt)PCORE(group,groupsz)[:][*].convolution::coef[0:kz-1][:];
+   > $bot_pcore := PCORE(np)[*].convolution::bot[0:x*y-1];
    for(i=from;i < to;i += step) {
       > (biasfmt)PCORE(group,groupsz)[:][*].convolution::biasHi[:] <= (biasfmt)MEM(req->biasHi,req->topcnt)[i:i+step-1];
       > (biasfmt)PCORE(group,groupsz)[:][*].convolution::biasLo[:] <= (biasfmt)MEM(req->biasLo,req->topcnt)[i:i+step-1];
       rowi=((i>>VECTOR_DEPTH)*kz)*VECTOR_WIDTH;
       ii=(i/topcnt2)*botcnt2;
-      > $4 := (weightfmt)MEM(coef,botcnt2,topcnt3)[$][rowi:rowi+gkz-1];
+      > $coef_ddr := (weightfmt)MEM(coef,botcnt2,topcnt3)[$][rowi:rowi+gkz-1];
       for(r=0,r2=-req->pad;r < req->topdim;r += conv_dy,r2 += stride_dy) {
          for(c=0,c2=-req->pad;c < req->topdim;c += conv_dx,c2+=stride_dx) {
-            > $3 := PAD(-req->input_offset) (botfmt)MEM(bot,botcnt,botdim,botdim)[$][r2:r2+y-1][c2:c2+x-1];
+            > $bot_ddr := PAD(-req->input_offset) (botfmt)MEM(bot,botcnt,botdim,botdim)[$][r2:r2+y-1][c2:c2+x-1];
             > convolution::start.count <= INT(dycnt);
             > EXE_LOCKSTEP(convolution::start,np);
             for(jj=0;jj < botcnt2;jj++) {
                ztamTaskYield(); 
                j=jj+ii;
-               > $1 <= PROC(1) <= $3[j];
-               > $0 <= PROC(2) <= $4[jj];
+               > $bot_pcore <= PROC(1) <= $bot_ddr[j];
+               > $coef_pcore <= PROC(2) <= $coef_ddr[jj];
                dx=req->topdim-c;
                if(dx > conv_dx)
                   dx=conv_dx;
@@ -311,8 +310,7 @@ static void convolution_1x1(void *_p,int pid) {
 
       f_activate=ztamBuildKernelFunc($convolution1x1::activate,np,conv_dx);
 
-      > $0 := (weightfmt)FOR(I=0:dzcnt-1) PCORE(group,groupsz)[:][*].convolution1x1::coef[I][:];
-      > $2 := (biasfmt)PCORE(group,groupsz)[:][*].convolution1x1::biasHi[:];
+      > $coef_pcore := (weightfmt)FOR(I=0:dzcnt-1) PCORE(group,groupsz)[:][*].convolution1x1::coef[I][:];
 
       for(i=from;i < to;i += step)
       {
@@ -320,7 +318,7 @@ static void convolution_1x1(void *_p,int pid) {
          > (biasfmt)PCORE(group,groupsz)[:][*].convolution1x1::biasLo[:] <= (biasfmt)MEM(req->biasLo,req->topcnt)[i:i+step-1];
 
          rowi=((i>>VECTOR_DEPTH)*kz)*VECTOR_WIDTH;
-         > $4 := (weightfmt)MEM(coef,botcnt2/dzcnt,dzcnt,topcnt3)[$][:][rowi:rowi+gkz-1];
+         > $coef_ddr := (weightfmt)MEM(coef,botcnt2/dzcnt,dzcnt,topcnt3)[$][:][rowi:rowi+gkz-1];
          for(mm=0;mm < topsz;) {
             dycnt2=(topsz-mm+dysz-1)/dysz;
             if(dycnt2 > dycnt)
@@ -343,8 +341,8 @@ static void convolution_1x1(void *_p,int pid) {
             xy4=xy3*dzcnt;
             if(dzcnt>1 && xy4 > (dzcnt*botsz))
                xy4=ROUND(dzcnt*botsz,VECTOR_WIDTH);      
-            > $3 := (botfmt)MEM(bot,botcnt/dzcnt,botsz*dzcnt)[$][mm:mm+xy4-1];
-            > $1 := PCORE(np)[*].convolution1x1::bot[0:xy4-1];
+            > $bot_ddr := (botfmt)MEM(bot,botcnt/dzcnt,botsz*dzcnt)[$][mm:mm+xy4-1];
+            > $bot_pcore := PCORE(np)[*].convolution1x1::bot[0:xy4-1];
             > convolution1x1::start.count <= INT(dycnt2);
             > EXE_LOCKSTEP(convolution1x1::start,np);
 
@@ -353,8 +351,8 @@ static void convolution_1x1(void *_p,int pid) {
             if(dzcnt > 1) {
                for(jj=0;jj < botcnt2;jj+=dzcnt) {
                   ztamTaskYield(); 
-                  > $1 <= PROC(1) <= $3[jj/dzcnt];
-                  > $0 <= PROC(2) <= $4[jj/dzcnt];
+                  > $bot_pcore <= PROC(1) <= $bot_ddr[jj/dzcnt];
+                  > $coef_pcore <= PROC(2) <= $coef_ddr[jj/dzcnt];
                   > convolution1x1::exe2.idx <= INT(0);
                   > convolution1x1::exe2.idx2 <= INT(0);
                   > EXE_LOCKSTEP(f);
@@ -367,8 +365,8 @@ static void convolution_1x1(void *_p,int pid) {
                > convolution1x1::exe2.idx2 <= INT(0);
                for(jj=0;jj < botcnt2;jj+=dzcnt) {
                   ztamTaskYield(); 
-                  > $1 <= PROC(1) <= $3[jj];
-                  > $0 <= PROC(2) <= $4[jj];
+                  > $bot_pcore <= PROC(1) <= $bot_ddr[jj];
+                  > $coef_pcore <= PROC(2) <= $coef_ddr[jj];
                   > EXE_LOCKSTEP(f);
                }
             }
@@ -554,14 +552,14 @@ static void convolution_depthwise(void *_p,int pid) {
 
       f=ztamBuildKernelFunc($convolution_depthwise::exe3x3,np,(dxcnt==1)?conv_dx:NUM_THREAD_PER_CORE/2+conv_dx);
 
-      > $0 := (weightfmt)PCORE(group,groupsz)[:][*].convolution_depthwise::coef[0:kz-1][:];
+      > $coef_pcore := (weightfmt)PCORE(group,groupsz)[:][*].convolution_depthwise::coef[0:kz-1][:];
 
+      >VAR $bot_pcore;
       if(req->in_interleave) {
-         > $1 := (botfmt) FOR(XY=0:x*y-1) FOR(K=0:group-1) PCORE(group,groupsz)[K][*].convolution_depthwise::bot[XY][:];
+         > $bot_pcore := (botfmt) FOR(XY=0:x*y-1) FOR(K=0:group-1) PCORE(group,groupsz)[K][*].convolution_depthwise::bot[XY][:];
       } else {
-         > $1 := FOR(K=0:group-1) FOR(J=0:VECTOR_WIDTH-1) PCORE(group,groupsz)[K][*].convolution_depthwise::bot[0:x*y-1][J];
+         > $bot_pcore := FOR(K=0:group-1) FOR(J=0:VECTOR_WIDTH-1) PCORE(group,groupsz)[K][*].convolution_depthwise::bot[0:x*y-1][J];
       }
-      > $2 := (biasfmt)PCORE(group,groupsz)[:][*].convolution_depthwise::biasHi[:];
 
       for(i=from;i < to;i += step) {
          > (biasfmt)PCORE(group,groupsz)[:][*].convolution_depthwise::biasHi[:] <= (biasfmt)MEM(req->biasHi,req->topcnt)[i:i+step-1];
@@ -569,17 +567,18 @@ static void convolution_depthwise(void *_p,int pid) {
 
          rowi=((i>>VECTOR_DEPTH)*kz)*VECTOR_WIDTH;
 
-         > $4 := (weightfmt)MEM(coef,coefsz)[rowi:rowi+gkz-1];
-         > $0 <= PROC(2) <= $4;
+         > $coef_ddr := (weightfmt)MEM(coef,coefsz)[rowi:rowi+gkz-1];
+         > $coef_pcore <= PROC(2) <= $coef_ddr;
 
          for(r=0,r2=-req->pad;r < req->topdim;r += conv_dy,r2 += stride_dy) {
             for(c=0,c2=-req->pad;c < req->topdim;c += conv_dx,c2+=stride_dx) {
+               >VAR $bot_ddr;
                if(req->in_interleave) {
-                  > $3 := PAD(0) (botfmt)MEM(bot,botdim,botdim,botcnt)[r2:r2+y-1][c2:c2+x-1][i:i+group*VECTOR_WIDTH-1];
+                  > $bot_ddr := PAD(0) (botfmt)MEM(bot,botdim,botdim,botcnt)[r2:r2+y-1][c2:c2+x-1][i:i+group*VECTOR_WIDTH-1];
                } else {
-                  > $3 := PAD(0) (botfmt)MEM(bot,botcnt,botdim,botdim)[i:i+group*VECTOR_WIDTH-1][r2:r2+y-1][c2:c2+x-1];		
+                  > $bot_ddr := PAD(0) (botfmt)MEM(bot,botcnt,botdim,botdim)[i:i+group*VECTOR_WIDTH-1][r2:r2+y-1][c2:c2+x-1];		
                }
-               > $1 <= PROC(1) <= $3;
+               > $bot_pcore <= PROC(1) <= $bot_ddr;
                dx=req->topdim-c;
                if(dx > conv_dx)
                   dx=conv_dx;
