@@ -111,7 +111,10 @@ Example:
    float8 myclass::myvar; // myvar is variable of type float8 and belonged to class myclass.
 ```
 
-#### 4.3.3 int
+#### 4.3.3 double
+vector of 8x32 bit integer. Variables of this type are used to hold accumulator computing values. Note that this is not actually a double type but rather it is a 32 bit integer type. 
+
+#### 4.3.4 int
 scalar 12 bit integer. This data type is used with scalar ALU. Variable of this type is normally used for loop index, array index...
 
 Example:
@@ -119,7 +122,7 @@ Example:
    int myclass::myvar; // myvar is variable of type int and belonged to class myclass.
 ```
 
-#### 4.3.4 float *
+#### 4.3.5 float *
 pointer to a float variable or array of float variables.
 
 Example:
@@ -128,7 +131,7 @@ Example:
 ```
 
 
-#### 4.3.5 float8 *
+#### 4.3.6 float8 *
 pointer to a float8 variable or array of float8 variables.
 
 Example:
@@ -159,6 +162,27 @@ For example:
 
 ```
    _share myclass::my_shared_variable; // my_shared_variable is shared among all the threads in the same PCORE.
+```
+
+#### 4.4.3 Global scope
+
+Variables of global scope are defined as function parameters with prefix _global.
+
+All PCORES and threads shared the same global variables.
+
+Global variables are read-only by pcore functions.
+
+Global variables can only be set by mcore programs.
+
+Global variables can only be of integer type.
+
+Below is an example of global variables from [conv.p](https://github.com/ztachip/ztachip/blob/master/software/target/apps/nn/kernels/conv.p)
+```
+// idx and idx2 are integers with global scope
+_kernel_ void convolution1x1::exe8(_global int idx,_global int idx2) {
+   :
+   :
+}
 ```
 
 ### 4.5 Class operations
