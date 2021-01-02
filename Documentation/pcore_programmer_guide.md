@@ -112,7 +112,12 @@ Example:
 ```
 
 #### 4.3.3 double
-vector of 8x32 bit integer. Variables of this type are used to hold accumulator computing values. Note that this is not actually a double type but rather it is a 32 bit integer type. 
+32 bit integer type. It can be used as 8x32bit vector or as 32 bit integer. Variables of this type are used to hold accumulator computing values. Note that this is not actually a double type but rather it is a 32 bit integer type. 
+
+Example:
+```
+   double myclass::_A; // _A is a 32bit accumulator. It can be used as 8x32bit vector or as 32bit integer.
+```
 
 #### 4.3.4 int
 scalar 12 bit integer. This data type is used with scalar ALU. Variable of this type is normally used for loop index, array index...
