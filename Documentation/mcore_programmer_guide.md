@@ -147,7 +147,33 @@ PCORE(4,2)[0:dy-1][0:dx-1].class::shared_variable[:]
 
 ```
 
-## 4. Tensor data memory transfer instructions
+## 4. Tensor variables.
+
+Tensor variables are tensor alias. Tensor variables are normally used in fast and tight loop of mcore programs.
+
+Example below is an example of a tensor variable
+
+```
+   > $coef_pcore := (weightfmt)PCORE(group,groupsz)[:][*].convolution::coef[0:kz-1][:];
+```
+
+Whenever $coef_pcore being invoked in a tensor transfer statement, the expression on the right will be substituted in its place.
+
+Tensor variables can also have an optional argument. The argument is being specified at later point whenever tensor variables are used. '$' is tensor variable's argument place holder.
+
+Example below is an example of a tensor variable with argument. The place holder for argument is '$' in the example.
+
+```
+   > $coef_ddr := (weightfmt)MEM(coef,botcnt2,topcnt3)[$][rowi:rowi+gkz-1];
+```
+  
+Example below is when the tensor variables above are being used in a tensor transfer instruction. Note that jj substitutes '$' found in tensor variable coef_ddr definition.
+
+```
+   > $coef_pcore <= $coef_ddr[jj];
+```
+
+## 5. Tensor data memory transfer instructions
 
 MCORE program emits these instructions to TensorEngine.
 
@@ -159,7 +185,7 @@ The way data are read/written to tensors is like a nested FOR loop. The order st
 
 In addition to memory transfer, it can also perform tensor reshape,dimension resize,stream processing...
 
-### 4.1 Tensor data transfer from DDR to PCORE private memory space
+### 5.1 Tensor data transfer from DDR to PCORE private memory space
 
 ```
 >PCORE[0:1].THREAD[0:1].myclass::myfunc.var[0:1] <= DDR(p)[0:2*2*2-1];
@@ -180,7 +206,7 @@ PCORE   THREAD  private_var      <=  DDR
 1       1       private_var[0]       p[6]
 1       1       private_var[1]       p[7]
 ```
-### 4.2 Tensor data transfer from DDR to PCORE shared memory space.
+### 5.2 Tensor data transfer from DDR to PCORE shared memory space.
 
 ```
 >PCORE[0:1].myclass::myfunc.shared_var[0:1] <= DDR(p)[0:2*2-1];
@@ -197,7 +223,7 @@ PCORE   shared_var    <=   DDR
 1       shared_var[0]      p[2]
 1       shared_var[1]      p[3]
 ```
-### 4.3 Tensor data transfer from DDR to SCRATCH-PAD memory space.
+### 5.3 Tensor data transfer from DDR to SCRATCH-PAD memory space.
 
 ```
 int len=4;
@@ -219,7 +245,7 @@ SCRATCH[1]  <=   p[1]
 SCRATCH[2]  <=   p[2]
 SCRATCH[3]  <=   p[3]
 ```
-### 4.4 Tensor data transfer from DDR to SCRATCH-PAD memory space. Multi-dimensional case.
+### 5.4 Tensor data transfer from DDR to SCRATCH-PAD memory space. Multi-dimensional case.
 
 ```
 int dx=2;
@@ -247,7 +273,7 @@ SCRATCH[3][0] <= p[3][0]
 SCRATCH[3][1] <= p[3][1]
 ```
 
-### 4.5 Tensor reshape
+### 5.5 Tensor reshape
 
 ```
 >PCORE[0].THREAD[0:2].myclass::myfunc.var[0:3] <= DDR(p,100,2,2)[0][0:2][0:3];
@@ -275,7 +301,7 @@ PCORE   THREAD    var   <=   DDR
 0          2        3        p[0][2][3] <- (Out of bound-Replace with zero)
 ```
 
-### 4.6 Tensor dimenstion casting
+### 5.6 Tensor dimenstion casting
 
 You can cast the dimension of the components of PCORE tensor to different dimension.
 
@@ -289,7 +315,7 @@ recast THREAD component dimension from 16 to 4x4. And recast component myvar dim
 >PCORE(8)[:].THREAD(4,4)[0:3][0:3].myclass::myvar(4,4)[0:3][0:3] <= DDR(p)[0:8*16*16-1];
 ```
 
-### 4.7 Tensor data reordering
+### 5.7 Tensor data reordering
 
 The way data are read/written to tensors is like a nested FOR loop.
 
@@ -335,7 +361,7 @@ myvar     THREAD        PCORE       <=  DDR
   3          1            2             p[23]
 ```
 
-### 4.8 Tensor scatter transfer
+### 5.8 Tensor scatter transfer
 
 This is one of the key and unique capabilities of ztachip.
 
@@ -347,7 +373,7 @@ Scatter transfer is the solution to this problem by transfering/transforming non
 
 This method is used extensively in the provided vision and AI stack.
 
-#### 4.8.1 Tensor scatter transfer by vector word.
+#### 5.8.1 Tensor scatter transfer by vector word.
 
 ```
 >FOR(I=0:7) PCORE(8)[0:7].THREAD[0:15].myclass::myvar(8,8)[:][I] <= DDR(p)[0:8*16*8*8-1];
@@ -367,7 +393,7 @@ The transfer now becomes...
 >SCATTER(0) FOR(I=0:7) PCORE(8)[0:7].THREAD[0:15].myclass::myvar(8,8)[:][I] <= DDR(p)[0:8*16*8*8-1];
 ```
 
-#### 4.8.2 Tensor scatter transfer by thread.
+#### 5.8.2 Tensor scatter transfer by thread.
 
 ```
 >FOR(I=0:7) FOR(J=0:7) PCORE(8)[0:7].THREAD(2,8)[:][:].myclass::myvar[J] <= DDR(p)[0:8*16*8*8-1];
@@ -387,7 +413,7 @@ The transfer now becomes...
 >SCATTER(0) FOR(I=0:7) FOR(J=0:7) PCORE(8)[0:7].THREAD(2,8)[:][:].myclass::myvar[J] <= DDR(p)[0:8*16*8*8-1];
 ```
 
-### 4.9 Tensor transfer with boundary check disabled.
+### 5.9 Tensor transfer with boundary check disabled.
 
 Normally the dimension index are bounded by the tensor dimension. If index is out-of-bound, then a read operation is padded with zero and a write operation is skipped.
 
@@ -403,13 +429,13 @@ Now, indexes of the last 2 dimensions of DDR tensor are no longer used for dimen
 
 This capability is commonly used to transfer tensors that are partially overlaped.
 
-### 4.10 Tensor transfer with overlapped dimension
+### 5.10 Tensor transfer with overlapped dimension
 
 Tensor can be defined to have 2 overlapped dimension definitions.
 
 This is useful in-order to add additional boundary checks on the tensor read/write access.
 
-#### 4.10.1 Tensor transfer with overlapped dimension - Usecase 1
+#### 5.10.1 Tensor transfer with overlapped dimension - Usecase 1
 
 ```
 DDR(p,1000(100,200))[:][:]
@@ -422,7 +448,7 @@ In addition to the index boundary check for dimension 100x200, any access beyond
 
 This syntax is useful in mapping arbitrary dimensioned tensor in DDR to a tensor in PCORE memory space where tensor dimensions are regular.
 
-#### 4.10.2 Tensor transfer with overlapped dimension - Usecase 2
+#### 5.10.2 Tensor transfer with overlapped dimension - Usecase 2
 
 ```
 DDR(p,100,32,152(10,16))[:][:][:]
@@ -436,7 +462,7 @@ the elements of the second index are having size=16 except for the last element 
 
 This syntax is useful in mapping arbitrary dimensioned tensor in DDR to a tensor in PCORE memory space where tensor dimensions are regular.
 
-### 4.11 Tensor padding values
+### 5.11 Tensor padding values
 
 Tensor read/write accesses are checked against dimension boundary. 
 
@@ -451,7 +477,7 @@ In example below, any out-of-bound read accesses from DDR tensor are padded with
 >PCORE[0].THREAD[0:2].myclass::myfunc.var[0:3] <= PAD(0xff) DDR(p,100,2,2)[0][0:2][0:3];
 ```
 
-### 4.12 Tensor data types
+### 5.12 Tensor data types
 
 Tensors can have the following data types
 
@@ -469,7 +495,7 @@ int fmt=DP_DATA_TYPE_UINT8;
 >(fmt)PCORE[0].THREAD[0:2].myclass::myfunc.var[0:3] <= (fmt)PAD(0xff) DDR(p,100,2,2)[0][0:2][0:3];
 ```
 
-## 5. Tensor operator execution
+## 6. Tensor operator execution
 
 Tensor operators are functions defined in PCORE programs.
 
@@ -477,7 +503,7 @@ These functions operate on tensors allocated within PCORE memory space.
 
 Input and results associated with tensor operators are then transfered to/from PCORE memory space to/from external DDR or sratch-pad memory space by TensorEngine under the instructions of MCORE program.
 
-### 5.1 Syntax
+### 6.1 Syntax
 
 Example below invokes a tensor operator exe of class convolution defined in corresponding PCORE program
 
@@ -497,14 +523,16 @@ Example below invokes tensor operator but the execution is limited only to np nu
 > EXE_LOCKSTEP(convolution::exe,np,nt); 
 ```
 
-Example below invokes tensor operator in 2 steps. First a function pointer is assigned and then tensor operator is invoked via this function pointer.
+Example below invokes tensor operator in 2 steps. First a function pointer (pointer to function as defined in pcore program) is assigned to a 32-bit integer variable 
+and then tensor operator is invoked via this function pointer.
 
 ```
-func=ztamBuildKernelFunc(convolution::exe,np,nt); // Assign function pointer
+uint32_t func;
+func=ztamBuildKernelFunc($convolution::exe,np,nt); // Assign function pointer
 > EXE_LOCKSTEP(func);
 ```
 
-## 6 Stream processing
+## 7 Stream processing
 
 Transfer to/from PCORE memory space can be streamed through a stream processor for processing.
 
@@ -529,7 +557,7 @@ In the example, as data being transfered from DDR to PCORE, data is also being p
 
 And as data being transfered from PCORE to DDR, data is also being processed by stream processor's program #1
 
-## 7. CALLBACK
+## 8. CALLBACK
 
 MCORE instructions to TensorEngine are queued for processing.
 
@@ -537,7 +565,7 @@ CALLBACK construct is used to trigger a function callback whenever MCORE executi
 
 This is normally used to send back responses to host applications at completion of TensorEngine executions.
 
-### 7.1 Syntax
+### 8.1 Syntax
 ```
 >CALLBACK(callback_function,int parm);
 ```
@@ -547,25 +575,25 @@ Where:
 
    - parm: integer to be passed to callback_function.
 
-## 8. Host communication API
+## 9. Host communication API
 
 MCORE is communicating with host applications via message queues.
 
 Functions below are API to read/write to/from the message queue.
 
-### 8.1 ztamMsgqReadPointer
+### 9.1 ztamMsgqReadPointer
 Read a DDR memory pointer passed from host applications.
 
-### 8.2 ztamMsgqReadInt
+### 9.2 ztamMsgqReadInt
 Read a 32-bit interger value passed from host applications.
 
-### 8.3 ztamMsgqWritePointer
+### 9.3 ztamMsgqWritePointer
 Send a DDR memory pointer to host applications.
 
-### 8.4 ztamMsgqWriteInt
+### 9.4 ztamMsgqWriteInt
 Send a 32-bit integer value to host applications.
 
-## 9. Thread management API
+## 10. Thread management API
 
 MCORE can have 2 processing threads: a main thread and a child thread.
 
@@ -577,7 +605,7 @@ This way you can interleave between memory cycle and execution cycle of the 2 PC
 while PCOREs are executing tensor operators on the other PCORE memory space.
 
 
-### 9.1 ztamTaskSpawn(void (*func)(void*,int),void *parm,int pid)
+### 10.1 ztamTaskSpawn(void (*func)(void*,int),void *parm,int pid)
 
 To spawn a child thread
 
@@ -589,7 +617,7 @@ Where:
 
    - pid: 0 for main thread,1 for child thread. 
 
-### 9.2 ztamTaskStatus(int pid)
+### 10.2 ztamTaskStatus(int pid)
 
 To check if task has been terminated.
 
@@ -597,7 +625,7 @@ Where:
 
    - pid: 0 for main main thread, 1 for child thread
 
-### 9.3 ztamTaskYield() 
+### 10.3 ztamTaskYield() 
 
 Yield execution to the other thread.
 
