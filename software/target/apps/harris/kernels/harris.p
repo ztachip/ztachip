@@ -15,8 +15,8 @@ float8 *harris::in_p;
 float8 *harris::x_gradient_p;
 float8 *harris::y_gradient_p;
 int harris::pad;
-double harris::_A;
-double harris::_B;
+double8 harris::_A;
+double8 harris::_B;
 
 _kernel_ void harris::init() {
    int i,j;
@@ -82,10 +82,10 @@ _share float8 harris1::score[TILE_DX_DIM*TILE_DY_DIM];
 float8 *harris1::x_gradient_p;
 float8 *harris1::y_gradient_p;
 int harris1::pad;
-double harris1::_XX;
-double harris1::_YY;
-double harris1::_XY;
-double harris1::_SUM;
+double8 harris1::_XX;
+double8 harris1::_YY;
+double8 harris1::_XY;
+double8 harris1::_SUM;
 
 _kernel_ void harris1::init() {
    int i,j;

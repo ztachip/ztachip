@@ -1,6 +1,12 @@
 
 DFLAG=ZTA_DEBUG2
 
+### Compile p-programs with verbose option. Print generated assembly
+VERBOSE=-v
+
+### Compile p-programs with verbose option disable.
+#VERBOSE=
+
 MIPS=~/mips-elf/bin
 
 KOBJ = \
@@ -38,7 +44,7 @@ OBJ = \
 
 %.m.c %.hex: %.p %.m
 	gcc -E -x c $< > temp.p
-	../../tools/compiler/compiler -I $(subst .p,.m,$<) temp.p
+	../../tools/compiler/compiler $(VERBOSE) $(subst .p,.m,$<) temp.p
 
 %.o : %.m.c
 	$(MIPS)/mips-elf-gcc -c $< -D$(DFLAG) -o $@ -O3 -mips1

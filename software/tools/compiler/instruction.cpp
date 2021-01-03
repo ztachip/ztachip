@@ -30,6 +30,8 @@
 #include "config.h"
 #include "mcore.h"
 
+extern bool M_VERBOSE;
+
 #define RC_FAIL   -1
 #define RC_FAIL_CONT -2
 #define RC_OK_LAST   0
@@ -2724,10 +2726,10 @@ int cInstruction::gen(FILE *fp)
             jump_addr=0;
          setField(oc,jump_addr,0);
       }
-#if 0
+
       // Display assembly code...
-      cInstruction::Print(instruction,addr/2,oc);
-#endif
+      if(M_VERBOSE)
+         cInstruction::Print(instruction,addr/2,oc);
 
       genHex(fp,addr,oc);
       addr++;

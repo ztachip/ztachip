@@ -12,7 +12,7 @@ _share float iconv::k[TILE_MAX_KZ][TILE_MAX_KZ];
 float8 *iconv::in_p;
 float8 *iconv::out_p;
 int iconv::pad;
-double iconv::_A;
+double8 iconv::_A;
 
 _kernel_ void iconv::init(int _ksz) {
    int i,j;

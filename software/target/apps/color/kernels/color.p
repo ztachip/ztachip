@@ -5,9 +5,9 @@ _NT16_ class yuyv2rgb;
 
 _share float8 yuyv2rgb::yuyv[PIXEL_PER_THREAD*YUYV_PIXEL_SIZE*NUM_THREAD_PER_CORE];
 _share float8 yuyv2rgb::rgb[PIXEL_PER_THREAD*RGB_PIXEL_SIZE*NUM_THREAD_PER_CORE];
-double yuyv2rgb::red[PIXEL_PER_THREAD];
-double yuyv2rgb::blue[PIXEL_PER_THREAD];
-double yuyv2rgb::green[PIXEL_PER_THREAD];
+double8 yuyv2rgb::red[PIXEL_PER_THREAD];
+double8 yuyv2rgb::blue[PIXEL_PER_THREAD];
+double8 yuyv2rgb::green[PIXEL_PER_THREAD];
 float8 *yuyv2rgb::p1;
 float8 *yuyv2rgb::p2;
 
@@ -138,7 +138,7 @@ _share float8 copy::in[RGB_PIXEL_SIZE*NUM_THREAD_PER_CORE];
 _share float8 copy::out[RGB_PIXEL_SIZE*NUM_THREAD_PER_CORE];
 float8 *copy::p1;
 float8 *copy::p2;
-double copy::_A;
+double8 copy::_A;
 
 #define RGB2MONO(r,g,b,m) {_A=(r)*154;_A+=(g)*302;_A+=(b)*56;_A+=256;_A=_A>>3;_A=_A>>3;m=_A>>3;}
 

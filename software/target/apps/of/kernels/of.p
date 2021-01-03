@@ -16,9 +16,9 @@ _share float of::k_y[TILE_MAX_KZ][TILE_MAX_KZ];
 float8 *of::in1_p;
 float8 *of::in2_p;
 int of::pad;
-double of::_A;
-double of::_B;
-double of::_C;
+double8 of::_A;
+double8 of::_B;
+double8 of::_C;
 
 _kernel_ void of::init() {
    int i,j;
@@ -93,13 +93,13 @@ _share float8 of1::t_gradient[OF1_MAX_INBUF];
 int of1::input_idx;
 int of1::output_idx;
 int of1::pad;
-double of1::IX2;
-double of1::IY2;
-double of1::IXY;
-double of1::IXT;
-double of1::IYT;
-double of1::T;
-double of1::A;
+double8 of1::IX2;
+double8 of1::IY2;
+double8 of1::IXY;
+double8 of1::IXT;
+double8 of1::IYT;
+double8 of1::T;
+double8 of1::A;
 
 _kernel_ void of1::init() {
    int i,j;

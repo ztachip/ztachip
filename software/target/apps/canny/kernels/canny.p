@@ -15,8 +15,8 @@ float8 *canny::in_p;
 float8 *canny::magnitude_p;
 float8 *canny::phase_p;
 int canny::pad;
-double canny::_A;
-double canny::_B;
+double8 canny::_A;
+double8 canny::_B;
 
 _kernel_ void canny::init() {
    int i,j;

@@ -39,6 +39,7 @@
 cAstNode *root=0;
 cInstructions PROGRAM;
 bool M_ISFLOAT=true;
+bool M_VERBOSE=false;
 
 extern void prune(cAstNode *_root,bool full);
 extern int compress(cAstNode *_root);
@@ -360,27 +361,18 @@ int main(int argc,char *argv[])
    FILE *outfp;
    char *fname;
    int i,len;
+   int firstArg;
    char mfileInput[100];
    char mfileOutput[100];
    char pfileInput[100];
    char pfileOutput[100];
    char pfileConstant[100];
    char pfileHeader[100];
-#if 0
-   extern int cnn();
-   cnn();
-   return 0;
-#endif
+
    // Perform some static initialization...
    cConstant::Init();
    cIdentifier::Init();
-/*
-argc=5;
-argv[1]="-C";
-argv[2]="..\\..\\..\\ztachip";
-argv[3]="INTEGER";
-argv[4]="FORK=1";
-*/
+
    if(argc >= 2 && strcasecmp(argv[1], "-L")==0)
    {
       if(argc < 5) {
@@ -402,33 +394,34 @@ argv[4]="FORK=1";
    }
 
 #if 1
-   if(argc < 4)
+   if(argc < 3)
    {
-      printf("\nError1: Usage compiler2 [-I|-F] file1.m file2.p ");
+      printf("\nError1: Usage compiler2 [-v] file1.m file2.p ");
       return -1;
    }
-   if (strcasecmp(argv[1], "-I")==0)
-   {
-      printf("Build for integer model \n");
-      M_ISFLOAT=false;
+   if(strcasecmp(argv[1],"-V")==0) {
+      firstArg=2;
+      M_VERBOSE=true;
+      if(argc < 4) {
+         printf("\nError1: Usage compiler2 [-v] file1.m file2.p ");
+         return -1;
+      }
+   } else {
+      firstArg=1;
+      M_VERBOSE=false;
+      if(argc < 3) {
+         printf("\nError1: Usage compiler2 [-v] file1.m file2.p ");
+         return -1;
+      }
    }
-   else if (strcasecmp(argv[1], "-F")==0)
-   {
-      printf("Build for floating model \n");
-      M_ISFLOAT=true;
-   }
-   else
-   {
-      printf("Error1: Usage compiler2 [-I|-F] file1.m file2.p\n");
-      return -1;
-   }
+   M_ISFLOAT=false;
    mfileInput[0]=0;
    mfileOutput[0]=0;
    pfileInput[0]=0;
    pfileOutput[0]=0;
    pfileConstant[0]=0;
    pfileHeader[0]=0;
-   for(i=2;i < argc;i++)
+   for(i=firstArg;i < argc;i++)
    {
       fname=argv[i];
       len=strlen(fname);
@@ -577,7 +570,10 @@ argv[4]="FORK=1";
 
       // Print generated instructions. For debugging
 
-//      cInstruction::Print();
+//      if(M_VERBOSE) {
+//         printf("Print assembly instructions\r\n");
+//         cInstruction::Print();
+//      }
 
       // Generate constant file
 

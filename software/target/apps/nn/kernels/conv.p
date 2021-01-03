@@ -13,7 +13,7 @@ float8 convolution::top[MAX_CONV_Y_DIM];
 float *convolution::p;
 int convolution::out_scale;
 float convolution::in_scale;
-double convolution::_A[MAX_CONV_Y_DIM];
+double8 convolution::_A[MAX_CONV_Y_DIM];
 int convolution::dx;
 
 _kernel_ void convolution::start(_global int count) {
@@ -71,7 +71,7 @@ float8 convolution_depthwise::top[CONV_DEPTHWISE_Y_DIM];
 float8 *convolution_depthwise::p;
 int convolution_depthwise::out_scale;
 float convolution_depthwise::in_scale;
-double convolution_depthwise::_A[CONV_DEPTHWISE_Y_DIM];
+double8 convolution_depthwise::_A[CONV_DEPTHWISE_Y_DIM];
 int convolution_depthwise::dx;
 
 _kernel_ void convolution_depthwise::init(int stride,int mypid,int _out_scale,float _in_scale,int _dx) {
@@ -131,7 +131,7 @@ _share float8 convolution1x1::top[CONV_1X1_Y_DIM*NUM_THREAD_PER_CORE];
 float *convolution1x1::p;
 float8 *convolution1x1::p2;
 int convolution1x1::out_scale;
-double convolution1x1::_A[CONV_1X1_Y_DIM];
+double8 convolution1x1::_A[CONV_1X1_Y_DIM];
 int convolution1x1::dysz;
 
 _kernel_ void convolution1x1::start(_global int count) {

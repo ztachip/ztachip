@@ -14,8 +14,8 @@ float8 *resize::p_out;
 _share float resize::fract0[TILE_DIM];
 _share float resize::fract1[TILE_DIM];
 _share float resize::fract2[TILE_DIM];
-double resize::_A;
-double resize::_B;
+double8 resize::_A;
+double8 resize::_B;
 _share float resize::pixel[8];
 
 // Assigned pixel to be processed by each thread
@@ -77,7 +77,7 @@ _share float8 resize_box::inbuf[BOX_RESIZE_MAX_INBUF];
 _share float8 resize_box::outbuf[BOX_RESIZE_MAX_OUTBUF];
 float8 *resize_box::p_in;
 float8 *resize_box::p_out;
-double resize_box::_A;
+double8 resize_box::_A;
 float resize_box::filter[BOX_RESIZE_MAX_FILTER];
 int resize_box::scale;
 

@@ -55,6 +55,7 @@ static int check_type(void);
 "default"				{ return(DEFAULT); }
 "do"					{ return(DO); }
 "double"				{ return(DOUBLE); }
+"double8"				{ return(DOUBLE); }
 "else"					{ return(ELSE); }
 "enum"					{ return(ENUM); }
 "extern"				{ return(EXTERN); }

@@ -9,7 +9,7 @@ _share float inner_product::bot[IP_CHUNK_SIZE];
 float8 inner_product::coef[IP_CHUNK_SIZE];
 float8 inner_product::top;
 float inner_product::out_scale;
-double inner_product::_A;
+double8 inner_product::_A;
 float8 inner_product::biasHi;
 float8 inner_product::biasLo;
 
@@ -45,7 +45,7 @@ _kernel_ void inner_product::activate_none() {
 // ---- Pooling layer...
 
 float8 max_pool::bot[POOL_BOT_SIZE];
-double max_pool::_A;
+double8 max_pool::_A;
 float max_pool::out_scale;
 float8 max_pool::top;
 
