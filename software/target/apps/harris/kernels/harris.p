@@ -127,24 +127,15 @@ _kernel_ void harris1::calc() {
       y_p += pad;
    }
 
-   _XX=_XX>>3;
-   _XX=_XX>>3;
-   _XX=_XX>>3;
-   _XX=_XX>>1;
+   _XX=_XX>>10;
    _XX+=1;
    xx=_XX>>1;
 
-   _YY=_YY>>3;
-   _YY=_YY>>3;
-   _YY=_YY>>3;
-   _YY=_YY>>1;
+   _YY=_YY>>10;
    _YY+=1;
    yy=_YY>>1;
 
-   _XY=_XY>>3;
-   _XY=_XY>>3;
-   _XY=_XY>>3;
-   _XY=_XY>>1;
+   _XY=_XY>>10;
    _XY+=1;
    xy=_XY>>1;
    
@@ -155,16 +146,12 @@ _kernel_ void harris1::calc() {
    _SUM += yy*yy;
 
    // TRACE*0.0625
-   _SUM = _SUM >> 3;
-   _SUM = _SUM >> 1;
+   _SUM = _SUM >> 4;
          
    _SUM -= xx*yy;
    _SUM += xy*xy;
 
-   _SUM = _SUM>>3;
-   _SUM = _SUM>>3;
-   _SUM = _SUM>>3;
-   _SUM = _SUM>>1;
+   _SUM = _SUM>>10;
    _SUM += 1;
    sum = _SUM >> 1;
 

@@ -41,9 +41,7 @@ _kernel_ void iconv::exe_7x7() {
          }
          p2 += pad;
       }
-      _A=(_A>>3);
-      _A=(_A>>3);
-      _A=(_A>>3);
+      _A=(_A>>9);
       _A=_A+1;
       p2=out_p+(TILE_DX_DIM<<1)*i;
       p2[0]=(_A>>1);

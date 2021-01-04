@@ -146,11 +146,11 @@ _kernel_ void of1::calc_lucus_kanade() {
       t_p += pad;
    }
 
-   IX2=IX2>>3;IX2=IX2>>3;IX2=IX2>>3;IX2=IX2>>3;IX2=IX2>>3;IX2=IX2>>1;
-   IY2=IY2>>3;IY2=IY2>>3;IY2=IY2>>3;IY2=IY2>>3;IY2=IY2>>3;IY2=IY2>>1;
-   IXY=IXY>>3;IXY=IXY>>3;IXY=IXY>>3;IXY=IXY>>3;IXY=IXY>>3;IXY=IXY>>1;
-   IXT=IXT>>3;IXT=IXT>>3;IXT=IXT>>3;IXT=IXT>>3;IXT=IXT>>3;IXT=IXT>>1;
-   IYT=IYT>>3;IYT=IYT>>3;IYT=IYT>>3;IYT=IYT>>3;IYT=IYT>>3;IYT=IYT>>1;
+   IX2=IX2>>16;
+   IY2=IY2>>16;
+   IXY=IXY>>16;
+   IXT=IXT>>16;
+   IYT=IYT>>16;
 
    // Calculate determinant
    T=0;t1=IX2>>0;t2=IY2>>0;T+=t1*t2;t1=IXY>>0;T-=t1*t1;t_gradient[output_idx]=T>>1;
@@ -167,8 +167,8 @@ _kernel_ void of1::calc_lucus_kanade() {
 
 _kernel_ void of1::calc_lucus_kanade_final() {
   A=x_gradient[output_idx]*t_gradient[output_idx];
-  A=A>>3;A=A>>3;A=A>>3;x_gradient[output_idx]=A>>1;
+  x_gradient[output_idx]=A>>10;
 
   A=y_gradient[output_idx]*t_gradient[output_idx];
-  A=A>>3;A=A>>3;A=A>>3;y_gradient[output_idx]=A>>1;
+  y_gradient[output_idx]=A>>10;
 }
