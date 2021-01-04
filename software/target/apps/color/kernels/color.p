@@ -44,24 +44,18 @@ _kernel_ void yuyv2rgb::convert() {
       // red
       red[i]=583*v;
       red[i]=red[i]+256;
-      red[i] = red[i] >> 3;
-      red[i] = red[i] >> 3;
-      red[i] = red[i] >> 3;
+      red[i] = red[i] >> 9;
 
       // Green
       green[i]=-202*u;
       green[i]=green[i]-297*v;
       green[i]=green[i]+256;
-      green[i] = green[i] >> 3;
-      green[i] = green[i] >> 3;
-      green[i] = green[i] >> 3;
+      green[i] = green[i] >> 9;
 
       // Blue color
       blue[i]=1040*u;
       blue[i]=blue[i]+256;
-      blue[i] = blue[i] >> 3;
-      blue[i] = blue[i] >> 3;
-      blue[i] = blue[i] >> 3;
+      blue[i] = blue[i] >> 9;
    }
 }
 
@@ -140,7 +134,7 @@ float8 *copy::p1;
 float8 *copy::p2;
 double8 copy::_A;
 
-#define RGB2MONO(r,g,b,m) {_A=(r)*154;_A+=(g)*302;_A+=(b)*56;_A+=256;_A=_A>>3;_A=_A>>3;m=_A>>3;}
+#define RGB2MONO(r,g,b,m) {_A=(r)*154;_A+=(g)*302;_A+=(b)*56;_A+=256;m=_A>>9;}
 
 _kernel_ void copy::in_interleave_init() {
    int i;

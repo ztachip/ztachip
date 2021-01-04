@@ -506,7 +506,10 @@ char *cIdentifier::getPrintName(char *buf)
    }
    else
    {
-      sprintf(buf,"T%d@%d",m_id,m_byteOffset);
+      if(isKindOf(cIdentifierExReg::getCLID()))
+         sprintf(buf,"TD%d@%d",m_id,m_byteOffset);
+      else
+         sprintf(buf,"TS%d@%d",m_id,m_byteOffset);
       return buf;
    }
 }

@@ -2,10 +2,10 @@
 DFLAG=ZTA_DEBUG2
 
 ### Compile p-programs with verbose option. Print generated assembly
-VERBOSE=-v
+#VERBOSE=-v
 
 ### Compile p-programs with verbose option disable.
-#VERBOSE=
+VERBOSE=
 
 MIPS=~/mips-elf/bin
 
