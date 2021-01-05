@@ -1,3 +1,4 @@
+
 #include "../../../base/ztam.h"
 #include "fcn.h"
 
@@ -46,7 +47,7 @@ static void innerProduct(void *_p,int pid) {
    coeftopcnt=req->coeftopcnt*IP_CHUNK_SIZE;
    dx2=req->dx*IP_CHUNK_SIZE;
 
-   > PCORE(NUM_PCORE)[*][0:nthread-1].inner_product::init._out_scale <= HALF(req->top_scale);
+   > PCORE(NUM_PCORE)[*][0:nthread-1].inner_product::init._out_scale <= INT(req->top_scale);
    > EXE_LOCKSTEP(inner_product::init,NUM_PCORE,nthread);
    ztamTaskYield();
 
@@ -115,7 +116,7 @@ static void pooling(void *_p,int pid) {
       from=cnt/2;
       to=cnt;
    }
-   > (int)PCORE(np)[*][:].max_pool::init._out_scale <= HALF(req->output_shift);
+   > PCORE(np)[*][:].max_pool::init._out_scale <= INT(req->output_shift);
    > EXE_LOCKSTEP(max_pool::init,np);
    ztamTaskYield();
  

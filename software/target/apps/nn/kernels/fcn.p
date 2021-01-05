@@ -8,12 +8,12 @@ _NT16_ class inner_product,max_pool,concatenate;
 _share float inner_product::bot[IP_CHUNK_SIZE];
 float8 inner_product::coef[IP_CHUNK_SIZE];
 float8 inner_product::top;
-float inner_product::out_scale;
+int inner_product::out_scale;
 double8 inner_product::_A;
 float8 inner_product::biasHi;
 float8 inner_product::biasLo;
 
-_kernel_ void inner_product::init(float _out_scale) {
+_kernel_ void inner_product::init(int _out_scale) {
    out_scale=_out_scale;
 }
 
@@ -33,12 +33,6 @@ _kernel_ void inner_product::exe() {
 // Activation
 
 _kernel_ void inner_product::activate_none() {
-   _A = _A >> out_scale-18;
-   _A = _A >> out_scale-15; 
-   _A = _A >> out_scale-12; 
-   _A = _A >> out_scale-9; 
-   _A = _A >> out_scale-6; 
-   _A = _A >> out_scale-3; 
    top = _A >> out_scale;
 }
 
@@ -46,10 +40,10 @@ _kernel_ void inner_product::activate_none() {
 
 float8 max_pool::bot[POOL_BOT_SIZE];
 double8 max_pool::_A;
-float max_pool::out_scale;
+int max_pool::out_scale;
 float8 max_pool::top;
 
-_kernel_ void max_pool::init(float _out_scale) {
+_kernel_ void max_pool::init(int _out_scale) {
    out_scale=_out_scale;
    _A=0;
 }
@@ -70,12 +64,6 @@ _kernel_ void max_pool::exe() {
 }
 
 _kernel_ void max_pool::finish() {
-   _A = _A >> out_scale-18;
-   _A = _A >> out_scale-15; 
-   _A = _A >> out_scale-12; 
-   _A = _A >> out_scale-9; 
-   _A = _A >> out_scale-6; 
-   _A = _A >> out_scale-3; 
    top = _A >> out_scale;
    _A = 0;
 }
