@@ -120,11 +120,15 @@ ZtaStatus Programmer::programPcore(const char *fname) {
       M_cLen[index]=0;
       cmem=(uint16_t *)ZTA_SHARED_MEM_P(M_c[index]);
       for(;;) {
-         if(!fgets(line,sizeof(line)-1,fp))
+         if(!fgets(line,sizeof(line)-1,fp)) {
+            line[0]=0;
             break;
+         }
          if(strstr(line,".CODE BEGIN"))
             break;
       }
+      if(!line[0])
+         continue;
       for(;;) {
          if(!fgets(line,sizeof(line)-1,fp))
             break;

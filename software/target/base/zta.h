@@ -348,7 +348,7 @@
 #define SPU_LOOKUP_SIZE     (2*SPU_SIZE)
 
 // MCORE parameters
-#define kMcoreMaxOverlay      12           // Maximum number of mcore overlays
+#define kMcoreMaxOverlay      16           // Maximum number of mcore overlays
 #define MCORE_OVERLAY_ADDRESS 0x80000     // Address of overlay memory address
 #define kMcoreCodeSpaceAddr   0xF00000    // Address of begin of mcore code space 
 

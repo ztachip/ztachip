@@ -234,58 +234,11 @@ proc program_pcore {filename} {
    close $fp
 
    ### Set message to MCORE
-   ztaMsgWriteInt 0x4
-   ztaMsgWriteInt 0
    ztaMsgWriteInt $count
    ztaMsgWriteInt [expr 4000]
-   ztaMsgWriteInt 0
-   ztaMsgWriteInt 0
-   ztaMsgWriteInt 0
-   ztaMsgWriteInt 0
-   ztaMsgWriteInt 0
-   ztaMsgWriteInt 0
-   ztaMsgWriteInt 0
-   ztaMsgWriteInt 0
-   ztaMsgWriteInt 0
-   ztaMsgWriteInt 0
-   ztaMsgWriteInt 0
-   ztaMsgWriteInt 0
-   ztaMsgWriteInt 0
-   ztaMsgWriteInt 0
-   ztaMsgWriteInt 0
-   ztaMsgWriteInt 0
-   ztaMsgWriteInt 0
-   ztaMsgWriteInt 0
-   ztaMsgWriteInt 0
-   ztaMsgWriteInt 0
-   ztaMsgWriteInt 0
-   ztaMsgWriteInt 0
-
    ztaMsgWriteInt [expr ($count2*2)]
    ztaMsgWriteInt [expr 5000]
-   ztaMsgWriteInt 0
-   ztaMsgWriteInt 0
-   ztaMsgWriteInt 0
-   ztaMsgWriteInt 0
-   ztaMsgWriteInt 0
-   ztaMsgWriteInt 0
-   ztaMsgWriteInt 0
-   ztaMsgWriteInt 0
-   ztaMsgWriteInt 0
-   ztaMsgWriteInt 0
-   ztaMsgWriteInt 0
-   ztaMsgWriteInt 0
-   ztaMsgWriteInt 0
-   ztaMsgWriteInt 0
-   ztaMsgWriteInt 0
-   ztaMsgWriteInt 0
-   ztaMsgWriteInt 0
-   ztaMsgWriteInt 0
-   ztaMsgWriteInt 0
-   ztaMsgWriteInt 0
-   ztaMsgWriteInt 0
-   ztaMsgWriteInt 0
-   ztaMsgWriteInt [expr 0]
+
    puts "Program pcore done"
 }
 

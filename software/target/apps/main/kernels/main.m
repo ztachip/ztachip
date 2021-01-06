@@ -19,6 +19,9 @@ static int M_lastOverlay=-1;
 
 extern void zta_ox_begin(),zta_o0_end(),zta_o1_end(),zta_o2_end(),zta_o3_end();
 extern void zta_o4_end(),zta_o5_end(),zta_o6_end(),zta_o7_end(),zta_o8_end();
+extern void zta_o9_end(),zta_o10_end(),zta_o11_end(),zta_o12_end(),zta_o13_end();
+extern void zta_o14_end(),zta_o15_end();
+
 typedef void (*func_t)(int);
 
 uint32_t overlay[kMcoreMaxOverlay]={
@@ -30,7 +33,15 @@ uint32_t overlay[kMcoreMaxOverlay]={
    (uint32_t)zta_o5_end,
    (uint32_t)zta_o6_end,
    (uint32_t)zta_o7_end,
-   (uint32_t)zta_o8_end};
+   (uint32_t)zta_o8_end,
+   (uint32_t)zta_o9_end,
+   (uint32_t)zta_o10_end,
+   (uint32_t)zta_o11_end,
+   (uint32_t)zta_o12_end,
+   (uint32_t)zta_o13_end,
+   (uint32_t)zta_o14_end,
+   (uint32_t)zta_o15_end,   
+};
 
 // Callback to indicate transfer of mcore code from DDR has been completed
 

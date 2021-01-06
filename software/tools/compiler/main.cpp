@@ -96,6 +96,7 @@ int buildLdFile(char *ldFileName,int numFiles,char **fileName)
 {
    FILE *fp=0;
    char *p;
+   int j;
    fp=fopen(ldFileName,"w");
    if(!fp)
       return -1;
@@ -231,15 +232,12 @@ int buildLdFile(char *ldFileName,int numFiles,char **fileName)
       fprintf(fp,".text%d {%s(.text)}\n",i,fname);
    }
    fprintf(fp,"}\n");
-   fprintf(fp,"PROVIDE (zta_o0_end = 0x%08X+SIZEOF(.text0));\n",kMcoreCodeSpaceAddr);
-   fprintf(fp,"PROVIDE (zta_o1_end = 0x%08X+SIZEOF(.text1));\n",kMcoreCodeSpaceAddr);
-   fprintf(fp,"PROVIDE (zta_o2_end = 0x%08X+SIZEOF(.text2));\n",kMcoreCodeSpaceAddr);
-   fprintf(fp,"PROVIDE (zta_o3_end = 0x%08X+SIZEOF(.text3));\n",kMcoreCodeSpaceAddr);
-   fprintf(fp,"PROVIDE (zta_o4_end = 0x%08X+SIZEOF(.text4));\n",kMcoreCodeSpaceAddr);
-   fprintf(fp,"PROVIDE (zta_o5_end = 0x%08X+SIZEOF(.text5));\n",kMcoreCodeSpaceAddr);
-   fprintf(fp,"PROVIDE (zta_o6_end = 0x%08X+SIZEOF(.text6));\n",kMcoreCodeSpaceAddr);
-   fprintf(fp,"PROVIDE (zta_o7_end = 0x%08X+SIZEOF(.text7));\n",kMcoreCodeSpaceAddr);
-   fprintf(fp,"PROVIDE (zta_o8_end = 0x%08X+SIZEOF(.text8));\n",kMcoreCodeSpaceAddr);
+   for(j=0;j < numFiles;j++) {
+      fprintf(fp,"PROVIDE (zta_o%d_end = 0x%08X+SIZEOF(.text%d));\n",j,kMcoreCodeSpaceAddr,j);
+   }
+   for(;j < kMcoreMaxOverlay;j++) {
+      fprintf(fp,"PROVIDE (zta_o%d_end = 0x%08X+SIZEOF(.text%d));\n",j,kMcoreCodeSpaceAddr,numFiles-1);
+   }
    fprintf(fp,"PROVIDE (etext = .);\n");
    fprintf(fp,"_etext  =  .;\n");
    fprintf(fp,"}\n");
