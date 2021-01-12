@@ -58,11 +58,15 @@ static void loadPCORE(int c_p,int c_len,int pcore_p,int pcoreLen) {
    c_len=((c_len+3)>>2)<<2;
 
    // Set pcore process1's constant memory space
-   > PCORE[*].root.constant[0:c_len-1] <= MEM(c_p)[0:c_len-1];
+   if(c_len > 0) {
+      > PCORE[*].root.constant[0:c_len-1] <= MEM(c_p)[0:c_len-1];
+   }
    ztamTaskSetCurr(0);
 
    // Set pcore process0's constant memory space.
-   > PCORE[*].root.constant[0:c_len-1] <= MEM(c_p)[0:c_len-1];
+   if(c_len > 0) {
+      > PCORE[*].root.constant[0:c_len-1] <= MEM(c_p)[0:c_len-1];
+   }
 
    // Set pcore code space
    > PROG((pcoreLen/2)) <= (int)MEM(pcore_p,(pcoreLen/2)*4)[:];
@@ -131,7 +135,6 @@ void main() {
    uint32_t section;
    func_t func;
    int queue;
-ztamPrintf("ZTACHIP2... \n");
 
    // Always start with this...
 

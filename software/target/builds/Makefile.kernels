@@ -35,6 +35,11 @@ OBJ = \
 ../apps/harris/kernels/harris.o \
 ../apps/of/kernels/of.o
 
+TEMP = $(subst :, ,$(USERLST))
+
+KOBJ += $(TEMP:=.hex)
+
+OBJ += $(TEMP:=.o)
 
 %.o: %.c
 	$(MIPS)/mips-elf-gcc -c $< -D$(DFLAG) -o $@ -O3 -mips1
