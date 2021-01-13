@@ -60,8 +60,7 @@ ZtaStatus GraphNodeCanny::Verify() {
 
 ZtaStatus GraphNodeCanny::Schedule(int queue) {
    ztahostMsgqWriteInt(queue,m_func);
-   ztahostMsgqWriteInt(queue,1);
-   ztahostMsgqWriteInt(queue,1);
+   ztahostMsgqWriteInt(queue,GetNextRequestId(queue));
    ztahostMsgqWritePointer(queue,m_input->GetBuf());
    ztahostMsgqWritePointer(queue,ZTA_SHARED_MEM_P(m_magnitude));
    ztahostMsgqWritePointer(queue,ZTA_SHARED_MEM_P(m_phase)); 
@@ -77,7 +76,6 @@ ZtaStatus GraphNodeCanny::Schedule(int queue) {
    ztahostMsgqWriteInt(queue,0);
    ztahostMsgqWriteInt(queue,m_w);
    ztahostMsgqWriteInt(queue,m_h);
-   ztahostMsgqWriteInt(queue,GetNextRequestId(queue));
    return ZtaStatusOk;
 }
 

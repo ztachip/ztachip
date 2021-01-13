@@ -645,19 +645,16 @@ static void do_add_process(void *_p,int pid)
 void do_add(int queue)
 {
    RequestAdd req;
-   int resp;
+
    req.size=ztamMsgqReadInt(queue);
    req.input[0]=ztamMsgqReadPointer(queue);
    req.input[1]=ztamMsgqReadPointer(queue);
    req.output=ztamMsgqReadPointer(queue);
    req.stream=ztamMsgqReadPointer(queue);
-   resp=ztamMsgqReadInt(queue);
    ztamTaskSpawn(do_add_process,&req,1);
    do_add_process(&req,0);
    while(ztamTaskStatus(1))
       ztamTaskYield();
-   if(resp >= 0)
-      >CALLBACK(mycallback,resp);
 }
 
 // Process convolution request
@@ -665,7 +662,7 @@ void do_add(int queue)
 void do_convolution(int queue)
 {
    RequestConv req;
-   int resp;
+
    req.coef=ztamMsgqReadPointer(queue);
    req.biasHi=ztamMsgqReadPointer(queue);
    req.biasLo=ztamMsgqReadPointer(queue);
@@ -688,7 +685,6 @@ void do_convolution(int queue)
    req.groupsz=ztamMsgqReadInt(queue);
    req.in_interleave=ztamMsgqReadInt(queue);
    req.out_interleave=ztamMsgqReadInt(queue);
-   resp=ztamMsgqReadInt(queue);
    if(req.ksz==1)
    {
       ztamTaskSpawn(convolution_1x1,&req,1);
@@ -701,8 +697,6 @@ void do_convolution(int queue)
    }
    while(ztamTaskStatus(1))
       ztamTaskYield();
-   if(resp >= 0)
-      >CALLBACK(mycallback,resp);
 }
 
 // Process depth_wise convolution request
@@ -710,7 +704,6 @@ void do_convolution(int queue)
 void do_convolution_depthwise(int queue)
 {
    RequestConv req;
-   int resp;
    req.coef=ztamMsgqReadPointer(queue);
    req.biasHi=ztamMsgqReadPointer(queue);
    req.biasLo=ztamMsgqReadPointer(queue);
@@ -733,13 +726,10 @@ void do_convolution_depthwise(int queue)
    req.groupsz=ztamMsgqReadInt(queue);
    req.in_interleave=ztamMsgqReadInt(queue);
    req.out_interleave=ztamMsgqReadInt(queue);
-   resp=ztamMsgqReadInt(queue);
    ztamTaskSpawn(convolution_depthwise,&req,1);
    convolution_depthwise(&req,0);
    while(ztamTaskStatus(1))
       ztamTaskYield();
-   if(resp >= 0)
-      >CALLBACK(mycallback,resp);
 }
 
 > EXPORT(do_convolution);

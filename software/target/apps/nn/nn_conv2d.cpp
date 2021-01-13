@@ -97,8 +97,7 @@ ZtaStatus NeuralNetLayerConv2D::Evaluate(int queue) {
       if(ztahostMsgqWriteAvail(queue) < 17)
          return ZtaStatusPending;
       ztahostMsgqWriteInt(queue,cmd);
-      ztahostMsgqWriteInt(queue,1); // Batch size
-      ztahostMsgqWriteInt(queue,0); // Batch element size
+      ztahostMsgqWriteInt(queue,m_nn->GetNextRequestId(queue));
       ztahostMsgqWritePointer(queue,m_shmFilter); // coef
       ztahostMsgqWritePointer(queue,m_shmBiasHi); // bias
       ztahostMsgqWritePointer(queue,m_shmBiasLo); // bias
@@ -112,13 +111,11 @@ ZtaStatus NeuralNetLayerConv2D::Evaluate(int queue) {
       ztahostMsgqWriteInt(queue,op->u.conv.output_scale); // activation offset  
       ztahostMsgqWriteInt(queue,m_strategy.fcn.npcore);
       ztahostMsgqWriteInt(queue,m_strategy.fcn.nthread);
-      ztahostMsgqWriteInt(queue,m_nn->GetNextRequestId(queue));
    } else {
       if(ztahostMsgqWriteAvail(queue) < 26)
          return ZtaStatusPending;
       ztahostMsgqWriteInt(queue,cmd);
-      ztahostMsgqWriteInt(queue,1); // Batch size
-      ztahostMsgqWriteInt(queue,0); // Batch element size
+      ztahostMsgqWriteInt(queue,m_nn->GetNextRequestId(queue));
       ztahostMsgqWritePointer(queue,m_shmFilter); // coef
       ztahostMsgqWritePointer(queue,m_shmBiasHi); // bias
       ztahostMsgqWritePointer(queue,m_shmBiasLo); // bias
@@ -141,7 +138,6 @@ ZtaStatus NeuralNetLayerConv2D::Evaluate(int queue) {
       ztahostMsgqWriteInt(queue,m_strategy.conv.groupsz);
       ztahostMsgqWriteInt(queue,in_fmt);
       ztahostMsgqWriteInt(queue,out_fmt);
-      ztahostMsgqWriteInt(queue,m_nn->GetNextRequestId(queue));
    }
    return ZtaStatusOk;
 }

@@ -169,8 +169,7 @@ ZtaStatus GraphNodeColorAndReshape::Verify() {
 ZtaStatus GraphNodeColorAndReshape::Schedule(int queue) {
    if(m_srcColorSpace==TensorSemanticYUYV) {
       ztahostMsgqWriteInt(queue,m_func);
-      ztahostMsgqWriteInt(queue,0);
-      ztahostMsgqWriteInt(queue,0);
+      ztahostMsgqWriteInt(queue,GetNextRequestId(queue));
       ztahostMsgqWritePointer(queue,m_input->GetBuf());
       ztahostMsgqWritePointer(queue,m_output->GetBuf());
       ztahostMsgqWritePointer(queue,ZTA_SHARED_MEM_P(m_spu));
@@ -186,11 +185,9 @@ ZtaStatus GraphNodeColorAndReshape::Schedule(int queue) {
       ztahostMsgqWriteInt(queue,m_dst_y); // dst_y
       ztahostMsgqWriteInt(queue,m_dst_w); // dst_w
       ztahostMsgqWriteInt(queue,m_dst_h); // dst_h
-      ztahostMsgqWriteInt(queue,GetNextRequestId(queue));
    } else {
       ztahostMsgqWriteInt(queue,m_func);
-      ztahostMsgqWriteInt(queue,0);
-      ztahostMsgqWriteInt(queue,0);
+      ztahostMsgqWriteInt(queue,GetNextRequestId(queue));
       ztahostMsgqWritePointer(queue,m_input->GetBuf());
       ztahostMsgqWritePointer(queue,m_output->GetBuf());
       ztahostMsgqWriteInt(queue,m_clip_w);
@@ -208,7 +205,6 @@ ZtaStatus GraphNodeColorAndReshape::Schedule(int queue) {
       ztahostMsgqWriteInt(queue,m_dst_w); // dst_w
       ztahostMsgqWriteInt(queue,m_dst_h); // dst_h
       ztahostMsgqWriteInt(queue,0); // equalize...
-      ztahostMsgqWriteInt(queue,GetNextRequestId(queue));
    }
    return ZtaStatusOk;
 }

@@ -288,7 +288,6 @@ static void canny_phase_2(void *_p,int pid) {
 
 void do_canny(int queue) {
    Request req;
-   int resp;
 
    req.input=ztamMsgqReadPointer(queue);
    req.magnitude=ztamMsgqReadPointer(queue);
@@ -305,7 +304,6 @@ void do_canny(int queue) {
    req.y_off=ztamMsgqReadInt(queue);
    req.dst_w=ztamMsgqReadInt(queue);
    req.dst_h=ztamMsgqReadInt(queue);
-   resp=ztamMsgqReadInt(queue);
    ztamTaskSpawn(canny_phase_0,&req,1);
    canny_phase_0(&req,0);
    while(ztamTaskStatus(1))
@@ -318,8 +316,6 @@ void do_canny(int queue) {
    canny_phase_2(&req,0);
    while(ztamTaskStatus(1))
       ztamTaskYield();
-   if(resp >= 0)
-      >CALLBACK(mycallback,resp);
 }
 
 > EXPORT(do_canny);

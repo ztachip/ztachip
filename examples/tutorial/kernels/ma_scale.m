@@ -28,8 +28,6 @@ static void do_ma_scale(void *_p,int pid) {
 }
 
 void ma_scale(int queue) {
-   int resp;
-
    // Get request parameters which are memory address
    // of input tensor X,Y and output tensor Z
 
@@ -37,13 +35,11 @@ void ma_scale(int queue) {
    z=ztamMsgqReadPointer(queue);
    scale=ztamMsgqReadInt(queue);
    sz=ztamMsgqReadInt(queue);
-   resp=ztamMsgqReadInt(queue);
 
    ztamTaskSpawn(do_ma_scale,0,1);
    do_ma_scale(0,0);
    while(ztamTaskStatus(1))
       ztamTaskYield();
-   >CALLBACK(mycallback,resp);
 }
 
 > EXPORT(ma_scale);

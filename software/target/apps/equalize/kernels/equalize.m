@@ -150,7 +150,7 @@ static void equalize_final(Request *req) {
 
 void do_equalize(int queue) {
    Request req;
-   int resp,i;
+   int i;
    req.input=ztamMsgqReadPointer(queue);
    req.output=ztamMsgqReadPointer(queue);
    req.output2=ztamMsgqReadPointer(queue);
@@ -158,7 +158,6 @@ void do_equalize(int queue) {
    req.equalize=ztamMsgqReadPointer(queue);
    req.w=ztamMsgqReadInt(queue);
    req.h=ztamMsgqReadInt(queue);
-   resp=ztamMsgqReadInt(queue);
    if(req.equalize) {
       > SPU(1) <= (int)MEM(req.equalize,SPU_LOOKUP_SIZE)[:];
    }
@@ -170,8 +169,6 @@ void do_equalize(int queue) {
          ztamTaskYield();
       equalize_final(&req);
    }
-   if(resp >= 0)
-      >CALLBACK(mycallback,resp);
 }
 
 > EXPORT(do_equalize);

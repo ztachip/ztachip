@@ -117,8 +117,7 @@ ZtaStatus GraphNodeOpticalFlow::Schedule(int queue) {
    m_bufferHead=(m_bufferHead+1)%2;
    m_input1->Alias(&m_buffer[m_bufferHead]);
    ztahostMsgqWriteInt(queue,m_func);
-   ztahostMsgqWriteInt(queue,1);
-   ztahostMsgqWriteInt(queue,1);
+   ztahostMsgqWriteInt(queue,GetNextRequestId(queue));
    ztahostMsgqWritePointer(queue,m_buffer[curr].GetBuf());
    ztahostMsgqWritePointer(queue,m_buffer[m_bufferHead].GetBuf());
    ztahostMsgqWritePointer(queue,m_x_gradient->GetBuf()); 
@@ -136,7 +135,6 @@ ZtaStatus GraphNodeOpticalFlow::Schedule(int queue) {
    ztahostMsgqWriteInt(queue,0);
    ztahostMsgqWriteInt(queue,m_w);
    ztahostMsgqWriteInt(queue,m_h);
-   ztahostMsgqWriteInt(queue,GetNextRequestId(queue));
    return ZtaStatusOk;
 }
 

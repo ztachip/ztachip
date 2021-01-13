@@ -50,8 +50,7 @@ ZtaStatus GraphNodeEqualize::Schedule(int queue) {
       GenEqualizer();
    }
    ztahostMsgqWriteInt(queue,m_func);
-   ztahostMsgqWriteInt(queue,1);
-   ztahostMsgqWriteInt(queue,1);
+   ztahostMsgqWriteInt(queue,GetNextRequestId(queue));
    ztahostMsgqWritePointer(queue,m_input->GetBuf());
    ztahostMsgqWritePointer(queue,m_result.GetBuf());
    ztahostMsgqWritePointer(queue,m_output->GetBuf());
@@ -59,7 +58,6 @@ ZtaStatus GraphNodeEqualize::Schedule(int queue) {
    ztahostMsgqWritePointer(queue,(m_histogramAvail && m_contrast>0)?m_spu:0);   
    ztahostMsgqWriteInt(queue,m_w);
    ztahostMsgqWriteInt(queue,m_h);
-   ztahostMsgqWriteInt(queue,GetNextRequestId(queue));
    m_histogramAvail=true;
    return ZtaStatusOk;
 }

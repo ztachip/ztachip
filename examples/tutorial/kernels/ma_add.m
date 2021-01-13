@@ -28,7 +28,6 @@ static void do_ma_add(void *_p,int pid) {
 }
 
 void ma_add(int queue) {
-   int resp;
 
    // Get request parameters which are memory address
    // of input tensor X,Y and output tensor Z
@@ -37,7 +36,6 @@ void ma_add(int queue) {
    y=ztamMsgqReadPointer(queue);
    z=ztamMsgqReadPointer(queue);
    sz=ztamMsgqReadInt(queue);
-   resp=ztamMsgqReadInt(queue);
 
    // Do matrix add using 2 threads.
    // One thread doing top half of tensors and second thread
@@ -50,7 +48,6 @@ void ma_add(int queue) {
    do_ma_add(0,0);
    while(ztamTaskStatus(1))
       ztamTaskYield();
-   >CALLBACK(mycallback,resp);
 }
 
 > EXPORT(ma_add);

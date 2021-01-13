@@ -31,12 +31,10 @@ ZtaStatus GraphNodeMaAdd::Verify() {
 
 ZtaStatus GraphNodeMaAdd::Schedule(int queue) {
    ztahostMsgqWriteInt(queue,m_func);
-   ztahostMsgqWriteInt(queue,0);
-   ztahostMsgqWriteInt(queue,0);
+   ztahostMsgqWriteInt(queue,GetNextRequestId(queue));
    ztahostMsgqWritePointer(queue,(void *)m_input1->GetBuf());
    ztahostMsgqWritePointer(queue,(void *)m_input2->GetBuf());
    ztahostMsgqWritePointer(queue,(void *)m_output->GetBuf());
    ztahostMsgqWriteInt(queue,m_input1->GetBufLen());
-   ztahostMsgqWriteInt(queue,GetNextRequestId(queue));
    return ZtaStatusOk;
 }

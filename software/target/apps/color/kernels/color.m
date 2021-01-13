@@ -179,7 +179,7 @@ static void yuyv2rgb(void *_p,int pid) {
 
 void do_yuyv2rgb(int queue) {
    RequestColor req;
-   int resp;
+
    req.input=ztamMsgqReadPointer(queue);
    req.output=ztamMsgqReadPointer(queue);
    req.spu=ztamMsgqReadPointer(queue);
@@ -195,13 +195,10 @@ void do_yuyv2rgb(int queue) {
    req.dst_y=ztamMsgqReadInt(queue);
    req.dst_w=ztamMsgqReadInt(queue);
    req.dst_h=ztamMsgqReadInt(queue);
-   resp=ztamMsgqReadInt(queue);
    ztamTaskSpawn(yuyv2rgb,&req,1);
    yuyv2rgb(&req,0);
    while(ztamTaskStatus(1))
       ztamTaskYield();
-   if(resp >= 0)
-      >CALLBACK(mycallback,resp);
 }
 
 // Kernel to do tensor reshape/resize
@@ -439,7 +436,7 @@ static void copy(void *_p,int pid) {
 void do_copy(int queue)
 {
    RequestCopy req;
-   int resp;
+
    req.input=ztamMsgqReadPointer(queue);
    req.output=ztamMsgqReadPointer(queue);
    req.w=ztamMsgqReadInt(queue);
@@ -457,13 +454,10 @@ void do_copy(int queue)
    req.dst_w=ztamMsgqReadInt(queue);
    req.dst_h=ztamMsgqReadInt(queue);
    req.equalize=ztamMsgqReadPointer(queue);
-   resp=ztamMsgqReadInt(queue);
    ztamTaskSpawn(copy,&req,1);
    copy(&req,0);
    while(ztamTaskStatus(1))
       ztamTaskYield();
-   if(resp >= 0)
-      >CALLBACK(mycallback,resp);
 }
 
 > EXPORT(do_yuyv2rgb);

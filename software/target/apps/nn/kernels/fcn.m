@@ -142,7 +142,7 @@ static void pooling(void *_p,int pid) {
 // Pretty straightforward, concatenate tensor data together
 
 void do_concatenate(int queue) {
-   int i,resp,cnt,idx;
+   int i,cnt,idx;
    uint32_t spu,src,dest;
    int copySize;
    int len,remain;
@@ -178,15 +178,12 @@ void do_concatenate(int queue) {
          remain -= len;
       }
    }
-   resp=ztamMsgqReadInt(queue);
-   if(resp >= 0)
-      >CALLBACK(mycallback,resp);
 }
 
 // Do logistic layer
 
 void do_logistic(int queue) {
-   int i,resp,cnt,idx;
+   int i,cnt,idx;
    uint32_t spu,src,dest;
    int copySize;
    int len,remain;
@@ -196,7 +193,6 @@ void do_logistic(int queue) {
    src=ztamMsgqReadPointer(queue);
    dest=ztamMsgqReadPointer(queue);
    spu=ztamMsgqReadPointer(queue);
-   resp=ztamMsgqReadInt(queue);
    // Load stream processor code
    > SPU(2) <= (int)MEM(spu,2*SPU_LOOKUP_SIZE)[:];
    > FLUSH;
@@ -214,8 +210,6 @@ void do_logistic(int queue) {
       idx += len;
       remain -= len;
    }
-   if(resp >= 0)
-      >CALLBACK(mycallback,resp);
 }
 
 // Process fully-connected layer request from host
@@ -223,7 +217,6 @@ void do_logistic(int queue) {
 void do_innerProduct(int queue)
 {
    RequestFcn req;
-   int resp;
    req.coef=ztamMsgqReadPointer(queue);
    req.biasHi=ztamMsgqReadPointer(queue);
    req.biasLo=ztamMsgqReadPointer(queue);
@@ -237,14 +230,11 @@ void do_innerProduct(int queue)
    req.top_scale=ztamMsgqReadInt(queue);
    req.num_pcore=ztamMsgqReadInt(queue);
    req.num_thread=ztamMsgqReadInt(queue);
-   resp=ztamMsgqReadInt(queue);
    req.dx=req.num_pcore*req.num_thread*VECTOR_WIDTH;
    ztamTaskSpawn(innerProduct,&req,1);
    innerProduct(&req,0);
    while(ztamTaskStatus(1))
       ztamTaskYield();
-   if(resp >= 0)
-      >CALLBACK(mycallback,resp);
 }
 
 // Process pooling layer request from host
@@ -252,7 +242,6 @@ void do_innerProduct(int queue)
 void do_Pooling(int queue)
 {
    RequestPool req;
-   int resp;
    req.bot=ztamMsgqReadPointer(queue);
    req.top=ztamMsgqReadPointer(queue);
    req.ksz=ztamMsgqReadInt(queue);
@@ -263,13 +252,10 @@ void do_Pooling(int queue)
    req.botdim=ztamMsgqReadInt(queue);
    req.stream=ztamMsgqReadPointer(queue);
    req.output_shift=ztamMsgqReadInt(queue);
-   resp=ztamMsgqReadInt(queue);
    ztamTaskSpawn(pooling,&req,1);
    pooling(&req,0);
    while(ztamTaskStatus(1))
       ztamTaskYield();
-   if(resp >= 0)
-      >CALLBACK(mycallback,resp);
 }
 
 > EXPORT(do_concatenate);

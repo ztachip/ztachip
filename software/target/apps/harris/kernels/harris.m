@@ -309,7 +309,6 @@ static void harris_phase_2(void *_p,int pid) {
 void do_harris(int queue)
 {
    Request req;
-   int resp;
 
    req.input=ztamMsgqReadPointer(queue);
    req.x_gradient=ztamMsgqReadPointer(queue);
@@ -324,7 +323,6 @@ void do_harris(int queue)
    req.y_off=ztamMsgqReadInt(queue);
    req.dst_w=ztamMsgqReadInt(queue);
    req.dst_h=ztamMsgqReadInt(queue);
-   resp=ztamMsgqReadInt(queue);
    ztamTaskSpawn(harris_phase_0,&req,1);
    harris_phase_0(&req,0);
    while(ztamTaskStatus(1))
@@ -337,8 +335,6 @@ void do_harris(int queue)
    harris_phase_2(&req,0);
    while(ztamTaskStatus(1))
       ztamTaskYield();
-   if(resp >= 0)
-      >CALLBACK(mycallback,resp);
 }
 
 > EXPORT(do_harris);

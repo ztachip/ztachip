@@ -297,7 +297,6 @@ static void of_phase_1(void *_p,int pid) {
 // Process optical flow request from host
 
 void do_of(int queue) {
-   int resp;
    Request req;
    req.input[0]=ztamMsgqReadPointer(queue);
    req.input[1]=ztamMsgqReadPointer(queue);
@@ -316,7 +315,6 @@ void do_of(int queue) {
    req.y_off=ztamMsgqReadInt(queue);
    req.dst_w=ztamMsgqReadInt(queue);
    req.dst_h=ztamMsgqReadInt(queue);
-   resp=ztamMsgqReadInt(queue);
    ztamTaskSpawn(of_phase_0,&req,1);
    of_phase_0(&req,0);
    while(ztamTaskStatus(1))
@@ -325,8 +323,6 @@ void do_of(int queue) {
    of_phase_1(&req,0);
    while(ztamTaskStatus(1))
       ztamTaskYield();
-   if(resp >= 0)
-      >CALLBACK(mycallback,resp);
 }
 
 > EXPORT(do_of);

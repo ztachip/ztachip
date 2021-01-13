@@ -117,7 +117,6 @@ static void iconv(void *_p,int pid) {
 void do_iconv(int queue)
 {
    Request req;
-   int resp;
    req.input=ztamMsgqReadPointer(queue);
    req.output=ztamMsgqReadPointer(queue);
    req.kernel=ztamMsgqReadPointer(queue);
@@ -131,14 +130,10 @@ void do_iconv(int queue)
    req.y_off=ztamMsgqReadInt(queue);
    req.dst_w=ztamMsgqReadInt(queue);
    req.dst_h=ztamMsgqReadInt(queue);
-   resp=ztamMsgqReadInt(queue);
    ztamTaskSpawn(iconv,&req,1);
    iconv(&req,0);
    while(ztamTaskStatus(1))
       ztamTaskYield();
-   if(resp >= 0) {
-      >CALLBACK(mycallback,resp);
-   }
 }
 
 > EXPORT(do_iconv);

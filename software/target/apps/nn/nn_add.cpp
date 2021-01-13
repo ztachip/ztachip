@@ -77,14 +77,12 @@ ZtaStatus NeuralNetLayerAdd::Evaluate(int queue) {
    if(ztahostMsgqWriteAvail(queue) < 9)
       return ZtaStatusPending;
    ztahostMsgqWriteInt(queue,m_func);
-   ztahostMsgqWriteInt(queue,1);
-   ztahostMsgqWriteInt(queue,0);
+   ztahostMsgqWriteInt(queue,m_nn->GetNextRequestId(queue));
    ztahostMsgqWriteInt(queue,op->u.add.size);
    ztahostMsgqWritePointer(queue,(interleave)?m_nn->BufferGetInterleave(op->input[0]):m_nn->BufferGetFlat(op->input[0])); // bot
    ztahostMsgqWritePointer(queue,(interleave)?m_nn->BufferGetInterleave(op->input[1]):m_nn->BufferGetFlat(op->input[1])); // bot
    ztahostMsgqWritePointer(queue,(interleave)?m_nn->BufferGetInterleave(op->output[0]):m_nn->BufferGetFlat(op->output[0])); // bot
    ztahostMsgqWritePointer(queue,m_shmSpu);
-   ztahostMsgqWriteInt(queue,m_nn->GetNextRequestId(queue));
    return ZtaStatusOk;
 }
 

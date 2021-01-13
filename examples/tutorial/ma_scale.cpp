@@ -31,12 +31,10 @@ ZtaStatus GraphNodeMaScale::Verify() {
 
 ZtaStatus GraphNodeMaScale::Schedule(int queue) {
    ztahostMsgqWriteInt(queue,m_func);
-   ztahostMsgqWriteInt(queue,0);
-   ztahostMsgqWriteInt(queue,0);
+   ztahostMsgqWriteInt(queue,GetNextRequestId(queue));
    ztahostMsgqWritePointer(queue,(void *)m_input->GetBuf());
    ztahostMsgqWritePointer(queue,(void *)m_output->GetBuf());
    ztahostMsgqWriteInt(queue,m_scale);
    ztahostMsgqWriteInt(queue,m_input->GetBufLen());
-   ztahostMsgqWriteInt(queue,GetNextRequestId(queue));
    return ZtaStatusOk;
 }

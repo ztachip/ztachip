@@ -51,8 +51,7 @@ ZtaStatus GraphNodeGaussian::Verify() {
 
 ZtaStatus GraphNodeGaussian::Schedule(int queue) {
    ztahostMsgqWriteInt(queue,m_func);
-   ztahostMsgqWriteInt(queue,1);
-   ztahostMsgqWriteInt(queue,1);
+   ztahostMsgqWriteInt(queue,GetNextRequestId(queue));
    ztahostMsgqWritePointer(queue,(void *)m_input->GetBuf());
    ztahostMsgqWritePointer(queue,(void *)m_output->GetBuf());
    ztahostMsgqWritePointer(queue,ZTA_SHARED_MEM_P(m_kernel));
@@ -66,7 +65,6 @@ ZtaStatus GraphNodeGaussian::Schedule(int queue) {
    ztahostMsgqWriteInt(queue,0); // y_off
    ztahostMsgqWriteInt(queue,m_w); // dst_w
    ztahostMsgqWriteInt(queue,m_h); // dst_h
-   ztahostMsgqWriteInt(queue,GetNextRequestId(queue));
    return ZtaStatusOk;
 }
 

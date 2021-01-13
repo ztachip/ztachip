@@ -130,11 +130,11 @@ void main() {
    uint32_t cmd;
    int pp;
    int i,j,len;
-   uint32_t resp;
    int page;
    uint32_t section;
    func_t func;
    int queue;
+   uint32_t resp;
 
    // Always start with this...
 
@@ -182,13 +182,13 @@ void main() {
          ztamYield();
       }
       cmd=ztamMsgqReadInt(queue);
-      ztamMsgqReadInt(queue);
-      ztamMsgqReadInt(queue);
+      resp=ztamMsgqReadInt(queue);
       func=(func_t)(cmd & 0xFFFFFF);
       page=cmd>>24;
       if(page>0)
          loadOverlay(page-1);
       (*func)(queue);
+      >CALLBACK(mycallback,resp);
     }
 }
 

@@ -241,7 +241,6 @@ static void resize(void *_p,int pid) {
 
 void do_resize(int queue) {
    Request req;
-   int resp;
    req.input=ztamMsgqReadPointer(queue);
    req.output=ztamMsgqReadPointer(queue);
    req.nchannel=ztamMsgqReadInt(queue);
@@ -255,13 +254,10 @@ void do_resize(int queue) {
    req.y_off=ztamMsgqReadInt(queue);
    req.dst_w=ztamMsgqReadInt(queue);
    req.dst_h=ztamMsgqReadInt(queue);
-   resp=ztamMsgqReadInt(queue);
    ztamTaskSpawn(resize,&req,1);
    resize(&req,0);
    while(ztamTaskStatus(1))
       ztamTaskYield();
-   if(resp >= 0)
-      >CALLBACK(mycallback,resp);
 }
 
 typedef struct 
@@ -439,7 +435,6 @@ void box_resize_vertical(void *_p,int pid) {
 
 void do_resize_box(int queue) {
    RequestBoxResize req;
-   int resp;
    req.input=ztamMsgqReadPointer(queue);
    req.output=ztamMsgqReadPointer(queue);
    req.temp=ztamMsgqReadPointer(queue);
@@ -457,7 +452,6 @@ void do_resize_box(int queue) {
    req.dst_h=ztamMsgqReadInt(queue);
    req.scale_x=ztamMsgqReadInt(queue);
    req.scale_y=ztamMsgqReadInt(queue);
-   resp=ztamMsgqReadInt(queue);
 
    // Resize horizontally 
 
@@ -472,9 +466,6 @@ void do_resize_box(int queue) {
    box_resize_vertical(&req,0);
    while(ztamTaskStatus(1))
       ztamTaskYield();
-
-   if(resp >= 0)
-      >CALLBACK(mycallback,resp);
 }
 > EXPORT(do_resize_box);
 > EXPORT(do_resize);
