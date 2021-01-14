@@ -18,11 +18,17 @@ static void do_ma_scale(void *_p,int pid) {
    to=(pid==0)?sz/2:sz;
    batchSize=NUM_PCORE*NUM_THREAD_PER_CORE*VECTOR_WIDTH;
 
+   // Broadcast scaling factor to all PCORE
    > PCORE[*].ma_scale::scale <= INT(scale);
    for(i=from;i < to;i+=batchSize) {
+      // Load input tensor from DDR to PCORE memory space
       > (fmt)PCORE[:].THREAD[:].ma_scale::x[:] <= (fmt)MEM(x,sz)[i:i+batchSize-1];
+      // Issue request to PCORE array to do matrix scaling
       > EXE_LOCKSTEP(ma_scale::scale,NUM_PCORE);
+      // While waiting for PCORE execution to be completed, switch to the other thread
+      // to issue memory operation to the other PCORE process.
       ztamTaskYield();
+      // Save result from PCORE memory space to DDR
       > (fmt)MEM(z,(pid==0)?sz/2:sz)[i:i+batchSize-1] <= (fmt)PCORE[:].THREAD[:].ma_scale::z[:];
    }
 }

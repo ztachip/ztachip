@@ -27,7 +27,7 @@ ZtaStatus NeuralNetLayerPoolAvg::Evaluate(int queue) {
    if(ztahostMsgqWriteAvail(queue) < 14)
       return ZtaStatusPending;
    ztahostMsgqWriteInt(queue,m_func); // Command id
-   ztahostMsgqWriteInt(queue,m_nn->GetNextRequestId(queue));
+   ztahostMsgqWriteInt(queue,GetNextRequestId(queue));
    ztahostMsgqWritePointer(queue,interleave?m_nn->BufferGetInterleave(op->input[0]):m_nn->BufferGetFlat(op->input[0])); // bot
    ztahostMsgqWritePointer(queue,interleave?m_nn->BufferGetInterleave(op->output[0]):m_nn->BufferGetFlat(op->output[0])); // top
    ztahostMsgqWriteInt(queue,op->u.pool_avg.filter_w); // kernel size

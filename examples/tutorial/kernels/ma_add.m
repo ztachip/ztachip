@@ -1,7 +1,5 @@
 #include "../../../software/target/base/ztam.h"
 
-extern void mycallback(int);
-
 static uint32_t x;
 static uint32_t y;
 static uint32_t z; 
@@ -19,9 +17,12 @@ static void do_ma_add(void *_p,int pid) {
    batchSize=NUM_PCORE*NUM_THREAD_PER_CORE*VECTOR_WIDTH;
 
    for(i=from;i < to;i+=batchSize) {
+      // Load input tensor from DDR to PCORE memory space
       > (fmt)PCORE[:].THREAD[:].ma_add::x[:] <= (fmt)MEM(x,sz)[i:i+batchSize-1];
       > (fmt)PCORE[:].THREAD[:].ma_add::y[:] <= (fmt)MEM(y,sz)[i:i+batchSize-1];
       > EXE_LOCKSTEP(ma_add::add,NUM_PCORE);
+      // While waiting for computation to be completed, switch to the other thread
+      // to issue memory operation requests to the other PCORE process
       ztamTaskYield();
       > (fmt)MEM(z,(pid==0)?sz/2:sz)[i:i+batchSize-1] <= (fmt)PCORE[:].THREAD[:].ma_add::z[:];
    }

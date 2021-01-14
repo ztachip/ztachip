@@ -97,7 +97,7 @@ ZtaStatus NeuralNetLayerConv2D::Evaluate(int queue) {
       if(ztahostMsgqWriteAvail(queue) < 17)
          return ZtaStatusPending;
       ztahostMsgqWriteInt(queue,cmd);
-      ztahostMsgqWriteInt(queue,m_nn->GetNextRequestId(queue));
+      ztahostMsgqWriteInt(queue,GetNextRequestId(queue));
       ztahostMsgqWritePointer(queue,m_shmFilter); // coef
       ztahostMsgqWritePointer(queue,m_shmBiasHi); // bias
       ztahostMsgqWritePointer(queue,m_shmBiasLo); // bias
@@ -115,7 +115,7 @@ ZtaStatus NeuralNetLayerConv2D::Evaluate(int queue) {
       if(ztahostMsgqWriteAvail(queue) < 26)
          return ZtaStatusPending;
       ztahostMsgqWriteInt(queue,cmd);
-      ztahostMsgqWriteInt(queue,m_nn->GetNextRequestId(queue));
+      ztahostMsgqWriteInt(queue,GetNextRequestId(queue));
       ztahostMsgqWritePointer(queue,m_shmFilter); // coef
       ztahostMsgqWritePointer(queue,m_shmBiasHi); // bias
       ztahostMsgqWritePointer(queue,m_shmBiasLo); // bias

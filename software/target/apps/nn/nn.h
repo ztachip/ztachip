@@ -186,6 +186,7 @@ public:
    virtual ZtaStatus Evaluate(int queue)=0;
    virtual LayerIoType GetIoType()=0;
    virtual bool RunAtHost() {return false;}
+   uint32_t GetNextRequestId(int queue);
 public:
    NeuralNet *m_nn;
    NeuralNetOperatorDef m_def;

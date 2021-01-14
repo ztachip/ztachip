@@ -4,6 +4,8 @@
 #include "../../software/target/base/graph.h"
 #include "ma_add.h"
 
+// Graph node for matrix addition
+
 GraphNodeMaAdd::GraphNodeMaAdd() {
 }
 
@@ -25,9 +27,12 @@ ZtaStatus GraphNodeMaAdd::Create(TENSOR *input1,TENSOR *input2,TENSOR *output) {
 ZtaStatus GraphNodeMaAdd::Verify() {
    m_func=ztahostGetExportFunction("ma_add");
    assert(m_func != 0);
+   // Output tensor to have dimension as input tensor
    m_output->Clone(m_input1);
    return ZtaStatusOk;
 }
+
+// Send request to mcore 
 
 ZtaStatus GraphNodeMaAdd::Schedule(int queue) {
    ztahostMsgqWriteInt(queue,m_func);

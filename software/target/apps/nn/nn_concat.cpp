@@ -49,7 +49,7 @@ ZtaStatus NeuralNetLayerConcat::Evaluate(int queue) {
    if(ztahostMsgqWriteAvail(queue) < (4+(int)m_outerSize*(int)op->input.size()*4+1))
       return ZtaStatusPending;
    ztahostMsgqWriteInt(queue,m_func); // Command id
-   ztahostMsgqWriteInt(queue,m_nn->GetNextRequestId(queue));
+   ztahostMsgqWriteInt(queue,GetNextRequestId(queue));
    ztahostMsgqWriteInt(queue,op->input.size()*m_outerSize);
    int destIndex=0;
    for (int k=0;k < (int)m_outerSize;k++) {

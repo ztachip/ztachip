@@ -4,6 +4,8 @@
 #include "../../software/target/base/graph.h"
 #include "ma_scale.h"
 
+// Graph node to do matrix scaling
+
 GraphNodeMaScale::GraphNodeMaScale() {
 }
 
@@ -25,9 +27,12 @@ ZtaStatus GraphNodeMaScale::Create(TENSOR *input,TENSOR *output,int scale) {
 ZtaStatus GraphNodeMaScale::Verify() {
    m_func=ztahostGetExportFunction("ma_scale");
    assert(m_func != 0);
+   // Output tensor dimension must be same as input tensor
    m_output->Clone(m_input);
    return ZtaStatusOk;
 }
+
+// Issue request to mcore
 
 ZtaStatus GraphNodeMaScale::Schedule(int queue) {
    ztahostMsgqWriteInt(queue,m_func);

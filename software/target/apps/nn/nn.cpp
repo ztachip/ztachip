@@ -353,3 +353,7 @@ NeuralNetLayer::NeuralNetLayer(NeuralNet *nn,NeuralNetOperatorDef* def) {
 
 NeuralNetLayer::~NeuralNetLayer() {
 };
+
+uint32_t NeuralNetLayer::GetNextRequestId(int queue) {
+   return m_nn->GetNextRequestId(queue);
+}
