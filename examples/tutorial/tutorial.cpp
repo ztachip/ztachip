@@ -43,6 +43,7 @@ int main(int argc,char *argv[]) {
    rc=nodeMaAdd.Create(&tensorInput[0],&tensorInput[1],&tensorTemp[0]);
    assert(rc==ZtaStatusOk);
 
+   // Create the graph node for matrix scaling. Multiple each matrix element by 2
    rc=nodeMaScale.Create(&tensorTemp[0],&tensorTemp[1],2);
    assert(rc==ZtaStatusOk);
 
@@ -54,7 +55,7 @@ int main(int argc,char *argv[]) {
    graph.Add(&nodeMaAdd);
    graph.Add(&nodeMaScale);
    graph.Add(&nodeSinker);
-   // Execute the graph
+   // Execute the graph. Do (A+B)*c
    graph.Verify();
    graph.Schedule();
 
