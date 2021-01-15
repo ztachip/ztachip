@@ -56,7 +56,7 @@ The genetated ztachip binary image is located at ztachip/software/target/builds/
 
 The generated host application binary is ./tutorial
 
-You can modify the Makefile and Makefile.kernels in the tutorial to match your own applications.
+You can modify the [Makefile](https://github.com/ztachip/ztachip/blob/master/examples/tutorial/Makefile) and [Makefile.kernels](https://github.com/ztachip/ztachip/blob/master/examples/tutorial/Makefile.kernels) in the tutorial to match your own applications.
 
 ```
 cd [ZTACHIP INSTALLATION FOLDER]
