@@ -63,7 +63,7 @@ This demonstration runs on [DE10_NANO FPGA board](https://www.terasic.com.tw/cgi
 
    - [Application Programmer Guide](https://github.com/ztachip/ztachip/blob/master/Documentation/app_programmer_guide.md)
 
-**A simple tutorial - How to add your own custom acceleration functions to ztachip
+**A simple tutorial - How to add your own custom acceleration functions to ztachip**
 
    - [Tutorial example](https://github.com/ztachip/ztachip/blob/master/Documentation/tutorial.md)
 
