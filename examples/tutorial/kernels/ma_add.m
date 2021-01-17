@@ -5,6 +5,8 @@ static uint32_t y;
 static uint32_t z; 
 static uint32_t sz;
 
+//#define DEBUG_PRINT
+
 // Do matrix addition
 
 static void do_ma_add(void *_p,int pid) {
@@ -29,7 +31,9 @@ static void do_ma_add(void *_p,int pid) {
 }
 
 void ma_add(int queue) {
-
+#ifdef DEBUG_PRINT
+   ztamPrintf("do ma_add \n");
+#endif
    // Get request parameters which are memory address
    // of input tensor X,Y and output tensor Z
 
@@ -45,10 +49,16 @@ void ma_add(int queue) {
    // cycle of one process space can overlap with execution cycle 
    // of the other PCORE process space.
 
+#ifdef DEBUG_PRINT
+   >LOG_ON;
+#endif
    ztamTaskSpawn(do_ma_add,0,1);
    do_ma_add(0,0);
    while(ztamTaskStatus(1))
       ztamTaskYield();
+#ifdef DEBUG_PRINT
+   >LOG_OFF;
+#endif
 }
 
 > EXPORT(ma_add);

@@ -117,7 +117,7 @@ static void loadOverlay(int which)
 
 void mycallback(int parm) {
 //#ifdef ZTA_DEBUG
-//   ztamLogPrint(1000000);
+   ztamLogPrint(1000000);
 //#endif
    ztamMsgWriteInt(2);
    ztamMsgWriteInt(parm);
