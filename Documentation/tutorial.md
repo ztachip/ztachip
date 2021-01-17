@@ -58,17 +58,63 @@ The generated host application binary is ./tutorial
 
 You can modify the [Makefile](https://github.com/ztachip/ztachip/blob/master/examples/tutorial/Makefile) and [Makefile.kernels](https://github.com/ztachip/ztachip/blob/master/examples/tutorial/Makefile.kernels) in the tutorial to match your own applications.
 
+First you must complete ztachip [Software Build Procedure](https://github.com/ztachip/ztachip/blob/master/Documentation/BuildProcedure.md), then you can proceed with building your custom acceleration codes like the example below...
+
 ```
 cd [ZTACHIP INSTALLATION FOLDER]
 source ./setenv.sh
+# Go to folder where your custom acceleration codes are
 cd examples/tutorial
-## Build host applications
+## Build your custom host applications
 make clean
 make all
-## Build ztachip binary image to be loaded to FPGA
+## Build ztachip binary image that also includes your custom acceleration codes.
 make clean -f Makefile.kernels
 make all -f Makefile.kernels
 ```
+
+## Debugging your codes.
+
+Tutorial above includes example of debugging. Put back define DEBUG_PRINT in [ma_add.m](https://github.com/ztachip/ztachip/blob/master/examples/tutorial/kernels/ma_add.m). Then rebuild the tutorial.
+
+This compilation flag enable calls to ztamPrintf and LOG_ON directive.
+
+When running tutorial, you should see debug string from ztamPrintf("do ma_add\n");
+
+With LOG_ON directive, you should also see tensor engine activity tracing below after running tutorial.
+
+```
+           XX PP SS PP SS DD
+           01 WR WR WR WR WR
+[       0]    +            +
+[       2]    |            | PCORE V8 X1  <= DDR V8 X1 
+[     134]    |            | PCORE V8 X1  <= DDR V8 X1 
+[     137]    |     +      |
+[       2]    |     |      | PCORE V8 X1  <= DDR V8 X1 
+[      56]    +     |      |
+[       1] +        |      |
+[      35] +        |      |
+[      42]          |      | PCORE V8 X1  <= DDR V8 X1 
+[       2]     +    |     +|
+[       2]     |    |     || DDR V8 X1  <= PCORE V8 X1 
+[       5]     |    |+    ||
+[     141]     +    |+    ||
+[       8]          |     |+
+[      17]          |     + 
+[      52]          +       
+[       1]  +               
+[       1]  |        +    + 
+[       2]  |        |    |  DDR V8 X1  <= PCORE V8 X1 
+[      32]  +        |    | 
+[       2]     +     |    | 
+[     141]     +     +    | 
+[       5]                + 
+```
+
+Refer to [MCORE Programmer Guide](https://github.com/ztachip/ztachip/blob/master/Documentation/mcore_programmer_guide.md) on
+how to interpret Tensor Engine activity trace.
+
+Another common method to debug is for apps to pass to mcore a temporary DDR memory block inorder to store intermediate tensor data from PCORE memory space for inspection during debugging.
 
 
 

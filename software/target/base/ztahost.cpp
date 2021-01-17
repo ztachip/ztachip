@@ -93,7 +93,8 @@ ZtaStatus ztahostInit(const char *ztachipFile,uint32_t regBaseAddr,uint32_t dmaB
    // Load programs to mcore/pcore and boot ztachip up...
 
    if(Programmer::Program(ztachipFile) != ZtaStatusOk) {
-      printf("Error loading ztachip image \n");
+      printf("Error loading ztachip image %s\n",ztachipFile);
+      exit(0);
       return ZtaStatusFail;
    }
    return ZtaStatusOk;
