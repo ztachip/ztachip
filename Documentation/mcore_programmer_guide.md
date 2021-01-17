@@ -629,6 +629,106 @@ Where:
 
 Yield execution to the other thread.
 
+## 11. Debugging API
+
+### 11.1 ztamPrintf
+
+Display debug formatted string.
+
+This has similar syntax to printf. However it only supports %s and %d within formated string.
+
+For example:
+
+```
+ztamPrintf("do matrix_add cnt=%d \n",cnt);
+```
+
+### 11.2 Matrix Engine Activity trace
+
+Matrix Engine activity tracing is enabled with directive below...
+```
+>LOG_ON;
+```
+
+Matrix Engine activity tracing can then be disabled with directive below...
+```
+>LOG_OFF;
+```
+
+#### 11.2.1 Example of Tensor Engine Activity report
+
+Below is an example of a Tensor Engine activity output
+
+```
+           XX PP SS PP SS DD
+           01 WR WR WR WR WR
+[       0]    +            +
+[       2]    |            | PCORE V8 X1  <= DDR V8 X1 
+[     134]    |            | PCORE V8 X1  <= DDR V8 X1 
+[     137]    |     +      |
+[       2]    |     |      | PCORE V8 X1  <= DDR V8 X1 
+[      56]    +     |      |
+[       1] +        |      |
+[      35] +        |      |
+[      42]          |      | PCORE V8 X1  <= DDR V8 X1 
+[       2]     +    |     +|
+[       2]     |    |     || DDR V8 X1  <= PCORE V8 X1 
+[       5]     |    |+    ||
+[     141]     +    |+    ||
+[       8]          |     |+
+[      17]          |     + 
+[      52]          +       
+[       1]  +               
+[       1]  |        +    + 
+[       2]  |        |    |  DDR V8 X1  <= PCORE V8 X1 
+[      32]  +        |    | 
+[       2]     +     |    | 
+[     141]     +     +    | 
+[       5]                + 
+```
+
+#### 11.2.1 Tensor Engine Activity description
+
+Left most column is the delta time elapsed in mcore clock period unit (140MHZ).
+
+Tensor Activity Tracing header has the following meaning...
+```
+           +------------------- PCORE's process #0 busy status
+           |+------------------ PCORE's process #1 busy status
+           || +---------------- Write cycles to PCORE memory space from process #0.
+           || |+--------------- Read cycles from PCORE memory space from process #0.
+           || || +------------- Write cycles to SRATCH memory space from process #0
+           || || |+------------ Read cycles from SCRATCH memory space from process #0
+           || || || +---------- Write cycles to PCORE memory space from process #1.
+           || || || |+--------- Read cycles from PCORE memory space from process #1.
+           || || || || +------- Write cycles to SRATCH memory space from process #1
+           || || || || |+------ Read cycles from SCRATCH memory space from process #1
+           || || || || || +---- Write cycles to DDR memory space (from any process)
+           || || || || || |+--- Read cycles from DDR memory space (from any process)
+           || || || || || ||
+
+           XX PP SS PP SS DD
+           01 WR WR WR WR WR
+```
+
+Each tensor transfer activity can have the following attributes
+```
+   -V8: 8 vector elements transfered per clock
+
+   -V4: 4 vector elements transfered per clock
+
+   -V2: 2 vector elements transfered per clock
+
+   -V1: 1 vector element transfered per clock
+
+   -X1: single precision (UINT8 or INT8)
+
+   -X2: double precision (INT16)
+
+   -SCATTER: transfer is done in scatter mode
+```
+
+
 
 
 

@@ -40,6 +40,7 @@ examples/harris_corner/harris_corner
 examples/objdetect/objdetect
 examples/resize/resize
 examples/test/test
+examples/tutorial/tutorial
 software/tools/compiler/compiler
 
 # Igore Quartus generated files
