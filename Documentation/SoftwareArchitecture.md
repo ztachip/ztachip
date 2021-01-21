@@ -26,9 +26,20 @@ mcore programs are C programs with special extensions (special extensions begin 
 
 Execution on tensors are invoked by calling tensor operators implemented by pcore programs.
 
+mcore programs are files with suffix *.m
+
 An important concept with mcore programs is that each mcore instructions are associated with a tensor process. There are 2 tensor processes available. There are also seperate PCORE memory space for each process. In a mcore program, there are main thread and child thread and each thread is responsible to dispatch tensor instructions to a seperate tensor process. This concept is important to overlay memory operation from one process with tensor operator execution from the other process. This concept is how ztachip achieves data hiding, for example while PCORE processors are executing a tensor operator using PCORE memory space from process A, tensor engine at the same time can transfer data from DDR to PCORE memory space for process B. And when tensor operator execution is completed for process A and PCORE processors ready to switch to process B, all the data required are already been transfered from DDR to PCORE process B's memory space. Tensor processes are used in all provided examples.
 
-mcore programs are files with suffix *.m
+Pictures below illustrates mcore process concept...
+
+Tensor operator operates on Process A, while TensorEngine transfers DDR memory to/from PCORE memory space for Process B.
+
+![mcore process](images/mcore_process_A.png)
+
+Now tensor operator operates on Process B, while TensorEngine transfers DDR memory to/from PCORE memory space for Process A.
+
+![mcore process](images/mcore_process_B.png)
+
 
 [Click here](https://github.com/ztachip/ztachip/blob/master/software/target/apps/nn/kernels/conv.m) for an example of mcore program implementing convolution operator.
 
