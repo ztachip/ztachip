@@ -55,6 +55,10 @@ This demonstration runs on [DE10_NANO FPGA board](https://www.terasic.com.tw/cgi
 
    - [ztachip Software Architecture](https://github.com/ztachip/ztachip/blob/master/Documentation/SoftwareArchitecture.md)
 
+**What are under the hood???**
+
+   - [ztachip hardware design description](https://github.com/ztachip/ztachip/blob/master/Documentation/HardwareDesignDoc.md)
+
 **Programmers Guide - How to program ztachip**
 
    - [PCORE Programmer Guide](https://github.com/ztachip/ztachip/blob/master/Documentation/pcore_programmer_guide.md)

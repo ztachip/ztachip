@@ -14,8 +14,6 @@ Array of VLIW processors.
 
 ![core](images/core.png)
 
-![cell](images/cell.png)
-
 ![pcore](images/pcore.png)
 
 ## Tensor Engine
