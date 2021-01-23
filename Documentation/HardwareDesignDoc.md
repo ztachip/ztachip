@@ -26,6 +26,20 @@ This is the ztachip top component
 
 [core](https://github.com/ztachip/ztachip/blob/master/hardware/HDL/pcore/core.vhd) - Array of VLIW processor cores. These cores execute pcore programs.
 
+hclock_in: Host to FPGA bus clock domain
+
+mclock_in: mcore clock domain
+
+pclock_in: pcore array clock domain
+
+dclock_in: FPGA to DDR bus clock domain
+
+avalon_bus : Host to FPGA bus
+
+cell_ddr_0 : FPGA to DDR read bus
+
+cell_ddr_1 : FPGA to DDR write bus
+
 ## pcore 
 
 Array of VLIW processors.
@@ -38,15 +52,17 @@ Array of VLIW processors.
 
 [cell](https://github.com/ztachip/ztachip/blob/master/hardware/HDL/top/cell.vhd) - PCORE processors are group into groups called cell
 
- 
 [pcore](https://github.com/ztachip/ztachip/blob/master/hardware/HDL/pcore/pcore.vhd) - VLIW/Vector processor 
-
 
 [instr](https://github.com/ztachip/ztachip/blob/master/hardware/HDL/pcore/instr.vhd) - Generate instructions for PCORE array. This is SIMD architecture so all PCORES process same instruction. 
 
+task: carry tensor operator requests from TensorEngine
+
+dp_read: read bus from PCORE's memory space to TensorEngine
+
+dp_write: write bus from TensorEngine to PCORE's memory space
 
 ![pcore](images/pcore.png)
-
 
 [mu_adder](https://github.com/ztachip/ztachip/blob/master/hardware/HDL/alu/imu.vhd) - ALU unit for vector arithmetic. 
 
@@ -64,12 +80,69 @@ Array of VLIW processors.
 
 [flag](https://github.com/ztachip/ztachip/blob/master/hardware/HDL/pcore/flag.vhd) - Hold accumulator and vector comparison results. 
 
+instruction: VLIW instruction to execute tensor operator on PCORE. ztachip has SIMD architecture, and all PCOREs run on the same VLIW instruction.
+
+dp_read: read bus from PCORE memory space to TensorEngine
+
+dp_write: write bus from TensorEngine to PCORE memory space.
+
 ## Tensor Engine
 
 ![tensor engine](images/dp_core.png)
 
+[dp_core](https://github.com/ztachip/ztachip/blob/master/hardware/HDL/dp/dp_core.vhd) - Top component for tensorEngine 
+
+[dp_gen_core](https://github.com/ztachip/ztachip/blob/master/hardware/HDL/dp/dp_gen_core.vhd) - Generate addresses for memory cycles. Issue commands to execute tensor operators on pcore array.
+
+[dp_fetch](https://github.com/ztachip/ztachip/blob/master/hardware/HDL/dp/dp_fetch.vhd) - Holds and dispatches mcore instructions from mcore. 
+
+[dp_source](https://github.com/ztachip/ztachip/blob/master/hardware/HDL/dp/dp_source.vhd) - TensorEngine Interface with read bus. 
+
+[dp_sink](https://github.com/ztachip/ztachip/blob/master/hardware/HDL/dp/dp_sink.vhd) - TensorEngine Interface with write bus. 
+
+bus: bus to accept mcore instructions command from MCORE processor
+
+task: signal from pcore array about its process busy status
+
+readmaster1: read bus from PCORE memory space to TensorEngine
+
+writemaster1: write bus from TensorEngine to PCORE memory space.
+
+readmaster2: read bus from SCRATCH memory to TensorEngine
+
+writemaster2: write bus from TensorEngine to SCRATCH memory.
+
+readmaster3: read bus from DDR to TensorEngine
+
+writemaster3: write bus from TensorEngine to DDR.
+
 ## mcore 
 
 ![mcore](images/mcore.png)
+Implements [classic MIPS architecture](https://www.eecs.harvard.edu/~cs161/notes/mips-part-I.pdf)
+
+[mcore](https://github.com/ztachip/ztachip/blob/master/hardware/HDL/mcore/mcore.vhd) - Top component for tensorEngine 
+
+[mcore_fetch](https://github.com/ztachip/ztachip/blob/master/hardware/HDL/mcore/mcore_fetch.vhd) - Fetching stage of MIPS-I architecture 
+
+[mcore_decoder](https://github.com/ztachip/ztachip/blob/master/hardware/HDL/mcore/mcore_decoder.vhd) - Decoder stage of MIPS-I architecture 
+
+[mcore_exe](https://github.com/ztachip/ztachip/blob/master/hardware/HDL/mcore/mcore_exe.vhd) - EXE stage of MIPS-I architecture 
+
+[mcore_exe2](https://github.com/ztachip/ztachip/blob/master/hardware/HDL/mcore/mcore_exe2.vhd) - EXE stage of MIPS-I architecture for long execution opcode such as division 
+
+[mcore_mem](https://github.com/ztachip/ztachip/blob/master/hardware/HDL/mcore/mcore_mem.vhd) - MEM stage of MIPS-I architecture 
+
+[mcore_wb](https://github.com/ztachip/ztachip/blob/master/hardware/HDL/mcore/mcore_wb.vhd) - WRITEBACK stage of MIPS-I architecture 
+
+[mcore_register](https://github.com/ztachip/ztachip/blob/master/hardware/HDL/mcore/mcore_register.vhd) - Hold MIPS-I register set 
+
+[mcore_rom](https://github.com/ztachip/ztachip/blob/master/hardware/HDL/mcore/mcore_rom.vhd) - Hold instruction codes. 
+
+[mcore_ram](https://github.com/ztachip/ztachip/blob/master/hardware/HDL/mcore/mcore_ram.vhd) - RAM block 
+
+prog: interface to load mcore program
+
+io: external peripheral bus interface.
 
 
