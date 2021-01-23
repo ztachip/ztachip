@@ -53,5 +53,6 @@ This allows for streaming operations to be applied to data read/written to exter
 Stream processor can implement arbitrary non-linear processing via table lookup.
 
 
+For more information, reference [ztachip hardware design description](https://github.com/ztachip/ztachip/blob/master/Documentation/HardwareDesignDoc.md)
 
 
