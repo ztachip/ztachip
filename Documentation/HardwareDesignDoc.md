@@ -6,22 +6,22 @@ This document describes the hardware design of ztachip
 
 This is the ztachip top component
 
-[top component](Documentation/images/top.png)
+![top](Documentation/images/top.png)
 
 ## pcore 
 
 Array of VLIW processors.
 
-[top component](Documentation/images/core.png)
+![core](Documentation/images/core.png)
 
-[top component](Documentation/images/cell.png)
+![cell](Documentation/images/cell.png)
 
-[top component](Documentation/images/pcore.png)
+![pcore](Documentation/images/pcore.png)
 
 ## Tensor Engine
 
-[top component](Documentation/images/dp_core.png)
+![tensor engine](Documentation/images/dp_core.png)
 
-## MCORE
+## mcore 
 
-[top component](Documentation/images/mcore.png)
+![mcore](Documentation/images/mcore.png)
