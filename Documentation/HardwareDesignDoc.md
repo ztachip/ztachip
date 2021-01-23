@@ -34,7 +34,7 @@ Array of VLIW processors.
 
 [core](https://github.com/ztachip/ztachip/blob/master/hardware/HDL/pcore/core.vhd) - Array of VLIW processor cores. These cores execute pcore programs.
 
-[stream](https://github.com/ztachip/ztachip/blob/master/hardware/HDL/pcore/stream.vhd) - Array of VLIW processor cores. These cores execute pcore programs.
+[stream](https://github.com/ztachip/ztachip/blob/master/hardware/HDL/pcore/stream.vhd) - Stream processor. There are 2 stream processors.One to handle stream processing for data stream from PCORE to TensorEngine. And the other stream processor handles stream processing for data stream from TensorEngine to PCORE.
 
 [cell](https://github.com/ztachip/ztachip/blob/master/hardware/HDL/top/cell.vhd) - PCORE processors are group into groups called cell
 
