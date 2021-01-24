@@ -65,6 +65,19 @@ User applications use ztachip via graph nodes execution above
 
 [Click here](https://github.com/ztachip/ztachip/blob/master/examples/classifier/classifier.cpp) for example of an application performing Mobinet's image classification using graph.
 
+# CONCLUSION
+
+ztachip software paradigm provides the DSA framework to accelerate certain classes of applications.
+
+The domains that can be mapped to ztachip are domains where its problems can be expressed in terms of tensors but with the following requirements.
+
+- Tensor data operations can be expressed by MCORE instructions.
+
+- Tensor computation operations can be expressed by PCORE instructions.
+
+- Data and computing need to be decoupled. This is key requirement to eliminate the need for cache, solve data latency issue.
+
+Different domains can be supported by changing the ALU implementation and PCORE instruction set. For example complex data types for SDR domain. Floating point for physics simulation domain.
 
 
 
