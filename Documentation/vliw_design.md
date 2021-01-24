@@ -1,4 +1,4 @@
-# VLIW Architecture
+# 1. VLIW Architecture
 
 PCORE processors are based on VLIW architecture.
 
@@ -8,7 +8,7 @@ PCOREs also implement multi-threading with zero overhead switching. There are 16
 
 Multi-threading combined with VLIW allows ztachip to achieve 3 operations per clock per PCORE.
 
-## VLIW instruction format
+## 2. VLIW instruction format
 
 Each VLIW instruction can performed upto 3 operations in 1 clock.
 
@@ -16,7 +16,7 @@ Each VLIW instruction can perform a vector operation, a scalar operation and a c
 
 In sections below, we will compare how C-code are translated to VLIW assembly. You can also view VLIW assembly from your pcore compilation by uncommenting VERBOSE=y directive in ztachip/software/target/builds/Makefile.kernels
 
-### Vector operation
+### 2.1 Vector operation
 
 Perform operations in vector such as addition,multiplicaton,Multiply-Accumulate,shift.
 
@@ -24,7 +24,7 @@ Operation input and output are from PCORE memory space.
 
 Addressing for input and output parameters can be of the following modes below...
 
-#### Direct addressing
+#### 2.1.1 Direct addressing
 
 C-code
 ```
@@ -39,7 +39,7 @@ Examble above, z is at memory address 16, x variable is at memory address 0 and 
 
 Operation is vector addition.
 
-#### Direct addressing + integer variable
+#### 2.1.2 Direct addressing + integer variable
 
 C-code
 ```
@@ -58,7 +58,7 @@ Integer variable i is mapped to R0
 
 And all these operations (addressing calculation and vector operation) are executed together as 1 clock instruction.
 
-#### Direct addressing + integer variable + constant
+#### 2.1.3 Direct addressing + integer variable + constant
 
 C-code
 ```
@@ -77,7 +77,7 @@ Integer variable i is mapped to R0
 
 And all these operations (addressing calculation and vector operation) are executed together as 1 clock instruction.
 
-#### Pointer variable + constant
+#### 2.1.4 Pointer variable + constant
 
 C-code
 ```
@@ -100,7 +100,7 @@ Pointer variable p2 is mapped to P1
 
 And all these operations (addressing calculation and vector operation) are executed together as 1 clock instruction.
 
-#### Pointer variable + integer variable
+#### 2.1.5 Pointer variable + integer variable
 
 C-code
 ```
@@ -125,7 +125,7 @@ Integer variable i is mapped to R0
 
 And all these operations (addressing calculation and vector operation) are executed together as 1 clock instruction.
 
-#### Pointer variable + integer variable + constant
+#### 2.1.6 Pointer variable + integer variable + constant
 
 C-code
 ```
@@ -151,7 +151,7 @@ Integer variable i is mapped to R0
 And all these operations (addressing calculation and vector operation) are executed together as 1 clock instruction.
 
 
-### Scalar operation
+### 2.2 Scalar operation
 
 PCORE also has a scalar processor to perform arithmetic on scalar variables.
 
@@ -178,7 +178,7 @@ First VLIW instrution is composed of both vector multiplication operation and a 
 
 Second VLIW instruction is composed of just vector multiplication operation.
 
-### Conditional operation.
+### 2.3 Conditional operation.
 
 Result from scalar operation can be used for branching condition
 
@@ -190,7 +190,7 @@ VLIW instruction
 ```
 Example above, if result of (i-4)>=0 then jump to a new address.
 
-# CONCLUSIONS
+# 3. CONCLUSIONS
 
 ztachip VLIW is effective by partitioning vector operation from scalar operation.
 
@@ -202,7 +202,7 @@ Also all address calculaton (direct or indirect) are also included together with
 
 Compared to standard assembly, there is also no memory load and store operation since all memory required are already moved to PCORE memory space by TensorEngine at the instruction of mcore program.
 
-ztachip VLIW compiler is very effective at translating pcore codes to its assembly.
+From example above, we can see a single VLIW instruction can be equivalent to more than 10 standard assembly instructions (if including memory calculation and memory load/store)
 
-Convolution operator was shown to operate at >90% efficiency with VLIW.
+Convolution operator was shown to operate at >90% efficiency (including memory access overhead) with ztachip VLIW.
 
