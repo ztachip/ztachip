@@ -59,6 +59,8 @@ This demonstration runs on [DE10_NANO FPGA board](https://www.terasic.com.tw/cgi
 
    - [ztachip hardware design description](https://github.com/ztachip/ztachip/blob/master/Documentation/HardwareDesignDoc.md)
 
+   - [ztachip VLIW design description](https://github.com/ztachip/ztachip/blob/master/Documentation/vliw_design.md)
+
 **Programmers Guide - How to program ztachip**
 
    - [PCORE Programmer Guide](https://github.com/ztachip/ztachip/blob/master/Documentation/pcore_programmer_guide.md)
