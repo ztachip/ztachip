@@ -119,9 +119,10 @@ writemaster3: write bus from TensorEngine to DDR.
 ## mcore 
 
 ![mcore](images/mcore.png)
+
 Implements [classic MIPS architecture](https://www.eecs.harvard.edu/~cs161/notes/mips-part-I.pdf)
 
-[mcore](https://github.com/ztachip/ztachip/blob/master/hardware/HDL/mcore/mcore.vhd) - Top component for tensorEngine 
+[mcore](https://github.com/ztachip/ztachip/blob/master/hardware/HDL/mcore/mcore.vhd) - Top component for mcore 
 
 [mcore_fetch](https://github.com/ztachip/ztachip/blob/master/hardware/HDL/mcore/mcore_fetch.vhd) - Fetching stage of MIPS-I architecture 
 
