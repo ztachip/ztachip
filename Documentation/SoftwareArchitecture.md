@@ -67,17 +67,17 @@ User applications use ztachip via graph nodes execution above
 
 # CONCLUSION
 
-ztachip software paradigm provides the DSA framework to accelerate certain classes of applications.
+ztachip software paradigm provides the DSA framework to accelerate a number of classes of applications.
 
-The domains that can be mapped to ztachip are domains where its problems can be expressed in terms of tensors but with the following requirements.
+The domains that can be mapped to ztachip are domains where its problems can be expressed in terms of tensor operations with the following characteristics.
 
 - Tensor data operations can be expressed by MCORE instructions.
 
-- Tensor computation operations can be expressed by PCORE instructions.
+- Tensor computation operations (tensor operators) can be expressed by PCORE instructions.
 
 - Data and computing need to be decoupled. This is key requirement to eliminate the need for cache, solve data latency issue.
 
-Different domains can be supported by changing the ALU implementation and PCORE instruction set. For example complex data types for SDR domain. Floating point for physics simulation domain.
+Different domains can then be supported by changing the ALU implementation and PCORE instruction set. For example complex data types for SDR domain. Floating point for physics simulation domain. Special data type for GENOMICS.
 
 
 
