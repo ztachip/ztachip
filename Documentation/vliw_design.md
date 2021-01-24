@@ -3,14 +3,17 @@
 PCORE processors are based on VLIW architecture.
 
 VLIW is an efficient hardware implementation to achieve instruction level parallelism. 
+Each VLIW is composed of a vector operation, a scalar operation and a condition jump operation.
 
-PCOREs also implement multi-threading with zero overhead switching. There are 16 hardware threads per PCORE. VLIW instruction processing are pipelined and interleaved between different threads.
+PCOREs also implement multi-threading with zero overhead switching. There are 16 hardware threads per PCORE. VLIW instruction processing are pipelined and interleaved between different threads resulting in a processing throughput of 1 VLIW per clock per PCORE.
 
-Multi-threading combined with VLIW allows ztachip to achieve 3 operations per clock per PCORE.
+Picture below demonstrates VLIW processing pipeline. Each instruction takes 12 clocks to complete. But since they are interleaved between different threads (with zero overhead thread switching in hardware), the effective throughput for VLIW pipeline is one instruction per clock.
+
+![vliw_flow](images/vliw_flow.png)
 
 ## 2. VLIW instruction format
 
-Each VLIW instruction can performed upto 3 operations in 1 clock.
+Each VLIW instruction can performed upto 3 operations in 1 clock of the ALU pipeline.
 
 Each VLIW instruction can perform a vector operation, a scalar operation and a conditional jump operation together with all parameter address calculation all in 1 clock.
 
@@ -180,15 +183,21 @@ Second VLIW instruction is composed of just vector multiplication operation.
 
 ### 2.3 Conditional operation.
 
-Result from scalar operation can be used for branching condition
-
-VLIW instruction
+C-code
 ```
-[0x55b5386f62f0]
-   IMU> Null=int:i@0 SUB 4
-   CTL> OPCODE_JUMP_GE after=0 addr=0x55b5386f58f0
+   for(i=3;i >= 0;i--)
+   {
+      z[i]=x[i]+y[i];
+   }
 ```
-Example above, if result of (i-4)>=0 then jump to a new address.
+VLIW instruction for the for loop
+```
+   [0x5654cce39290]
+      MU> z@32[i@3+0](v)=x@0[i@3+0](v) ADD y@16[i@3+0](v)
+      IMU> int:i@3=int:i@3 SUB 1
+      CTL> OPCODE_JUMP_GE after=0 addr=0x5654cce39290
+```
+In example above, the C for loop is compiled into just a single VLIW instruction that takes just 1 clock of the ALU pipeline. The VLIW instruction performs the vector operation together with all parameter address calculation, update the index counter i and then loop back to repeat the same instruction again until index i becomes negative.
 
 # 3. CONCLUSIONS
 
