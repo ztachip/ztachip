@@ -32,11 +32,15 @@ An important concept with mcore programs is that each mcore instructions are ass
 
 Pictures below illustrates mcore process concept...
 
-Tensor operator operates on Process A, while TensorEngine transfers DDR memory to/from PCORE memory space for Process B.
+MCORE's main thread is emitting tensor instructions for Process A.
+
+MCORE's child thread is emitting tensor instructions for Process B.
+
+Tensor operator execution operates on PCORE memory space for process A, while TensorEngine transfers DDR memory to/from PCORE memory space for Process B.
 
 ![mcore process](images/tensor_process0.png)
 
-Now tensor operator operates on Process B, while TensorEngine transfers DDR memory to/from PCORE memory space for Process A.
+Now tensor operator execution operates on PCORE memory space for process B, while TensorEngine transfers DDR memory to/from PCORE memory space for Process A. The advantage now is that all memory required to execute tensor operator has already been transfered to PCORE memory space from previous step.
 
 ![mcore process](images/tensor_process1.png)
 
