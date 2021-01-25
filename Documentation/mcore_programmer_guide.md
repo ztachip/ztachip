@@ -395,7 +395,7 @@ But now with the same transfer but with Tensor scatter option enabled. PCOREs no
 
 Scatter operation is performed automatically by TensorEngine and application does not have to be aware of it.
 
-![scatter](images/write_scatter.gif)
+![scatter](images/vector_read.gif)
 
 #### 5.8.3 Tensor scatter transfer by vector word.
 
