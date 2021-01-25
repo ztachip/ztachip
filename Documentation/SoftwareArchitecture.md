@@ -34,11 +34,11 @@ Pictures below illustrates mcore process concept...
 
 Tensor operator operates on Process A, while TensorEngine transfers DDR memory to/from PCORE memory space for Process B.
 
-![mcore process](images/mcore_process_A.png)
+![mcore process](images/tensor_process0.png)
 
 Now tensor operator operates on Process B, while TensorEngine transfers DDR memory to/from PCORE memory space for Process A.
 
-![mcore process](images/mcore_process_B.png)
+![mcore process](images/tensor_process1.png)
 
 
 [Click here](https://github.com/ztachip/ztachip/blob/master/software/target/apps/nn/kernels/conv.m) for an example of mcore program implementing convolution operator.
