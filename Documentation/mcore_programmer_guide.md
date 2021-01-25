@@ -373,7 +373,19 @@ Scatter transfer is the solution to this problem by transfering/transforming non
 
 This method is used extensively in the provided vision and AI stack.
 
-#### 5.8.1 Tensor scatter transfer by vector word.
+#### 5.8.1 Tensor scatter transfer illustration - DDR to PCORE
+
+Animation below illustrates a transfer from DDR to PCORE when it is not possible to do in vector mode since the consecutive data elements are scattered between different words.
+
+![scatter](Documentation/images/write_non_scatter.gif)
+
+But now with the same transfer but with Tensor scatter option enabled. PCOREs now save the vector word into temporary storage before moving each data elements into corresponding words.  We can see now that transfer from DDR to PCOREs can now be done in vector mode.
+
+Scatter operation is performed automatically by TensorEngine and application does not have to be aware of it.
+
+![scatter](Documentation/images/write_scatter.gif)
+
+#### 5.8.2 Tensor scatter transfer by vector word.
 
 ```
 >FOR(I=0:7) PCORE(8)[0:7].THREAD[0:15].myclass::myvar(8,8)[:][I] <= DDR(p)[0:8*16*8*8-1];
@@ -393,7 +405,7 @@ The transfer now becomes...
 >SCATTER(0) FOR(I=0:7) PCORE(8)[0:7].THREAD[0:15].myclass::myvar(8,8)[:][I] <= DDR(p)[0:8*16*8*8-1];
 ```
 
-#### 5.8.2 Tensor scatter transfer by thread.
+#### 5.8.3 Tensor scatter transfer by thread.
 
 ```
 >FOR(I=0:7) FOR(J=0:7) PCORE(8)[0:7].THREAD(2,8)[:][:].myclass::myvar[J] <= DDR(p)[0:8*16*8*8-1];
