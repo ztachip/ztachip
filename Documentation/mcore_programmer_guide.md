@@ -385,7 +385,19 @@ Scatter operation is performed automatically by TensorEngine and application doe
 
 ![scatter](images/write_scatter.gif)
 
-#### 5.8.2 Tensor scatter transfer by vector word.
+#### 5.8.2 Tensor scatter transfer illustration - PCORE to DDR
+
+Animation below illustrates a transfer from PCORE to DDR when it is not possible to do in vector mode since the consecutive data elements to be read are scattered between different words.
+
+![scatter](images/single_read.gif)
+
+But now with the same transfer but with Tensor scatter option enabled. PCOREs now gather all scattered read into a temporary storage before sending the whole vector to DDR.  We can see now that transfer from PCOREs to DDR can now be done in vector mode.
+
+Scatter operation is performed automatically by TensorEngine and application does not have to be aware of it.
+
+![scatter](images/write_scatter.gif)
+
+#### 5.8.3 Tensor scatter transfer by vector word.
 
 ```
 >FOR(I=0:7) PCORE(8)[0:7].THREAD[0:15].myclass::myvar(8,8)[:][I] <= DDR(p)[0:8*16*8*8-1];
@@ -405,7 +417,7 @@ The transfer now becomes...
 >SCATTER(0) FOR(I=0:7) PCORE(8)[0:7].THREAD[0:15].myclass::myvar(8,8)[:][I] <= DDR(p)[0:8*16*8*8-1];
 ```
 
-#### 5.8.3 Tensor scatter transfer by thread.
+#### 5.8.4 Tensor scatter transfer by thread.
 
 ```
 >FOR(I=0:7) FOR(J=0:7) PCORE(8)[0:7].THREAD(2,8)[:][:].myclass::myvar[J] <= DDR(p)[0:8*16*8*8-1];
