@@ -377,13 +377,13 @@ This method is used extensively in the provided vision and AI stack.
 
 Animation below illustrates a transfer from DDR to PCORE when it is not possible to do in vector mode since the consecutive data elements are scattered between different words.
 
-![scatter](Documentation/images/write_non_scatter.gif)
+![scatter](images/write_non_scatter.gif)
 
 But now with the same transfer but with Tensor scatter option enabled. PCOREs now save the vector word into temporary storage before moving each data elements into corresponding words.  We can see now that transfer from DDR to PCOREs can now be done in vector mode.
 
 Scatter operation is performed automatically by TensorEngine and application does not have to be aware of it.
 
-![scatter](Documentation/images/write_scatter.gif)
+![scatter](images/write_scatter.gif)
 
 #### 5.8.2 Tensor scatter transfer by vector word.
 
