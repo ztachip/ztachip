@@ -475,9 +475,9 @@ set_global_assignment -name ECO_REGENERATE_REPORT ON
 set_global_assignment -name SEED 4009
 set_global_assignment -name PHYSICAL_SYNTHESIS_ASYNCHRONOUS_SIGNAL_PIPELINING ON
 set_global_assignment -name REMOVE_REDUNDANT_LOGIC_CELLS ON
+set_global_assignment -name QIP_FILE ../../HDL/ztachip.qip
 set_global_assignment -name SIP_FILE pll.sip
 set_global_assignment -name QIP_FILE pll.qip
-set_global_assignment -name QIP_FILE ../../../ztachip/ztachip.qip
 set_global_assignment -name SDC_FILE DE10_NANO_SOC_GHRD.sdc
 set_global_assignment -name VERILOG_FILE ip/intr_capturer/intr_capturer.v
 set_global_assignment -name VERILOG_FILE ip/edge_detect/altera_edge_detector.v
