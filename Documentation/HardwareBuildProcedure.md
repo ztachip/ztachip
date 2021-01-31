@@ -1,8 +1,8 @@
 # ZTACHIP FPGA build procedure
 
-### Flash Linux to DE10-NANO
-
 This document describes FPGA build procedure targeting [DE10-NANO board](https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&CategoryNo=165&No=1046) running [Linux Xfce Desktop](https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&CategoryNo=165&No=1046&PartNo=4) or [Linux Console](https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&CategoryNo=165&No=1046&PartNo=4) as its Linux operating system.
+
+### Flash Linux to DE10-NANO
 
 You start first by installing [Linux Xfce Desktop](https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&CategoryNo=165&No=1046&PartNo=4) to your DE10-NANO board's SDCard. This version of Linux has a GUI desktop. But since Altera implements HDMI in FPGA, the FPGA image associated with this version is significantly larger.
 
@@ -18,7 +18,7 @@ Choose a folder [WORKSPACE] from Windows filesystem where you would like to inst
 
 This build procedure has been verified to be built successfully with Ubuntu 18.04 or later
 
-## Install Intel Embedded Studio
+### Install Intel Embedded Studio
 
 Install the following packages required by Intel Embedded Studio
 
@@ -40,6 +40,13 @@ From Windows, Download and install [Quartus Prime Lite Edition version 17.0](htt
 
 Here we use the Windows version of Quartus.
 
+### Download ztachip from github
+
+```
+   cd [WORKSPACE] 
+   git clone https://github.com/ztachip/ztachip.git
+```
+
 ### Open reference design project file
 
 From Windows, launch Quartus Prime Lite Edition. Then...
@@ -51,6 +58,8 @@ From Windows, launch Quartus Prime Lite Edition. Then...
 For remaining of document, [TARGET] is used to indentify DE10_NANO_SoC_FB or DE10_NANO_SoC_GHRD depending on the your choice of target Linux version.
 
 ### How to integrate ztachip to your FPGA project 
+
+This section provides explanation on how ztachip can be integrated to your design.
 
 ztachip is integrated to a FPGA design as a Qsys component. 
 
@@ -91,6 +100,8 @@ In the qsys configuration above, we have the following ztachip elements:
 Also include [ztachip.qip](https://github.com/ztachip/ztachip/blob/master/hardware/HDL/ztachip.qip) to your project build. This will include all ztachip HDL files.
 
 ### Build Qsys 
+
+First generate code with Qsys. This is Quartus high level design description.
 
 From Quartus...
 
@@ -137,9 +148,9 @@ From Ubuntu console, run command below...
 
 In the BSP Editor screen, 
 
-   - Click File -> <New HPS BSP>
+   - Click File -> < New HPS BSP >
 
-   - In the < Preloader Setting Directory>, choose [WORKSPACE]/ztachip/hardware/examples/[TARGET]/hps_isw_handoff/soc_system_hps_0 
+   - In the < Preloader Setting Directory >, choose [WORKSPACE]/ztachip/hardware/examples/[TARGET]/hps_isw_handoff/soc_system_hps_0 
 
    - Click OK then Generate and then Exit.
 
