@@ -50,7 +50,7 @@ In summary, there are 4 layers to ztachip software architecture
 
 Below is the procedure to build the tutorial.
 
-There are 2 build. One build to generate host application, and the other build is to generate ztachip binary image (to be loaded to FPGA)
+There are 2 build. One build to generate host application, and the other build is to generate ztachip binary image. ztachip binary image is software image to be loaded to ztachip at runtime. It contains the software compiled code for mcore and pcore.
 
 The genetated ztachip binary image is located at ztachip/software/target/builds/ztachip.hex
 
