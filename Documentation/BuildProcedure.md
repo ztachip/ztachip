@@ -95,7 +95,7 @@ Then on ssh terminal session with your target (DE10-Nano)
       cd ~/ztachip/examples/blur
       ./blur ../bitmap/cat.bmp
 ```
-- Run ztachip realtime with webcam
+- Run ztachip realtime with webcam. This example is only available if DE10-NANO is installed with < Linux Xfce Desktop > Linux version.
 ```
       cd ~/ztachip/examples/vision_ai
       ## This example has to be built on target since it need the installed GTK library on target.
