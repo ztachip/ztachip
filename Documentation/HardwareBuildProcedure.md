@@ -2,7 +2,7 @@
 
 This document describes FPGA build procedure targeting [DE10-NANO board](https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&CategoryNo=165&No=1046) running [Linux Xfce Desktop](https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&CategoryNo=165&No=1046&PartNo=4) or [Linux Console](https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&CategoryNo=165&No=1046&PartNo=4) as its Linux operating system.
 
-### Flash Linux to DE10-NANO
+## Flash Linux to DE10-NANO
 
 You start first by installing [Linux Xfce Desktop](https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&CategoryNo=165&No=1046&PartNo=4) to your DE10-NANO board's SDCard. This version of Linux has a GUI desktop. But since Altera implements HDMI in FPGA, the FPGA image associated with this version is significantly larger.
 
@@ -10,7 +10,7 @@ For a console only version of Linux. Install [Linux Console](https://www.terasic
 
 You can use [Disk32Manager](https://sourceforge.net/projects/win32diskimager) utility to flash Linux images to DE10-NANO's SDCard.
 
-### Install ubuntu
+## Install ubuntu
 
 In this example, we install Linux Ubuntu within Windows's [VirtualBox](https://www.virtualbox.org). This is convenient for the case that you have just a Windows based PC available. VirtualBox allows you to run Ubuntu Linux from within Windows.
 
@@ -18,7 +18,7 @@ Choose a folder [WORKSPACE] from Windows filesystem where you would like to inst
 
 This build procedure has been verified to be built successfully with Ubuntu 18.04 or later
 
-### Install Intel Embedded Studio
+## Install Intel Embedded Studio
 
 Install the following packages required by Intel Embedded Studio
 
@@ -34,20 +34,20 @@ Run Intel Embedded Studio installer. Install Intel Embedded Studio in your Ubunt
 
       sudo ./SoCEDSSetup-17.0.0.595-linux.run
 
-### Download and install Intel Quartus Development Suite.
+## Download and install Intel Quartus Development Suite.
 
 From Windows, Download and install [Quartus Prime Lite Edition version 17.0](https://fpgasoftware.intel.com/17.0/?edition=lite)
 
 Here we use the Windows version of Quartus.
 
-### Download ztachip from github
+## Download ztachip from github
 
 ```
    cd [WORKSPACE] 
    git clone https://github.com/ztachip/ztachip.git
 ```
 
-### Open reference design project file
+## Open reference design project file
 
 From Windows, launch Quartus Prime Lite Edition. Then...
 
@@ -57,7 +57,7 @@ From Windows, launch Quartus Prime Lite Edition. Then...
 
 For remaining of document, [TARGET] is used to indentify DE10_NANO_SoC_FB or DE10_NANO_SoC_GHRD depending on the your choice of target Linux version.
 
-### How to integrate ztachip to your FPGA project 
+## How to integrate ztachip to your FPGA project 
 
 This section provides explanation on how ztachip can be integrated to your design.
 
@@ -99,7 +99,7 @@ In the qsys configuration above, we have the following ztachip elements:
 
 Also include [ztachip.qip](https://github.com/ztachip/ztachip/blob/master/hardware/HDL/ztachip.qip) to your project build. This will include all ztachip HDL files.
 
-### Build Qsys 
+## Build Qsys 
 
 First generate code with Qsys. This is Quartus high level design description.
 
@@ -115,13 +115,13 @@ From Quartus...
 
 - Close Qsys
 
-### Build FPGA image
+## Build FPGA image
 
 From Quartus...
 
 Processing -> Start compilation
 
-### Install FPGA image on target
+## Install FPGA image on target
 
 Quartus produces FPGA image in SOF format. 
 
@@ -136,7 +136,7 @@ The steps above produces FPGA image file named soc_system.rbf
 
 Plug DE10_NANO's MicroSD card to the PC, copy soc_system.rbf above to MicroSD card.
 
-### Build and install preloader image.
+## Build and install preloader image.
 
 Associate with every FPGA image, especially when there is a change to FPGA-DDR memory interface, you also need to build and flash a new preloader image to MicroSD card. 
 
@@ -161,6 +161,7 @@ From Ubuntu console command...
    cd ~
    cp -avr [WORKSPACE]/ztachip/hardware/examples/[TARGET] .
    cd [TARGET]/software/spl_bsp
+   ~/intelFPGA/17.0/embedded/embedded_command_shell.sh
    make
    make uboot
 ```
@@ -174,7 +175,7 @@ From a Windows command prompt, do the command below but replacing f: with the co
    [WORKSPACE]\ztachip\thirdparty\dd.exe  if=preloader-mkpimage.bin of=f: bs=64k seek=0 
 ```
 
-### Update uboot.scr
+## Update uboot.scr
 
 This file tells uboot which FPGA image to load at boot time.
 
@@ -194,6 +195,7 @@ run mmcboot;
 The run...
 
 ```
+~/intelFPGA/17.0/embedded/embedded_command_shell.sh
 mkimage  -A arm -O linux -T script -C none -a 0 -e 0 -n "My script" -d u-boot.txt u-boot.scr
 ```
 

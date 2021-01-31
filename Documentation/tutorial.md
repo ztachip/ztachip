@@ -61,6 +61,7 @@ You can modify the [Makefile](https://github.com/ztachip/ztachip/blob/master/exa
 First you must complete ztachip [Software Build Procedure](https://github.com/ztachip/ztachip/blob/master/Documentation/BuildProcedure.md), then you can proceed with building your custom acceleration codes like the example below...
 
 ```
+~/intelFPGA/17.0/embedded/embedded_command_shell.sh
 cd [ZTACHIP INSTALLATION FOLDER]
 source ./setenv.sh
 # Go to folder where your custom acceleration codes are
