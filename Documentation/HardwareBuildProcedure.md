@@ -110,6 +110,14 @@ We need to convert it to RBF format for target with command below...
    quartus_cpf -c -o bitstream_compression=on [TARGET].sof soc_system.rbf
 ```
 
+If you are running a Windows version of Quartus, you can do the format conversion with command below from a Windows Command Prompt
+
+```
+   cd [ZTACHIP]/hardware/examples/[TARGET]/output_files
+   sof_to_rbf.bat 
+```
+
+
 Copy the resulted soc_system.rbf to SDCard.
 
 ## Install Intel Embedded Studio
@@ -166,6 +174,8 @@ Then flash preloader image to SDCard with command below. Change xxx with your SD
    alt-boot-disk-util -p preloader-mkpimage.bin -a write /dev/xxx
 ```
 
+NOTE: If you are running Ubuntu from VirtualBox, the build step above must not be done in a Windows+Ubuntu shared folder since the build steps require creating link files which is not possible with a Windows+Ubuntu shared folder.
+
 ## Build device tree
 
 Procedure below generates device tree from QSYS configuation file.
@@ -203,7 +213,6 @@ mkimage  -A arm -O linux -T script -C none -a 0 -e 0 -n "My script" -d u-boot.tx
 
 Then copy u-boot.scr to DE10-NANO's SDCard.
 
-
 ### Setting up uboot parameters. 
 
 To change UBOOT boot parameters. Do the following procedure to begin the editing...
@@ -233,8 +242,8 @@ Issue command below to tell uboot about device tree
 Now save uboot parameters to flash and the reboot
 
 ```
-      saveenv
-      reset
+   saveenv
+   reset
 ```
 
 Now you are done with FPGA build and board preparation. You can now proceed with [Software Build Procedure](https://github.com/ztachip/ztachip/blob/master/Documentation/BuildProcedure.md)
