@@ -1,61 +1,39 @@
 # ZTACHIP FPGA build procedure
 
-This document describes FPGA build procedure targeting [DE10-NANO board](https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&CategoryNo=165&No=1046) running [Linux Xfce Desktop](https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&CategoryNo=165&No=1046&PartNo=4) or [Linux Console](https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&CategoryNo=165&No=1046&PartNo=4) as its Linux operating system.
+This document describes FPGA build procedure and board configuration targeting [DE10-NANO board](https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&CategoryNo=165&No=1046) running [Linux Xfce Desktop](https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&CategoryNo=165&No=1046&PartNo=4) or [Linux Console](https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&CategoryNo=165&No=1046&PartNo=4) as its Linux operating system.
 
 ## Flash Linux to DE10-NANO
 
-You start first by installing [Linux Xfce Desktop](https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&CategoryNo=165&No=1046&PartNo=4) to your DE10-NANO board's SDCard. This version of Linux has a GUI desktop. But since Altera implements HDMI in FPGA, the FPGA image associated with this version is significantly larger.
+For a console only version of Linux. Install [Linux Console](https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&CategoryNo=165&No=1046&PartNo=4) version.
 
-For a console only version of Linux. Install [Linux Console](https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&CategoryNo=165&No=1046&PartNo=4) instead. The FPGA image associated with this Linux is significantly smaller since it does not contain the IP for HDMI driver.
+For a GUI desktop version, install [Linux Xfce Desktop](https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&CategoryNo=165&No=1046&PartNo=4) version. The FPGA image associated with this version is slightly larger since it requires IP block for HDMI driver.
 
-You can use [Disk32Manager](https://sourceforge.net/projects/win32diskimager) utility to flash Linux images to DE10-NANO's SDCard.
+## Install ubuntu for your build environment.
 
-## Install ubuntu
-
-In this example, we install Linux Ubuntu within Windows's [VirtualBox](https://www.virtualbox.org). This is convenient for the case that you have just a Windows based PC available. VirtualBox allows you to run Ubuntu Linux from within Windows.
-
-Choose a folder [WORKSPACE] from Windows filesystem where you would like to install ztachip. Then map this [WORKSPACE] folder to Ubuntu's file system. [Click here](https://helpdeskgeek.com/virtualization/virtualbox-share-folder-host-guest/) for information on how to do this mapping. This shared folder can be accessed by both Windows and Ubuntu operating system.
+Install Ubuntu on your desktop. If you only have Windows based PC, you can install Ubuntu under VirtualBox which allows you to run Ubuntu Linux from within Windows.
 
 This build procedure has been verified to be built successfully with Ubuntu 18.04 or later
 
-## Install Intel Embedded Studio
-
-Install the following packages required by Intel Embedded Studio
-
-      sudo apt-get install lib32z1
-      sudo apt-get update
-      sudo apt-get install libgtk2.0-0:i386 libidn11:i386 libglu1-mesa:i386 libxmu6:i386
-      sudo apt-get install libpangox-1.0-0:i386 libpangoxft-1.0-0:i386
-
-Download [Intel Embedded Studio](https://fpgasoftware.intel.com/soceds/17.0/?edition=standard&platform=linux&download_manager=direct).
-This document is based on Intel Embedded Studio v17.0
-
-Run Intel Embedded Studio installer. Install Intel Embedded Studio in your Ubuntu's home folder.
-
-      sudo ./SoCEDSSetup-17.0.0.595-linux.run
-
 ## Download and install Intel Quartus Development Suite.
 
-From Windows, Download and install [Quartus Prime Lite Edition version 17.0](https://fpgasoftware.intel.com/17.0/?edition=lite)
-
-Here we use the Windows version of Quartus.
+Download and install [Quartus Prime Lite Edition version 17.0](https://fpgasoftware.intel.com/17.0/?edition=lite)
 
 ## Download ztachip from github
 
 ```
-   cd [WORKSPACE] 
+   cd ~ 
    git clone https://github.com/ztachip/ztachip.git
 ```
 
 ## Open reference design project file
 
-From Windows, launch Quartus Prime Lite Edition. Then...
+Launch Quartus Prime Lite Edition. Then...
 
-- Open [WORKSPACE]/ztachip/hardware/examples/DE10_NANO_SoC_FB/DE10_NANO_SoC_FB.qpf if you use Linux Xfce Desktop version of Linux
+- Open [ZTACHIP]/hardware/examples/DE10_NANO_SoC_FB/DE10_NANO_SoC_FB.qpf if you use Linux Xfce Desktop version of Linux
 
-- Open [WORKSPACE]/ztachip/hardware/examples/DE10_NANO_SoC_FB/DE10_NANO_SoC_GHRD.qpf if you use Linux Console version of Linux
+- Open [ZTACHIP]/hardware/examples/DE10_NANO_SoC_FB/DE10_NANO_SoC_GHRD.qpf if you use Linux Console version of Linux
 
-For remaining of document, [TARGET] is used to indentify DE10_NANO_SoC_FB or DE10_NANO_SoC_GHRD depending on the your choice of target Linux version.
+For remaining of document, [TARGET] is used to indentify DE10_NANO_SoC_FB or DE10_NANO_SoC_GHRD depending on the your choice of target Linux version, and [ZTACHIP] is used to identify installation folder of ztachip.
 
 ## How to integrate ztachip to your FPGA project 
 
@@ -105,9 +83,9 @@ First generate code with Qsys. This is Quartus high level design description.
 
 From Quartus...
 
-- Under Tools->Qsys,open [WORKSPACE]/ztachip/hardware/examples/[TARGET]/soc_system.qsys
+- Under Tools->Qsys,open [ZTACHIP]/hardware/examples/[TARGET]/soc_system.qsys
 
-- Under Tools->Option,set IP SearchPath=[WORKSPACE]/ztachip/hardware/HDL
+- Under Tools->Option,set IP SearchPath=[ZTACHIP]/hardware/HDL
 
 - File -> RefreshSystem
 
@@ -125,22 +103,44 @@ Processing -> Start compilation
 
 Quartus produces FPGA image in SOF format. 
 
-Open a Windows Command Prompt and convert the output FPGA image to RBF format with following commands
+We need to convert it to RBF format for target with command below...
 
 ```
-   cd [WORKSPACE]/ztachip/hardware/examples/[TARGET]/output_files
-   sof_to_rbf.bat
+   cd [ZTACHIP]/hardware/examples/[TARGET]/output_files
+   quartus_cpf -c -o bitstream_compression=on [TARGET].sof soc_system.rbf
 ```
 
-The steps above produces FPGA image file named soc_system.rbf 
+Copy the resulted soc_system.rbf to SDCard.
 
-Plug DE10_NANO's MicroSD card to the PC, copy soc_system.rbf above to MicroSD card.
+## Install Intel Embedded Studio
+
+Install the following packages required by Intel Embedded Studio
+
+      sudo apt-get install lib32z1
+      sudo apt-get update
+      sudo apt-get install libgtk2.0-0:i386 libidn11:i386 libglu1-mesa:i386 libxmu6:i386
+      sudo apt-get install libpangox-1.0-0:i386 libpangoxft-1.0-0:i386
+
+Download [Intel Embedded Studio](https://fpgasoftware.intel.com/soceds/17.0/?edition=standard&platform=linux&download_manager=direct).
+This document is based on Intel Embedded Studio v17.0
+
+Run Intel Embedded Studio installer. Choose your home folder as installation folder.
+
+````
+      sudo ./SoCEDSSetup-17.0.0.595-linux.run
+```
+
+Open a console terminal and issue the command below to set Embedded Studio build environment.
+
+```
+   ~/intelFPGA/17.0/embedded/embedded_command_shell.sh 
+```
 
 ## Build and install preloader image.
 
 Associate with every FPGA image, especially when there is a change to FPGA-DDR memory interface, you also need to build and flash a new preloader image to MicroSD card. 
 
-From Ubuntu console, run command below...
+Run command below...
 
 ```
    bsp-editor
@@ -150,30 +150,33 @@ In the BSP Editor screen,
 
    - Click File -> < New HPS BSP >
 
-   - In the < Preloader Setting Directory >, choose [WORKSPACE]/ztachip/hardware/examples/[TARGET]/hps_isw_handoff/soc_system_hps_0 
+   - In the < Preloader Setting Directory >, choose [ZTACHIP]/hardware/examples/[TARGET]/hps_isw_handoff/soc_system_hps_0 
 
    - Click OK then Generate and then Exit.
 
-Now we will build the preloader image. Unfortunately preloader image build cannot be done in [WORKSPACE] folder since preloader build procedure needs to create link files which is not supported under VirtualBox's shared folder. So we copy the build source files and build it under home directory.
-
-From Ubuntu console command...
 ```
-   cd ~
-   cp -avr [WORKSPACE]/ztachip/hardware/examples/[TARGET] .
-   cd [TARGET]/software/spl_bsp
-   ~/intelFPGA/17.0/embedded/embedded_command_shell.sh
+   cd [ZTACHIP]/hardware/examples/[TARGET]/software/spl_bsp
    make
    make uboot
 ```
 
-Then copy preloader-mkpimage.bin to [WORKSPACE] and then flash this preloader image to SDCard using dd utility. 
-
-From a Windows command prompt, do the command below but replacing f: with the correct drive name for your SDCard.
+Then flash preloader image to SDCard with command below. Change xxx with your SDCard device name.
 
 ```
-   cd [WORKSPACE]
-   [WORKSPACE]\ztachip\thirdparty\dd.exe  if=preloader-mkpimage.bin of=f: bs=64k seek=0 
+   alt-boot-disk-util -p preloader-mkpimage.bin -a write /dev/xxx
 ```
+
+## Build device tree
+
+Procedure below generates device tree from QSYS configuation file.
+
+```
+cd [ZTACHIP]/hardware/examples/[TARGET]
+
+sopc2dts --input soc_system.sopcinfo  --output soc_system.dtb  --type dtb  --board soc_system_board_info.xml  --board hps_common_board_info.xml  --bridge-removal all  --clocks
+```
+
+Then copy soc_system.dtb to SDCard...
 
 ## Update uboot.scr
 
@@ -192,29 +195,47 @@ run mmcload;
 run mmcboot;
 ```
 
-The run...
+Then run the command below to convert u-boot.txt to u-boot.scr format.
 
 ```
-~/intelFPGA/17.0/embedded/embedded_command_shell.sh
 mkimage  -A arm -O linux -T script -C none -a 0 -e 0 -n "My script" -d u-boot.txt u-boot.scr
 ```
 
 Then copy u-boot.scr to DE10-NANO's SDCard.
 
 
-### Prepare target board
+### Setting up uboot parameters. 
+
+To change UBOOT boot parameters. Do the following procedure to begin the editing...
+
+- Open serial port to DE10-NANO with baudrate 115200.(Refer to DE10-NANO user manual on how to setup serial port)
+
+- Reboot the board
+
+- As soon as there is output on serial port, hit Enter key to stop the booting process.
+
+- Now you should be in uboot command prompt.
 
 ztachip needs some physical memory. Modify UBOOT parameter to reserve some physical memory (512K in this example).
 
-Tell Linux to use only the top 512K of memory and the bottom 512K of memory is reserved for ztachip.
+Issue command below to Tell Linux to use only the top 512K of memory and the bottom 512K of memory is reserved for ztachip.
 
-- Open serial port to DE10-NANO with baudrate 115200.(Refer to DE10-NANO user manual on how to setup serial port)
-- Reboot
-- As soon as there is output on serial port, hit Enter key
-- Issue the following command
 ```
-      setenv mmcboot 'setenv bootargs console=ttyS0,115200 root=${mmcroot} rw rootwait mem=512M;bootz ${loadaddr} - ${fdtaddr}'
+   setenv mmcboot 'setenv bootargs console=ttyS0,115200 root=${mmcroot} rw rootwait mem=512M;bootz ${loadaddr} - ${fdtaddr}'
+```
+
+Issue command below to tell uboot about device tree
+
+```
+   setenv fdtimage soc_system.dtb
+```
+
+Now save uboot parameters to flash and the reboot
+
+```
       saveenv
       reset
 ```
+
+Now you are done with FPGA build and board preparation. You can now proceed with [Software Build Procedure](https://github.com/ztachip/ztachip/blob/master/Documentation/BuildProcedure.md)
 

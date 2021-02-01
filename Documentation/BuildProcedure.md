@@ -33,7 +33,7 @@ For information on how to build the toolchain yourself, refer to this [document]
 - Build ztachip
 ```
       ~/intelFPGA/17.0/embedded/embedded_command_shell.sh
-      cd [WORKSPACE]/ztachip
+      cd [ZTACHIP]
       source ./setup.sh
       make clean
       make all
@@ -44,7 +44,7 @@ Archive your built ztachip folder and then unarchive it on the target
 
 On your Ubuntu machine
 ```
-      cd [WORKSPACE] 
+      cd [ZTACHIP]/..
       tar -zcvf ztachip.tar.gz ztachip/software ztachip/examples
       scp ztachip.tar.gz root@[YOUR_TARGET_BOARD_IPADDRESS]:/home/root/.
 ```
