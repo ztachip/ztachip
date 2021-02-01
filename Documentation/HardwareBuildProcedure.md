@@ -43,9 +43,9 @@ ztachip is integrated to a FPGA design as a Qsys component.
 
 ztachip QSYS component is defined in [ztachip_hw.tcl](https://github.com/ztachip/ztachip/blob/master/hardware/HDL/ztachip_hw.tcl)
 
-After QSYS IP search path is set to [WORKSPACE]/ztachip/hardware/HDL, QSYS should detect ztachip component package and make it available to be inserted to model.
+After QSYS IP search path is set to [ZTACHIP]/hardware/HDL, QSYS should detect ztachip component package and make it available to be inserted to model.
 
-Picture below shows ztachip qsys configuration as defined in [WORKSPACE]/ztachip/hardware/examples/[TARGET]/soc_system.qsys 
+Picture below shows ztachip qsys configuration as defined in [ZTACHIP]/hardware/examples/[TARGET]/soc_system.qsys 
 
 ![ztachip qsys](images/ztachip_qsys.png)
 
@@ -126,11 +126,11 @@ This document is based on Intel Embedded Studio v17.0
 
 Run Intel Embedded Studio installer. Choose your home folder as installation folder.
 
-````
+```
       sudo ./SoCEDSSetup-17.0.0.595-linux.run
 ```
 
-Open a console terminal and issue the command below to set Embedded Studio build environment.
+Console used for build purposes must start with command below to set Embedded Studio build environment.
 
 ```
    ~/intelFPGA/17.0/embedded/embedded_command_shell.sh 
