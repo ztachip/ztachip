@@ -340,21 +340,13 @@ if reset_in = '0' then
    shift_direction_rrrr <= '0';
 else
    if clock_in'event and clock_in='1' then
-   if mu_opcode_r=mu_opcode_shra_c or mu_opcode_r=mu_opcode_shla_c then
+   if mu_opcode_r=mu_opcode_shra_c or mu_opcode_r=mu_opcode_shla_c or mu_opcode_r=mu_opcode_shr_c or mu_opcode_r=mu_opcode_shl_c then
       if x1_r(x1_r'length-1)='1' then
          shift_distance_r <= (others=>'0');
       elsif unsigned(x1_r(x1_r'length-1 downto shift_width_depth_c)) /= to_unsigned(0,x1_r'length-shift_width_depth_c) then
          shift_distance_r <= (others=>'1');
       else 
          shift_distance_r <= x1_r(shift_width_depth_c-1 downto 0);
-      end if;
-   elsif mu_opcode_r=mu_opcode_shr_c or mu_opcode_r=mu_opcode_shl_c then
-      if x2_r(x2_r'length-1)='1' then
-         shift_distance_r <= (others=>'0');
-	  elsif unsigned(x2_r(x2_r'length-1 downto shift_width_depth_c)) /= to_unsigned(0,x2_r'length-shift_width_depth_c) then
-         shift_distance_r <= (others=>'1');
-      else
-         shift_distance_r <= x2_r(shift_width_depth_c-1 downto 0);
       end if;
    else 
       shift_distance_r <= (others=>'0');
@@ -422,7 +414,7 @@ begin
             else
             case mu_opcode_r is
                 when mu_opcode_shl_c|mu_opcode_shr_c =>
-                    xreg_rr <= std_logic_vector(resize(signed(x1_r),shift_width_c));
+                    xreg_rr <= std_logic_vector(resize(signed(x2_r),shift_width_c));
                 when mu_opcode_shla_c|mu_opcode_shra_c =>
                     xreg_rr <= std_logic_vector(resize(signed(xreg_r),shift_width_c));
                 when mu_opcode_mul_c =>

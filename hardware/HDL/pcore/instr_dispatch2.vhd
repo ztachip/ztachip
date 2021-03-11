@@ -123,7 +123,6 @@ SIGNAL x2_c1_r:STD_LOGIC_VECTOR(register_width_c-1 DOWNTO 0);
 SIGNAL x2_c1_rr:STD_LOGIC_VECTOR(register_width_c-1 DOWNTO 0);
 SIGNAL y_vector:STD_LOGIC;
 SIGNAL x1_c1_vector:STD_LOGIC_VECTOR(vregister_width_c-1 DOWNTO 0);
-SIGNAL x2_c1_vector:STD_LOGIC_VECTOR(vregister_width_c-1 DOWNTO 0);
 attribute preserve : boolean;
 attribute preserve of wr_en_delay_r : SIGNAL is true;
 attribute preserve of wr_result_addr_delay_r : SIGNAL is true;
@@ -203,13 +202,12 @@ rd_vm_out <= vm_in;
 
 
 mu_x1_out <= rd_x1_data_in when x1_c1_en_rr='0' else x1_c1_vector;
-mu_x2_out <= rd_x2_data_in when x2_c1_en_rr='0' else x2_c1_vector;
+mu_x2_out <= rd_x2_data_in;
 
 
 mu_opcode_out <= mu_opcode_rr;
 mu_tid_out <= mu_tid_rr;
 x1_c1_vector <= (x1_c1_rr & x1_c1_rr & x1_c1_rr & x1_c1_rr & x1_c1_rr & x1_c1_rr & x1_c1_rr & x1_c1_rr);
-x2_c1_vector <= (x2_c1_rr & x2_c1_rr & x2_c1_rr & x2_c1_rr & x2_c1_rr & x2_c1_rr & x2_c1_rr & x2_c1_rr);
 
 PROCESS(clock_in,reset_in)
 BEGIN

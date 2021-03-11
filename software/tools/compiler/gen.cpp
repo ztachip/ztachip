@@ -1228,6 +1228,9 @@ cTerm *cGEN::genTermCalculation(cInstructions *instructions,cAstNode *_root,cAst
             }
             else
             {
+               cTerm *temp=x1;
+               x1=x2;
+               x2=temp;
                oc=cConfig::OPCODE_SHL;
             }
          }
@@ -1251,6 +1254,9 @@ cTerm *cGEN::genTermCalculation(cInstructions *instructions,cAstNode *_root,cAst
             }
             else
             {
+               cTerm *temp=x1;
+               x1=x2;
+               x2=temp;
                oc = cConfig::OPCODE_SHR;
             }
          }
@@ -1416,8 +1422,8 @@ cTerm *cGEN::genTermCalculation(cInstructions *instructions,cAstNode *_root,cAst
                }
             }
          }
-         else if((oc==cConfig::OPCODE_SHR || oc==cConfig::OPCODE_SHL) && x2 && x2->isKindOf(cTerm_MU_Constant::getCLID())) {
-            int shift=(int)CAST(cTerm_MU_Constant,x2)->m_c;
+         else if((oc==cConfig::OPCODE_SHR || oc==cConfig::OPCODE_SHL) && x1 && x1->isKindOf(cTerm_MU_Constant::getCLID())) {
+            int shift=(int)CAST(cTerm_MU_Constant,x1)->m_c;
             if(shift <= MAX_SHIFT_DISTANCE) {
                instruction->createMU(oc,CAST(cTerm_MU,x1),CAST(cTerm_MU,x2),CAST(cTerm_MU,y),xacc?CAST(cTerm_MU,xacc):0);
             } else {
@@ -1434,8 +1440,8 @@ cTerm *cGEN::genTermCalculation(cInstructions *instructions,cAstNode *_root,cAst
                   instruction2=new cInstruction(node);
                   if(first)
                      instruction2->createMU(oc,
-                                         CAST(cTerm_MU,x1),
                                          new cTerm_MU_Constant((float)((shift>MAX_SHIFT_DISTANCE)?MAX_SHIFT_DISTANCE:shift)),
+                                         CAST(cTerm_MU,x2),
                                          CAST(cTerm_MU,y),
                                          0);
                   else
@@ -1448,8 +1454,8 @@ cTerm *cGEN::genTermCalculation(cInstructions *instructions,cAstNode *_root,cAst
                                             CAST(cTerm_MU,y));
                      else
                         instruction2->createMU(oc,
-                                            CAST(cTerm_MU,y),
                                             new cTerm_MU_Constant((float)((shift>MAX_SHIFT_DISTANCE)?MAX_SHIFT_DISTANCE:shift)),
+                                            CAST(cTerm_MU,y),
                                             CAST(cTerm_MU,y),
                                             0);
                   }
@@ -1458,7 +1464,7 @@ cTerm *cGEN::genTermCalculation(cInstructions *instructions,cAstNode *_root,cAst
                   first=false;
                }
             }
-         } 
+         }
          else 
          {
             instruction->createMU(oc,CAST(cTerm_MU,x1),CAST(cTerm_MU,x2),CAST(cTerm_MU,y),xacc?CAST(cTerm_MU,xacc):0);
