@@ -80,8 +80,6 @@ ENTITY instr_decoder2 IS
 
         SIGNAL x1_c1_en_out                     : OUT STD_LOGIC;
         SIGNAL x1_c1_out                        : OUT STD_LOGIC_VECTOR(register_width_c-1 DOWNTO 0);
-        SIGNAL x2_c1_en_out                     : OUT STD_LOGIC;
-        SIGNAL x2_c1_out                        : OUT STD_LOGIC_VECTOR(register_width_c-1 DOWNTO 0);
 
         -- IREGISTER
         SIGNAL i_rd_en_out                      : OUT STD_LOGIC;
@@ -155,9 +153,6 @@ SIGNAL mu_wren_r:STD_LOGIC;
 SIGNAL mu_x1_c1_en:STD_LOGIC;
 SIGNAL mu_x1_c1_en_r:STD_LOGIC;
 SIGNAL mu_x1_c1_r:STD_LOGIC_VECTOR(register_width_c-1 DOWNTO 0);
-SIGNAL mu_x2_c1_en:STD_LOGIC;
-SIGNAL mu_x2_c1_en_r:STD_LOGIC;
-SIGNAL mu_x2_c1_r:STD_LOGIC_VECTOR(register_width_c-1 DOWNTO 0);
 SIGNAL mu_x1_parm1:STD_LOGIC_VECTOR(mu_instruction_x1_width_c-1 DOWNTO 0);
 SIGNAL mu_x2_parm1:STD_LOGIC_VECTOR(mu_instruction_x2_width_c-1 DOWNTO 0);
 SIGNAL mu_x3_parm1:STD_LOGIC_VECTOR(mu_instruction_x2_width_c-1 DOWNTO 0);
@@ -246,7 +241,6 @@ SIGNAL mu_x3_i1_1:iregister_t;
 SIGNAL mu_x1_i2_1:iregister_t;
 SIGNAL mu_x2_i2_1:iregister_t;
 SIGNAL mu_x1_i2:iregister_t;
-SIGNAL mu_x2_i2:iregister_t;
 
 SIGNAL mu_y_i0_1:iregister_t;
 SIGNAL mu_y_i1_1:iregister_t;
@@ -510,7 +504,6 @@ mu_wren <= '0' when (mu_y_attr1="1010" and mu_y_parm1(register_attr_const_null_c
 -- Constant is either constant field or integer value
 
 mu_x1_c1_en <= '1' when (mu_x1_attr1="1010") else '0';
-mu_x2_c1_en <= '1' when (mu_x2_attr1="1010") else '0';
 
 ---------
 -- Retrieve integer bank used by MU
@@ -537,7 +530,6 @@ mu_y_i0_1 <= iregisters_lo(to_integer(unsigned(mu_y_attr1(1 downto 0)))) when mu
 mu_y_i1_1 <= iregisters_hi(to_integer(unsigned(mu_y_parm1(4 downto 3))));
 
 mu_x1_i2 <= mu_x1_i2_1 when mu_x1_parm1(5)='0' else mu_x1_i1_1;
-mu_x2_i2 <= mu_x2_i2_1 when mu_x2_parm1(5)='0' else mu_x2_i1_1;
 
 
 -- OUTPUT instruction 1
@@ -560,8 +552,6 @@ wren_out <= mu_wren_r;
 
 x1_c1_en_out <= mu_x1_c1_en_r;
 x1_c1_out <= mu_x1_c1_r;
-x2_c1_en_out <= mu_x2_c1_en_r;
-x2_c1_out <= mu_x2_c1_r;
 
 instruction_tid_out <= instruction_tid_r;
 
@@ -793,8 +783,6 @@ BEGIN
         mu_wren_r <= '0';
         mu_x1_c1_en_r <= '0';
         mu_x1_c1_r <= (others=>'0');
-        mu_x2_c1_en_r <= '0';
-        mu_x2_c1_r <= (others=>'0');
         mu_vm_r <= '0';
         result_raddr_r <= (others=>'0');
         result_waddr_r <= (others=>'0');
@@ -807,9 +795,6 @@ BEGIN
 
             mu_x1_c1_en_r <= mu_x1_c1_en;
             mu_x1_c1_r <= std_logic_vector(mu_x1_i2(mu_x1_c1_r'length-1 downto 0));
-
-            mu_x2_c1_en_r <= mu_x2_c1_en;
-            mu_x2_c1_r <= std_logic_vector(mu_x2_i2(mu_x2_c1_r'length-1 downto 0));
 
             if instruction_tid_valid_in='1' then
                 -- Decode the instruction

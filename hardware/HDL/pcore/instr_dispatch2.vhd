@@ -54,8 +54,6 @@ ENTITY instr_dispatch2 IS
 
         SIGNAL x1_c1_en_in          : IN STD_LOGIC;
         SIGNAL x1_c1_in             : IN STD_LOGIC_VECTOR(register_width_c-1 DOWNTO 0);
-        SIGNAL x2_c1_en_in          : IN STD_LOGIC;
-        SIGNAL x2_c1_in             : IN STD_LOGIC_VECTOR(register_width_c-1 DOWNTO 0);
 
 
         SIGNAL rd_en_out            : OUT STD_LOGIC;     
@@ -117,10 +115,6 @@ SIGNAL x1_c1_en_r:STD_LOGIC;
 SIGNAL x1_c1_en_rr:STD_LOGIC;
 SIGNAL x1_c1_r:STD_LOGIC_VECTOR(register_width_c-1 DOWNTO 0);
 SIGNAL x1_c1_rr:STD_LOGIC_VECTOR(register_width_c-1 DOWNTO 0);
-SIGNAL x2_c1_en_r:STD_LOGIC;
-SIGNAL x2_c1_en_rr:STD_LOGIC;
-SIGNAL x2_c1_r:STD_LOGIC_VECTOR(register_width_c-1 DOWNTO 0);
-SIGNAL x2_c1_rr:STD_LOGIC_VECTOR(register_width_c-1 DOWNTO 0);
 SIGNAL y_vector:STD_LOGIC;
 SIGNAL x1_c1_vector:STD_LOGIC_VECTOR(vregister_width_c-1 DOWNTO 0);
 attribute preserve : boolean;
@@ -217,11 +211,6 @@ BEGIN
         x1_c1_r <= (others=>'0');
         x1_c1_rr <= (others=>'0');
 
-        x2_c1_en_r <= '0';
-        x2_c1_en_rr <= '0';
-        x2_c1_r <= (others=>'0');
-        x2_c1_rr <= (others=>'0');
-
         mu_opcode_r <= (others=>'0');
         mu_tid_r <= (others=>'0');
         mu_opcode_rr <= (others=>'0');
@@ -240,11 +229,6 @@ BEGIN
             x1_c1_en_rr <= x1_c1_en_r;
             x1_c1_r <= x1_c1_in;
             x1_c1_rr <= x1_c1_r;
-
-            x2_c1_en_r <= x2_c1_en_in;
-            x2_c1_en_rr <= x2_c1_en_r;
-            x2_c1_r <= x2_c1_in;
-            x2_c1_rr <= x2_c1_r;
 
             mu_opcode_r <= opcode_in;
             mu_tid_r <= instruction_tid_in;

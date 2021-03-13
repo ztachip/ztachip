@@ -2501,8 +2501,6 @@ COMPONENT instr_decoder2 IS
         -- Constant parameters
         SIGNAL x1_c1_en_out                         : OUT STD_LOGIC;
         SIGNAL x1_c1_out                            : OUT STD_LOGIC_VECTOR(register_width_c-1 DOWNTO 0);
-        SIGNAL x2_c1_en_out                         : OUT STD_LOGIC;
-        SIGNAL x2_c1_out                            : OUT STD_LOGIC_VECTOR(register_width_c-1 DOWNTO 0);
 
         -- IREGISTER
         SIGNAL i_rd_en_out                          : OUT STD_LOGIC;
@@ -2553,8 +2551,6 @@ COMPONENT instr_dispatch2 IS
 
         SIGNAL x1_c1_en_in          : IN STD_LOGIC;
         SIGNAL x1_c1_in             : IN STD_LOGIC_VECTOR(register_width_c-1 DOWNTO 0);
-        SIGNAL x2_c1_en_in          : IN STD_LOGIC;
-        SIGNAL x2_c1_in             : IN STD_LOGIC_VECTOR(register_width_c-1 DOWNTO 0);
 
         SIGNAL x1_vector_in         : IN STD_LOGIC;
         SIGNAL x2_vector_in         : IN STD_LOGIC;

@@ -150,8 +150,6 @@ SIGNAL mu_wren:std_logic;
 -- Constant parameters
 SIGNAL x1_c1_en:STD_LOGIC;
 SIGNAL x1_c1:STD_LOGIC_VECTOR(register_width_c-1 DOWNTO 0);
-SIGNAL x2_c1_en:STD_LOGIC;
-SIGNAL x2_c1:STD_LOGIC_VECTOR(register_width_c-1 DOWNTO 0);
 
 -- Vector mode
 SIGNAL x1_vector:STD_LOGIC;
@@ -1345,8 +1343,6 @@ instr_decoder2_i: instr_decoder2 generic map(
                                             -- Constant parameters
                                             x1_c1_en_out => x1_c1_en,
                                             x1_c1_out => x1_c1,
-                                            x2_c1_en_out => x2_c1_en,
-                                            x2_c1_out => x2_c1,
 
                                             -- IREGISTER
                                             i_rd_en_out => i_rd_en1,
@@ -1420,8 +1416,6 @@ instr_dispatch2_i1: instr_dispatch2 port map(
 
             x1_c1_en_in=>x1_c1_en,
             x1_c1_in=>x1_c1,
-            x2_c1_en_in=>x2_c1_en,
-            x2_c1_in=>x2_c1,
 
             wr_xreg_out => wr_xreg1,
             wr_flag_out => wr_flag1,
