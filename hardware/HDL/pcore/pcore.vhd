@@ -122,6 +122,7 @@ SIGNAL instruction_next_addr1:STD_LOGIC_VECTOR(instruction_depth_c-1 DOWNTO 0);
 SIGNAL instruction_long_format1:STD_LOGIC;
 SIGNAL mu_x1: std_logic_vector(vregister_width_c-1 downto 0);
 SIGNAL mu_x2: std_logic_vector(vregister_width_c-1 downto 0);
+SIGNAL mu_x_scalar: std_logic_vector(register_width_c-1 downto 0);
 SIGNAL mu_y: std_logic_vector(vaccumulator_width_c-1 downto 0);
 SIGNAL mu_y2: std_logic_vector(vregister_width_c-1 downto 0);
 SIGNAL mu_result:std_logic_vector(vector_width_c-1 downto 0);
@@ -1138,6 +1139,7 @@ mu_0_i: mu_adder port map(clock_in=>clock_in,
                                 xreg_in=>xreg_read(accumulator_width_c-1 downto 0),
                                 x1_in=>mu_x1(register_width_c-1 downto 0),
                                 x2_in=>mu_x2(register_width_c-1 downto 0),
+                                x_scalar_in=>mu_x_scalar,
                                 y_out=>mu_y(accumulator_width_c-1 downto 0),
                                 y2_out=>mu_result(0),
                                 y3_out=>mu_y2(register_width_c-1 downto 0));
@@ -1149,6 +1151,7 @@ mu_1_i: mu_adder port map(clock_in=>clock_in,
                                 xreg_in=>xreg_read(2*accumulator_width_c-1 downto 1*accumulator_width_c),
                                 x1_in=>mu_x1(2*register_width_c-1 downto 1*register_width_c),
                                 x2_in=>mu_x2(2*register_width_c-1 downto 1*register_width_c),
+                                x_scalar_in=>mu_x_scalar,
                                 y_out=>mu_y(2*accumulator_width_c-1 downto 1*accumulator_width_c),
                                 y2_out=>mu_result(1),
                                 y3_out=>mu_y2(2*register_width_c-1 downto 1*register_width_c));
@@ -1160,6 +1163,7 @@ mu_2_i: mu_adder port map(clock_in=>clock_in,
                                 xreg_in=>xreg_read(3*accumulator_width_c-1 downto 2*accumulator_width_c),
                                 x1_in=>mu_x1(3*register_width_c-1 downto 2*register_width_c),
                                 x2_in=>mu_x2(3*register_width_c-1 downto 2*register_width_c),
+                                x_scalar_in=>mu_x_scalar,
                                 y_out=>mu_y(3*accumulator_width_c-1 downto 2*accumulator_width_c),
                                 y2_out=>mu_result(2),
                                 y3_out=>mu_y2(3*register_width_c-1 downto 2*register_width_c));
@@ -1171,6 +1175,7 @@ mu_3_i: mu_adder port map(clock_in=>clock_in,
                                 xreg_in=>xreg_read(4*accumulator_width_c-1 downto 3*accumulator_width_c),
                                 x1_in=>mu_x1(4*register_width_c-1 downto 3*register_width_c),
                                 x2_in=>mu_x2(4*register_width_c-1 downto 3*register_width_c),
+                                x_scalar_in=>mu_x_scalar,
                                 y_out=>mu_y(4*accumulator_width_c-1 downto 3*accumulator_width_c),
                                 y2_out=>mu_result(3),
                                 y3_out=>mu_y2(4*register_width_c-1 downto 3*register_width_c));
@@ -1182,6 +1187,7 @@ mu_4_i: mu_adder port map(clock_in=>clock_in,
                                 xreg_in=>xreg_read(5*accumulator_width_c-1 downto 4*accumulator_width_c),
                                 x1_in=>mu_x1(5*register_width_c-1 downto 4*register_width_c),
                                 x2_in=>mu_x2(5*register_width_c-1 downto 4*register_width_c),
+                                x_scalar_in=>mu_x_scalar,
                                 y_out=>mu_y(5*accumulator_width_c-1 downto 4*accumulator_width_c),
                                 y2_out=>mu_result(4),
                                 y3_out=>mu_y2(5*register_width_c-1 downto 4*register_width_c));
@@ -1193,6 +1199,7 @@ mu_5_i: mu_adder port map(clock_in=>clock_in,
                                 xreg_in=>xreg_read(6*accumulator_width_c-1 downto 5*accumulator_width_c),
                                 x1_in=>mu_x1(6*register_width_c-1 downto 5*register_width_c),
                                 x2_in=>mu_x2(6*register_width_c-1 downto 5*register_width_c),
+                                x_scalar_in=>mu_x_scalar,
                                 y_out=>mu_y(6*accumulator_width_c-1 downto 5*accumulator_width_c),
                                 y2_out=>mu_result(5),
                                 y3_out=>mu_y2(6*register_width_c-1 downto 5*register_width_c));
@@ -1204,6 +1211,7 @@ mu_6_i: mu_adder port map(clock_in=>clock_in,
                                 xreg_in=>xreg_read(7*accumulator_width_c-1 downto 6*accumulator_width_c),
                                 x1_in=>mu_x1(7*register_width_c-1 downto 6*register_width_c),
                                 x2_in=>mu_x2(7*register_width_c-1 downto 6*register_width_c),
+                                x_scalar_in=>mu_x_scalar,
                                 y_out=>mu_y(7*accumulator_width_c-1 downto 6*accumulator_width_c),
                                 y2_out=>mu_result(6),
                                 y3_out=>mu_y2(7*register_width_c-1 downto 6*register_width_c));
@@ -1215,6 +1223,7 @@ mu_7_i: mu_adder port map(clock_in=>clock_in,
                                 xreg_in=>xreg_read(8*accumulator_width_c-1 downto 7*accumulator_width_c),
                                 x1_in=>mu_x1(8*register_width_c-1 downto 7*register_width_c),
                                 x2_in=>mu_x2(8*register_width_c-1 downto 7*register_width_c),
+                                x_scalar_in=>mu_x_scalar,
                                 y_out=>mu_y(8*accumulator_width_c-1 downto 7*accumulator_width_c),
                                 y2_out=>mu_result(7),
                                 y3_out=>mu_y2(8*register_width_c-1 downto 7*register_width_c));
@@ -1429,6 +1438,7 @@ instr_dispatch2_i1: instr_dispatch2 port map(
 
             mu_x1_out => mu_x1,
             mu_x2_out => mu_x2,
+            mu_x_scalar_out => mu_x_scalar,
             mu_opcode_out => mu_opcodes,
             mu_tid_out => mu_tid,
             mu_y_in => mu_y2);

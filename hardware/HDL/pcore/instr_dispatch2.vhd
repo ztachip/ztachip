@@ -79,6 +79,7 @@ ENTITY instr_dispatch2 IS
 
         SIGNAL mu_x1_out            : OUT STD_LOGIC_VECTOR(vregister_width_c-1 DOWNTO 0);
         SIGNAL mu_x2_out            : OUT STD_LOGIC_VECTOR(vregister_width_c-1 DOWNTO 0);
+        SIGNAL mu_x_scalar_out      : OUT STD_LOGIC_VECTOR(register_width_c-1 DOWNTO 0);
         SIGNAL mu_opcode_out        : OUT mu_opcode_t;
         SIGNAL mu_tid_out           : OUT tid_t;
         SIGNAL mu_y_in              : IN STD_LOGIC_VECTOR(vregister_width_c-1 DOWNTO 0)
@@ -116,7 +117,6 @@ SIGNAL x1_c1_en_rr:STD_LOGIC;
 SIGNAL x1_c1_r:STD_LOGIC_VECTOR(register_width_c-1 DOWNTO 0);
 SIGNAL x1_c1_rr:STD_LOGIC_VECTOR(register_width_c-1 DOWNTO 0);
 SIGNAL y_vector:STD_LOGIC;
-SIGNAL x1_c1_vector:STD_LOGIC_VECTOR(vregister_width_c-1 DOWNTO 0);
 attribute preserve : boolean;
 attribute preserve of wr_en_delay_r : SIGNAL is true;
 attribute preserve of wr_result_addr_delay_r : SIGNAL is true;
@@ -195,13 +195,14 @@ rd_vm_out <= vm_in;
 ------
 
 
-mu_x1_out <= rd_x1_data_in when x1_c1_en_rr='0' else x1_c1_vector;
+mu_x1_out <= rd_x1_data_in;
 mu_x2_out <= rd_x2_data_in;
+-- Scalar input is coming from X1 only unless there is a override. The override is from scalar integer source
+mu_x_scalar_out <= x1_c1_rr when x1_c1_en_rr='1' else rd_x1_data_in(x1_c1_rr'length-1 downto 0);
 
 
 mu_opcode_out <= mu_opcode_rr;
 mu_tid_out <= mu_tid_rr;
-x1_c1_vector <= (x1_c1_rr & x1_c1_rr & x1_c1_rr & x1_c1_rr & x1_c1_rr & x1_c1_rr & x1_c1_rr & x1_c1_rr);
 
 PROCESS(clock_in,reset_in)
 BEGIN

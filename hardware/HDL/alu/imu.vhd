@@ -50,6 +50,7 @@ ENTITY mu_adder IS
         xreg_in         : IN STD_LOGIC_VECTOR(accumulator_width_c-1 downto 0);
         x1_in           : IN STD_LOGIC_VECTOR (register_width_c-1 DOWNTO 0);
         x2_in           : IN STD_LOGIC_VECTOR (register_width_c-1 DOWNTO 0);
+        x_scalar_in     : IN STD_LOGIC_VECTOR(register_width_c-1 DOWNTO 0);
         y_out           : OUT STD_LOGIC_VECTOR (accumulator_width_c-1 DOWNTO 0);
         y2_out          : OUT STD_LOGIC;
         y3_out          : OUT STD_LOGIC_VECTOR (register_width_c-1 DOWNTO 0)
@@ -87,6 +88,7 @@ signal mul_x2_r:STD_LOGIC_VECTOR(register_width_c-1 downto 0);
 
 signal x1_r:STD_LOGIC_VECTOR (register_width_c-1 DOWNTO 0);
 signal x2_r:STD_LOGIC_VECTOR (register_width_c-1 DOWNTO 0);
+signal x_scalar_r:STD_LOGIC_VECTOR (register_width_c-1 DOWNTO 0);
 
 -- SHIFT operation
 
@@ -341,12 +343,13 @@ if reset_in = '0' then
 else
    if clock_in'event and clock_in='1' then
    if mu_opcode_r=mu_opcode_shra_c or mu_opcode_r=mu_opcode_shla_c or mu_opcode_r=mu_opcode_shr_c or mu_opcode_r=mu_opcode_shl_c then
-      if x1_r(x1_r'length-1)='1' then
+      -- Shift distance is coming from scalar parameter
+      if x_scalar_r(x_scalar_r'length-1)='1' then
          shift_distance_r <= (others=>'0');
-      elsif unsigned(x1_r(x1_r'length-1 downto shift_width_depth_c)) /= to_unsigned(0,x1_r'length-shift_width_depth_c) then
+      elsif unsigned(x_scalar_r(x_scalar_r'length-1 downto shift_width_depth_c)) /= to_unsigned(0,x_scalar_r'length-shift_width_depth_c) then
          shift_distance_r <= (others=>'1');
       else 
-         shift_distance_r <= x1_r(shift_width_depth_c-1 downto 0);
+         shift_distance_r <= x_scalar_r(shift_width_depth_c-1 downto 0);
       end if;
    else 
       shift_distance_r <= (others=>'0');
@@ -386,6 +389,7 @@ begin
  
         x1_r <= (others=>'0');
         x2_r <= (others=>'0');
+        x_scalar_r <= (others=>'0');
 
         y_add_r <= (others=>'0');
 
@@ -402,6 +406,7 @@ begin
 
             x1_r <= x1_in;
             x2_r <= x2_in;
+            x_scalar_r <= x_scalar_in;
             xreg_r <= xreg_in;
                         
             y_add_r <= y_add;

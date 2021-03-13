@@ -2579,6 +2579,7 @@ COMPONENT instr_dispatch2 IS
 
         SIGNAL mu_x1_out            : OUT STD_LOGIC_VECTOR(vregister_width_c-1 DOWNTO 0);
         SIGNAL mu_x2_out            : OUT STD_LOGIC_VECTOR(vregister_width_c-1 DOWNTO 0);
+        SIGNAL mu_x_scalar_out      : OUT STD_LOGIC_VECTOR(register_width_c-1 DOWNTO 0);
         SIGNAL mu_opcode_out        : OUT mu_opcode_t;
         SIGNAL mu_tid_out           : OUT tid_t;
         SIGNAL mu_y_in              : IN STD_LOGIC_VECTOR(vregister_width_c-1 DOWNTO 0)
@@ -2801,6 +2802,7 @@ COMPONENT mu_adder IS
         xreg_in         : IN STD_LOGIC_VECTOR(accumulator_width_c-1 downto 0);
         x1_in           : IN STD_LOGIC_VECTOR (register_width_c-1 DOWNTO 0);
         x2_in           : IN STD_LOGIC_VECTOR (register_width_c-1 DOWNTO 0);
+        x_scalar_in     : IN STD_LOGIC_VECTOR(register_width_c-1 DOWNTO 0);
         y_out           : OUT STD_LOGIC_VECTOR (accumulator_width_c-1 DOWNTO 0);
         y2_out          : OUT STD_LOGIC;
         y3_out          : OUT STD_LOGIC_VECTOR (register_width_c-1 DOWNTO 0)
