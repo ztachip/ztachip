@@ -225,7 +225,6 @@ SIGNAL dp_read_data_flow_2:data_flow_t;
 SIGNAL dp_read_data_type_2:dp_data_type_t;
 SIGNAL dp_read_stream_2:std_logic;
 SIGNAL dp_read_stream_id_2:stream_id_t;
-SIGNAL dp_writedata_2:STD_LOGIC_VECTOR(ddrx_data_width_c-1 DOWNTO 0);
 SIGNAL dp_writedata_3:STD_LOGIC_VECTOR(ddrx_data_width_c-1 DOWNTO 0);
 SIGNAL read_scatter_cnt_2:unsigned(ddr_vector_depth_c-1 downto 0);
 SIGNAL read_scatter_vector_2:unsigned(ddr_vector_depth_c-1 downto 0);
@@ -626,7 +625,6 @@ if write_scatter_cnt_r = to_unsigned(0,write_scatter_cnt_r'length) then
    dp_write_scatter_2 <= dp_write_scatter_in_r;
    dp_write_share_2 <= dp_wr_share_in_r;
    dp_write_step_2 <= dp_wr_step_in_r;
-   dp_writedata_2 <= dp_writedata_in_r;
    if (write_match='1' and dp_write_scatter_in_r/=scatter_none_c and dp_write_gen_valid_in_r='1') then
       write_scatter_cnt_2 <= unsigned(dp_write_vector_in_r);
       write_scatter_vector_2 <= unsigned(dp_write_vector_in_r);
@@ -648,7 +646,6 @@ else
    dp_write_scatter_2 <= dp_write_scatter_r;
    dp_write_share_2 <= dp_write_share_r;
    dp_write_step_2 <= dp_write_step_r;
-   dp_writedata_2 <= dp_writedata_r;
    write_scatter_cnt_2 <= write_scatter_cnt_r-to_unsigned(1,write_scatter_cnt_r'length);
    write_scatter_vector_2 <= write_scatter_vector_r;
    write_scatter_curr_2 <= write_scatter_curr_r+to_unsigned(1,write_scatter_curr_r'length);
@@ -805,7 +802,9 @@ begin
             dp_write_scatter_r <= dp_write_scatter_2;
             dp_write_share_r <= dp_write_share_2;
             dp_write_step_r <= dp_write_step_2;
-            dp_writedata_r <= dp_writedata_2;
+            dp_writedata_r(register_width_c*(vector_width_c-1)-1 downto 0) <= dp_writedata_in_r(register_width_c*vector_width_c-1 downto register_width_c);
+         else
+            dp_writedata_r(register_width_c*(vector_width_c-1)-1 downto 0) <= dp_writedata_r(register_width_c*vector_width_c-1 downto register_width_c);
          end if;
          -- Continuation of a scatter write....
          write_scatter_cnt_r <= write_scatter_cnt_2;
@@ -815,39 +814,19 @@ begin
    end if;
 end process;
 
-process(dp_write_scatter_2,dp_write_share_2,dp_write_step_2,write_scatter_cnt_2,write_scatter_curr_2,dp_writedata_2,write_scatter_vector_2)
+process(dp_write_scatter_2,dp_write_share_2,dp_write_step_2,write_scatter_cnt_2,write_scatter_curr_2,write_scatter_vector_2,dp_writedata_in_r,dp_writedata_r)
 variable cnt_v:unsigned(ddr_vector_depth_c-1 downto 0);
 begin
 cnt_v := write_scatter_curr_2;
 if dp_write_scatter_2/=scatter_none_c then
-   case cnt_v is
-      when "111" =>
-         dp_writedata_3(register_width_c-1 downto 0) <= dp_writedata_2(8*register_width_c-1 downto 7*register_width_c);
-         dp_writedata_3(ddrx_data_width_c-1 downto register_width_c) <= (others=>'0');
-      when "110" =>
-         dp_writedata_3(register_width_c-1 downto 0) <= dp_writedata_2(7*register_width_c-1 downto 6*register_width_c); 
-         dp_writedata_3(ddrx_data_width_c-1 downto register_width_c) <= (others=>'0');  
-      when "101" =>
-         dp_writedata_3(register_width_c-1 downto 0) <= dp_writedata_2(6*register_width_c-1 downto 5*register_width_c);
-         dp_writedata_3(ddrx_data_width_c-1 downto register_width_c) <= (others=>'0');
-      when "100" =>
-         dp_writedata_3(register_width_c-1 downto 0) <= dp_writedata_2(5*register_width_c-1 downto 4*register_width_c); 
-         dp_writedata_3(ddrx_data_width_c-1 downto register_width_c) <= (others=>'0');  
-      when "011" =>
-         dp_writedata_3(register_width_c-1 downto 0) <= dp_writedata_2(4*register_width_c-1 downto 3*register_width_c); 
-         dp_writedata_3(ddrx_data_width_c-1 downto register_width_c) <= (others=>'0');  
-      when "010" =>
-         dp_writedata_3(register_width_c-1 downto 0) <= dp_writedata_2(3*register_width_c-1 downto 2*register_width_c); 
-         dp_writedata_3(ddrx_data_width_c-1 downto register_width_c) <= (others=>'0');  
-      when "001" =>
-         dp_writedata_3(register_width_c-1 downto 0) <= dp_writedata_2(2*register_width_c-1 downto 1*register_width_c); 
-         dp_writedata_3(ddrx_data_width_c-1 downto register_width_c) <= (others=>'0');  
-      when others =>
-         dp_writedata_3(register_width_c-1 downto 0) <= dp_writedata_2(1*register_width_c-1 downto 0*register_width_c); 
-         dp_writedata_3(ddrx_data_width_c-1 downto register_width_c) <= (others=>'0');  
-   end case;
+   if cnt_v=to_unsigned(0,cnt_v'length) then
+      dp_writedata_3(register_width_c-1 downto 0) <= dp_writedata_in_r(register_width_c-1 downto 0);
+   else
+      dp_writedata_3(register_width_c-1 downto 0) <= dp_writedata_r(register_width_c-1 downto 0);
+   end if;
+   dp_writedata_3(ddrx_data_width_c-1 downto register_width_c) <= (others=>'0');
 else
-   dp_writedata_3 <= dp_writedata_2;
+   dp_writedata_3 <= dp_writedata_in_r;
 end if;
 end process;
 
