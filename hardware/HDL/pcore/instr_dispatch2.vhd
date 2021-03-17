@@ -154,7 +154,6 @@ wr_flag_fifo_i: delay generic map(DEPTH =>fu_latency_c)
 wr_vm_fifo_i: delay generic map(DEPTH =>fu_latency_c) 
             port map(clock_in => clock_in,reset_in => reset_in,in_in=>wr_vm,out_out=>wr_vm_delay,enable_in=>'1');
 
-
 wr_xreg_fifo_i: delay generic map(DEPTH =>fu_latency_c) 
             port map(clock_in => clock_in,reset_in => reset_in,in_in=>wr_xreg,out_out=>wr_xreg_delay,enable_in=>'1');
 
@@ -174,7 +173,7 @@ rd_x1_vector_out <= x1_vector_in;
 rd_x2_vector_out <= x2_vector_in;
 
 ------
--- Issue write request to save MU results
+-- Issue write request to save MU results or accumulator results
 ------
 
 wr_xreg_out <= wr_xreg_delay_r;
@@ -193,14 +192,11 @@ rd_vm_out <= vm_in;
 ------
 --- Forward read returned values (or constants) to MU units
 ------
-
-
 mu_x1_out <= rd_x1_data_in;
 mu_x2_out <= rd_x2_data_in;
--- Scalar input is coming from X1 only unless there is a override. The override is from scalar integer source
+
+-- Scalar values is coming from X1 only unless there is a override. The override is from scalar integer source
 mu_x_scalar_out <= x1_c1_rr when x1_c1_en_rr='1' else rd_x1_data_in(x1_c1_rr'length-1 downto 0);
-
-
 mu_opcode_out <= mu_opcode_rr;
 mu_tid_out <= mu_tid_rr;
 
@@ -211,7 +207,6 @@ BEGIN
         x1_c1_en_rr <= '0';
         x1_c1_r <= (others=>'0');
         x1_c1_rr <= (others=>'0');
-
         mu_opcode_r <= (others=>'0');
         mu_tid_r <= (others=>'0');
         mu_opcode_rr <= (others=>'0');
@@ -230,7 +225,6 @@ BEGIN
             x1_c1_en_rr <= x1_c1_en_r;
             x1_c1_r <= x1_c1_in;
             x1_c1_rr <= x1_c1_r;
-
             mu_opcode_r <= opcode_in;
             mu_tid_r <= instruction_tid_in;
             mu_opcode_rr <= mu_opcode_r;

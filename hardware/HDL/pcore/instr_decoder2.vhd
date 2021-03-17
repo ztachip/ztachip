@@ -16,6 +16,11 @@
 
 ------
 -- Implement PCORE decoder stage
+-- PCORE instruction has a VLIW format.
+-- Each Instruction is composed of
+--    MU operations: Vector perations for ALU
+--    IMU operation: Scalar operations for scalar ALU unit
+--    CONTROL: jump instruction based on condition after IMU operation 
 ------
 
 library std;
@@ -123,14 +128,11 @@ SIGNAL instruction_tid_rrrr:tid_t;
 SIGNAL instruction_tid_rrrrr:tid_t;
 SIGNAL instruction_tid_rrrrrr:tid_t;
 SIGNAL instruction_tid_rrrrrrr:tid_t;
-
-
 SIGNAL got_imu:STD_LOGIC;
 SIGNAL got_imu_r:STD_LOGIC;
 SIGNAL got_imu_rr:STD_LOGIC;
 SIGNAL lane_r:iregister_t;
 SIGNAL lane_rr:iregister_t;
-
 SIGNAL imu_lane_valid_r:STD_LOGIC;
 SIGNAL imu_lane_valid_rr:STD_LOGIC;
 SIGNAL imu_lane_valid_rrr:STD_LOGIC;
@@ -273,15 +275,16 @@ attribute preserve of xreg_waddr_r : SIGNAL is true;
 attribute preserve of iregisters_r : SIGNAL is true;
 
 ------------ 
--- Process MU attribute
--- 
--- 11xx  Pointer with index
--- 1011  Pointer no index
--- 1000  Shared no index
--- 1001  Private no index
--- 1010  Constant
--- 00xx  Share with index
--- 01xx  Private with index
+-- Process MU parameter attribute
+-- MU parameter attributes generate register-file address for each MU parameters
+-- Below are different memory access mode
+--    11xx  Pointer with index
+--    1011  Pointer no index
+--    1000  Shared no index
+--    1001  Private no index
+--    1010  Constant
+--    00xx  Share with index
+--    01xx  Private with index
 --------------
 
 subtype encode_retval_t is std_logic_vector(register_file_depth_c-1 downto 0);
@@ -303,17 +306,17 @@ variable ireg_addr_v:unsigned(iregister_width_c-1 downto 0);
 begin
 
 if attr_in(3 downto 2)="11" or attr_in="1011" then
-    -- Pointer with or without index. Parameter field is composed of offset and pointer
-    offset_v(2 downto 0) := unsigned(parm_in(2 downto 0));
-    offset_v(iregister_width_c-1 downto 3) := (others=>'0');
+   -- Pointer with or without index. Parameter field is composed of offset and pointer
+   offset_v(2 downto 0) := unsigned(parm_in(2 downto 0));
+   offset_v(iregister_width_c-1 downto 3) := (others=>'0');
 else
-    -- Not a pointer. So offset takes the whole parameter field
-    if attr_in="1001" or attr_in(3 downto 2)="01" or attr_in="1010" then
-       offset_v(parm_in'length-1 downto 0) := unsigned(parm_in);
-    else
-       offset_v(parm_in'length-1 downto 0) := unsigned(parm_in);
-    end if;
-    offset_v(iregister_width_c-1 downto parm_in'length) := (others=>'0');
+   -- Not a pointer. So offset takes the whole parameter field
+   if attr_in="1001" or attr_in(3 downto 2)="01" or attr_in="1010" then
+      offset_v(parm_in'length-1 downto 0) := unsigned(parm_in);
+   else
+      offset_v(parm_in'length-1 downto 0) := unsigned(parm_in);
+   end if;
+   offset_v(iregister_width_c-1 downto parm_in'length) := (others=>'0');
 end if;
 
 if vector_in='1' then
@@ -334,86 +337,38 @@ if vector_in = '1' then
 end if;
 
 if attr_in="1000" or attr_in(3 downto 2)="00" then
-    -- Shared variable access with or without index
-    addr_v(register_file_depth_c-1 downto 0) := std_logic_vector(sum_v(register_file_depth_c-1 downto 0));
-    addr_v(register_file_depth_c-1 downto vector_depth_c) := (not addr_v(register_file_depth_c-1 downto vector_depth_c));
+   -- Shared variable access with or without index
+   addr_v(register_file_depth_c-1 downto 0) := std_logic_vector(sum_v(register_file_depth_c-1 downto 0));
+   addr_v(register_file_depth_c-1 downto vector_depth_c) := (not addr_v(register_file_depth_c-1 downto vector_depth_c));
 elsif attr_in="1001" or attr_in(3 downto 2)="01" or attr_in="1010" then
-    -- Private with or without index or constant
-	if data_model_in="00" then
-		addr_v(register_file_depth_c-1 downto vector_depth_c) := std_logic_vector(sum_v(register_depth_c-1 downto vector_depth_c)) & std_logic_vector(tid_in(tid_in'length-1 downto 0));
-
-
-
-    else
-
-		addr_v(register_file_depth_c-1 downto vector_depth_c) := "0" & std_logic_vector(sum_v(register_depth_c-1 downto vector_depth_c)) & std_logic_vector(tid_in(tid_in'length-2 downto 0));
-
-
-
-
-
-
-	end if;
-    addr_v(vector_depth_c-1 downto 0) := std_logic_vector(sum_v(vector_depth_c-1 downto 0));
+   -- Private with or without index or constant
+   if data_model_in="00" then
+      addr_v(register_file_depth_c-1 downto vector_depth_c) := std_logic_vector(sum_v(register_depth_c-1 downto vector_depth_c)) & std_logic_vector(tid_in(tid_in'length-1 downto 0));
+   else
+      addr_v(register_file_depth_c-1 downto vector_depth_c) := "0" & std_logic_vector(sum_v(register_depth_c-1 downto vector_depth_c)) & std_logic_vector(tid_in(tid_in'length-2 downto 0));
+   end if;
+   addr_v(vector_depth_c-1 downto 0) := std_logic_vector(sum_v(vector_depth_c-1 downto 0));
 else
-    -- The remain must be pointer access
-    ireg_addr_v := i1_v+sum_v;      
-    if i1_in(iregister_width_c-1)='1' then
-        -- Pointer to shared memory space
-        addr_v(register_file_depth_c-1 downto 0) := std_logic_vector(ireg_addr_v(register_file_depth_c-1 downto 0));
-        addr_v(register_file_depth_c-1 downto vector_depth_c) := (not addr_v(register_file_depth_c-1 downto vector_depth_c));
-    else
-		if data_model_in="00" then
-			addr_v(register_file_depth_c-1 downto vector_depth_c) := std_logic_vector(ireg_addr_v(register_depth_c-1 downto vector_depth_c)) & std_logic_vector(tid_in(tid_in'length-1 downto 0));
-
-
-
-        else
-
-			addr_v(register_file_depth_c-1 downto vector_depth_c) := "0" & std_logic_vector(ireg_addr_v(register_depth_c-1 downto vector_depth_c)) & std_logic_vector(tid_in(tid_in'length-2 downto 0));
-
-
-
-
-
-
-		end if;
-        addr_v(vector_depth_c-1 downto 0) := std_logic_vector(ireg_addr_v(vector_depth_c-1 downto 0));
-    end if;
+   -- The remain must be pointer access
+   ireg_addr_v := i1_v+sum_v;      
+   if i1_in(iregister_width_c-1)='1' then
+      -- Pointer to shared memory space
+      addr_v(register_file_depth_c-1 downto 0) := std_logic_vector(ireg_addr_v(register_file_depth_c-1 downto 0));
+      addr_v(register_file_depth_c-1 downto vector_depth_c) := (not addr_v(register_file_depth_c-1 downto vector_depth_c));
+   else
+      if data_model_in="00" then
+         addr_v(register_file_depth_c-1 downto vector_depth_c) := std_logic_vector(ireg_addr_v(register_depth_c-1 downto vector_depth_c)) & std_logic_vector(tid_in(tid_in'length-1 downto 0));
+      else
+         addr_v(register_file_depth_c-1 downto vector_depth_c) := "0" & std_logic_vector(ireg_addr_v(register_depth_c-1 downto vector_depth_c)) & std_logic_vector(tid_in(tid_in'length-2 downto 0));
+      end if;
+      addr_v(vector_depth_c-1 downto 0) := std_logic_vector(ireg_addr_v(vector_depth_c-1 downto 0));
+   end if;
 end if;
 return addr_v;
 end function encode_mu_parm;
 
--------
---- Retrieve value when parameter attribute is constant
---- Constant value can be from immediate constants (constant embedded within instructions) or
---- values from integer registers.
--------
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 --------------
---- Determine value of IALU parameters
+--- Decode of IALU parameter values
 --------------
 
 subtype encode_imu_parm_retval_t is iregister_t;
@@ -428,32 +383,26 @@ function encode_imu_parm(
 variable c_v:iregister_t;
 begin
 case parm_in is
-    when imu_instruction_parm_zero_c =>
+    when imu_instruction_parm_zero_c => -- Zero value
         c_v := (others=>'0');
-    when imu_instruction_parm_const_c =>
-        c_v := c_in;
-    when imu_instruction_parm_tid_c =>
+    when imu_instruction_parm_const_c => -- Constant from IMU instruction constant field
+        c_v := c_in; 
+    when imu_instruction_parm_tid_c => -- Thread id
         c_v(tid_t'length-1 downto 0) := tid_in(tid_t'length-1 downto 0);
         c_v(iregister_width_c-1 downto tid_t'length) := (others=>'0');
-    when imu_instruction_parm_pid_c =>
+    when imu_instruction_parm_pid_c => -- PID id
         c_v := to_unsigned(CID*pid_max_c+PID,iregister_width_c);
-    when imu_instruction_parm_result1_c =>
+    when imu_instruction_parm_result1_c => -- RESULT register value
         c_v(iregister_t'length-1 downto 0) := unsigned(result_in);
-    when imu_instruction_parm_lane_c =>
+    when imu_instruction_parm_lane_c => -- LANE register value
         c_v := lane_in;
     when others=> 
-        c_v := ireg_in;
+        c_v := ireg_in; -- value from scalar register bank
 end case;
 return c_v;
 end function encode_imu_parm;
 
 BEGIN
-
---------------
--- Instantiate IREGISTER file
--- Access to IREGISTER file has 1 clock latency
--- Use instruction_pre_pre_tid_in info to prefetch IREGISTER values for use in next cycle
----------------
 
 i_rd_en_out <= instruction_pre_pre_tid_valid_in;
 i_rd_vm_out <= instruction_pre_pre_vm_in;
@@ -476,13 +425,9 @@ result_vm_out <= vm_r;
 
 mu_xreg1 <= instruction_mu_in(mu_instruction_type_save_c);
 
-
 -----------------
 -- Decode MU instruction
--- They are always in first and second slot of the instruction packet
 -----------------
-
--- Decode the first MU instruction
 
 mu_opcode1 <= instruction_mu_in(mu_instruction_oc_hi_c DOWNTO mu_instruction_oc_lo_c) when (instruction_mu_valid_in='1') else opcode_null_c;
 mu_x1_parm1 <= instruction_mu_in(mu_instruction_x1_hi_c DOWNTO mu_instruction_x1_lo_c);
@@ -497,16 +442,15 @@ mu_x1_vector <= instruction_mu_in(mu_instruction_x1_vector_c);
 mu_x2_vector <= instruction_mu_in(mu_instruction_x2_vector_c);
 mu_x3_vector <= instruction_mu_in(mu_instruction_x3_vector_c);
 mu_y_vector <= instruction_mu_in(mu_instruction_y_vector_c);
-
 mu_flag1 <= '1' when (instruction_mu_valid_in='1' and mu_y_attr1="1010" and mu_y_parm1(register_attr_const_result_c)='1') else '0';
 mu_wren <= '0' when (mu_y_attr1="1010" and mu_y_parm1(register_attr_const_null_c)='1') or (mu_xreg1='1') else '1';
 
--- Constant is either constant field or integer value
+-- Constant is either constant field from X1 or integer value
 
 mu_x1_c1_en <= '1' when (mu_x1_attr1="1010") else '0';
 
 ---------
--- Retrieve integer bank used by MU
+-- Retrieve integer values used by MU parameter address generation
 ----------
 
 -- iregister_lo contains integer 
@@ -577,13 +521,15 @@ else
         instruction_tid_rrrrr <= instruction_tid_rrrr;
         instruction_tid_rrrrrr <= instruction_tid_rrrrr;
         instruction_tid_rrrrrrr <= instruction_tid_rrrrrr;
+        -- Save global integer register values
+        -- Global integers are passed to PCOREs at beginning of PCORE execution time.
         iregisters_r(iregister_max_c-1 downto iregister_max_c/2) <= i_rd_data_in(iregister_max_c-1 downto iregister_max_c/2);
         iregisters_r(iregister_max_c/2-max_iregister_auto_c-1 downto 0) <= i_rd_data_in(iregister_max_c/2-max_iregister_auto_c-1 downto 0);
         for I in 0 to max_iregister_auto_c-1 loop
            if instruction_pre_iregister_auto_in(iregister_auto_t'length-max_iregister_auto_c+I)='0' then
-		      iregisters_r(iregister_max_c/2-I-1) <= i_rd_data_in(iregister_max_c/2-I-1);
+              iregisters_r(iregister_max_c/2-I-1) <= i_rd_data_in(iregister_max_c/2-I-1);
            else
-		      iregisters_r(iregister_max_c/2-I-1) <= instruction_pre_iregister_auto_in((I+1)*iregister_width_c-1 downto I*iregister_width_c);
+              iregisters_r(iregister_max_c/2-I-1) <= instruction_pre_iregister_auto_in((I+1)*iregister_width_c-1 downto I*iregister_width_c);
            end if;
         end loop;
         lane_r <= lane_in;
@@ -595,9 +541,6 @@ end process;
 ----------------
 -- Decoding integer arithmetic unit (IMU)
 -- IMU instruction performs integer arithmetic.
--- For short format instruction packet, IMU is in the second slot
--- For long format instruction packet, IMU is in the fourth slot
--- IMU instructions are validated against predicate condition before execution
 ---------------
 
 got_imu <= instruction_imu_valid_in;
@@ -612,9 +555,7 @@ imu_const <= unsigned(instruction_imu_in(imu_instruction_const_hi_c DOWNTO imu_i
 ------------------
 -- General format for IMU is Y=X1 OPCODE X2
 -- Retrieve all parameters (X1,X2,Y) for IMU opcode
--- Where X1,X2 can be register bank index,constant,PID or TID
--- Y can be register bank index.
--- Pass these information for next clock to actually execute the instruction
+-- Where X1,X2 can be from integer register bank,constant,PID or TID
 -----------------
 
 process(clock_in,reset_in)    
@@ -669,11 +610,11 @@ else
     if clock_in'event and clock_in='1' then
         -- Latch incoming IMU instructions to pipeline
 
-		imu_opcode_r <= imu_opcode;
-		imu_x1_parm_r <= imu_x1_parm;
-		imu_x2_parm_r <= imu_x2_parm;
-		imu_y_parm_r <= imu_y_parm;
-		imu_const_r <= imu_const;
+        imu_opcode_r <= imu_opcode;
+        imu_x1_parm_r <= imu_x1_parm;
+        imu_x2_parm_r <= imu_x2_parm;
+        imu_y_parm_r <= imu_y_parm;
+        imu_const_r <= imu_const;
         got_imu_r <= got_imu;
 
         imu_x1_ireg_r <= iregisters_r(to_integer(unsigned(imu_x1_parm(iregister_depth_c-1 downto 0))));
@@ -750,9 +691,12 @@ end if;
 end process;
 
 ------------------
--- Latch the MU X1 and X2 parameters
--- Calculate the next instruction address. For long format, increment the instruction address by
--- 2 words. For short format, increment the instruction address by 1
+-- Calculate MU parameter address
+-- Each MU instruction has 4 parameters
+-- Y: Store return value. This can also be accumulator.
+-- X1: X1 input parameter
+-- X2: X2 input parameter
+-- X3: Accumulator input
 ------------------
 
 mu_x1_addr1 <= encode_mu_parm(mu_x1_attr1,mu_x1_parm1,instruction_tid_in,mu_x1_i0_1,mu_x1_i1_1,mu_x1_vector,instruction_data_model_in);
@@ -798,7 +742,6 @@ BEGIN
 
             if instruction_tid_valid_in='1' then
                 -- Decode the instruction
-
                 xreg_waddr_r <= mu_y_addr1(xreg_depth_c+vector_depth_c-1 downto vector_depth_c);
                 result_waddr_r <= std_logic_vector(to_unsigned(0,xreg_depth_c-tid_t'length)) & std_logic_vector(instruction_tid_in);
                 mu_opcode1_r <= mu_opcode1;
@@ -816,7 +759,7 @@ BEGIN
                 xreg_waddr_r <= (others=>'0');
                 result_waddr_r <= (others=>'0');
                 result_raddr_r <= (others=>'0');
-				mu_en1_r <= '0';
+                mu_en1_r <= '0';
                 mu_opcode1_r <= (others=>'0');
                 mu_flag1_r <= '0';
                 mu_xreg1_r <= '0';

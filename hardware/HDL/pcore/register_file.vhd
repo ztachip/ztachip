@@ -33,42 +33,42 @@ USE altera_mf.all;
 
 ENTITY register_file IS
    PORT( 
-        SIGNAL clock_in         : IN STD_LOGIC;
-        SIGNAL reset_in         : IN STD_LOGIC;
+        SIGNAL clock_in                : IN STD_LOGIC;
+        SIGNAL reset_in                : IN STD_LOGIC;
 
-        SIGNAL rd_en_in        : IN STD_LOGIC;
-        SIGNAL rd_en_out       : OUT STD_LOGIC;
-        SIGNAL rd_x1_vector_in : IN STD_LOGIC;
-        SIGNAL rd_x1_addr_in   : IN STD_LOGIC_VECTOR(register_file_depth_c-1 DOWNTO 0); -- Read address of port 1
-        SIGNAL rd_x2_vector_in : IN STD_LOGIC;
-        SIGNAL rd_x2_addr_in   : IN STD_LOGIC_VECTOR(register_file_depth_c-1 DOWNTO 0); -- Read address of port 2
-        SIGNAL rd_x1_data_out  : OUT STD_LOGIC_VECTOR(vregister_width_c-1 DOWNTO 0); -- Read value returned to port 1
-        SIGNAL rd_x2_data_out  : OUT STD_LOGIC_VECTOR(vregister_width_c-1 DOWNTO 0); -- Read value returned to port 2
+        SIGNAL rd_en_in                : IN STD_LOGIC;
+        SIGNAL rd_en_out               : OUT STD_LOGIC;
+        SIGNAL rd_x1_vector_in         : IN STD_LOGIC;
+        SIGNAL rd_x1_addr_in           : IN STD_LOGIC_VECTOR(register_file_depth_c-1 DOWNTO 0); -- Read address of port 1
+        SIGNAL rd_x2_vector_in         : IN STD_LOGIC;
+        SIGNAL rd_x2_addr_in           : IN STD_LOGIC_VECTOR(register_file_depth_c-1 DOWNTO 0); -- Read address of port 2
+        SIGNAL rd_x1_data_out          : OUT STD_LOGIC_VECTOR(vregister_width_c-1 DOWNTO 0); -- Read value returned to port 1
+        SIGNAL rd_x2_data_out          : OUT STD_LOGIC_VECTOR(vregister_width_c-1 DOWNTO 0); -- Read value returned to port 2
 
-        SIGNAL wr_en_in        : IN STD_LOGIC; -- Write enable
-        SIGNAL wr_vector_in    : IN STD_LOGIC;
-        SIGNAL wr_addr_in      : IN STD_LOGIC_VECTOR(register_file_depth_c-1 DOWNTO 0); -- Write address
-        SIGNAL wr_data_in      : IN STD_LOGIC_VECTOR(vregister_width_c-1 DOWNTO 0); -- Write value
-        SIGNAL wr_lane_in      : IN STD_LOGIC_VECTOR(vector_width_c-1 DOWNTO 0);
+        SIGNAL wr_en_in                : IN STD_LOGIC; -- Write enable
+        SIGNAL wr_vector_in            : IN STD_LOGIC;
+        SIGNAL wr_addr_in              : IN STD_LOGIC_VECTOR(register_file_depth_c-1 DOWNTO 0); -- Write address
+        SIGNAL wr_data_in              : IN STD_LOGIC_VECTOR(vregister_width_c-1 DOWNTO 0); -- Write value
+        SIGNAL wr_lane_in              : IN STD_LOGIC_VECTOR(vector_width_c-1 DOWNTO 0);
 
         -- DP interface
-        SIGNAL dp_rd_vector_in    : IN unsigned(ddr_vector_depth_c-1 downto 0);
-        SIGNAL dp_rd_scatter_in   : IN scatter_t;
-        SIGNAL dp_rd_scatter_cnt_in: IN unsigned(ddr_vector_depth_c-1 downto 0);
-        SIGNAL dp_rd_scatter_vector_in: IN unsigned(ddr_vector_depth_c-1 downto 0);
-        SIGNAL dp_rd_gen_valid_in : IN STD_LOGIC;
-        SIGNAL dp_rd_data_flow_in : IN data_flow_t;
-        SIGNAL dp_rd_data_type_in : IN dp_data_type_t;
-        SIGNAL dp_rd_stream_in    : IN std_logic;
-        SIGNAL dp_rd_stream_id_in : stream_id_t;
-        SIGNAL dp_rd_addr_in      : IN STD_LOGIC_VECTOR(bus_width_c-1 DOWNTO 0);
-        SIGNAL dp_wr_vector_in    : IN unsigned(ddr_vector_depth_c-1 downto 0);
-        SIGNAL dp_wr_addr_in      : IN STD_LOGIC_VECTOR(bus_width_c-1 DOWNTO 0);
-        SIGNAL dp_write_in        : IN STD_LOGIC;
-        SIGNAL dp_read_in         : IN STD_LOGIC;
-        SIGNAL dp_writedata_in    : IN STD_LOGIC_VECTOR(ddrx_data_width_c-1 DOWNTO 0);
-        SIGNAL dp_readdata_out    : OUT STD_LOGIC_VECTOR(ddrx_data_width_c-1 DOWNTO 0);
-        SIGNAL dp_readena_out     : OUT STD_LOGIC
+        SIGNAL dp_rd_vector_in         : IN unsigned(ddr_vector_depth_c-1 downto 0);
+        SIGNAL dp_rd_scatter_in        : IN scatter_t;
+        SIGNAL dp_rd_scatter_cnt_in    : IN unsigned(ddr_vector_depth_c-1 downto 0);
+        SIGNAL dp_rd_scatter_vector_in : IN unsigned(ddr_vector_depth_c-1 downto 0);
+        SIGNAL dp_rd_gen_valid_in      : IN STD_LOGIC;
+        SIGNAL dp_rd_data_flow_in      : IN data_flow_t;
+        SIGNAL dp_rd_data_type_in      : IN dp_data_type_t;
+        SIGNAL dp_rd_stream_in         : IN std_logic;
+        SIGNAL dp_rd_stream_id_in      : stream_id_t;
+        SIGNAL dp_rd_addr_in           : IN STD_LOGIC_VECTOR(bus_width_c-1 DOWNTO 0);
+        SIGNAL dp_wr_vector_in         : IN unsigned(ddr_vector_depth_c-1 downto 0);
+        SIGNAL dp_wr_addr_in           : IN STD_LOGIC_VECTOR(bus_width_c-1 DOWNTO 0);
+        SIGNAL dp_write_in             : IN STD_LOGIC;
+        SIGNAL dp_read_in              : IN STD_LOGIC;
+        SIGNAL dp_writedata_in         : IN STD_LOGIC_VECTOR(ddrx_data_width_c-1 DOWNTO 0);
+        SIGNAL dp_readdata_out         : OUT STD_LOGIC_VECTOR(ddrx_data_width_c-1 DOWNTO 0);
+        SIGNAL dp_readena_out          : OUT STD_LOGIC
         );
 END register_file;
 
@@ -77,10 +77,8 @@ ARCHITECTURE behavior OF register_file IS
 constant lane_byte_width_c:integer:=(register_width_c+7)/8;
 constant byte_width_c:integer:=(lane_byte_width_c*vector_width_c);
 constant ram_register_width_c:integer:=(lane_byte_width_c*8);
-
 constant DEPTH:integer:=register_file_depth_c-vector_depth_c;
 constant WIDTH:integer:=(ram_register_width_c*vector_width_c);
-
 constant ACTUAL_DEPTH:integer:=register_actual_file_depth_c-vector_depth_c;
 
 SIGNAL wr_lane:STD_LOGIC_VECTOR(vector_width_c-1 DOWNTO 0);
@@ -122,7 +120,7 @@ GENERIC (
         clock_enable_input_b    : STRING;
         clock_enable_output_b   : STRING;
         intended_device_family  : STRING;
-		ram_block_type          : STRING;
+        ram_block_type          : STRING;
         lpm_type                : STRING;
         numwords_a              : NATURAL;
         numwords_b              : NATURAL;
@@ -164,6 +162,7 @@ rd_x2_data_out <= q2;
 rd_en_out <= rd_en_rr;
 
 wr_en <= '1' when (dp_write_in='1' or wr_en_in='1') else '0';
+
 wr_addr <= wr_addr_in(register_file_depth_c-1 downto vector_depth_c) when (wr_en_in='1') else dp_wr_addr(register_file_depth_c-1 DOWNTO vector_depth_c);
 
 wr_vaddr <= wr_addr_in(vector_depth_c-1 downto 0) when (wr_en_in='1') else dp_wr_addr(vector_depth_c-1 DOWNTO 0);
@@ -184,6 +183,9 @@ dp_writedata <= dp_writedata_in;
 
 dp_readdata_out <= q2;
 
+--
+-- Set byte enable lanes for write access
+---
 
 process(wr_vector,wr_vaddr,wr_lane)
 variable mask_v:STD_LOGIC_VECTOR(vector_depth_c-1 downto 0);
@@ -204,10 +206,14 @@ else
 end if;
 end process;
 
+-- 
+-- Set write data
+--
+
 process(wr_en_in,wr_vector,wr_data,wr_lane,dp_wr_addr,wr_vaddr)
 begin
   if unsigned(wr_vector)=to_unsigned(vector_width_c/8-1,wr_vector'length) then
-      wr_data2 <= wr_data(register_width_c-1 downto 0) & 
+      wr_data2 <= wr_data(register_width_c-1 downto 0) &  -- Data for non-vector write
                   wr_data(register_width_c-1 downto 0) & 
                   wr_data(register_width_c-1 downto 0) & 
                   wr_data(register_width_c-1 downto 0) & 
@@ -216,26 +222,30 @@ begin
                   wr_data(register_width_c-1 downto 0) & 
                   wr_data(register_width_c-1 downto 0);
   else
-     wr_data2 <= wr_data;
+     wr_data2 <= wr_data; -- Data for vector write
   end if;
 end process;
 
 process(clock_in,reset_in)
 begin
-    if reset_in = '0' then
-        rd_en_r <= '0';
-		rd_en_rr <= '0';
-		q1_ram_r <= (others=>'0');
-		q2_ram_r <= (others=>'0');
-    else
-        if clock_in'event and clock_in='1' then
-            rd_en_r <= rd_en_in;
-			rd_en_rr <= rd_en_r;
-			q1_ram_r <= q1_ram;
-			q2_ram_r <= q2_ram;
-        end if;
-    end if;
+   if reset_in = '0' then
+      rd_en_r <= '0';
+      rd_en_rr <= '0';
+      q1_ram_r <= (others=>'0');
+      q2_ram_r <= (others=>'0');
+   else
+      if clock_in'event and clock_in='1' then
+         rd_en_r <= rd_en_in;
+         rd_en_rr <= rd_en_r;
+         q1_ram_r <= q1_ram;
+         q2_ram_r <= q2_ram;
+      end if;
+   end if;
 end process;
+
+--
+-- Align write data to byte boundary
+---
 
 process(wr_data2,q1_ram_r,q2_ram_r)
 begin    
@@ -249,23 +259,19 @@ end process;
 
 process(clock_in,reset_in)
 begin
-    if reset_in='0' then
-        dp_rd_en_r <= '0';
-		dp_rd_en_rr <= '0';
-    else
-        if clock_in'event and clock_in='1' then
-
-            -- Access from DP needs to be slowed down by 1 more clock to match
-            -- IREGISTER access
-
-            if (dp_read_in='1') then
-                dp_rd_en_r <= '1';
-            else
-                dp_rd_en_r <= '0';
-            end if;
-			dp_rd_en_rr <= dp_rd_en_r;
-        end if;    
-    end if;
+   if reset_in='0' then
+      dp_rd_en_r <= '0';
+      dp_rd_en_rr <= '0';
+   else
+      if clock_in'event and clock_in='1' then
+         if (dp_read_in='1') then
+            dp_rd_en_r <= '1';
+         else
+            dp_rd_en_r <= '0';
+         end if;
+         dp_rd_en_rr <= dp_rd_en_r;
+      end if;    
+   end if;
 end process;
 
 ----
@@ -280,7 +286,7 @@ ram1_i : altsyncram
         clock_enable_input_b => "BYPASS",
         clock_enable_output_b => "BYPASS",
         intended_device_family => "Cyclone V",
-		ram_block_type => "M10K",
+        ram_block_type => "M10K",
         lpm_type => "altsyncram",
         numwords_a => 2**ACTUAL_DEPTH,
         numwords_b => 2**ACTUAL_DEPTH,
@@ -305,11 +311,9 @@ ram1_i : altsyncram
         q_b => q1_ram
     );
 
-
 ------                                
 -- Broadcast write commands to both register banks
 -------
-
 
 ram2_i : altsyncram
     GENERIC MAP (
@@ -319,7 +323,7 @@ ram2_i : altsyncram
         clock_enable_input_b => "BYPASS",
         clock_enable_output_b => "BYPASS",
         intended_device_family => "Cyclone V",
-		ram_block_type => "M10K",
+        ram_block_type => "M10K",
         lpm_type => "altsyncram",
         numwords_a => 2**ACTUAL_DEPTH,
         numwords_b => 2**ACTUAL_DEPTH,
@@ -343,6 +347,4 @@ ram2_i : altsyncram
         address_b => rd_x2_addr(ACTUAL_DEPTH-1 downto 0),
         q_b => q2_ram
     );
-
-
 END behavior;

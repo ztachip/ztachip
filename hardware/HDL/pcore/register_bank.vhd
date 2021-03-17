@@ -16,9 +16,12 @@
 
 -------
 -- Description:
--- Implement register file with 2 read port and 1 write port
+-- Implement register file 
 -- Every write operations are performed on 2 RAM bank.
 -- Each read port is assigned to a RAM bank
+-- Register file can be accessed by ALU for parameter load/store
+-- Register file can also be accessed by DP engine.
+-- Register file is divided into 2 independent partitions. Each partition is assigned to a process 
 ------
 
 library std;
@@ -158,7 +161,6 @@ SIGNAL dp_rd_scatter_vector_rr:unsigned(ddr_vector_depth_c-1 downto 0);
 SIGNAL dp_rd_vaddr_rr:STD_LOGIC_VECTOR(vector_depth_c-1 downto 0);
 SIGNAL dp_rd_vector_rr:unsigned(vector_depth_c-1 downto 0);
 
-
 SIGNAL rd_x1_vector_r:STD_LOGIC;
 SIGNAL rd_x1_vector_rr:STD_LOGIC;
 SIGNAL rd_x1_vaddr_r:STD_LOGIC_VECTOR(vector_depth_c-1 downto 0);
@@ -167,8 +169,6 @@ SIGNAL rd_x2_vector_r:STD_LOGIC;
 SIGNAL rd_x2_vector_rr:STD_LOGIC;
 SIGNAL rd_x2_vaddr_r:STD_LOGIC_VECTOR(vector_depth_c-1 downto 0);
 SIGNAL rd_x2_vaddr_rr:STD_LOGIC_VECTOR(vector_depth_c-1 downto 0);
-
-
 
 BEGIN
 
@@ -190,12 +190,16 @@ dp_readdata_vm_out <= '0' when dp_readena_vm1='1' else '1';
 
 rd_en_out <= rd_enable1_vm1 or rd_enable1_vm2;
 
+-- 
+-- ALU X1 and X2 read output
+---
+
 process(rd_x1_vector_rr,rd_x1_data_vm,q1_encode,rd_x2_vector_rr,rd_x2_data_vm,q2_encode)
 begin
    if rd_x1_vector_rr/='0' then
-      rd_x1_data_out <= rd_x1_data_vm;
+      rd_x1_data_out <= rd_x1_data_vm; -- This is a vector read
    else
-      rd_x1_data_out <= q1_encode & 
+      rd_x1_data_out <= q1_encode & -- This is a non-vector read 
                         q1_encode &
                         q1_encode &
                         q1_encode &
@@ -205,9 +209,9 @@ begin
                         q1_encode;
    end if;
    if rd_x2_vector_rr/='0' then
-      rd_x2_data_out <= rd_x2_data_vm;
+      rd_x2_data_out <= rd_x2_data_vm; -- This is vector read
    else 
-      rd_x2_data_out <= q2_encode & 
+      rd_x2_data_out <= q2_encode &  -- This is a non-vector read
                         q2_encode &
                         q2_encode &
                         q2_encode &
@@ -305,6 +309,10 @@ end process;
 
 dp_readdata_vm  <= dp_readdata_vm1 when dp_readena_vm1='1' else dp_readdata_vm2;
 
+--
+-- Single (non-vector read) selection for DP (DataProcessor) access
+---
+
 process(dp_rd_vector_rr,dp_readdata_vm,dp_rd_vaddr_rr)
 variable t:STD_LOGIC_VECTOR(register_width_c-1 downto 0);
 begin
@@ -329,9 +337,11 @@ end case;
 end process;
 
 
--- Set X1 vector 
-
 rd_x1_data_vm <= rd_x1_data1_vm1 when rd_enable1_vm1='1' else rd_x1_data1_vm2; 
+
+--
+-- Single (non-vector read) selection for ALU X1 read access
+---
 
 process(rd_x1_vector_r,rd_x1_data_vm,rd_x1_vaddr_rr)
 variable t:STD_LOGIC_VECTOR(register_width_c-1 downto 0);
@@ -357,9 +367,11 @@ end case;
 end process;
 
 
--- Set X2 vector 
-
 rd_x2_data_vm <= rd_x2_data1_vm1 when rd_enable1_vm1='1' else rd_x2_data1_vm2; 
+
+--
+-- Single (non-vector read) selection for ALU X2 read access
+---
 
 process(rd_x2_vector_r,rd_x2_data_vm,rd_x2_vaddr_rr)
 variable t:STD_LOGIC_VECTOR(register_width_c-1 downto 0);
@@ -384,6 +396,9 @@ case rd_x2_vaddr_rr is
 end case;
 end process;
 
+-------
+-- Instantiate register file for process#0
+-------
 
 register_file_i: register_file port map(
                                 clock_in =>clock_in,
