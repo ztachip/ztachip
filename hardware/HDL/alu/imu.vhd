@@ -14,6 +14,10 @@
 -- limitations under the License.
 ---------------------------------------------------------------------------
 
+------
+-- This is the ALU init for vector operation
+-- Each of this component is responsible for one lane of the vector operation
+----
 
 
 library std;
@@ -71,12 +75,14 @@ SIGNAL y2_r:STD_LOGIC;
 SIGNAL y3_r:STD_LOGIC_VECTOR(register_width_c-1 DOWNTO 0);
 
 -- XREG
+
 signal xreg_r:STD_LOGIC_VECTOR(accumulator_width_c-1 downto 0);
 signal xreg_rr:STD_LOGIC_VECTOR(accumulator_width_c-1 downto 0);
 signal xreg_rrr:STD_LOGIC_VECTOR(accumulator_width_c-1 downto 0);
 signal xreg_rrrr:STD_LOGIC_VECTOR(accumulator_width_c-1 downto 0);
 
 -- MU OPCODE
+
 signal mu_opcode_r:mu_opcode_t;
 signal mu_opcode_rr:mu_opcode_t;
 signal mu_opcode_rrr:mu_opcode_t;
@@ -85,7 +91,6 @@ signal mu_opcode_rrrrr:mu_opcode_t;
 signal mu_opcode_rrrrrr:mu_opcode_t;
 
 signal mul_x2_r:STD_LOGIC_VECTOR(register_width_c-1 downto 0);
-
 signal x1_r:STD_LOGIC_VECTOR (register_width_c-1 DOWNTO 0);
 signal x2_r:STD_LOGIC_VECTOR (register_width_c-1 DOWNTO 0);
 signal x_scalar_r:STD_LOGIC_VECTOR (register_width_c-1 DOWNTO 0);
@@ -141,35 +146,38 @@ END COMPONENT;
 
 COMPONENT lpm_add_sub
 GENERIC (
-	lpm_direction		: STRING;
-	lpm_hint		: STRING;
-	lpm_representation		: STRING;
-	lpm_type		: STRING;
-	lpm_width		: NATURAL
+         lpm_direction       : STRING;
+         lpm_hint            : STRING;
+         lpm_representation  : STRING;
+         lpm_type            : STRING;
+         lpm_width           : NATURAL
 );
 PORT (
-		add_sub	: IN STD_LOGIC ;
-		dataa	: IN STD_LOGIC_VECTOR (lpm_width-1 DOWNTO 0);
-		datab	: IN STD_LOGIC_VECTOR (lpm_width-1 DOWNTO 0);
-		result	: OUT STD_LOGIC_VECTOR (lpm_width-1 DOWNTO 0)
+         add_sub             : IN STD_LOGIC ;
+         dataa               : IN STD_LOGIC_VECTOR (lpm_width-1 DOWNTO 0);
+         datab               : IN STD_LOGIC_VECTOR (lpm_width-1 DOWNTO 0);
+         result              : OUT STD_LOGIC_VECTOR (lpm_width-1 DOWNTO 0)
 );
 END COMPONENT;
 
 COMPONENT lpm_clshift
    GENERIC (
-      lpm_shifttype		: STRING;
-      lpm_type		: STRING;
-      lpm_width		: NATURAL;
-      lpm_widthdist		: NATURAL
+      lpm_shifttype          : STRING;
+      lpm_type               : STRING;
+      lpm_width              : NATURAL;
+      lpm_widthdist          : NATURAL
    );
    PORT (
-      data	: IN STD_LOGIC_VECTOR (lpm_width-1 DOWNTO 0);
-      direction	: IN STD_LOGIC ;
-      distance	: IN STD_LOGIC_VECTOR (lpm_widthdist-1 DOWNTO 0);
-      result	: OUT STD_LOGIC_VECTOR (lpm_width-1 DOWNTO 0)
+      data	 : IN STD_LOGIC_VECTOR (lpm_width-1 DOWNTO 0);
+      direction	 : IN STD_LOGIC ;
+      distance	 : IN STD_LOGIC_VECTOR (lpm_widthdist-1 DOWNTO 0);
+      result	 : OUT STD_LOGIC_VECTOR (lpm_width-1 DOWNTO 0)
    );
 END COMPONENT;
 
+-------
+-- Perform capping if result is saturated
+------
 
 subtype saturation_retval_t is STD_LOGIC_VECTOR(register_width_c-1 DOWNTO 0);
 function saturation(
@@ -179,20 +187,20 @@ variable output_v:std_logic_vector(register_width_c-1 downto 0);
 constant all_zeros_c:std_logic_vector(accumulator_width_c-register_width_c+1-1 downto 0):=(others=>'0');
 constant all_ones_c:std_logic_vector(accumulator_width_c-register_width_c+1-1 downto 0):=(others=>'1');
 begin
-if input_in(accumulator_width_c-1)='0' then
-   -- This is a positive number
-   if input_in(accumulator_width_c-1 downto register_width_c-1)=all_zeros_c then
-      output_v := input_in(register_width_c-1 downto 0);
+   if input_in(accumulator_width_c-1)='0' then
+      -- This is a positive number
+      if input_in(accumulator_width_c-1 downto register_width_c-1)=all_zeros_c then
+         output_v := input_in(register_width_c-1 downto 0);
+      else
+         output_v := std_logic_vector(to_unsigned(2**(register_width_c-1)-1,register_width_c)); -- Max positive nymber
+      end if;
    else
-      output_v := std_logic_vector(to_unsigned(2**(register_width_c-1)-1,register_width_c)); -- Max positive nymber
+      if input_in(accumulator_width_c-1 downto register_width_c-1)=all_ones_c then
+         output_v := input_in(register_width_c-1 downto 0);
+      else
+         output_v := std_logic_vector(to_unsigned(2**(register_width_c-1),register_width_c)); -- Smallest number
+      end if;
    end if;
-else
-   if input_in(accumulator_width_c-1 downto register_width_c-1)=all_ones_c then
-      output_v := input_in(register_width_c-1 downto 0);
-   else
-      output_v := std_logic_vector(to_unsigned(2**(register_width_c-1),register_width_c)); -- Smallest number
-   end if;
-end if;
 return output_v;
 end function saturation;
 
@@ -203,58 +211,64 @@ BEGIN
 -----------
 
 negative <= y_shift_r(accumulator_width_c-1);
+
 zero <= '1' when y_shift_r=std_logic_vector(to_unsigned(0,accumulator_width_c)) else '0';
 
 y_out <= y_r;
+
 y2_out <= y2_r;
+
 y3_out <= y3_r;
+
+----
+-- Perform comparison operation
+---
 
 process(reset_in,clock_in)
 begin
-if reset_in = '0' then
-   y_r <= (others=>'0');
-   y2_r <= '0';
-   y3_r <= (others=>'0');
-else
-if clock_in'event and clock_in='1' then
-case mu_opcode_rrrr is
-    when mu_opcode_cmp_lt_c =>
-        y2_r <= (negative and (not zero));
-    when mu_opcode_cmp_le_c =>
-        y2_r <= (negative or zero);
-    when mu_opcode_cmp_gt_c =>
-        y2_r <= ((not negative) and (not zero));
-    when mu_opcode_cmp_ge_c =>
-        y2_r <= ((not negative) or zero);
-    when mu_opcode_cmp_eq_c =>
-        y2_r <= zero;
-    when mu_opcode_cmp_ne_c =>
-        y2_r <= not zero;
-    when others=>
-        y2_r <= y_shift_r(0);
-end case;
+   if reset_in = '0' then
+      y_r <= (others=>'0');
+      y2_r <= '0';
+      y3_r <= (others=>'0');
+   else
+   if clock_in'event and clock_in='1' then
+   case mu_opcode_rrrr is
+      when mu_opcode_cmp_lt_c =>
+         y2_r <= (negative and (not zero));
+      when mu_opcode_cmp_le_c =>
+         y2_r <= (negative or zero);
+      when mu_opcode_cmp_gt_c =>
+         y2_r <= ((not negative) and (not zero));
+      when mu_opcode_cmp_ge_c =>
+         y2_r <= ((not negative) or zero);
+      when mu_opcode_cmp_eq_c =>
+         y2_r <= zero;
+      when mu_opcode_cmp_ne_c =>
+         y2_r <= not zero;
+      when others=>
+         y2_r <= y_shift_r(0);
+   end case;
 
-if(y_shift_r(31 downto 23)= "011111111") then
-   -- Cap it to lowest allowed values
-   y_r <= "01111111100000000000000000000000";
-elsif(y_shift_r(31 downto 23)="100000000") then
-   -- Cap it to highest allowed value
-   y_r <= "10000000100000000000000000000000";
-else
-   y_r <= y_shift_r;
-end if;
+   if(y_shift_r(31 downto 23)= "011111111") then
+      -- Cap it to lowest allowed values
+      y_r <= "01111111100000000000000000000000";
+   elsif(y_shift_r(31 downto 23)="100000000") then
+      -- Cap it to highest allowed value
+      y_r <= "10000000100000000000000000000000";
+   else
+      y_r <= y_shift_r;
+   end if;
 
-y3_r <= saturation(y_shift_r);
+   y3_r <= saturation(y_shift_r);
 
-end if;
-end if;
+   end if;
+   end if;
 end process;
-
 
 mul_i : lpm_mult
     GENERIC MAP (
         lpm_hint => "DEDICATED_MULTIPLIER_CIRCUITRY=YES,MAXIMIZE_SPEED=5",
-		lpm_pipeline => 1,
+        lpm_pipeline => 1,
         lpm_representation => "SIGNED",
         lpm_type => "LPM_MULT",
         lpm_widtha => register_width_c,
@@ -262,26 +276,26 @@ mul_i : lpm_mult
         lpm_widthp => 2*register_width_c
     )
     PORT MAP (
-	    clock => clock_in,
+        clock => clock_in,
         dataa => x2_r,
         datab => mul_x2_r,
         result => y_mul
     );
 
 adder_i : LPM_ADD_SUB
-	GENERIC MAP (
-		lpm_direction => "UNUSED",
-		lpm_hint => "ONE_INPUT_IS_CONSTANT=NO,CIN_USED=NO",
-		lpm_representation => "SIGNED",
-		lpm_type => "LPM_ADD_SUB",
-		lpm_width => accumulator_width_c
-	)
-	PORT MAP (
-		add_sub => add_sub_r,
-		dataa => xreg_rr,
-		datab => add_x1,
-		result => y_add
-	);
+    GENERIC MAP (
+        lpm_direction => "UNUSED",
+        lpm_hint => "ONE_INPUT_IS_CONSTANT=NO,CIN_USED=NO",
+        lpm_representation => "SIGNED",
+        lpm_type => "LPM_ADD_SUB",
+        lpm_width => accumulator_width_c
+        )
+    PORT MAP (
+        add_sub => add_sub_r,
+        dataa => xreg_rr,
+        datab => add_x1,
+        result => y_add
+    );
 
 -----
 -- Perform right shift with sign extension
@@ -302,30 +316,31 @@ LPM_CLSHIFT_component : LPM_CLSHIFT
    );
 
 y_mul_ext <= (others=>y_mul(y_mul'length-1));
+
 add_x1 <= y_mul_ext & y_mul;
 
 process(clock_in,reset_in)
 begin
-if reset_in = '0' then
-   mul_x2_r <= (others=>'0');
-else
-if clock_in'event and clock_in='1' then
-if mu_opcode_in=mu_opcode_mul_c then
-    mul_x2_r <= x1_in;
-elsif mu_opcode_in(fm_oc_hi_c downto fm_oc_lo_c)=mu_opcode_fm_c(fm_oc_hi_c downto fm_oc_lo_c) then
-    mul_x2_r <= x1_in;
-elsif mu_opcode_in=mu_opcode_assign_raw_c or
-      mu_opcode_in=mu_opcode_assign_c or
-      mu_opcode_in=mu_opcode_shl_c or
-      mu_opcode_in=mu_opcode_shla_c or
-      mu_opcode_in=mu_opcode_shr_c or
-      mu_opcode_in=mu_opcode_shra_c then
-    mul_x2_r <= (others=>'0');
-else
-    mul_x2_r <= std_logic_vector(to_unsigned(1,register_width_c));
-end if;
-end if;
-end if;
+   if reset_in = '0' then
+      mul_x2_r <= (others=>'0');
+   else
+   if clock_in'event and clock_in='1' then
+      if mu_opcode_in=mu_opcode_mul_c then
+         mul_x2_r <= x1_in;
+      elsif mu_opcode_in(fm_oc_hi_c downto fm_oc_lo_c)=mu_opcode_fm_c(fm_oc_hi_c downto fm_oc_lo_c) then
+         mul_x2_r <= x1_in;
+      elsif mu_opcode_in=mu_opcode_assign_raw_c or
+         mu_opcode_in=mu_opcode_assign_c or
+         mu_opcode_in=mu_opcode_shl_c or
+         mu_opcode_in=mu_opcode_shla_c or
+         mu_opcode_in=mu_opcode_shr_c or
+         mu_opcode_in=mu_opcode_shra_c then
+         mul_x2_r <= (others=>'0');
+      else
+         mul_x2_r <= std_logic_vector(to_unsigned(1,register_width_c));
+      end if;
+   end if;
+   end if;
 end process;
 
 
@@ -407,30 +422,29 @@ begin
             x1_r <= x1_in;
             x2_r <= x2_in;
             x_scalar_r <= x_scalar_in;
-            xreg_r <= xreg_in;
-                        
+            xreg_r <= xreg_in;                     
             y_add_r <= y_add;
-
             y_shift_r <= y_shift;
             xreg_rrrr <= xreg_rrr;
             xreg_rrr <= xreg_rr;
+
             if mu_opcode_r(fm_oc_hi_c downto fm_oc_lo_c)=mu_opcode_fm_c(fm_oc_hi_c downto fm_oc_lo_c) then
                xreg_rr <= xreg_r;
             else
-            case mu_opcode_r is
-                when mu_opcode_shl_c|mu_opcode_shr_c =>
-                    xreg_rr <= std_logic_vector(resize(signed(x2_r),shift_width_c));
-                when mu_opcode_shla_c|mu_opcode_shra_c =>
-                    xreg_rr <= std_logic_vector(resize(signed(xreg_r),shift_width_c));
-                when mu_opcode_mul_c =>
-                    xreg_rr <= (others=>'0');
-                when mu_opcode_assign_raw_c|mu_opcode_assign_c=>
-                    xreg_rr(register_width_c-1 downto 0) <= x1_r;
-                    xreg_rr(accumulator_width_c-1 downto register_width_c) <= (others=>x1_r(register_width_c-1));
-                when others=>
-                    xreg_rr(register_width_c-1 downto 0) <= x1_r;
-                    xreg_rr(accumulator_width_c-1 downto register_width_c) <= (others=>x1_r(register_width_c-1));
-            end case;
+               case mu_opcode_r is
+                  when mu_opcode_shl_c|mu_opcode_shr_c =>
+                     xreg_rr <= std_logic_vector(resize(signed(x2_r),shift_width_c));
+                  when mu_opcode_shla_c|mu_opcode_shra_c =>
+                     xreg_rr <= std_logic_vector(resize(signed(xreg_r),shift_width_c));
+                  when mu_opcode_mul_c =>
+                     xreg_rr <= (others=>'0');
+                  when mu_opcode_assign_raw_c|mu_opcode_assign_c=>
+                     xreg_rr(register_width_c-1 downto 0) <= x1_r;
+                     xreg_rr(accumulator_width_c-1 downto register_width_c) <= (others=>x1_r(register_width_c-1));
+                  when others=>
+                     xreg_rr(register_width_c-1 downto 0) <= x1_r;
+                     xreg_rr(accumulator_width_c-1 downto register_width_c) <= (others=>x1_r(register_width_c-1));
+               end case;
             end if;
 
             if mu_opcode_r(fm_oc_hi_c downto fm_oc_lo_c)=mu_opcode_fm_c(fm_oc_hi_c downto fm_oc_lo_c) then
@@ -455,20 +469,4 @@ begin
         end if;
     end if;
 end process;
-
 END behavior;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

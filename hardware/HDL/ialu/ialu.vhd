@@ -15,7 +15,7 @@
 ------------------------------------------------------------------------------
 
 ------
--- This module performs integer arithmetic from PCORE
+-- This module performs integer scalar operation from PCORE
 ------
 
 library std;

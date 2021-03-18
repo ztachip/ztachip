@@ -15,7 +15,9 @@
 ------------------------------------------------------------------------------
 
 -----
--- This component is used to store/retrieve integer results from MU
+-- This component is used to store/retrieve integer results from MU. These integer
+-- values are normally result from a vector comparison operation.
+-- Also store/retrieve accumulator registers.
 -----
 
 library std;
@@ -30,10 +32,11 @@ USE altera_mf.all;
 ENTITY flag IS
     PORT(
         -- Global signal
-        SIGNAL clock_in         : IN STD_LOGIC;
-        SIGNAL reset_in         : IN STD_LOGIC;    
-                
+        SIGNAL clock_in               : IN STD_LOGIC;
+        SIGNAL reset_in               : IN STD_LOGIC;    
+
         -- Flag enable input for MU
+
         SIGNAL write_result_vector_in : IN STD_LOGIC;
         SIGNAL write_result_lane_in   : IN STD_LOGIC_VECTOR(vector_width_c-1 DOWNTO 0);
         SIGNAL write_addr_in          : IN xreg_addr_t;
@@ -44,10 +47,10 @@ ENTITY flag IS
         SIGNAL write_result_in        : IN STD_LOGIC_VECTOR(vector_width_c-1 downto 0);
 
         -- Stored flag
-        SIGNAL read_addr_in     : IN xreg_addr_t;
-        SIGNAL read_vm_in       : IN STD_LOGIC;
-        SIGNAL read_result_out  : OUT iregister_t;
-        SIGNAL read_xreg_out    : OUT STD_LOGIC_VECTOR(vaccumulator_width_c-1 downto 0)
+        SIGNAL read_addr_in           : IN xreg_addr_t;
+        SIGNAL read_vm_in             : IN STD_LOGIC;
+        SIGNAL read_result_out        : OUT iregister_t;
+        SIGNAL read_xreg_out          : OUT STD_LOGIC_VECTOR(vaccumulator_width_c-1 downto 0)
 
     );
 END flag;
@@ -74,7 +77,6 @@ attribute dont_merge of read_xreg_r : SIGNAL is true;
 attribute preserve : boolean;
 attribute preserve of read_xreg_r : SIGNAL is true;
 
-
 COMPONENT altsyncram
 GENERIC (
         address_aclr_b                  : STRING;
@@ -99,7 +101,7 @@ GENERIC (
     );
     PORT (
             address_a : IN STD_LOGIC_VECTOR (widthad_a-1 DOWNTO 0);
-            byteena_a   : IN STD_LOGIC_VECTOR (width_byteena_a-1 DOWNTO 0);
+            byteena_a : IN STD_LOGIC_VECTOR (width_byteena_a-1 DOWNTO 0);
             clock0    : IN STD_LOGIC ;
             data_a    : IN STD_LOGIC_VECTOR (width_a-1 DOWNTO 0);
             q_b       : OUT STD_LOGIC_VECTOR (width_b-1 DOWNTO 0);
@@ -111,17 +113,18 @@ BEGIN
 
 write_ena <= (write_result_ena_in or write_xreg_ena_in);
 
---TODO Hardcoded vector_width=2
 wrdata(vaccumulator_width_c-1 downto 0) <= std_logic_vector(write_data_in);
 
-
 byteena(xreg_byte_width_c-1 downto 0) <= (others=>write_xreg_ena_in);
+
 byteena(iregister_byte_width_c+xreg_byte_width_c-1 downto xreg_byte_width_c) <= (others=>write_result_ena_in);
 
 read_result_out <= unsigned(q(iregister_width_c+xreg_byte_width_c*8-1 downto xreg_byte_width_c*8));
+
 read_xreg_out <= read_xreg_r;
 
 wraddr <= write_vm_in & std_logic_vector(write_addr_in);
+
 rdaddr <= read_vm_in & std_logic_vector(read_addr_in);
 
 process(clock_in,reset_in)
