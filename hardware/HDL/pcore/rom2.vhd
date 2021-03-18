@@ -15,9 +15,7 @@
 ------------------------------------------------------------------------------
 
 ------
--- This component implements code space for PCORE
--- Because it runs on x2 clock and each ROM entries contain 2 instructions, 
--- therefore it can retrieve 4 instructions per clock
+-- This component implements code memory block for PCORE
 ------
 
 library std;
@@ -70,12 +68,13 @@ PORT (
     q_a         : OUT STD_LOGIC_VECTOR (width_a-1 DOWNTO 0)
 );
 END COMPONENT;
+
 SIGNAL address:STD_LOGIC_VECTOR (instruction_actual_depth_c-2 DOWNTO 0);
 SIGNAL q:STD_LOGIC_VECTOR (instruction_width_c-1 DOWNTO 0);
 SIGNAL q1_r:STD_LOGIC_VECTOR (instruction_width_c-1 DOWNTO 0);
-
 constant byteena_width_c:integer:=(instruction_width_c/8);
 SIGNAL byteena:STD_LOGIC_VECTOR(byteena_width_c-1 downto 0);
+
 BEGIN
 
 instruction_out <= q;

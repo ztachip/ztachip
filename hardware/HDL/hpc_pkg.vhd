@@ -563,16 +563,8 @@ type dp_data_models_t is array(natural range <>) of dp_data_model_t;
 --------
 
 subtype dp_data_type_t is unsigned(1 downto 0);          -- DP datatype
-constant dp_data_type_float_c       :dp_data_type_t:="00";    -- DP datatype is float
 constant dp_data_type_integer_c     :dp_data_type_t:="01";    -- DP datatype is integer
 constant dp_data_type_uinteger_c    :dp_data_type_t:="10";    -- DP datatype is integer
-constant dp_data_type_ufloat_c      :dp_data_type_t:="11";    -- DP datatype is integer
-
---subtype dp_data_type_t is unsigned(0 downto 0);          -- DP datatype
---constant dp_data_type_float_c   :dp_data_type_t:="0";    -- DP datatype is float
---constant dp_data_type_integer_c :dp_data_type_t:="1";    -- DP datatype is integer
-
-
 
 type dp_data_types_t is array(natural range <>) of dp_data_type_t;  -- array of DP datatypes
 

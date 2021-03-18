@@ -32,190 +32,191 @@ use work.config.all;
 
 ENTITY instr_fetch IS 
    PORT(    
-        SIGNAL clock_in                         : IN STD_LOGIC;
-        SIGNAL reset_in                         : IN STD_LOGIC;
+        SIGNAL clock_in                           : IN STD_LOGIC;
+        SIGNAL reset_in                           : IN STD_LOGIC;
 
         -- Interface to instruction decoder stage
 
-        SIGNAL instruction_mu_out               : OUT STD_LOGIC_VECTOR(mu_instruction_width_c-1 DOWNTO 0);
-        SIGNAL instruction_imu_out              : OUT STD_LOGIC_VECTOR(imu_instruction_width_c-1 DOWNTO 0);
-        SIGNAL instruction_mu_valid_out         : OUT STD_LOGIC;
-        SIGNAL instruction_imu_valid_out        : OUT STD_LOGIC;
-        SIGNAL instruction_vm_out               : OUT STD_LOGIC;
-        SIGNAL instruction_data_model_out       : OUT dp_data_model_t;
-        SIGNAL instruction_tid_out              : OUT tid_t;
-        SIGNAL instruction_tid_valid_out        : OUT STD_LOGIC; 
-        SIGNAL instruction_pre_tid_out          : OUT tid_t;  -- TID value for next clock                                        
-        SIGNAL instruction_pre_tid_valid_out    : OUT STD_LOGIC;  -- TID value for next clock                                        
-        SIGNAL instruction_pre_pre_tid_out      : OUT tid_t;  -- TID value for next clock                                        
-        SIGNAL instruction_pre_pre_tid_valid_out: OUT STD_LOGIC; -- Tid valid for next clock
-        SIGNAL instruction_pre_pre_vm_out       : OUT STD_LOGIC;
-		SIGNAL instruction_pre_pre_data_model_out: OUT dp_data_model_t;
-        SIGNAL instruction_pcore_enable_out     : OUT STD_LOGIC_VECTOR(pid_gen_max_c-1 downto 0);
+        SIGNAL instruction_mu_out                 : OUT STD_LOGIC_VECTOR(mu_instruction_width_c-1 DOWNTO 0);
+        SIGNAL instruction_imu_out                : OUT STD_LOGIC_VECTOR(imu_instruction_width_c-1 DOWNTO 0);
+        SIGNAL instruction_mu_valid_out           : OUT STD_LOGIC;
+        SIGNAL instruction_imu_valid_out          : OUT STD_LOGIC;
+        SIGNAL instruction_vm_out                 : OUT STD_LOGIC;
+        SIGNAL instruction_data_model_out         : OUT dp_data_model_t;
+        SIGNAL instruction_tid_out                : OUT tid_t;
+        SIGNAL instruction_tid_valid_out          : OUT STD_LOGIC; 
+        SIGNAL instruction_pre_tid_out            : OUT tid_t;  -- TID value for next clock                                        
+        SIGNAL instruction_pre_tid_valid_out      : OUT STD_LOGIC;  -- TID value for next clock                                        
+        SIGNAL instruction_pre_pre_tid_out        : OUT tid_t;  -- TID value for next clock                                        
+        SIGNAL instruction_pre_pre_tid_valid_out  : OUT STD_LOGIC; -- Tid valid for next clock
+        SIGNAL instruction_pre_pre_vm_out         : OUT STD_LOGIC;
+        SIGNAL instruction_pre_pre_data_model_out : OUT dp_data_model_t;
+        SIGNAL instruction_pcore_enable_out       : OUT STD_LOGIC_VECTOR(pid_gen_max_c-1 downto 0);
         SIGNAL instruction_pre_iregister_auto_out : OUT iregister_auto_t;
 
         -- Interface with ROM for instruction fetching
 
-        SIGNAL rom_addr_out                     : OUT STD_LOGIC_VECTOR(instruction_depth_c-1 DOWNTO 0);  -- ROM Address of next instruction
-        SIGNAL rom_addr_plus_2_out              : OUT STD_LOGIC_VECTOR(instruction_depth_c-1 DOWNTO 0);  -- ROM Address of next instruction+1
-        SIGNAL rom_data_in                      : IN STD_LOGIC_VECTOR (instruction_width_c-1 DOWNTO 0);  -- ROM data for fetched instruction
+        SIGNAL rom_addr_out                       : OUT STD_LOGIC_VECTOR(instruction_depth_c-1 DOWNTO 0);  -- ROM Address of next instruction
+        SIGNAL rom_addr_plus_2_out                : OUT STD_LOGIC_VECTOR(instruction_depth_c-1 DOWNTO 0);  -- ROM Address of next instruction+1
+        SIGNAL rom_data_in                        : IN STD_LOGIC_VECTOR (instruction_width_c-1 DOWNTO 0);  -- ROM data for fetched instruction
             
         -- Ready indication. Indicates which threads are available for new execution
 
-        SIGNAL busy_out                         : OUT STD_LOGIC_VECTOR(1 downto 0);
-        SIGNAL ready_out                        : OUT STD_LOGIC;
+        SIGNAL busy_out                           : OUT STD_LOGIC_VECTOR(1 downto 0);
+        SIGNAL ready_out                          : OUT STD_LOGIC;
 
         -- To start a thread 
 
-        SIGNAL task_start_addr_in               : IN instruction_addr_t;    -- Address to start execution
-        SIGNAL task_in                          : IN STD_LOGIC;
-        SIGNAL task_pcore_max_in                : IN pcore_t;
-        SIGNAL task_vm_in                       : IN STD_LOGIC;
-        SIGNAL task_lockstep_in                 : IN STD_LOGIC;
-        SIGNAL task_tid_mask_in                 : IN tid_mask_t;
-        SIGNAL task_iregister_auto_in           : IN iregister_auto_t;
-        SIGNAL task_data_model_in               : IN dp_data_model_t;
+        SIGNAL task_start_addr_in                 : IN instruction_addr_t;    -- Address to start execution
+        SIGNAL task_in                            : IN STD_LOGIC;
+        SIGNAL task_pcore_max_in                  : IN pcore_t;
+        SIGNAL task_vm_in                         : IN STD_LOGIC;
+        SIGNAL task_lockstep_in                   : IN STD_LOGIC;
+        SIGNAL task_tid_mask_in                   : IN tid_mask_t;
+        SIGNAL task_iregister_auto_in             : IN iregister_auto_t;
+        SIGNAL task_data_model_in                 : IN dp_data_model_t;
 
         -- Result from IALU
-        SIGNAL i_y_neg_in                       : IN STD_LOGIC;
-        SIGNAL i_y_zero_in                      : IN STD_LOGIC
+        SIGNAL i_y_neg_in                         : IN STD_LOGIC;
+        SIGNAL i_y_zero_in                        : IN STD_LOGIC
         );
 END instr_fetch;
 
 ARCHITECTURE behavior OF instr_fetch IS
     
-    -- Signals/register used for thread control
+-- Signals/register used for thread control
     
-    type pc_t IS ARRAY(0 TO tid_max_c-1) OF STD_LOGIC_VECTOR(instruction_depth_c-1 DOWNTO 0);
-    SIGNAL pc_r:pc_t; -- Thread program counter
-    SIGNAL busy_r:STD_LOGIC_VECTOR(tid_max_c-1 DOWNTO 0); -- Thread read state (registered)
-    SIGNAL vm_r:STD_LOGIC_VECTOR(tid_max_c-1 DOWNTO 0);
-    SIGNAL vm_rr:STD_LOGIC_VECTOR(tid_max_c-1 DOWNTO 0);
-	SIGNAL data_model_r:dp_data_models_t(tid_max_c-1 downto 0);
-	SIGNAL data_model_rr:dp_data_models_t(tid_max_c-1 downto 0);
-	SIGNAL iregister_auto_r:iregister_autos_t(tid_max_c-1 downto 0);
-	SIGNAL iregister_auto_rr:iregister_autos_t(tid_max_c-1 downto 0);
-    SIGNAL instruction_tid_r:tid_t; -- TID to send to decoder stage
-    SIGNAL instruction_tid_rr:tid_t; -- TID to send to decoder stage
-    SIGNAL instruction_tid_rrr:tid_t; -- TID to send to decoder stage
-    SIGNAL instruction_tid_rrrr:tid_t; -- TID to send to decoder stage
-    SIGNAL instruction_tid_rrrrr:tid_t; -- TID to send to decoder stage
-    SIGNAL instruction_tid_rrrrrr:tid_t; -- TID to send to decoder stage
-    SIGNAL instruction_tid_rrrrrrr:tid_t; -- TID to send to decoder stage
-    SIGNAL instruction_tid_rrrrrrrr:tid_t; -- TID to send to decoder stage
-    SIGNAL instruction_tid_valid_r:STD_LOGIC;
-    SIGNAL tid:std_logic_vector(tid_max_c-1 downto 0); -- TID in ROM requesting stage
-    SIGNAL tid_delay:std_logic_vector(tid_max_c-1 downto 0); -- TID in ROM requesting stage
-    SIGNAL tid_r:std_logic_vector(tid_max_c-1 downto 0); -- TID in ROM requesting stage
-    SIGNAL tid_valid_r:STD_LOGIC;
-    SIGNAL tid_rr:std_logic_vector(tid_max_c-1 downto 0); -- TID in ROM reading stage
-    SIGNAL tid_valid_rr:STD_LOGIC;
-    SIGNAL tid_valid_rrr:STD_LOGIC;
-    SIGNAL tid_rrr:std_logic_vector(tid_max_c-1 downto 0); -- TID in decoding stage
-    SIGNAL tid_rrrr:std_logic_vector(tid_max_c-1 downto 0); -- TID in execution stage
-    SIGNAL tid_rrrrr:std_logic_vector(tid_max_c-1 downto 0); -- TID in execution stage
-    SIGNAL tid_rrrrrr:std_logic_vector(tid_max_c-1 downto 0); -- TID in execution stage
-    SIGNAL tid_rrrrrrr:std_logic_vector(tid_max_c-1 downto 0); -- TID in execution stage        
-    SIGNAL tid_rrrrrrrr:std_logic_vector(tid_max_c-1 downto 0); -- TID in execution stage        
-    SIGNAL tid_rrrrrrrrr:std_logic_vector(tid_max_c-1 downto 0); -- TID in execution stage        
-    SIGNAL tid_rrrrrrrrrr:std_logic_vector(tid_max_c-1 downto 0); -- TID in execution stage        
-    SIGNAL tid_rrrrrrrrrrr:std_logic_vector(tid_max_c-1 downto 0); -- TID in execution stage        
-    SIGNAL tid2_r:tid_t;
-    SIGNAL tid2_rr:tid_t;
-    SIGNAL tid2_rrr:tid_t;
-    -- Signals/registers used to do instruction fetching 
+type pc_t IS ARRAY(0 TO tid_max_c-1) OF STD_LOGIC_VECTOR(instruction_depth_c-1 DOWNTO 0);
+SIGNAL pc_r:pc_t; -- Thread program counter
+SIGNAL busy_r:STD_LOGIC_VECTOR(tid_max_c-1 DOWNTO 0); -- Thread read state (registered)
+SIGNAL vm_r:STD_LOGIC_VECTOR(tid_max_c-1 DOWNTO 0);
+SIGNAL vm_rr:STD_LOGIC_VECTOR(tid_max_c-1 DOWNTO 0);
+SIGNAL data_model_r:dp_data_models_t(tid_max_c-1 downto 0);
+SIGNAL data_model_rr:dp_data_models_t(tid_max_c-1 downto 0);
+SIGNAL iregister_auto_r:iregister_autos_t(tid_max_c-1 downto 0);
+SIGNAL iregister_auto_rr:iregister_autos_t(tid_max_c-1 downto 0);
+SIGNAL instruction_tid_r:tid_t; -- TID to send to decoder stage
+SIGNAL instruction_tid_rr:tid_t; -- TID to send to decoder stage
+SIGNAL instruction_tid_rrr:tid_t; -- TID to send to decoder stage
+SIGNAL instruction_tid_rrrr:tid_t; -- TID to send to decoder stage
+SIGNAL instruction_tid_rrrrr:tid_t; -- TID to send to decoder stage
+SIGNAL instruction_tid_rrrrrr:tid_t; -- TID to send to decoder stage
+SIGNAL instruction_tid_rrrrrrr:tid_t; -- TID to send to decoder stage
+SIGNAL instruction_tid_rrrrrrrr:tid_t; -- TID to send to decoder stage
+SIGNAL instruction_tid_valid_r:STD_LOGIC;
+SIGNAL tid:std_logic_vector(tid_max_c-1 downto 0); -- TID in ROM requesting stage
+SIGNAL tid_delay:std_logic_vector(tid_max_c-1 downto 0); -- TID in ROM requesting stage
+SIGNAL tid_r:std_logic_vector(tid_max_c-1 downto 0); -- TID in ROM requesting stage
+SIGNAL tid_valid_r:STD_LOGIC;
+SIGNAL tid_rr:std_logic_vector(tid_max_c-1 downto 0); -- TID in ROM reading stage
+SIGNAL tid_valid_rr:STD_LOGIC;
+SIGNAL tid_valid_rrr:STD_LOGIC;
+SIGNAL tid_rrr:std_logic_vector(tid_max_c-1 downto 0); -- TID in decoding stage
+SIGNAL tid_rrrr:std_logic_vector(tid_max_c-1 downto 0); -- TID in execution stage
+SIGNAL tid_rrrrr:std_logic_vector(tid_max_c-1 downto 0); -- TID in execution stage
+SIGNAL tid_rrrrrr:std_logic_vector(tid_max_c-1 downto 0); -- TID in execution stage
+SIGNAL tid_rrrrrrr:std_logic_vector(tid_max_c-1 downto 0); -- TID in execution stage        
+SIGNAL tid_rrrrrrrr:std_logic_vector(tid_max_c-1 downto 0); -- TID in execution stage        
+SIGNAL tid_rrrrrrrrr:std_logic_vector(tid_max_c-1 downto 0); -- TID in execution stage        
+SIGNAL tid_rrrrrrrrrr:std_logic_vector(tid_max_c-1 downto 0); -- TID in execution stage        
+SIGNAL tid_rrrrrrrrrrr:std_logic_vector(tid_max_c-1 downto 0); -- TID in execution stage        
+SIGNAL tid2_r:tid_t;
+SIGNAL tid2_rr:tid_t;
+SIGNAL tid2_rrr:tid_t;
+
+-- Signals/registers used to do instruction fetching 
     
-    SIGNAL rom_addr: STD_LOGIC_VECTOR(instruction_depth_c-1 DOWNTO 0); -- Address of instruction to be fetched (calculate)
-    SIGNAL rom_addr_r: STD_LOGIC_VECTOR(instruction_depth_c-1 DOWNTO 0); -- Address of instruction to be fetched (registed)
-    SIGNAL rom_addr_rr: STD_LOGIC_VECTOR(instruction_depth_c-1 DOWNTO 0); -- Address of instruction to be fetched (registed)
+SIGNAL rom_addr: STD_LOGIC_VECTOR(instruction_depth_c-1 DOWNTO 0); -- Address of instruction to be fetched (calculate)
+SIGNAL rom_addr_r: STD_LOGIC_VECTOR(instruction_depth_c-1 DOWNTO 0); -- Address of instruction to be fetched (registed)
+SIGNAL rom_addr_rr: STD_LOGIC_VECTOR(instruction_depth_c-1 DOWNTO 0); -- Address of instruction to be fetched (registed)
     
-    -- Signals/Registers used to calculate thread delay
-    
-    type delays_t IS ARRAY(0 to tid_max_c-1) OF STD_LOGIC;
-    SIGNAL delay_r:delays_t; -- Instruction delay (registered)
-
-    -- Task list
-    SIGNAL busy1:STD_LOGIC_VECTOR(0 to tid_max_c-1); -- Thread ready state (calculate)
-    SIGNAL busy2:STD_LOGIC_VECTOR(1 downto 0); -- Thread ready state (calculate)
-    SIGNAL busy2_r:STD_LOGIC_VECTOR(1 downto 0); -- Thread ready state (calculate)
-    
-    -- Signals/registers used by thread scheduler
-
-    SIGNAL avail:STD_LOGIC_VECTOR(tid_max_c-1 DOWNTO 0);
-    SIGNAL avail_r:STD_LOGIC_VECTOR(tid_max_c-1 DOWNTO 0);    
-    SIGNAL next_tid:std_logic_vector(tid_max_c-1 downto 0); -- Next TID table (calculate)
-    SIGNAL next_tid2:tid_t;
-    SIGNAL next_tid_valid:STD_LOGIC;
-
-    SIGNAL instruction_mu_r:STD_LOGIC_VECTOR(mu_instruction_width_c-1 DOWNTO 0);
-    SIGNAL instruction_imu_r:STD_LOGIC_VECTOR(imu_instruction_width_c-1 DOWNTO 0);
-    SIGNAL instruction_mu_valid_r:std_logic;
-    SIGNAL instruction_imu_valid_r:std_logic;
-    SIGNAL instruction_tid:tid_t;
-    SIGNAL instruction_tid_valid:STD_LOGIC; 
-    SIGNAL instruction_pre_tid:tid_t;
-    SIGNAL instruction_pre_tid_valid:STD_LOGIC;                                    
-    SIGNAL instruction_pre_pre_tid:tid_t;                                       
-    SIGNAL instruction_pre_pre_tid_valid:STD_LOGIC;
-
-    SIGNAL task_start_addr_r:instruction_addr_t;
-    SIGNAL task_pcore_max_r:pcore_t;
-    SIGNAL task_pcore_curr_r:pcore_t;
-	SIGNAL task_tid_mask_r:STD_LOGIC_VECTOR(tid_max_c-1 downto 0);
-    SIGNAL task_tid_mask:STD_LOGIC_VECTOR(tid_max_c-1 downto 0);
-    SIGNAL task_lockstep_r:STD_LOGIC;
-    SIGNAL task_mask_r:STD_LOGIC_VECTOR(tid_max_c-1 downto 0);
-    SIGNAL task_vm_r:STD_LOGIC;
-    SIGNAL task_iregister_auto_r:iregister_auto_t;
-    SIGNAL task2_data_model_r:dp_data_model_t;
-
-    SIGNAL mu_instruction:STD_LOGIC_VECTOR (mu_instruction_width_c-1 DOWNTO 0);
-    SIGNAL imu_instruction:STD_LOGIC_VECTOR (imu_instruction_width_c-1 DOWNTO 0);
-    SIGNAL ctrl_instruction:STD_LOGIC_VECTOR (ctrl_instruction_width_c-1 DOWNTO 0);
+-- Signals/Registers used to calculate thread delay
    
-   ------------  
-   -- CONTROL variables
-   ------------
+type delays_t IS ARRAY(0 to tid_max_c-1) OF STD_LOGIC;
+SIGNAL delay_r:delays_t; -- Instruction delay (registered)
 
-   SIGNAL instruction_addr_r:STD_LOGIC_VECTOR(instruction_depth_c-1 DOWNTO 0);
-   SIGNAL instruction_addr_rr:STD_LOGIC_VECTOR(instruction_depth_c-1 DOWNTO 0);
+-- Task list
+SIGNAL busy1:STD_LOGIC_VECTOR(0 to tid_max_c-1); -- Thread ready state (calculate)
+SIGNAL busy2:STD_LOGIC_VECTOR(1 downto 0); -- Thread ready state (calculate)
+SIGNAL busy2_r:STD_LOGIC_VECTOR(1 downto 0); -- Thread ready state (calculate)
+    
+-- Signals/registers used by thread scheduler
 
-   SIGNAL got_control_r:STD_LOGIC;
-   SIGNAL got_control_rr:STD_LOGIC;
-   SIGNAL got_control_rrr:STD_LOGIC;
-   SIGNAL got_control_rrrr:STD_LOGIC;
-   SIGNAL got_control_rrrrr:STD_LOGIC;
-   SIGNAL got_control_rrrrrr:STD_LOGIC;
-   SIGNAL got_control_rrrrrrr:STD_LOGIC;
-   SIGNAL got_control_rrrrrrrr:STD_LOGIC;
+SIGNAL avail:STD_LOGIC_VECTOR(tid_max_c-1 DOWNTO 0);
+SIGNAL avail_r:STD_LOGIC_VECTOR(tid_max_c-1 DOWNTO 0);    
+SIGNAL next_tid:std_logic_vector(tid_max_c-1 downto 0); -- Next TID table (calculate)
+SIGNAL next_tid2:tid_t;
+SIGNAL next_tid_valid:STD_LOGIC;
 
-   SIGNAL ctrl_opcode_r:STD_LOGIC_VECTOR(ctrl_instruction_oc_width_c-1 DOWNTO 0);
-   SIGNAL ctrl_goto_addr_r:STD_LOGIC_VECTOR(ctrl_instruction_goto_addr_width_c-1 downto 0);
-   SIGNAL ctrl_opcode_rr:STD_LOGIC_VECTOR(ctrl_instruction_oc_width_c-1 DOWNTO 0);
-   SIGNAL ctrl_goto_addr_rr:STD_LOGIC_VECTOR(ctrl_instruction_goto_addr_width_c-1 downto 0);
-   SIGNAL ctrl_opcode_rrr:STD_LOGIC_VECTOR(ctrl_instruction_oc_width_c-1 DOWNTO 0);
-   SIGNAL ctrl_goto_addr_rrr:STD_LOGIC_VECTOR(ctrl_instruction_goto_addr_width_c-1 downto 0);
-   SIGNAL ctrl_next_addr_r:STD_LOGIC_VECTOR(instruction_depth_c-1 DOWNTO 0);
-   SIGNAL ctrl_next_addr_rr:STD_LOGIC_VECTOR(instruction_depth_c-1 DOWNTO 0);
-   SIGNAL ctrl_next_addr_rrr:STD_LOGIC_VECTOR(instruction_depth_c-1 DOWNTO 0);
-   SIGNAL ctrl_next_addr_rrrr:STD_LOGIC_VECTOR(instruction_depth_c-1 DOWNTO 0);
-   SIGNAL ctrl_next_addr_rrrrr:STD_LOGIC_VECTOR(instruction_depth_c-1 DOWNTO 0);
-   SIGNAL ctrl_next_addr_rrrrrr:STD_LOGIC_VECTOR(instruction_depth_c-1 DOWNTO 0);
-   SIGNAL ctrl_ready_r:STD_LOGIC;
-   SIGNAL ctrl_opcode_rrrr:STD_LOGIC_VECTOR(ctrl_instruction_oc_width_c-1 DOWNTO 0);
-   SIGNAL ctrl_opcode_rrrrr:STD_LOGIC_VECTOR(ctrl_instruction_oc_width_c-1 DOWNTO 0);
-   SIGNAL ctrl_opcode_rrrrrr:STD_LOGIC_VECTOR(ctrl_instruction_oc_width_c-1 DOWNTO 0);
-   SIGNAL ctrl_opcode_rrrrrrr:STD_LOGIC_VECTOR(ctrl_instruction_oc_width_c-1 DOWNTO 0);
-   SIGNAL ctrl_opcode_rrrrrrrr:STD_LOGIC_VECTOR(ctrl_instruction_oc_width_c-1 DOWNTO 0);
+SIGNAL instruction_mu_r:STD_LOGIC_VECTOR(mu_instruction_width_c-1 DOWNTO 0);
+SIGNAL instruction_imu_r:STD_LOGIC_VECTOR(imu_instruction_width_c-1 DOWNTO 0);
+SIGNAL instruction_mu_valid_r:std_logic;
+SIGNAL instruction_imu_valid_r:std_logic;
+SIGNAL instruction_tid:tid_t;
+SIGNAL instruction_tid_valid:STD_LOGIC; 
+SIGNAL instruction_pre_tid:tid_t;
+SIGNAL instruction_pre_tid_valid:STD_LOGIC;                                    
+SIGNAL instruction_pre_pre_tid:tid_t;                                       
+SIGNAL instruction_pre_pre_tid_valid:STD_LOGIC;
 
-   SIGNAL ctrl_goto_addr_rrrr:STD_LOGIC_VECTOR(ctrl_instruction_goto_addr_width_c-1 downto 0);
-   SIGNAL ctrl_goto_addr_rrrrr:STD_LOGIC_VECTOR(ctrl_instruction_goto_addr_width_c-1 downto 0);
-   SIGNAL ctrl_goto_addr_rrrrrr:STD_LOGIC_VECTOR(ctrl_instruction_goto_addr_width_c-1 downto 0);
-   SIGNAL ctrl_goto_addr_rrrrrrr:STD_LOGIC_VECTOR(ctrl_instruction_goto_addr_width_c-1 downto 0);
-   SIGNAL ctrl_goto_addr_rrrrrrrr:STD_LOGIC_VECTOR(ctrl_instruction_goto_addr_width_c-1 downto 0);
+SIGNAL task_start_addr_r:instruction_addr_t;
+SIGNAL task_pcore_max_r:pcore_t;
+SIGNAL task_pcore_curr_r:pcore_t;
+SIGNAL task_tid_mask_r:STD_LOGIC_VECTOR(tid_max_c-1 downto 0);
+SIGNAL task_tid_mask:STD_LOGIC_VECTOR(tid_max_c-1 downto 0);
+SIGNAL task_lockstep_r:STD_LOGIC;
+SIGNAL task_mask_r:STD_LOGIC_VECTOR(tid_max_c-1 downto 0);
+SIGNAL task_vm_r:STD_LOGIC;
+SIGNAL task_iregister_auto_r:iregister_auto_t;
+SIGNAL task2_data_model_r:dp_data_model_t;
 
-   SIGNAL ctrl_jump:STD_LOGIC;
-   SIGNAL ctrl_ret_func:STD_LOGIC;
+SIGNAL mu_instruction:STD_LOGIC_VECTOR (mu_instruction_width_c-1 DOWNTO 0);
+SIGNAL imu_instruction:STD_LOGIC_VECTOR (imu_instruction_width_c-1 DOWNTO 0);
+SIGNAL ctrl_instruction:STD_LOGIC_VECTOR (ctrl_instruction_width_c-1 DOWNTO 0);
+   
+------------  
+-- CONTROL variables
+------------
+
+SIGNAL instruction_addr_r:STD_LOGIC_VECTOR(instruction_depth_c-1 DOWNTO 0);
+SIGNAL instruction_addr_rr:STD_LOGIC_VECTOR(instruction_depth_c-1 DOWNTO 0);
+
+SIGNAL got_control_r:STD_LOGIC;
+SIGNAL got_control_rr:STD_LOGIC;
+SIGNAL got_control_rrr:STD_LOGIC;
+SIGNAL got_control_rrrr:STD_LOGIC;
+SIGNAL got_control_rrrrr:STD_LOGIC;
+SIGNAL got_control_rrrrrr:STD_LOGIC;
+SIGNAL got_control_rrrrrrr:STD_LOGIC;
+SIGNAL got_control_rrrrrrrr:STD_LOGIC;
+
+SIGNAL ctrl_opcode_r:STD_LOGIC_VECTOR(ctrl_instruction_oc_width_c-1 DOWNTO 0);
+SIGNAL ctrl_goto_addr_r:STD_LOGIC_VECTOR(ctrl_instruction_goto_addr_width_c-1 downto 0);
+SIGNAL ctrl_opcode_rr:STD_LOGIC_VECTOR(ctrl_instruction_oc_width_c-1 DOWNTO 0);
+SIGNAL ctrl_goto_addr_rr:STD_LOGIC_VECTOR(ctrl_instruction_goto_addr_width_c-1 downto 0);
+SIGNAL ctrl_opcode_rrr:STD_LOGIC_VECTOR(ctrl_instruction_oc_width_c-1 DOWNTO 0);
+SIGNAL ctrl_goto_addr_rrr:STD_LOGIC_VECTOR(ctrl_instruction_goto_addr_width_c-1 downto 0);
+SIGNAL ctrl_next_addr_r:STD_LOGIC_VECTOR(instruction_depth_c-1 DOWNTO 0);
+SIGNAL ctrl_next_addr_rr:STD_LOGIC_VECTOR(instruction_depth_c-1 DOWNTO 0);
+SIGNAL ctrl_next_addr_rrr:STD_LOGIC_VECTOR(instruction_depth_c-1 DOWNTO 0);
+SIGNAL ctrl_next_addr_rrrr:STD_LOGIC_VECTOR(instruction_depth_c-1 DOWNTO 0);
+SIGNAL ctrl_next_addr_rrrrr:STD_LOGIC_VECTOR(instruction_depth_c-1 DOWNTO 0);
+SIGNAL ctrl_next_addr_rrrrrr:STD_LOGIC_VECTOR(instruction_depth_c-1 DOWNTO 0);
+SIGNAL ctrl_ready_r:STD_LOGIC;
+SIGNAL ctrl_opcode_rrrr:STD_LOGIC_VECTOR(ctrl_instruction_oc_width_c-1 DOWNTO 0);
+SIGNAL ctrl_opcode_rrrrr:STD_LOGIC_VECTOR(ctrl_instruction_oc_width_c-1 DOWNTO 0);
+SIGNAL ctrl_opcode_rrrrrr:STD_LOGIC_VECTOR(ctrl_instruction_oc_width_c-1 DOWNTO 0);
+SIGNAL ctrl_opcode_rrrrrrr:STD_LOGIC_VECTOR(ctrl_instruction_oc_width_c-1 DOWNTO 0);
+SIGNAL ctrl_opcode_rrrrrrrr:STD_LOGIC_VECTOR(ctrl_instruction_oc_width_c-1 DOWNTO 0);
+
+SIGNAL ctrl_goto_addr_rrrr:STD_LOGIC_VECTOR(ctrl_instruction_goto_addr_width_c-1 downto 0);
+SIGNAL ctrl_goto_addr_rrrrr:STD_LOGIC_VECTOR(ctrl_instruction_goto_addr_width_c-1 downto 0);
+SIGNAL ctrl_goto_addr_rrrrrr:STD_LOGIC_VECTOR(ctrl_instruction_goto_addr_width_c-1 downto 0);
+SIGNAL ctrl_goto_addr_rrrrrrr:STD_LOGIC_VECTOR(ctrl_instruction_goto_addr_width_c-1 downto 0);
+SIGNAL ctrl_goto_addr_rrrrrrrr:STD_LOGIC_VECTOR(ctrl_instruction_goto_addr_width_c-1 downto 0);
+
+SIGNAL ctrl_jump:STD_LOGIC;
+SIGNAL ctrl_ret_func:STD_LOGIC;
 
 SIGNAL next_addr:STD_LOGIC_VECTOR(instruction_depth_c-1 DOWNTO 0);   -- Next address from dispatcher stage
 SIGNAL ready:STD_LOGIC;                                          -- 0: Continue, 1:Current instruction is the end
@@ -236,10 +237,8 @@ SIGNAL tid_iregister_auto_r:iregister_auto_t;
 
 SIGNAL ready2:STD_LOGIC;
 
--- WARNING *** pipeline_latency_c has to be less than fu_latency_c
 --constant proc_delay_c:integer:=14-pipeline_latency_c-1;
 constant proc_delay_c:integer:=11-pipeline_latency_c-1;
-
 
 attribute dont_merge : boolean;
 attribute dont_merge of instruction_mu_r : SIGNAL is true;
@@ -464,6 +463,7 @@ arbiter_1_i: arbiter generic map(
 ----- 
 -- tid represents which TID is currently in the processing pipeline
 -----
+
 tid <= tid_rrrrrrr or tid_rrrrrr or tid_rrrrr or tid_rrrr or tid_rrr or tid_rr or tid_r;
 
 task_tid_mask <= gen_task_mask(task_tid_mask_in);
@@ -493,113 +493,115 @@ begin
         avail_r <= (others=>'0');  
         vm_r <= (others=>'0');
         vm_rr <= (others=>'0');
-		data_model_r <= (others=>(others=>'0'));
-		data_model_rr <= (others=>(others=>'0'));
+        data_model_r <= (others=>(others=>'0'));
+        data_model_rr <= (others=>(others=>'0'));
         task_vm_r <= '0';
-		task2_data_model_r <= (others=>'0');
+        task2_data_model_r <= (others=>'0');
         tid_vm_r <= '0';
         tid_vm_rr <= '0';
         tid_iregister_auto_r <= (others=>'0');
         iregister_auto_r <= (others=>(others=>'0'));
         iregister_auto_rr <= (others=>(others=>'0'));
-		task_iregister_auto_r <= (others=>'0');
-		task_data_model_r <= (others=>'0');
-		task_data_model_rr <= (others=>'0');
-    else
+        task_iregister_auto_r <= (others=>'0');
+        task_data_model_r <= (others=>'0');
+        task_data_model_rr <= (others=>'0');
+    else 
     if clock_in'event and clock_in='1' then
-    tid_vm_r <= tid_vm;
-    tid_vm_rr <= tid_vm_r;
-    task_data_model_r <= task_data_model;
-    task_data_model_rr <= task_data_model_r;
-    iregister_auto_rr <= iregister_auto_r;
-    vm_rr <= vm_r;
-	data_model_rr <= data_model_r;
-    tid_iregister_auto_r <= tid_iregister_auto;
-    if task_in='1' then
-        task_start_addr_r <= task_start_addr_in;
-        task_pcore_max_r <= task_pcore_max_in;
-        task_pcore_curr_r <= (others=>'0');
-        task_lockstep_r <= task_lockstep_in;
-        task_mask_r <= task_tid_mask;
-        task_vm_r <= task_vm_in;
-        task_iregister_auto_r <= task_iregister_auto_in;
-        task_tid_mask_r <= task_tid_mask;
-		task2_data_model_r <= task_data_model_in;
-    end if;
+        tid_vm_r <= tid_vm;
+        tid_vm_rr <= tid_vm_r;
+        task_data_model_r <= task_data_model;
+        task_data_model_rr <= task_data_model_r;
+        iregister_auto_rr <= iregister_auto_r;
+        vm_rr <= vm_r;
+        data_model_rr <= data_model_r;
+        tid_iregister_auto_r <= tid_iregister_auto;
+        if task_in='1' then
+            task_start_addr_r <= task_start_addr_in;
+            task_pcore_max_r <= task_pcore_max_in;
+            task_pcore_curr_r <= (others=>'0');
+            task_lockstep_r <= task_lockstep_in;
+            task_mask_r <= task_tid_mask;
+            task_vm_r <= task_vm_in;
+            task_iregister_auto_r <= task_iregister_auto_in;
+            task_tid_mask_r <= task_tid_mask;
+            task2_data_model_r <= task_data_model_in;
+       end if;
 
-    if (task_mask_r=std_logic_vector(to_unsigned(0,tid_max_c)) and 
-       (task_pcore_max_r /= task_pcore_curr_r) and 
-       task_lockstep_r='0' and
-       busy_r=std_logic_vector(to_unsigned(0,tid_max_c))) then
-       task_pcore_curr_r <= unsigned(task_pcore_curr_r)+1;
-       task_mask_r <= task_tid_mask_r;
-    end if;
+       if (task_mask_r=std_logic_vector(to_unsigned(0,tid_max_c)) and 
+          (task_pcore_max_r /= task_pcore_curr_r) and 
+          task_lockstep_r='0' and
+          busy_r=std_logic_vector(to_unsigned(0,tid_max_c))) then
+          task_pcore_curr_r <= unsigned(task_pcore_curr_r)+1;
+          task_mask_r <= task_tid_mask_r;
+       end if;
 
-    FOR I in 0 to tid_max_c-1 LOOP
-        if busy_r(I)='0' and task_mask_r(I)='1' and tid_rrrrrrrrrrr(I)='0' then
-            -- Launch this thread...
-            pc_v := task_start_addr_r;
-            busy_v := '1';
-            vm_v := task_vm_r;
-			data_model_v := task2_data_model_r;
-            task_mask_r(I) <= '0';
-            if (tid(I)='1') then
-               delay_v := '1';
-            elsif tid_delay(I)='1' then
-               delay_v := '0';
-            else
-               delay_v := delay_r(I);
-            end if;
-            latch_iregister_auto_v := '1';
-        else
-            vm_v := vm_r(I);
-            data_model_v := data_model_r(I);
-            if tid_rrrrrrrrrrr(I)='1' then
-                -- Reach the end of processing for this TID. 
-                pc_v := next_addr;
-                busy_v := not ready;
-                delay_v := '1';
-            else
-                pc_v := pc_r(I);
-                busy_v := busy_r(I);
-                if (tid(I)='1') then
-                    delay_v := '1';
-                elsif tid_delay(I)='1' then
-                    delay_v := '0';
-                else
-                    delay_v := delay_r(I);
-                end if;
-            end if;
-            latch_iregister_auto_v := '0';
-        end if;
-        pc_r(I) <= pc_v;
-        busy_r(I) <= busy_v;
-        delay_r(I) <= delay_v;
-        vm_r(I) <= vm_v;
-		data_model_r(I) <= data_model_v;
-        if latch_iregister_auto_v='1' then
-           iregister_auto_r(I) <= task_iregister_auto_r;
-        end if;
-        if busy_v='1' and delay_v='0' and next_tid(I)='0' then
-            avail_r(I) <= '1';
-        else
-            avail_r(I) <= '0';
-        end if;
-    end loop;
+       FOR I in 0 to tid_max_c-1 LOOP
+           if busy_r(I)='0' and task_mask_r(I)='1' and tid_rrrrrrrrrrr(I)='0' then
+               -- Launch this thread...
+               pc_v := task_start_addr_r;
+               busy_v := '1';
+               vm_v := task_vm_r;
+               data_model_v := task2_data_model_r;
+               task_mask_r(I) <= '0';
+               if (tid(I)='1') then
+                   delay_v := '1';
+               elsif tid_delay(I)='1' then
+                   delay_v := '0';
+               else
+                   delay_v := delay_r(I);
+               end if;
+               latch_iregister_auto_v := '1';
+           else
+               vm_v := vm_r(I);
+               data_model_v := data_model_r(I);
+               if tid_rrrrrrrrrrr(I)='1' then
+                   -- Reach the end of processing for this TID. 
+                   pc_v := next_addr;
+                   busy_v := not ready;
+                   delay_v := '1';
+               else
+                   pc_v := pc_r(I);
+                   busy_v := busy_r(I);
+                   if (tid(I)='1') then
+                       delay_v := '1';
+                   elsif tid_delay(I)='1' then
+                       delay_v := '0';
+                   else
+                       delay_v := delay_r(I);
+                   end if;
+               end if;
+               latch_iregister_auto_v := '0';
+           end if;
+           pc_r(I) <= pc_v;
+           busy_r(I) <= busy_v;
+           delay_r(I) <= delay_v;
+           vm_r(I) <= vm_v;
+           data_model_r(I) <= data_model_v;
+           if latch_iregister_auto_v='1' then
+               iregister_auto_r(I) <= task_iregister_auto_r;
+           end if;
+           if busy_v='1' and delay_v='0' and next_tid(I)='0' then
+               avail_r(I) <= '1';
+           else
+               avail_r(I) <= '0';
+           end if;
+       end loop;
     end if;
     end if;
 end process;
 
 
+--
+-- Instruction opcodes
+-- Each instruction can have a vector opcode(mu), scalar opcode(imu) and control opcode
+----
+
 mu_instruction <= rom_data_in(rom_data_in'length-1 downto imu_instruction_width_c+ctrl_instruction_width_c);
 imu_instruction <= rom_data_in(imu_instruction_width_c+ctrl_instruction_width_c-1 downto ctrl_instruction_width_c);
 ctrl_instruction <= rom_data_in(ctrl_instruction_width_c-1 downto 0);
 
-
---VUONG
 next_addr <= ctrl_next_addr_rrrrrr;
 ready <= ctrl_ready_r;
-
 
 process(clock_in,reset_in)    
 variable index:integer;
@@ -635,7 +637,6 @@ if reset_in='0' then
     got_control_rrrrrrrr <= '0';
 else
     if clock_in'event and clock_in='1' then
-
         if (tid_valid_rr='1') and ctrl_instruction(ctrl_instruction_oc_hi_c DOWNTO ctrl_instruction_oc_lo_c)/=opcode_null_c then
            got_control_r <= '1';
         else
@@ -644,7 +645,7 @@ else
 
         ctrl_opcode_r <= ctrl_instruction(ctrl_instruction_oc_hi_c DOWNTO ctrl_instruction_oc_lo_c);
         ctrl_goto_addr_r <= ctrl_instruction(ctrl_instruction_goto_addr_hi_c DOWNTO ctrl_instruction_goto_addr_lo_c);
-
+        
         got_control_rr <= got_control_r;
         got_control_rrr <= got_control_rr;
         got_control_rrrr <= got_control_rrr;
@@ -693,6 +694,9 @@ else
 end if;
 end process;
 
+-- 
+-- Decode control instruction
+---
 
 process(ctrl_opcode_rrrrrrrr,got_control_rrrrrrrr,i_y_neg_in,i_y_zero_in)
 begin
@@ -773,7 +777,6 @@ else
        end if;
     end if;
 end if;
-
 
 end process;
 
