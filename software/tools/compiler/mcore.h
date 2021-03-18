@@ -152,7 +152,7 @@ public:
    static bool preprocess(char *line);
    static char *substDefine(char *line,char *outLine);
    static char *get_token(char *line,char *token);
-   static void gen_transfer(FILE *out,cMcoreTerm &left,cMcoreTerm &right,char *flushCondition,std::vector<cMcoreSpecifier> *stream_id,bool priority);
+   static void gen_transfer(FILE *out,cMcoreTerm &left,cMcoreTerm &right,char *flushCondition,std::vector<cMcoreSpecifier> *stream_id);
    static void gen_global_assign(FILE *out,cMcoreTerm &left,cMcoreTerm &right);
    static char *decode(char *line,FILE *out,int *cmd);
    static char *scan_array(char *line,std::vector<cMcoreRange> *_range,
@@ -166,7 +166,7 @@ public:
    static char *scan_term(char *line,cMcoreTerm *term);
    static char *scan_exe(FILE *out,char *line,bool lockstep);
    static char *scan_flush(FILE *out,char *line);
-   static char *scan_notify(FILE *out,char *line,bool prio);
+   static char *scan_notify(FILE *out,char *line);
    static char *scan_print(FILE *out,char *line);
    static char *scan_log_on(FILE *out,char *line,bool sync);
    static char *scan_log_off(FILE *out,char *line,bool sync);

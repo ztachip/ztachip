@@ -823,7 +823,6 @@ constant register_ddr_bar_c                     :integer:=1;  -- Set DDR start w
 constant register_dp_read_log_c                 :integer:=2;  -- Read LOG fifo
 constant register_dp_read_log_time_c            :integer:=3;  -- Read LOG fifo
 constant register_dp_run_c                      :integer:=5;  -- Execute a data plane command
-constant register_dp_priority_run_c             :integer:=9;  -- Execute command in priority mode...
 constant register_lookup_set_addr_c             :integer:=6;  -- Setup lookup address for subsequent update
 constant register_lookup_value_c                :integer:=7;  -- Set lookup table value     
 constant register_lookup_coefficient_c          :integer:=4;  -- Set lookup remainder slope coefficient    
@@ -1600,7 +1599,6 @@ COMPONENT dp_fifo IS
 
             SIGNAL writedata_in             : IN STD_LOGIC_VECTOR(dp_instruction_width_c-1 downto 0);
             SIGNAL wreq_in                  : IN STD_LOGIC;
-            SIGNAL wreq_priority_in         : IN STD_LOGIC;
 
             SIGNAL readdata1_out             : OUT STD_LOGIC_VECTOR(dp_instruction_width_c-1 downto 0);
             SIGNAL readdata2_out             : OUT STD_LOGIC_VECTOR(dp_instruction_width_c-1 downto 0);
@@ -1610,7 +1608,6 @@ COMPONENT dp_fifo IS
             SIGNAL valid2_out               : OUT STD_LOGIC;
 
             SIGNAL full_out                 : OUT STD_LOGIC;
-            SIGNAL priority_full_out        : OUT STD_LOGIC;
             SIGNAL fifo_avail_out           : OUT std_logic_vector(dp_fifo_depth_c-1 DOWNTO 0)
     );
 END COMPONENT;

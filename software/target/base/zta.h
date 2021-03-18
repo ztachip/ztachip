@@ -243,7 +243,6 @@
 #define REG_READ_LOG 2
 #define REG_READ_LOG_TIME 3
 #define REG_DP_RUN 5
-#define REG_DP_PRIORITY_RUN 9
 #define REG_LOOKUP_SET_ADDR  6
 #define REG_LOOKUP_SET_VAL    7
 #define REG_LOOKUP_SET_COEF   4    

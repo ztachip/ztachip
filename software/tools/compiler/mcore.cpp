@@ -40,7 +40,6 @@
 #define TOKEN_LOCKSTEP_EXE    "EXE_LOCKSTEP"
 #define TOKEN_PRINT           "PRINT"
 #define TOKEN_NOTIFY          "CALLBACK"
-#define TOKEN_NOTIFY_PRIO     "CALLBACK_PRIO"
 #define TOKEN_LOG_ON          "LOG_ON"
 #define TOKEN_LOG_OFF         "LOG_OFF"
 #define TOKEN_FLUSH           "FLUSH"
@@ -2535,7 +2534,7 @@ char *cMcore::scan_exe(FILE *out,char *line,bool lockstep)
 }
 
 // Scan and generate a NOTIFY command
-char *cMcore::scan_notify(FILE *out,char *line,bool prio)
+char *cMcore::scan_notify(FILE *out,char *line)
 {
    std::vector<cMcoreSpecifier> specifier;
    char token[MAX_LINE];
@@ -2546,7 +2545,7 @@ char *cMcore::scan_notify(FILE *out,char *line,bool prio)
       error(cMcore::M_currLine,"Invalid parameters");
    fprintf(out,"ZTAM_GREG(0,%d,0)=((uint32_t)((CallbackFunc)(%s)));",REG_DP_INDICATION_PARM0,specifier[0].m_v.c_str());
    fprintf(out,"ZTAM_GREG(0,%d,0)=(int)(%s);",REG_DP_INDICATION_PARM1,specifier[1].m_v.c_str());
-   fprintf(out,"%s;ZTAM_GREG(0,%d,_task_curr2)=(%d+(%d<<3));",s_ztamFifoReady,prio?REG_DP_PRIORITY_RUN:REG_DP_RUN,
+   fprintf(out,"%s;ZTAM_GREG(0,%d,_task_curr2)=(%d+(%d<<3));",s_ztamFifoReady,REG_DP_RUN,
                 DP_OPCODE_INDICATION,DP_CONDITION_ALL_FLUSH);
    return line;
 }
@@ -2896,7 +2895,6 @@ char *cMcore::substDefine(char *line,char *outLine)
 
 char *cMcore::scan_transfer(FILE *out,char *line)
 {
-   bool prio=false;
    char token[MAX_LINE];
    char c1[MAX_LINE],c2[MAX_LINE],c3[MAX_LINE];
    cMcoreTerm left,right;
@@ -2908,14 +2906,8 @@ char *cMcore::scan_transfer(FILE *out,char *line)
    line=scan_term(line,&left);
 
    line=skipWS(line);
-   if(memcmp(line,"<<=",3) == 0)
+   if(memcmp(line,"<=",2) == 0)
    {
-      prio=true;
-      line+=3;
-   }
-   else if(memcmp(line,"<=",2) == 0)
-   {
-      prio=false;
       line+=2;
    }
    else
@@ -2971,9 +2963,9 @@ char *cMcore::scan_transfer(FILE *out,char *line)
       rightScratch.ScratchCreate(&right,(char *)left.m_cast.c_str(),(char *)right.m_scatter[0].m_v.c_str(),forkCount);
       rightScratch.Validate();
       rightScratch.ScratchReorder(&right, true);
-      gen_transfer(out,rightScratch,right,c1,&stream_id,prio);
+      gen_transfer(out,rightScratch,right,c1,&stream_id);
       rightScratch.ScratchReorder(0,false);
-      gen_transfer(out,left,rightScratch,c2,0,prio);
+      gen_transfer(out,left,rightScratch,c2,0);
    }
    else if(right.m_scatter.size()==0 && (left.m_scatter.size() > 0 && !left.CanScatter()))
    {
@@ -2981,9 +2973,9 @@ char *cMcore::scan_transfer(FILE *out,char *line)
 	   leftScratch.ScratchCreate(&left, (char *)right.m_cast.c_str(), (char *)left.m_scatter[0].m_v.c_str(),forkCount);
       leftScratch.Validate();
       leftScratch.ScratchReorder(0,false);
-      gen_transfer(out,leftScratch,right,c1,&stream_id,prio);
+      gen_transfer(out,leftScratch,right,c1,&stream_id);
       leftScratch.ScratchReorder(&left,true);
-      gen_transfer(out,left,leftScratch,c2,0,prio);
+      gen_transfer(out,left,leftScratch,c2,0);
 
    }
    else if((right.m_scatter.size() > 0 && !right.CanScatter()) && 
@@ -2996,11 +2988,11 @@ char *cMcore::scan_transfer(FILE *out,char *line)
 	   rightScratch.ScratchCreate(&right, 0, (char *)right.m_scatter[0].m_v.c_str(),forkCount);
       rightScratch.Validate();
       rightScratch.ScratchReorder(&right,true);
-      gen_transfer(out,rightScratch,right,c1,&stream_id,prio);
-      gen_transfer(out,left,leftScratch,c2,0,prio);
+      gen_transfer(out,rightScratch,right,c1,&stream_id);
+      gen_transfer(out,left,leftScratch,c2,0);
    }
    else
-      gen_transfer(out,left,right,c3,&stream_id,prio);
+      gen_transfer(out,left,right,c3,&stream_id);
    return line;
 }
 
@@ -3029,7 +3021,7 @@ void cMcore::gen_global_assign(FILE *out,cMcoreTerm &left,cMcoreTerm &right)
 }
 
 // Decode a transfer command
-void cMcore::gen_transfer(FILE *out,cMcoreTerm &left,cMcoreTerm &right,char *flushCondition,std::vector<cMcoreSpecifier> *stream_id,bool priority)
+void cMcore::gen_transfer(FILE *out,cMcoreTerm &left,cMcoreTerm &right,char *flushCondition,std::vector<cMcoreSpecifier> *stream_id)
 {
    const char *proc_id;
 
@@ -3069,7 +3061,7 @@ void cMcore::gen_transfer(FILE *out,cMcoreTerm &left,cMcoreTerm &right,char *flu
    // Issue DP_TRANSFER_COMMAND
 
    fprintf(out, "%s;ZTAM_GREG(0,%d,_task_curr2)=DP_TRANSFER_CMD(%d,_task_curr2,%d,%d,%d,%d,%d,%d,((%s)>=0)?1:0,(%s)&(%d),",s_ztamFifoReady,
-            priority?REG_DP_PRIORITY_RUN:REG_DP_RUN, DP_OPCODE_TRANSFER_SINGLE,0,0,0,0,0,0,proc_id,proc_id,SPU_NUM_STREAM-1);
+            REG_DP_RUN, DP_OPCODE_TRANSFER_SINGLE,0,0,0,0,0,0,proc_id,proc_id,SPU_NUM_STREAM-1);
 
    fprintf(out,"%s);",flushCondition);
 
@@ -3106,10 +3098,10 @@ char *cMcore::decode(char *line,FILE *out,int *cmd)
       *cmd=CMD_EXE;
       return scan_exe(out,line,true);
    }
-   if(strcasecmp(token,TOKEN_NOTIFY)==0 || strcasecmp(token,TOKEN_NOTIFY_PRIO)==0)
+   if(strcasecmp(token,TOKEN_NOTIFY)==0)
    {
       *cmd=CMD_NOTIFY;
-      return scan_notify(out,line,strcasecmp(token,TOKEN_NOTIFY_PRIO)==0);
+      return scan_notify(out,line);
    }
    if(strcasecmp(token,TOKEN_PRINT)==0)
    {

@@ -168,10 +168,8 @@ SIGNAL q2:std_logic_vector(dp_instruction_width_c-1 downto 0);
 SIGNAL rdreq:STD_LOGIC;
 SIGNAL rdreqs:STD_LOGIC_VECTOR(1 downto 0);
 SIGNAL wreq:STD_LOGIC;
-SIGNAL wreq_priority:STD_LOGIC;
 SIGNAL wreq_all:STD_LOGIC;
 SIGNAL full:STD_LOGIC;
-SIGNAL priority_full:STD_LOGIC;
 SIGNAL ready:STD_LOGIC;
 SIGNAL ready_which:std_logic;
 SIGNAL ready2:STD_LOGIC_VECTOR(dp_max_gen_c-1 downto 0);
@@ -957,8 +955,7 @@ avail <= ready_in and (not instruction_valid_r) and (not instruction_valid_rr);
 
 waitrequest <= '1' when bus_write_in='1' and 
                         (
-                        ((full='1' or load='1') and unsigned(bus_addr_in(register_t'length-1 downto 0))=to_unsigned(register_dp_run_c,regno'length)) or
-                        ((priority_full='1' or load='1') and unsigned(bus_addr_in(register_t'length-1 downto 0))=to_unsigned(register_dp_priority_run_c,regno'length))
+                        ((full='1' or load='1') and unsigned(bus_addr_in(register_t'length-1 downto 0))=to_unsigned(register_dp_run_c,regno'length))
                         )
                    else '0';
 bus_waitrequest_out <= waitrequest;
@@ -1080,7 +1077,6 @@ fifo_i : dp_fifo
 
         writedata_in=>data,
         wreq_in=>wreq,
-        wreq_priority_in=>wreq_priority,
         readdata1_out=>q1,
         readdata2_out=>q2,
         rdreq1_in=>rdreqs(0),
@@ -1088,7 +1084,6 @@ fifo_i : dp_fifo
         valid1_out=>valids(0),
         valid2_out=>valids(1),
         full_out=>full,
-        priority_full_out=>priority_full,
 
         fifo_avail_out => fifo_avail
 	);
@@ -1209,13 +1204,11 @@ irec_generic <= opcode_generic_decode(bus_writedata_r,indication_parm_r);
 
 
 wreq_all <= '1' when bus_write_r='1' and 
-                        ((regno=to_unsigned(register_dp_run_c,regno'length)) or (regno=to_unsigned(register_dp_priority_run_c,regno'length)))
+                        ((regno=to_unsigned(register_dp_run_c,regno'length)))
                         else 
                         '0';
 
 wreq <= (wreq_all and match);
-
-wreq_priority <= '1' when (regno=to_unsigned(register_dp_priority_run_c,regno'length)) else '0';
 
 -------------------------------------
 -- Which DP engine is ready. Choose between the 2

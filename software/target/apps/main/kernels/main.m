@@ -99,8 +99,8 @@ static void loadOverlay(int which)
    addr=((1<<(SRAM_DEPTH+1))+(begin-kMcoreCodeSpaceAddr));
    count=M_overlayLen[which]/2;
    pp=M_overlay[which];
-   >SCRATCH(addr,count,2)[:][:] <<= MEM(pp)[0:(2*count-1)];
-   >CALLBACK_PRIO(ovReadyCallback,0);
+   >SCRATCH(addr,count,2)[:][:] <= MEM(pp)[0:(2*count-1)];
+   >CALLBACK(ovReadyCallback,0);
    
    // Wait for transfer to be completed...
 
