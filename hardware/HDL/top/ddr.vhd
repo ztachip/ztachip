@@ -30,8 +30,8 @@ USE altera_mf.all;
 
 ENTITY ddr IS
     generic(
-        TX_ENABLE        : boolean;
-        RX_ENABLE        : boolean
+        TX_ENABLE  : boolean;
+        RX_ENABLE  : boolean
         );
     port(
         SIGNAL clock_in                 : IN STD_LOGIC;
@@ -40,6 +40,7 @@ ENTITY ddr IS
         SIGNAL dreset_in                : IN STD_LOGIC;
 
         -- Bus interface for read2 master to DDR
+
         SIGNAL read_addr_in             : IN STD_LOGIC_VECTOR(dp_addr_width_c-1 DOWNTO 0);
         SIGNAL read_cs_in               : IN STD_LOGIC;
         SIGNAL read_in                  : IN STD_LOGIC;
@@ -60,6 +61,7 @@ ENTITY ddr IS
 
         
         -- Bus interface for write master to DDR
+
         SIGNAL write_addr_in            : IN STD_LOGIC_VECTOR(dp_addr_width_c-1 DOWNTO 0);
         SIGNAL write_cs_in              : IN STD_LOGIC;
         SIGNAL write_in                 : IN STD_LOGIC;

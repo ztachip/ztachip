@@ -9,6 +9,7 @@ set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) "top/sram_
 set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) "top/cell.vhd"]
 set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) "top/stack.vhd"]
 set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) "top/ddr.vhd"]
+set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) "top/ddr_rx.vhd"]
 set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) "top/msgq.vhd"]
 set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) "top/swdl.vhd"]
 set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) "top/avalon_adapter.vhd"]

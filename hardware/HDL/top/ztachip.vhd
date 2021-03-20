@@ -751,11 +751,7 @@ else
 end if;
 end process;
 
-ddr_rx_i: ddr
-   GENERIC MAP(
-        TX_ENABLE=>false,
-        RX_ENABLE=>true
-    )
+ddr_rx_i: ddr_rx
     port map(
         clock_in=>pclock_in,
         reset_in=>preset_in,
@@ -781,28 +777,19 @@ ddr_rx_i: ddr
         read_wait_request_out=>ddr_read_wait,
         read_burstlen_in=>ddr_read_burstlen,
 
-        write_addr_in=>(others=>'0'),
-        write_cs_in=>'0',
-        write_in=>'0',
-        write_vector_in=>(others=>'0'),
-        write_end_in=>(others=>'0'),
-        write_data_in=>(others=>'0'),
-        write_wait_request_out=>open,
-        write_burstlen_in=>(others=>'0'),
-        write_burstlen2_in=>(others=>'0'),
-        write_burstlen3_in=>(others=>'0'),
-
         ddr_addr_out=>cell_ddr_0_addr,
         ddr_burstlen_out=>cell_ddr_0_burstlen,
         ddr_burstbegin_out=>cell_ddr_0_burstbegin,
         ddr_readdatavalid_in=>cell_ddr_0_readdatavalid,
-        ddr_write_out=>cell_ddr_0_write,
         ddr_read_out=>cell_ddr_0_read,
-        ddr_writedata_out=>cell_ddr_0_writedata,
-        ddr_byteenable_out=>cell_ddr_0_byteenable,
         ddr_readdata_in=>cell_ddr_0_readdata,
         ddr_wait_request_in=>cell_ddr_0_wait_request
         );
+
+cell_ddr_0_write <= '0';
+cell_ddr_0_writedata <= (others=>'0');
+cell_ddr_0_byteenable <= (others=>'0');
+
 
 ddr_tx_i: ddr
    GENERIC MAP(
