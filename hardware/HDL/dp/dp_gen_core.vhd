@@ -23,125 +23,126 @@ use IEEE.numeric_std.all;
 use work.hpc_pkg.all;
 
 ENTITY dp_gen_core IS
-    port(
-       SIGNAL clock_in:in std_logic;
-       SIGNAL reset_in:in std_logic;
+   port(
+       SIGNAL clock_in                        :in std_logic;
+       SIGNAL reset_in                        :in std_logic;
 
        -- signal to communicate with dp_fetch
-       SIGNAL ready_out:out STD_LOGIC_VECTOR(dp_max_gen_c-1 downto 0);
-       SIGNAL instruction_valid_in:in STD_LOGIC_VECTOR(dp_max_gen_c-1 downto 0);
-       SIGNAL instruction_in:in dp_instruction_t;
-       SIGNAL pre_instruction_in:in dp_instruction_t;
-       SIGNAL wr_maxburstlen_in:in burstlens_t(NUM_DP_DST_PORT-1 downto 0);
-       SIGNAL full_in:in STD_LOGIC_VECTOR(NUM_DP_DST_PORT-1 downto 0);
-       SIGNAL waitreq_in:in STD_LOGIC_VECTOR(NUM_DP_DST_PORT-1 downto 0);
-       SIGNAL bar_in:in dp_addrs_t(dp_bus_id_max_c-1 downto 0);
 
-       SIGNAL log1_out:out STD_LOGIC_VECTOR(host_width_c-1 downto 0);
-       SIGNAL log1_valid_out:out STD_LOGIC;
+       SIGNAL ready_out                       :out STD_LOGIC_VECTOR(dp_max_gen_c-1 downto 0);
+       SIGNAL instruction_valid_in            :in STD_LOGIC_VECTOR(dp_max_gen_c-1 downto 0);
+       SIGNAL instruction_in                  :in dp_instruction_t;
+       SIGNAL pre_instruction_in              :in dp_instruction_t;
+       SIGNAL wr_maxburstlen_in               :in burstlens_t(NUM_DP_DST_PORT-1 downto 0);
+       SIGNAL full_in                         :in STD_LOGIC_VECTOR(NUM_DP_DST_PORT-1 downto 0);
+       SIGNAL waitreq_in                      :in STD_LOGIC_VECTOR(NUM_DP_DST_PORT-1 downto 0);
+       SIGNAL bar_in                          :in dp_addrs_t(dp_bus_id_max_c-1 downto 0);
 
-       SIGNAL log2_out:out STD_LOGIC_VECTOR(host_width_c-1 downto 0);
-       SIGNAL log2_valid_out:out STD_LOGIC;
+       SIGNAL log1_out                        :out STD_LOGIC_VECTOR(host_width_c-1 downto 0);
+       SIGNAL log1_valid_out                  :out STD_LOGIC;
+
+       SIGNAL log2_out                        :out STD_LOGIC_VECTOR(host_width_c-1 downto 0);
+       SIGNAL log2_valid_out                  :out STD_LOGIC;
 
        -- commands to send to dp_source for pcore memory space
 
-       SIGNAL gen_pcore_src_valid_out:out std_logic;
-       SIGNAL gen_pcore_vm_out:out std_logic;
-       SIGNAL gen_pcore_fork_out:out std_logic_vector(fork_max_c-1 downto 0);
-       SIGNAL gen_pcore_data_flow_out:out data_flow_t;
-       SIGNAL gen_pcore_src_stream_out:out STD_LOGIC;
-       SIGNAL gen_pcore_dest_stream_out:out STD_LOGIC;
-       SIGNAL gen_pcore_stream_id_out:out stream_id_t;
-       SIGNAL gen_pcore_src_vector_out:out dp_vector_t;
-       SIGNAL gen_pcore_dst_vector_out:out dp_vector_t;
-       SIGNAL gen_pcore_src_scatter_out:out scatter_t;
-       SIGNAL gen_pcore_dst_scatter_out:out scatter_t;
-       SIGNAL gen_pcore_src_start_out:out unsigned(ddr_vector_depth_c downto 0);
-       SIGNAL gen_pcore_src_end_out:out vector_fork_t;
-       SIGNAL gen_pcore_dst_end_out:out vector_fork_t;
-       SIGNAL gen_pcore_src_addr_out:out dp_addrs_t(fork_max_c-1 downto 0);
-       SIGNAL gen_pcore_src_addr_mode_out:out STD_LOGIC;
-       SIGNAL gen_pcore_dst_addr_out:out dp_addrs_t(fork_max_c-1 downto 0);
-       SIGNAL gen_pcore_dst_addr_mode_out:out STD_LOGIC;
-       SIGNAL gen_pcore_src_eof_out:out STD_LOGIC;
-       SIGNAL gen_pcore_bus_id_source_out:out dp_bus_id_t;
-       SIGNAL gen_pcore_data_type_source_out:out dp_data_type_t;
-       SIGNAL gen_pcore_data_model_source_out:out dp_data_model_t;
-       SIGNAL gen_pcore_bus_id_dest_out:out dp_bus_id_t;
-       SIGNAL gen_pcore_data_type_dest_out:out dp_data_type_t;
-       SIGNAL gen_pcore_data_model_dest_out:out dp_data_model_t;
-       SIGNAL gen_pcore_src_burstlen_out:out burstlen_t;
-       SIGNAL gen_pcore_dst_burstlen_out:out burstlen_t;
-       SIGNAL gen_pcore_thread_out:out dp_thread_t;
-       SIGNAL gen_pcore_mcast_out:out mcast_t;
-       SIGNAL gen_pcore_data_out:out STD_LOGIC_VECTOR(ddr_data_width_c-1 downto 0);
+       SIGNAL gen_pcore_src_valid_out         :out std_logic;
+       SIGNAL gen_pcore_vm_out                :out std_logic;
+       SIGNAL gen_pcore_fork_out              :out std_logic_vector(fork_max_c-1 downto 0);
+       SIGNAL gen_pcore_data_flow_out         :out data_flow_t;
+       SIGNAL gen_pcore_src_stream_out        :out STD_LOGIC;
+       SIGNAL gen_pcore_dest_stream_out       :out STD_LOGIC;
+       SIGNAL gen_pcore_stream_id_out         :out stream_id_t;
+       SIGNAL gen_pcore_src_vector_out        :out dp_vector_t;
+       SIGNAL gen_pcore_dst_vector_out        :out dp_vector_t;
+       SIGNAL gen_pcore_src_scatter_out       :out scatter_t;
+       SIGNAL gen_pcore_dst_scatter_out       :out scatter_t;
+       SIGNAL gen_pcore_src_start_out         :out unsigned(ddr_vector_depth_c downto 0);
+       SIGNAL gen_pcore_src_end_out           :out vector_fork_t;
+       SIGNAL gen_pcore_dst_end_out           :out vector_fork_t;
+       SIGNAL gen_pcore_src_addr_out          :out dp_addrs_t(fork_max_c-1 downto 0);
+       SIGNAL gen_pcore_src_addr_mode_out     :out STD_LOGIC;
+       SIGNAL gen_pcore_dst_addr_out          :out dp_addrs_t(fork_max_c-1 downto 0);
+       SIGNAL gen_pcore_dst_addr_mode_out     :out STD_LOGIC;
+       SIGNAL gen_pcore_src_eof_out           :out STD_LOGIC;
+       SIGNAL gen_pcore_bus_id_source_out     :out dp_bus_id_t;
+       SIGNAL gen_pcore_data_type_source_out  :out dp_data_type_t;
+       SIGNAL gen_pcore_data_model_source_out :out dp_data_model_t;
+       SIGNAL gen_pcore_bus_id_dest_out       :out dp_bus_id_t;
+       SIGNAL gen_pcore_data_type_dest_out    :out dp_data_type_t;
+       SIGNAL gen_pcore_data_model_dest_out   :out dp_data_model_t;
+       SIGNAL gen_pcore_src_burstlen_out      :out burstlen_t;
+       SIGNAL gen_pcore_dst_burstlen_out      :out burstlen_t;
+       SIGNAL gen_pcore_thread_out            :out dp_thread_t;
+       SIGNAL gen_pcore_mcast_out             :out mcast_t;
+       SIGNAL gen_pcore_data_out              :out STD_LOGIC_VECTOR(ddr_data_width_c-1 downto 0);
 
 
        -- commands to send to dp_source for sram memory space
 
-       SIGNAL gen_sram_src_valid_out:out STD_LOGIC;
-       SIGNAL gen_sram_vm_out:out std_logic;
-       SIGNAL gen_sram_fork_out:out std_logic_vector(fork_max_c-1 downto 0);
-       SIGNAL gen_sram_data_flow_out:out data_flow_t;
-       SIGNAL gen_sram_src_stream_out:out STD_LOGIC;
-       SIGNAL gen_sram_dest_stream_out:out STD_LOGIC;
-       SIGNAL gen_sram_stream_id_out:out stream_id_t;
-       SIGNAL gen_sram_src_vector_out:out dp_vector_t;
-       SIGNAL gen_sram_dst_vector_out:out dp_vector_t;
-       SIGNAL gen_sram_src_scatter_out:out scatter_t;
-       SIGNAL gen_sram_dst_scatter_out:out scatter_t;
-       SIGNAL gen_sram_src_start_out:out unsigned(ddr_vector_depth_c downto 0);
-       SIGNAL gen_sram_src_end_out:out vector_fork_t;
-       SIGNAL gen_sram_dst_end_out:out vector_fork_t;
-       SIGNAL gen_sram_src_addr_out:out dp_addrs_t(fork_max_c-1 downto 0);
-       SIGNAL gen_sram_src_addr_mode_out:out STD_LOGIC;
-       SIGNAL gen_sram_dst_addr_out:out dp_addrs_t(fork_max_c-1 downto 0);
-       SIGNAL gen_sram_dst_addr_mode_out:out STD_LOGIC;
-       SIGNAL gen_sram_src_eof_out:out STD_LOGIC;
-       SIGNAL gen_sram_bus_id_source_out:out dp_bus_id_t;
-       SIGNAL gen_sram_data_type_source_out:out dp_data_type_t;
-       SIGNAL gen_sram_data_model_source_out:out dp_data_model_t;
-       SIGNAL gen_sram_bus_id_dest_out:out dp_bus_id_t;
-       SIGNAL gen_sram_data_type_dest_out:out dp_data_type_t;
-       SIGNAL gen_sram_data_model_dest_out:out dp_data_model_t;
-       SIGNAL gen_sram_src_burstlen_out:out burstlen_t;
-       SIGNAL gen_sram_dst_burstlen_out:out burstlen_t;
-       SIGNAL gen_sram_thread_out:out dp_thread_t;
-       SIGNAL gen_sram_mcast_out:out mcast_t;
-       SIGNAL gen_sram_data_out:out STD_LOGIC_VECTOR(ddr_data_width_c-1 downto 0);
+       SIGNAL gen_sram_src_valid_out          :out STD_LOGIC;
+       SIGNAL gen_sram_vm_out                 :out std_logic;
+       SIGNAL gen_sram_fork_out               :out std_logic_vector(fork_max_c-1 downto 0);
+       SIGNAL gen_sram_data_flow_out          :out data_flow_t;
+       SIGNAL gen_sram_src_stream_out         :out STD_LOGIC;
+       SIGNAL gen_sram_dest_stream_out        :out STD_LOGIC;
+       SIGNAL gen_sram_stream_id_out          :out stream_id_t;
+       SIGNAL gen_sram_src_vector_out         :out dp_vector_t;
+       SIGNAL gen_sram_dst_vector_out         :out dp_vector_t;
+       SIGNAL gen_sram_src_scatter_out        :out scatter_t;
+       SIGNAL gen_sram_dst_scatter_out        :out scatter_t;
+       SIGNAL gen_sram_src_start_out          :out unsigned(ddr_vector_depth_c downto 0);
+       SIGNAL gen_sram_src_end_out            :out vector_fork_t;
+       SIGNAL gen_sram_dst_end_out            :out vector_fork_t;
+       SIGNAL gen_sram_src_addr_out           :out dp_addrs_t(fork_max_c-1 downto 0);
+       SIGNAL gen_sram_src_addr_mode_out      :out STD_LOGIC;
+       SIGNAL gen_sram_dst_addr_out           :out dp_addrs_t(fork_max_c-1 downto 0);
+       SIGNAL gen_sram_dst_addr_mode_out      :out STD_LOGIC;
+       SIGNAL gen_sram_src_eof_out            :out STD_LOGIC;
+       SIGNAL gen_sram_bus_id_source_out      :out dp_bus_id_t;
+       SIGNAL gen_sram_data_type_source_out   :out dp_data_type_t;
+       SIGNAL gen_sram_data_model_source_out  :out dp_data_model_t;
+       SIGNAL gen_sram_bus_id_dest_out        :out dp_bus_id_t;
+       SIGNAL gen_sram_data_type_dest_out     :out dp_data_type_t;
+       SIGNAL gen_sram_data_model_dest_out    :out dp_data_model_t;
+       SIGNAL gen_sram_src_burstlen_out       :out burstlen_t;
+       SIGNAL gen_sram_dst_burstlen_out       :out burstlen_t;
+       SIGNAL gen_sram_thread_out             :out dp_thread_t;
+       SIGNAL gen_sram_mcast_out              :out mcast_t;
+       SIGNAL gen_sram_data_out               :out STD_LOGIC_VECTOR(ddr_data_width_c-1 downto 0);
 
        -- commands to send to dp_source for ddr memory space
 
-       SIGNAL gen_ddr_src_valid_out:out STD_LOGIC;
-       SIGNAL gen_ddr_vm_out:out std_logic;
-       SIGNAL gen_ddr_fork_out:out std_logic_vector(fork_max_c-1 downto 0);
-       SIGNAL gen_ddr_data_flow_out:out data_flow_t;
-       SIGNAL gen_ddr_src_stream_out:out STD_LOGIC;
-       SIGNAL gen_ddr_dest_stream_out:out STD_LOGIC;
-       SIGNAL gen_ddr_stream_id_out:out stream_id_t;
-       SIGNAL gen_ddr_src_vector_out:out dp_vector_t;
-       SIGNAL gen_ddr_dst_vector_out:out dp_vector_t;
-       SIGNAL gen_ddr_src_scatter_out:out scatter_t;
-       SIGNAL gen_ddr_dst_scatter_out:out scatter_t;
-       SIGNAL gen_ddr_src_start_out:out unsigned(ddr_vector_depth_c downto 0);
-       SIGNAL gen_ddr_src_end_out:out vector_fork_t;
-       SIGNAL gen_ddr_dst_end_out:out vector_fork_t;
-       SIGNAL gen_ddr_src_addr_out:out dp_addrs_t(fork_max_c-1 downto 0);
-       SIGNAL gen_ddr_src_addr_mode_out:out STD_LOGIC;
-       SIGNAL gen_ddr_dst_addr_out:out dp_addrs_t(fork_max_c-1 downto 0);
-       SIGNAL gen_ddr_dst_addr_mode_out:out STD_LOGIC;
-       SIGNAL gen_ddr_src_eof_out:out STD_LOGIC;
-       SIGNAL gen_ddr_bus_id_source_out:out dp_bus_id_t;
-       SIGNAL gen_ddr_data_type_source_out:out dp_data_type_t;
-       SIGNAL gen_ddr_data_model_source_out:out dp_data_model_t;
-       SIGNAL gen_ddr_bus_id_dest_out:out dp_bus_id_t;
-       SIGNAL gen_ddr_data_type_dest_out:out dp_data_type_t;
-       SIGNAL gen_ddr_data_model_dest_out:out dp_data_model_t;
-       SIGNAL gen_ddr_src_burstlen_out:out burstlen_t;
-       SIGNAL gen_ddr_dst_burstlen_out:out burstlen_t;
-       SIGNAL gen_ddr_thread_out:out dp_thread_t;
-       SIGNAL gen_ddr_mcast_out:out mcast_t;
-       SIGNAL gen_ddr_data_out:out STD_LOGIC_VECTOR(ddr_data_width_c-1 downto 0)
+       SIGNAL gen_ddr_src_valid_out           :out STD_LOGIC;
+       SIGNAL gen_ddr_vm_out                  :out std_logic;
+       SIGNAL gen_ddr_fork_out                :out std_logic_vector(fork_max_c-1 downto 0);
+       SIGNAL gen_ddr_data_flow_out           :out data_flow_t;
+       SIGNAL gen_ddr_src_stream_out          :out STD_LOGIC;
+       SIGNAL gen_ddr_dest_stream_out         :out STD_LOGIC;
+       SIGNAL gen_ddr_stream_id_out           :out stream_id_t;
+       SIGNAL gen_ddr_src_vector_out          :out dp_vector_t;
+       SIGNAL gen_ddr_dst_vector_out          :out dp_vector_t;
+       SIGNAL gen_ddr_src_scatter_out         :out scatter_t;
+       SIGNAL gen_ddr_dst_scatter_out         :out scatter_t;
+       SIGNAL gen_ddr_src_start_out           :out unsigned(ddr_vector_depth_c downto 0);
+       SIGNAL gen_ddr_src_end_out             :out vector_fork_t;
+       SIGNAL gen_ddr_dst_end_out             :out vector_fork_t;
+       SIGNAL gen_ddr_src_addr_out            :out dp_addrs_t(fork_max_c-1 downto 0);
+       SIGNAL gen_ddr_src_addr_mode_out       :out STD_LOGIC;
+       SIGNAL gen_ddr_dst_addr_out            :out dp_addrs_t(fork_max_c-1 downto 0);
+       SIGNAL gen_ddr_dst_addr_mode_out       :out STD_LOGIC;
+       SIGNAL gen_ddr_src_eof_out             :out STD_LOGIC;
+       SIGNAL gen_ddr_bus_id_source_out       :out dp_bus_id_t;
+       SIGNAL gen_ddr_data_type_source_out    :out dp_data_type_t;
+       SIGNAL gen_ddr_data_model_source_out   :out dp_data_model_t;
+       SIGNAL gen_ddr_bus_id_dest_out         :out dp_bus_id_t;
+       SIGNAL gen_ddr_data_type_dest_out      :out dp_data_type_t;
+       SIGNAL gen_ddr_data_model_dest_out     :out dp_data_model_t;
+       SIGNAL gen_ddr_src_burstlen_out        :out burstlen_t;
+       SIGNAL gen_ddr_dst_burstlen_out        :out burstlen_t;
+       SIGNAL gen_ddr_thread_out              :out dp_thread_t;
+       SIGNAL gen_ddr_mcast_out               :out mcast_t;
+       SIGNAL gen_ddr_data_out                :out STD_LOGIC_VECTOR(ddr_data_width_c-1 downto 0)
     );
 END dp_gen_core;
 
@@ -208,7 +209,6 @@ SIGNAL gen_dst_burstlen_2: burstlen_t;
 SIGNAL gen_thread_2: dp_thread_t;
 SIGNAL gen_mcast_2: mcast_t;
 SIGNAL gen_data_2:STD_LOGIC_VECTOR(ddr_data_width_c-1 downto 0);
-
 
 BEGIN
 
@@ -545,9 +545,7 @@ dp_gen_primary_i: dp_gen GENERIC MAP(
                             instruction_gen_len_in=>instruction_in.count,
                             instruction_thread_in=>(others=>'0'),
                             instruction_data_in=>instruction_in.data,
-							instruction_repeat_in=>instruction_in.repeat,
-
-                            -- WARNING Hardcoded for dp_bus_id_max_c=3
+                            instruction_repeat_in=>instruction_in.repeat,
                             wr_maxburstlen_in=>wr_maxburstlen_in,
                             wr_full_in=>full_in,
                             -- Signal to/from dp_exec stage
@@ -590,7 +588,6 @@ dp_gen_primary_i: dp_gen GENERIC MAP(
                             log_valid_out=>log1_valid_out
                             );
 
-
 dp_gen_secondary_i: dp_gen GENERIC MAP(
                             NUM_DP_DST_PORT=>NUM_DP_DST_PORT,
                             SOURCE_BURST_MODE=>'1',
@@ -624,9 +621,8 @@ dp_gen_secondary_i: dp_gen GENERIC MAP(
                             instruction_gen_len_in=>instruction_in.count,
                             instruction_thread_in=>(others=>'0'),
                             instruction_data_in=>instruction_in.data,
-							instruction_repeat_in=>instruction_in.repeat,
+                            instruction_repeat_in=>instruction_in.repeat,
 
-                            -- WARNING Hardcoded for dp_bus_id_max_c=3
                             wr_maxburstlen_in=>wr_maxburstlen_in,
                             wr_full_in=>full_in,
                             -- Signal to/from dp_exec stage
@@ -668,6 +664,5 @@ dp_gen_secondary_i: dp_gen GENERIC MAP(
                             log_out=>log2_out,
                             log_valid_out=>log2_valid_out
                             );
-
 
 end dp_gen_core_behaviour;

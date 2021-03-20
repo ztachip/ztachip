@@ -126,18 +126,7 @@ constant scatter_thread_c:scatter_t:="10"; -- scatter among threads
 
 -- Fork parameters
 
-
 constant fork_max_c:integer:=1;
-
-
-
-
-
-
-
-
-
-
 
 -- FORK for every memory space 
 constant fork_pcore_c:integer:=fork_max_c;

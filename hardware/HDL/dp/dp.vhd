@@ -40,144 +40,153 @@ ENTITY dp IS
             DP_WRITEMASTER3_BURST_MODE:STD_LOGIC
     );
     port(
-            SIGNAL clock_in                     : in STD_LOGIC;
-            SIGNAL mclock_in                    : in STD_LOGIC;
-            SIGNAL reset_in                     : in STD_LOGIC;
-            SIGNAL mreset_in                    : in STD_LOGIC;
+            SIGNAL clock_in                         : in STD_LOGIC;
+            SIGNAL mclock_in                        : in STD_LOGIC;
+            SIGNAL reset_in                         : in STD_LOGIC;
+            SIGNAL mreset_in                        : in STD_LOGIC;
             
             -- Bus interface for configuration        
-            SIGNAL bus_addr_in                  : IN register_addr_t;
-            SIGNAL bus_write_in                 : IN STD_LOGIC;
-            SIGNAL bus_read_in                  : IN STD_LOGIC;
-            SIGNAL bus_writedata_in             : IN STD_LOGIC_VECTOR(host_width_c-1 DOWNTO 0);
-            SIGNAL bus_readdata_out             : OUT STD_LOGIC_VECTOR(host_width_c-1 DOWNTO 0);
-            SIGNAL bus_waitrequest_out          : OUT STD_LOGIC;
+            SIGNAL bus_addr_in                      : IN register_addr_t;
+            SIGNAL bus_write_in                     : IN STD_LOGIC;
+            SIGNAL bus_read_in                      : IN STD_LOGIC;
+            SIGNAL bus_writedata_in                 : IN STD_LOGIC_VECTOR(host_width_c-1 DOWNTO 0);
+            SIGNAL bus_readdata_out                 : OUT STD_LOGIC_VECTOR(host_width_c-1 DOWNTO 0);
+            SIGNAL bus_waitrequest_out              : OUT STD_LOGIC;
             
             -- Bus interface for read master 1
-            SIGNAL readmaster1_addr_out         : OUT STD_LOGIC_VECTOR(local_bus_width_c-1 DOWNTO 0);
-            SIGNAL readmaster1_fork_out         : OUT dp_fork_t;
-            SIGNAL readmaster1_addr_mode_out    : OUT STD_LOGIC;
-            SIGNAL readmaster1_cs_out           : OUT STD_LOGIC;
-            SIGNAL readmaster1_read_out         : OUT STD_LOGIC;
-            SIGNAL readmaster1_read_vm_out      : OUT STD_LOGIC;
-            SIGNAL readmaster1_read_data_flow_out: OUT data_flow_t;
-            SIGNAL readmaster1_read_stream_out  : OUT STD_LOGIC;
-            SIGNAL readmaster1_read_stream_id_out: OUT stream_id_t;
-            SIGNAL readmaster1_read_vector_out  : OUT dp_vector_t;
-            SIGNAL readmaster1_read_scatter_out : OUT scatter_t;
-			SIGNAL readmaster1_readdatavalid_in : IN STD_LOGIC;
-            SIGNAL readmaster1_readdatavalid_vm_in : IN STD_LOGIC;
-            SIGNAL readmaster1_readdata_in      : IN STD_LOGIC_VECTOR(fork_max_c*ddr_data_width_c-1 DOWNTO 0);
-            SIGNAL readmaster1_wait_request_in  : IN STD_LOGIC;
-            SIGNAL readmaster1_burstlen_out     : OUT burstlen_t;
-            SIGNAL readmaster1_bus_id_out       : OUT dp_bus_id_t;
-            SIGNAL readmaster1_data_type_out    : OUT dp_data_type_t;
-            SIGNAL readmaster1_data_model_out   : OUT dp_data_model_t;
+
+            SIGNAL readmaster1_addr_out             : OUT STD_LOGIC_VECTOR(local_bus_width_c-1 DOWNTO 0);
+            SIGNAL readmaster1_fork_out             : OUT dp_fork_t;
+            SIGNAL readmaster1_addr_mode_out        : OUT STD_LOGIC;
+            SIGNAL readmaster1_cs_out               : OUT STD_LOGIC;
+            SIGNAL readmaster1_read_out             : OUT STD_LOGIC;
+            SIGNAL readmaster1_read_vm_out          : OUT STD_LOGIC;
+            SIGNAL readmaster1_read_data_flow_out   : OUT data_flow_t;
+            SIGNAL readmaster1_read_stream_out      : OUT STD_LOGIC;
+            SIGNAL readmaster1_read_stream_id_out   : OUT stream_id_t;
+            SIGNAL readmaster1_read_vector_out      : OUT dp_vector_t;
+            SIGNAL readmaster1_read_scatter_out     : OUT scatter_t;
+            SIGNAL readmaster1_readdatavalid_in     : IN STD_LOGIC;
+            SIGNAL readmaster1_readdatavalid_vm_in  : IN STD_LOGIC;
+            SIGNAL readmaster1_readdata_in          : IN STD_LOGIC_VECTOR(fork_max_c*ddr_data_width_c-1 DOWNTO 0);
+            SIGNAL readmaster1_wait_request_in      : IN STD_LOGIC;
+            SIGNAL readmaster1_burstlen_out         : OUT burstlen_t;
+            SIGNAL readmaster1_bus_id_out           : OUT dp_bus_id_t;
+            SIGNAL readmaster1_data_type_out        : OUT dp_data_type_t;
+            SIGNAL readmaster1_data_model_out       : OUT dp_data_model_t;
 
             -- Bus interface for write master 1
-            SIGNAL writemaster1_addr_out        : OUT STD_LOGIC_VECTOR(local_bus_width_c-1 DOWNTO 0);
-            SIGNAL writemaster1_fork_out        : OUT dp_fork_t;
-            SIGNAL writemaster1_addr_mode_out   : OUT STD_LOGIC;
-            SIGNAL writemaster1_vm_out          : OUT STD_LOGIC;
-            SIGNAL writemaster1_mcast_out       : OUT mcast_t;
-            SIGNAL writemaster1_cs_out          : OUT STD_LOGIC;
-            SIGNAL writemaster1_write_out       : OUT STD_LOGIC;
-            SIGNAL writemaster1_write_data_flow_out: OUT data_flow_t;
-            SIGNAL writemaster1_write_vector_out: OUT dp_vector_t;
-            SIGNAL writemaster1_write_stream_out: OUT std_logic;
-            SIGNAL writemaster1_write_stream_id_out: OUT stream_id_t; 
-            SIGNAL writemaster1_write_scatter_out: OUT scatter_t;
-            SIGNAL writemaster1_writedata_out   : OUT STD_LOGIC_VECTOR(fork_max_c*ddr_data_width_c-1 DOWNTO 0);
-            SIGNAL writemaster1_wait_request_in : IN STD_LOGIC;
-            SIGNAL writemaster1_burstlen_out    : OUT burstlen_t;
-            SIGNAL writemaster1_bus_id_out      : OUT dp_bus_id_t;
-            SIGNAL writemaster1_data_type_out   : OUT dp_data_type_t;
-            SIGNAL writemaster1_data_model_out  : OUT dp_data_model_t;
-            SIGNAL writemaster1_thread_out      : OUT dp_thread_t;
-            SIGNAL writemaster1_counter_in      : IN dp_counters_t(1 DOWNTO 0);
+
+            SIGNAL writemaster1_addr_out            : OUT STD_LOGIC_VECTOR(local_bus_width_c-1 DOWNTO 0);
+            SIGNAL writemaster1_fork_out            : OUT dp_fork_t;
+            SIGNAL writemaster1_addr_mode_out       : OUT STD_LOGIC;
+            SIGNAL writemaster1_vm_out              : OUT STD_LOGIC;
+            SIGNAL writemaster1_mcast_out           : OUT mcast_t;
+            SIGNAL writemaster1_cs_out              : OUT STD_LOGIC;
+            SIGNAL writemaster1_write_out           : OUT STD_LOGIC;
+            SIGNAL writemaster1_write_data_flow_out : OUT data_flow_t;
+            SIGNAL writemaster1_write_vector_out    : OUT dp_vector_t;
+            SIGNAL writemaster1_write_stream_out    : OUT std_logic;
+            SIGNAL writemaster1_write_stream_id_out : OUT stream_id_t; 
+            SIGNAL writemaster1_write_scatter_out   : OUT scatter_t;
+            SIGNAL writemaster1_writedata_out       : OUT STD_LOGIC_VECTOR(fork_max_c*ddr_data_width_c-1 DOWNTO 0);
+            SIGNAL writemaster1_wait_request_in     : IN STD_LOGIC;
+            SIGNAL writemaster1_burstlen_out        : OUT burstlen_t;
+            SIGNAL writemaster1_bus_id_out          : OUT dp_bus_id_t;
+            SIGNAL writemaster1_data_type_out       : OUT dp_data_type_t;
+            SIGNAL writemaster1_data_model_out      : OUT dp_data_model_t;
+            SIGNAL writemaster1_thread_out          : OUT dp_thread_t;
+            SIGNAL writemaster1_counter_in          : IN dp_counters_t(1 DOWNTO 0);
 
             -- Bus interface for read master 2
-            SIGNAL readmaster2_addr_out         : OUT STD_LOGIC_VECTOR(dp_bus2_addr_width_c-1 DOWNTO 0);
-            SIGNAL readmaster2_fork_out         : OUT std_logic_vector(fork_sram_c-1 downto 0);
-            SIGNAL readmaster2_cs_out           : OUT STD_LOGIC;
-            SIGNAL readmaster2_read_out         : OUT STD_LOGIC;
-            SIGNAL readmaster2_read_vm_out      : OUT STD_LOGIC;
-            SIGNAL readmaster2_read_vector_out  : OUT dp_vector_t;
-            SIGNAL readmaster2_read_scatter_out : OUT scatter_t;
-			SIGNAL readmaster2_readdatavalid_in : IN STD_LOGIC;
-            SIGNAL readmaster2_readdatavalid_vm_in : IN STD_LOGIC;
-            SIGNAL readmaster2_readdata_in      : IN STD_LOGIC_VECTOR(fork_sram_c*ddr_data_width_c-1 DOWNTO 0);
-            SIGNAL readmaster2_wait_request_in  : IN STD_LOGIC;
-            SIGNAL readmaster2_burstlen_out     : OUT burstlen_t;
-            SIGNAL readmaster2_bus_id_out       : OUT dp_bus_id_t;
+
+            SIGNAL readmaster2_addr_out             : OUT STD_LOGIC_VECTOR(dp_bus2_addr_width_c-1 DOWNTO 0);
+            SIGNAL readmaster2_fork_out             : OUT std_logic_vector(fork_sram_c-1 downto 0);
+            SIGNAL readmaster2_cs_out               : OUT STD_LOGIC;
+            SIGNAL readmaster2_read_out             : OUT STD_LOGIC;
+            SIGNAL readmaster2_read_vm_out          : OUT STD_LOGIC;
+            SIGNAL readmaster2_read_vector_out      : OUT dp_vector_t;
+            SIGNAL readmaster2_read_scatter_out     : OUT scatter_t;
+            SIGNAL readmaster2_readdatavalid_in     : IN STD_LOGIC;
+            SIGNAL readmaster2_readdatavalid_vm_in  : IN STD_LOGIC;
+            SIGNAL readmaster2_readdata_in          : IN STD_LOGIC_VECTOR(fork_sram_c*ddr_data_width_c-1 DOWNTO 0);
+            SIGNAL readmaster2_wait_request_in      : IN STD_LOGIC;
+            SIGNAL readmaster2_burstlen_out         : OUT burstlen_t;
+            SIGNAL readmaster2_bus_id_out           : OUT dp_bus_id_t;
 
             -- Bus interface for write master 2
-            SIGNAL writemaster2_addr_out        : OUT STD_LOGIC_VECTOR(dp_bus2_addr_width_c-1 DOWNTO 0);
-            SIGNAL writemaster2_vm_out          : OUT STD_LOGIC;
-            SIGNAL writemaster2_fork_out        : OUT std_logic_vector(fork_sram_c-1 downto 0);
-            SIGNAL writemaster2_cs_out          : OUT STD_LOGIC;
-            SIGNAL writemaster2_write_out       : OUT STD_LOGIC;
-            SIGNAL writemaster2_write_vector_out: OUT dp_vector_t;
-            SIGNAL writemaster2_write_scatter_out: OUT scatter_t;
-            SIGNAL writemaster2_writedata_out   : OUT STD_LOGIC_VECTOR(fork_sram_c*ddr_data_width_c-1 DOWNTO 0);
-            SIGNAL writemaster2_wait_request_in : IN STD_LOGIC;
-            SIGNAL writemaster2_burstlen_out    : OUT burstlen_t;
-            SIGNAL writemaster2_bus_id_out      : OUT dp_bus_id_t;
-            SIGNAL writemaster2_thread_out      : OUT dp_thread_t;
-            SIGNAL writemaster2_counter_in      : IN dp_counters_t(1 downto 0);
+
+            SIGNAL writemaster2_addr_out            : OUT STD_LOGIC_VECTOR(dp_bus2_addr_width_c-1 DOWNTO 0);
+            SIGNAL writemaster2_vm_out              : OUT STD_LOGIC;
+            SIGNAL writemaster2_fork_out            : OUT std_logic_vector(fork_sram_c-1 downto 0);
+            SIGNAL writemaster2_cs_out              : OUT STD_LOGIC;
+            SIGNAL writemaster2_write_out           : OUT STD_LOGIC;
+            SIGNAL writemaster2_write_vector_out    : OUT dp_vector_t;
+            SIGNAL writemaster2_write_scatter_out   : OUT scatter_t;
+            SIGNAL writemaster2_writedata_out       : OUT STD_LOGIC_VECTOR(fork_sram_c*ddr_data_width_c-1 DOWNTO 0);
+            SIGNAL writemaster2_wait_request_in     : IN STD_LOGIC;
+            SIGNAL writemaster2_burstlen_out        : OUT burstlen_t;
+            SIGNAL writemaster2_bus_id_out          : OUT dp_bus_id_t;
+            SIGNAL writemaster2_thread_out          : OUT dp_thread_t;
+            SIGNAL writemaster2_counter_in          : IN dp_counters_t(1 downto 0);
 
             -- Bus interface for read master 3
-            SIGNAL readmaster3_addr_out         : OUT STD_LOGIC_VECTOR(dp_addr_width_c-1 downto 0);
-            SIGNAL readmaster3_cs_out           : OUT STD_LOGIC;
-            SIGNAL readmaster3_read_out         : OUT STD_LOGIC;
-            SIGNAL readmaster3_read_vm_out      : OUT STD_LOGIC;
-            SIGNAL readmaster3_read_vector_out  : OUT dp_vector_t;
-            SIGNAL readmaster3_read_scatter_out : OUT scatter_t;
-            SIGNAL readmaster3_read_start_out   : OUT unsigned(ddr_vector_depth_c downto 0);
-            SIGNAL readmaster3_read_end_out     : OUT vectors_t(fork_ddr_c-1 downto 0);
-			SIGNAL readmaster3_readdatavalid_in : IN STD_LOGIC;
-            SIGNAL readmaster3_readdatavalid_vm_in : IN STD_LOGIC;
-            SIGNAL readmaster3_readdata_in      : IN STD_LOGIC_VECTOR(ddr_data_width_c-1 DOWNTO 0);
-            SIGNAL readmaster3_wait_request_in  : IN STD_LOGIC;
-            SIGNAL readmaster3_burstlen_out     : OUT burstlen_t;
-            SIGNAL readmaster3_bus_id_out       : OUT dp_bus_id_t;
-            SIGNAL readmaster3_filler_data_out  : OUT STD_LOGIC_VECTOR(2*data_width_c-1 downto 0);
+            
+            SIGNAL readmaster3_addr_out             : OUT STD_LOGIC_VECTOR(dp_addr_width_c-1 downto 0);
+            SIGNAL readmaster3_cs_out               : OUT STD_LOGIC;
+            SIGNAL readmaster3_read_out             : OUT STD_LOGIC;
+            SIGNAL readmaster3_read_vm_out          : OUT STD_LOGIC;
+            SIGNAL readmaster3_read_vector_out      : OUT dp_vector_t;
+            SIGNAL readmaster3_read_scatter_out     : OUT scatter_t;
+            SIGNAL readmaster3_read_start_out       : OUT unsigned(ddr_vector_depth_c downto 0);
+            SIGNAL readmaster3_read_end_out         : OUT vectors_t(fork_ddr_c-1 downto 0);
+            SIGNAL readmaster3_readdatavalid_in     : IN STD_LOGIC;
+            SIGNAL readmaster3_readdatavalid_vm_in  : IN STD_LOGIC;
+            SIGNAL readmaster3_readdata_in          : IN STD_LOGIC_VECTOR(ddr_data_width_c-1 DOWNTO 0);
+            SIGNAL readmaster3_wait_request_in      : IN STD_LOGIC;
+            SIGNAL readmaster3_burstlen_out         : OUT burstlen_t;
+            SIGNAL readmaster3_bus_id_out           : OUT dp_bus_id_t;
+            SIGNAL readmaster3_filler_data_out      : OUT STD_LOGIC_VECTOR(2*data_width_c-1 downto 0);
 
             -- Bus interface for write master 3
-            SIGNAL writemaster3_addr_out        : OUT STD_LOGIC_VECTOR(dp_addr_width_c-1 downto 0);
-            SIGNAL writemaster3_cs_out          : OUT STD_LOGIC;
-            SIGNAL writemaster3_write_out       : OUT STD_LOGIC;
-            SIGNAL writemaster3_vm_out          : OUT STD_LOGIC;
-            SIGNAL writemaster3_write_vector_out: OUT dp_vector_t;
-            SIGNAL writemaster3_write_scatter_out: OUT scatter_t;
-            SIGNAL writemaster3_write_end_out   : OUT vectors_t(fork_ddr_c-1 downto 0);
-            SIGNAL writemaster3_writedata_out   : OUT STD_LOGIC_VECTOR(ddr_data_width_c-1 DOWNTO 0);
-            SIGNAL writemaster3_wait_request_in : IN STD_LOGIC;
-            SIGNAL writemaster3_burstlen_out    : OUT burstlen_t;
-            SIGNAL writemaster3_burstlen2_out   : OUT burstlen2_t;
-            SIGNAL writemaster3_burstlen3_out   : OUT burstlen_t;
-            SIGNAL writemaster3_bus_id_out      : OUT dp_bus_id_t;
-            SIGNAL writemaster3_thread_out      : OUT dp_thread_t;
-            SIGNAL writemaster3_counter_in      : IN dp_counter_t;
+            
+            SIGNAL writemaster3_addr_out            : OUT STD_LOGIC_VECTOR(dp_addr_width_c-1 downto 0);
+            SIGNAL writemaster3_cs_out              : OUT STD_LOGIC;
+            SIGNAL writemaster3_write_out           : OUT STD_LOGIC;
+            SIGNAL writemaster3_vm_out              : OUT STD_LOGIC;
+            SIGNAL writemaster3_write_vector_out    : OUT dp_vector_t;
+            SIGNAL writemaster3_write_scatter_out   : OUT scatter_t;
+            SIGNAL writemaster3_write_end_out       : OUT vectors_t(fork_ddr_c-1 downto 0);
+            SIGNAL writemaster3_writedata_out       : OUT STD_LOGIC_VECTOR(ddr_data_width_c-1 DOWNTO 0);
+            SIGNAL writemaster3_wait_request_in     : IN STD_LOGIC;
+            SIGNAL writemaster3_burstlen_out        : OUT burstlen_t;
+            SIGNAL writemaster3_burstlen2_out       : OUT burstlen2_t;
+            SIGNAL writemaster3_burstlen3_out       : OUT burstlen_t;
+            SIGNAL writemaster3_bus_id_out          : OUT dp_bus_id_t;
+            SIGNAL writemaster3_thread_out          : OUT dp_thread_t;
+            SIGNAL writemaster3_counter_in          : IN dp_counter_t;
 
             -- Task control
-            SIGNAL task_start_addr_out          : OUT instruction_addr_t;
-            SIGNAL task_out                     : OUT STD_LOGIC;
-			SIGNAL task_pending_out				: OUT STD_LOGIC;
-            SIGNAL task_vm_out                  : OUT STD_LOGIC;
-            SIGNAL task_pcore_out               : OUT pcore_t;
-            SIGNAL task_lockstep_out            : OUT STD_LOGIC;
-            SIGNAL task_tid_mask_out            : OUT tid_mask_t;
-			SIGNAL task_iregister_auto_out      : OUT iregister_auto_t;
-			SIGNAL task_data_model_out			: OUT dp_data_model_t;
-            SIGNAL task_busy_in                 : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
-            SIGNAL task_ready_in                : IN STD_LOGIC;
+            
+            SIGNAL task_start_addr_out              : OUT instruction_addr_t;
+            SIGNAL task_out                         : OUT STD_LOGIC;
+            SIGNAL task_pending_out                 : OUT STD_LOGIC;
+            SIGNAL task_vm_out                      : OUT STD_LOGIC;
+            SIGNAL task_pcore_out                   : OUT pcore_t;
+            SIGNAL task_lockstep_out                : OUT STD_LOGIC;
+            SIGNAL task_tid_mask_out                : OUT tid_mask_t;
+            SIGNAL task_iregister_auto_out          : OUT iregister_auto_t;
+            SIGNAL task_data_model_out              : OUT dp_data_model_t;
+            SIGNAL task_busy_in                     : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
+            SIGNAL task_ready_in                    : IN STD_LOGIC;
 
             -- BAR info
-            SIGNAL bar_in                       : IN dp_addrs_t(dp_bus_id_max_c-1 downto 0);
+            
+            SIGNAL bar_in                           : IN dp_addrs_t(dp_bus_id_max_c-1 downto 0);
 
             -- Indication
-            SIGNAL indication_avail_out         : OUT STD_LOGIC
+            
+            SIGNAL indication_avail_out             : OUT STD_LOGIC
     );
 END dp;
 
@@ -382,19 +391,14 @@ writemaster1_addr_out <= std_logic_vector(writemaster1_addr(0)(local_bus_width_c
 writemaster2_addr_out <= std_logic_vector(writemaster2_addr(0)(dp_bus2_addr_width_c-1 DOWNTO 0));
 writemaster3_addr_out <= std_logic_vector(writemaster3_addr(0));
 
-
 -- Combine indication available signals from the 2 DP threads
 indication_avail_out <= indication_avail;
 
 -- Set address mask to identify process 
 
-
-
 thread <= to_unsigned(0,dp_thread_t'length);
 
 full <= wr_full & wr_sram_full & wr_ddr_full;
-
-
 
 -----------------
 -- FETCH stage. Taking requests from mcore
@@ -427,7 +431,7 @@ dp_fetch_1_i: dp_fetch generic map(
 
                             task_start_addr_out => task_start_addr_out,
                             task_out => task_out,
-							task_pending_out => task_pending_out,
+                            task_pending_out => task_pending_out,
                             task_vm_out => task_vm_out,
                             task_pcore_out =>task_pcore_out,
                             task_lockstep_out => task_lockstep_out,
@@ -439,10 +443,10 @@ dp_fetch_1_i: dp_fetch generic map(
 
                             indication_avail_out => indication_avail,
 
-							log1_in => log1,
+                            log1_in => log1,
                             log1_valid_in => log1_valid,
 
-							log2_in => log2,
+                            log2_in => log2,
                             log2_valid_in => log2_valid,
 
                             pcore_read_pending_p0_in => pcore_read_pending_p0,
@@ -460,6 +464,7 @@ dp_gen_core_i: dp_gen_core
        reset_in=>reset_in,
 
        -- signal to communicate with dp_fetch
+    
        ready_out=>ready,
        instruction_valid_in=>valid,
        instruction_in=>instruction,
@@ -472,7 +477,7 @@ dp_gen_core_i: dp_gen_core
        log1_out=>log1,
        log1_valid_out=>log1_valid,
        
-	   log2_out=>log2,
+       log2_out=>log2,
        log2_valid_out=>log2_valid,
 
        -- commands to send to dp_source for pcore memory space
@@ -507,7 +512,6 @@ dp_gen_core_i: dp_gen_core
        gen_pcore_thread_out =>gen_pcore_thread,
        gen_pcore_mcast_out =>gen_pcore_mcast,
        gen_pcore_data_out =>gen_pcore_data,
-
 
        -- commands to send to dp_source for sram memory space
 
@@ -613,7 +617,7 @@ dp_source1_i: dp_source
             bus_burstlen_out=>readmaster1_burstlen_out,
             bus_id_out=>readmaster1_bus_id_out,
             bus_data_type_out=>readmaster1_data_type_out,
-			bus_data_model_out=>readmaster1_data_model_out,
+            bus_data_model_out=>readmaster1_data_model_out,
 
             gen_waitreq_out=>waitreq(0),
             gen_valid_in=>gen_pcore_src_valid,
@@ -637,7 +641,7 @@ dp_source1_i: dp_source
             gen_dst_addr_mode_in=>gen_pcore_dst_addr_mode,
             gen_bus_id_source_in=>gen_pcore_bus_id_source,
             gen_data_type_source_in=>gen_pcore_data_type_source,
-			gen_data_model_source_in=>gen_pcore_data_model_source,
+            gen_data_model_source_in=>gen_pcore_data_model_source,
             gen_bus_id_dest_in=>gen_pcore_bus_id_dest,
             gen_data_type_dest_in=>gen_pcore_data_type_dest,
             gen_data_model_dest_in=>gen_pcore_data_model_dest,
@@ -705,7 +709,7 @@ dp_source1_i: dp_source
 
             wr_data_type_out=>wr_data_type(0),
 
-			wr_data_model_out=>wr_data_model(0),
+            wr_data_model_out=>wr_data_model(0),
 
             wr_mcast_out=>wr_mcast(0)
             );
@@ -746,7 +750,7 @@ dp_source2_i: dp_source
             bus_burstlen_out=>readmaster2_burstlen_out,
             bus_id_out=>readmaster2_bus_id_out,
             bus_data_type_out=>open,
-			bus_data_model_out=>open,
+            bus_data_model_out=>open,
 
             gen_waitreq_out=>waitreq(1),
             gen_valid_in=>gen_sram_src_valid,
@@ -754,7 +758,7 @@ dp_source2_i: dp_source
             gen_fork_in=>gen_sram_fork,
             gen_data_flow_in=>gen_sram_data_flow,
             gen_src_stream_in=>gen_sram_src_stream,
-			gen_dest_stream_in=>gen_sram_dest_stream,
+            gen_dest_stream_in=>gen_sram_dest_stream,
             gen_stream_id_in=>gen_sram_stream_id,
             gen_src_vector_in=>gen_sram_src_vector,
             gen_dst_vector_in=>gen_sram_dst_vector,
@@ -770,7 +774,7 @@ dp_source2_i: dp_source
             gen_dst_addr_mode_in=>gen_sram_dst_addr_mode,
             gen_bus_id_source_in=>gen_sram_bus_id_source,
             gen_data_type_source_in=>gen_sram_data_type_source,
-			gen_data_model_source_in=>gen_sram_data_model_source,
+            gen_data_model_source_in=>gen_sram_data_model_source,
             gen_bus_id_dest_in=>gen_sram_bus_id_dest,
             gen_data_type_dest_in=>gen_sram_data_type_dest,
             gen_data_model_dest_in=>gen_sram_data_model_dest,
@@ -838,7 +842,7 @@ dp_source2_i: dp_source
 
             wr_data_type_out=>wr_data_type(1),
 
-			wr_data_model_out=>wr_data_model(1),
+            wr_data_model_out=>wr_data_model(1),
 
             wr_mcast_out=>wr_mcast(1)
             );
@@ -879,7 +883,7 @@ dp_source3_i0: dp_source
             bus_burstlen_out=>readmaster3_burstlen_out,
             bus_id_out=>readmaster3_bus_id_out,
             bus_data_type_out=>open,
-			bus_data_model_out=>open,
+            bus_data_model_out=>open,
 
             gen_waitreq_out=>waitreq(2),
             gen_valid_in=>gen_ddr_src_valid,
@@ -903,7 +907,7 @@ dp_source3_i0: dp_source
             gen_dst_addr_mode_in=>gen_ddr_dst_addr_mode,
             gen_bus_id_source_in=>gen_ddr_bus_id_source,
             gen_data_type_source_in=>gen_ddr_data_type_source,
-			gen_data_model_source_in=>gen_ddr_data_model_source,
+            gen_data_model_source_in=>gen_ddr_data_model_source,
             gen_bus_id_dest_in=>gen_ddr_bus_id_dest,
             gen_data_type_dest_in=>gen_ddr_data_type_dest,
             gen_data_model_dest_in=>gen_ddr_data_model_dest,
@@ -971,7 +975,7 @@ dp_source3_i0: dp_source
 
             wr_data_type_out=>wr_data_type(2),
 
-			wr_data_model_out=>wr_data_model(2),
+            wr_data_model_out=>wr_data_model(2),
 
             wr_mcast_out=>wr_mcast(2)
             );
@@ -1014,7 +1018,7 @@ dp_sink1_i: dp_sink
             bus_burstlen3_out=>open,
             bus_id_out=>writemaster1_bus_id_out,
             bus_data_type_out=>writemaster1_data_type_out,
-			bus_data_model_out=>writemaster1_data_model_out,
+            bus_data_model_out=>writemaster1_data_model_out,
             bus_thread_out=>writemaster1_thread_out,
 
             wr_maxburstlen_out =>wr_maxburstlen(0),
@@ -1039,7 +1043,7 @@ dp_sink1_i: dp_sink
             wr_bus_id_in=>wr_bus_id,
             wr_thread_in=>wr_thread,
             wr_data_type_in=>wr_data_type,
-			wr_data_model_in=>wr_data_model,
+            wr_data_model_in=>wr_data_model,
             wr_mcast_in=>wr_mcast,
 
             read_pending_p0_out=>pcore_read_pending_p0,
@@ -1083,7 +1087,7 @@ dp_sink2_i: dp_sink
             bus_burstlen3_out=>open,
             bus_id_out=>writemaster2_bus_id_out,
             bus_data_type_out=>open,
-			bus_data_model_out=>open,
+            bus_data_model_out=>open,
             bus_thread_out=>writemaster2_thread_out,
 
             wr_maxburstlen_out =>wr_maxburstlen(1),
@@ -1108,7 +1112,7 @@ dp_sink2_i: dp_sink
             wr_bus_id_in=>wr_bus_id,
             wr_thread_in=>wr_thread,
             wr_data_type_in=>wr_data_type,
-			wr_data_model_in=>wr_data_model,
+            wr_data_model_in=>wr_data_model,
             wr_mcast_in=>wr_mcast,
             read_pending_p0_out=>sram_read_pending_p0,
             read_pending_p1_out=>sram_read_pending_p1
@@ -1151,7 +1155,7 @@ dp_sink3_i: dp_sink
             bus_burstlen3_out=>writemaster3_burstlen3_out,
             bus_id_out=>writemaster3_bus_id_out,
             bus_data_type_out=>open,
-			bus_data_model_out=>open,
+            bus_data_model_out=>open,
             bus_thread_out=>writemaster3_thread_out,
 
             wr_maxburstlen_out =>wr_maxburstlen(2),
@@ -1170,13 +1174,13 @@ dp_sink3_i: dp_sink
             wr_datavalid_in=>wr_datavalid,
             wr_data_in=>wr_data,
             wr_readdatavalid_in => wr_readdatavalid,
-	        wr_readdatavalid_vm_in => wr_readdatavalid_vm,
+            wr_readdatavalid_vm_in => wr_readdatavalid_vm,
             wr_readdata_in=>wr_readdata,
             wr_burstlen_in=>wr_burstlen,
             wr_bus_id_in=>wr_bus_id,
             wr_thread_in=>wr_thread,
             wr_data_type_in=>wr_data_type,
-			wr_data_model_in=>wr_data_model,
+            wr_data_model_in=>wr_data_model,
             wr_mcast_in=>wr_mcast,
             read_pending_p0_out=>ddr_read_pending_p0,
             read_pending_p1_out=>ddr_read_pending_p1

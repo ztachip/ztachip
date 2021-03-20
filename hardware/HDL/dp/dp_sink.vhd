@@ -33,68 +33,67 @@ USE altera_mf.all;
 
 ENTITY dp_sink IS
     GENERIC(
-        NUM_DP_SRC_PORT : integer;
-        BURST_MODE      : STD_LOGIC;
-        BUS_WIDTH       : integer;
-        FORK            : integer;
-        FIFO_DEPTH      : integer;
+        NUM_DP_SRC_PORT   : integer;
+        BURST_MODE        : STD_LOGIC;
+        BUS_WIDTH         : integer;
+        FORK              : integer;
+        FIFO_DEPTH        : integer;
         ADDR_PROCESS_MASK : std_logic_vector(dp_addr_width_c-1 downto 0)
         );
     PORT(   
-        SIGNAL clock_in             : IN STD_LOGIC;
-        SIGNAL reset_in             : IN STD_LOGIC;
+        SIGNAL clock_in                : IN STD_LOGIC;
+        SIGNAL reset_in                : IN STD_LOGIC;
 
-        SIGNAL bus_addr_out         : OUT dp_addrs_t(FORK-1 downto 0);
-        SIGNAL bus_fork_out         : OUT STD_LOGIC_VECTOR(FORK-1 downto 0);
-        SIGNAL bus_addr_mode_out    : OUT STD_LOGIC;
-        SIGNAL bus_vm_out           : OUT STD_LOGIC;
-        SIGNAL bus_data_flow_out    : OUT data_flow_t;
-        SIGNAL bus_vector_out       : OUT dp_vector_t;
-        SIGNAL bus_stream_out       : OUT std_logic;
-        SIGNAL bus_stream_id_out    : OUT stream_id_t;
-        SIGNAL bus_scatter_out      : OUT scatter_t;
-        SIGNAL bus_end_out          : OUT vectors_t(FORK-1 downto 0);
-        SIGNAL bus_mcast_out        : OUT mcast_t;
-        SIGNAL bus_cs_out           : OUT STD_LOGIC;
-        SIGNAL bus_write_out        : OUT STD_LOGIC;
-        SIGNAL bus_writedata_out    : OUT STD_LOGIC_VECTOR(ddr_data_width_c*FORK-1 DOWNTO 0);
-        SIGNAL bus_wait_request_in  : IN STD_LOGIC;
-        SIGNAL bus_burstlen_out     : OUT burstlen_t;
-        SIGNAL bus_burstlen2_out    : OUT burstlen2_t;
-        SIGNAL bus_burstlen3_out    : OUT burstlen_t;
-        SIGNAL bus_id_out           : OUT dp_bus_id_t;
-        SIGNAL bus_data_type_out    : OUT dp_data_type_t;
-        SIGNAL bus_data_model_out    : OUT dp_data_model_t;
-        SIGNAL bus_thread_out       : OUT dp_thread_t;
+        SIGNAL bus_addr_out            : OUT dp_addrs_t(FORK-1 downto 0);
+        SIGNAL bus_fork_out            : OUT STD_LOGIC_VECTOR(FORK-1 downto 0);
+        SIGNAL bus_addr_mode_out       : OUT STD_LOGIC;
+        SIGNAL bus_vm_out              : OUT STD_LOGIC;
+        SIGNAL bus_data_flow_out       : OUT data_flow_t;
+        SIGNAL bus_vector_out          : OUT dp_vector_t;
+        SIGNAL bus_stream_out          : OUT std_logic;
+        SIGNAL bus_stream_id_out       : OUT stream_id_t;
+        SIGNAL bus_scatter_out         : OUT scatter_t;
+        SIGNAL bus_end_out             : OUT vectors_t(FORK-1 downto 0);
+        SIGNAL bus_mcast_out           : OUT mcast_t;
+        SIGNAL bus_cs_out              : OUT STD_LOGIC;
+        SIGNAL bus_write_out           : OUT STD_LOGIC;
+        SIGNAL bus_writedata_out       : OUT STD_LOGIC_VECTOR(ddr_data_width_c*FORK-1 DOWNTO 0);
+        SIGNAL bus_wait_request_in     : IN STD_LOGIC;
+        SIGNAL bus_burstlen_out        : OUT burstlen_t;
+        SIGNAL bus_burstlen2_out       : OUT burstlen2_t;
+        SIGNAL bus_burstlen3_out       : OUT burstlen_t;
+        SIGNAL bus_id_out              : OUT dp_bus_id_t;
+        SIGNAL bus_data_type_out       : OUT dp_data_type_t;
+        SIGNAL bus_data_model_out      : OUT dp_data_model_t;
+        SIGNAL bus_thread_out          : OUT dp_thread_t;
 
-        SIGNAL wr_maxburstlen_out   : OUT burstlen_t;
-        SIGNAL wr_full_out          : OUT STD_LOGIC;
-        SIGNAL wr_req_in            : IN STD_LOGIC_VECTOR(NUM_DP_SRC_PORT-1 downto 0);
-        SIGNAL wr_data_flow_in      : IN data_flows_t(NUM_DP_SRC_PORT-1 downto 0);
-        SIGNAL wr_vector_in         : IN dp_vectors_t(NUM_DP_SRC_PORT-1 downto 0);
-        SIGNAL wr_stream_in         : IN std_logic_vector(NUM_DP_SRC_PORT-1 downto 0);
-        SIGNAL wr_stream_id_in      : IN stream_ids_t(NUM_DP_SRC_PORT-1 downto 0);
-        SIGNAL wr_scatter_in        : IN scatters_t(NUM_DP_SRC_PORT-1 downto 0);
-        SIGNAL wr_end_in            : IN vector_forks_t(NUM_DP_SRC_PORT-1 downto 0);
-        SIGNAL wr_addr_in           : IN dp_fork_addrs_t(NUM_DP_SRC_PORT-1 downto 0);
-        SIGNAL wr_fork_in           : IN dp_forks_t(NUM_DP_SRC_PORT-1 downto 0);
-        SIGNAL wr_addr_mode_in      : IN STD_LOGIC_VECTOR(NUM_DP_SRC_PORT-1 downto 0);
-        SIGNAL wr_src_vm_in         : IN STD_LOGIC_VECTOR(NUM_DP_SRC_PORT-1 downto 0);
-        SIGNAL wr_datavalid_in      : IN STD_LOGIC_VECTOR(NUM_DP_SRC_PORT-1 downto 0);
-        SIGNAL wr_data_in           : IN dp_datas_t(NUM_DP_SRC_PORT-1 downto 0);
-        SIGNAL wr_readdatavalid_in  : IN STD_LOGIC_VECTOR(NUM_DP_SRC_PORT-1 downto 0);
-        SIGNAL wr_readdatavalid_vm_in : IN STD_LOGIC_VECTOR(NUM_DP_SRC_PORT-1 downto 0);
-        SIGNAL wr_readdata_in       : IN dp_fork_datas_t(NUM_DP_SRC_PORT-1 downto 0);
-        SIGNAL wr_burstlen_in       : IN burstlens_t(NUM_DP_SRC_PORT-1 downto 0);
-        SIGNAL wr_bus_id_in         : IN dp_bus_ids_t(NUM_DP_SRC_PORT-1 downto 0);
-        SIGNAL wr_thread_in         : IN dp_threads_t(NUM_DP_SRC_PORT-1 downto 0);
-        SIGNAL wr_data_type_in      : IN dp_data_types_t(NUM_DP_SRC_PORT-1 downto 0);
-        SIGNAL wr_data_model_in     : IN dp_data_models_t(NUM_DP_SRC_PORT-1 downto 0);
-        SIGNAL wr_mcast_in          : IN mcasts_t;
+        SIGNAL wr_maxburstlen_out      : OUT burstlen_t;
+        SIGNAL wr_full_out             : OUT STD_LOGIC;
+        SIGNAL wr_req_in               : IN STD_LOGIC_VECTOR(NUM_DP_SRC_PORT-1 downto 0);
+        SIGNAL wr_data_flow_in         : IN data_flows_t(NUM_DP_SRC_PORT-1 downto 0);
+        SIGNAL wr_vector_in            : IN dp_vectors_t(NUM_DP_SRC_PORT-1 downto 0);
+        SIGNAL wr_stream_in            : IN std_logic_vector(NUM_DP_SRC_PORT-1 downto 0);
+        SIGNAL wr_stream_id_in         : IN stream_ids_t(NUM_DP_SRC_PORT-1 downto 0);
+        SIGNAL wr_scatter_in           : IN scatters_t(NUM_DP_SRC_PORT-1 downto 0);
+        SIGNAL wr_end_in               : IN vector_forks_t(NUM_DP_SRC_PORT-1 downto 0);
+        SIGNAL wr_addr_in              : IN dp_fork_addrs_t(NUM_DP_SRC_PORT-1 downto 0);
+        SIGNAL wr_fork_in              : IN dp_forks_t(NUM_DP_SRC_PORT-1 downto 0);
+        SIGNAL wr_addr_mode_in         : IN STD_LOGIC_VECTOR(NUM_DP_SRC_PORT-1 downto 0);
+        SIGNAL wr_src_vm_in            : IN STD_LOGIC_VECTOR(NUM_DP_SRC_PORT-1 downto 0);
+        SIGNAL wr_datavalid_in         : IN STD_LOGIC_VECTOR(NUM_DP_SRC_PORT-1 downto 0);
+        SIGNAL wr_data_in              : IN dp_datas_t(NUM_DP_SRC_PORT-1 downto 0);
+        SIGNAL wr_readdatavalid_in     : IN STD_LOGIC_VECTOR(NUM_DP_SRC_PORT-1 downto 0);
+        SIGNAL wr_readdatavalid_vm_in  : IN STD_LOGIC_VECTOR(NUM_DP_SRC_PORT-1 downto 0);
+        SIGNAL wr_readdata_in          : IN dp_fork_datas_t(NUM_DP_SRC_PORT-1 downto 0);
+        SIGNAL wr_burstlen_in          : IN burstlens_t(NUM_DP_SRC_PORT-1 downto 0);
+        SIGNAL wr_bus_id_in            : IN dp_bus_ids_t(NUM_DP_SRC_PORT-1 downto 0);
+        SIGNAL wr_thread_in            : IN dp_threads_t(NUM_DP_SRC_PORT-1 downto 0);
+        SIGNAL wr_data_type_in         : IN dp_data_types_t(NUM_DP_SRC_PORT-1 downto 0);
+        SIGNAL wr_data_model_in        : IN dp_data_models_t(NUM_DP_SRC_PORT-1 downto 0);
+        SIGNAL wr_mcast_in             : IN mcasts_t;
 
         SIGNAL read_pending_p0_out     : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
         SIGNAL read_pending_p1_out     : OUT STD_LOGIC_VECTOR(2 DOWNTO 0)
-
         );
 END dp_sink;
 
@@ -148,7 +147,6 @@ SIGNAL req_p1_2_r:unsigned(FIFO_DEPTH-1 downto 0);
 SIGNAL rsp_p1_0_r:unsigned(FIFO_DEPTH-1 downto 0);
 SIGNAL rsp_p1_1_r:unsigned(FIFO_DEPTH-1 downto 0);
 SIGNAL rsp_p1_2_r:unsigned(FIFO_DEPTH-1 downto 0);
-
 
 subtype fifo_data_t is std_logic_vector(fifo_width_c-1 downto 0);
 type fifo_datas_t is array(0 to NUM_DP_SRC_PORT-1) of fifo_data_t;
@@ -319,27 +317,27 @@ wr_req2(1) <= '1' when (wr_readdatavalid_in(1)='1' and (req_p0_1_r /= rsp_p0_1_r
 
 wr_req2(2) <= '1' when (wr_readdatavalid_in(2)='1' and (req_p0_2_r /= rsp_p0_2_r or req_p1_2_r /= rsp_p1_2_r)) else '0';
 
-
 wr_req2_all <= wr_req2(0) or wr_req2(1) or wr_req2(2);
 
 read_pending_p0_out <= read_pending_p0_r;
+
 read_pending_p1_out <= read_pending_p1_r;
 
 process(wr_req2,wr_readdata_in)
 begin
 for I in 0 to FORK-1 loop
-	if wr_req2(0)='1' then
-		wr_data2((I+1)*ddr_data_width_c-1 downto I*ddr_data_width_c) <= wr_readdata_in(0)(I);
-	elsif wr_req2(1)='1' then 
-		wr_data2((I+1)*ddr_data_width_c-1 downto I*ddr_data_width_c) <= wr_readdata_in(1)(I);
-	else
-		wr_data2((I+1)*ddr_data_width_c-1 downto I*ddr_data_width_c) <= wr_readdata_in(2)(I);
-	end if;
+   if wr_req2(0)='1' then
+      wr_data2((I+1)*ddr_data_width_c-1 downto I*ddr_data_width_c) <= wr_readdata_in(0)(I);
+   elsif wr_req2(1)='1' then 
+      wr_data2((I+1)*ddr_data_width_c-1 downto I*ddr_data_width_c) <= wr_readdata_in(1)(I);
+   else
+      wr_data2((I+1)*ddr_data_width_c-1 downto I*ddr_data_width_c) <= wr_readdata_in(2)(I);
+   end if;
 end loop;
 end process;
 
 process(wr_req_in,wr_data_flow_in,wr_vector_in,wr_scatter_in,wr_end_in,wr_data_in,wr_addr_in,wr_fork_in,wr_addr_mode_in,wr_burstlen_in,wr_bus_id_in,wr_thread_in,
-		wr_data_model_in,wr_data_type_in,wr_mcast_in,wr_datavalid_in,wr_readdata_in,wr_stream_in,wr_stream_id_in,wr_src_vm_in)
+        wr_data_model_in,wr_data_type_in,wr_mcast_in,wr_datavalid_in,wr_readdata_in,wr_stream_in,wr_stream_id_in,wr_src_vm_in)
 begin
 if wr_req_in(0)='1' then
     wr_datavalid <= wr_datavalid_in(0);
@@ -358,7 +356,7 @@ if wr_req_in(0)='1' then
     wr_bus_id <= wr_bus_id_in(0);
     wr_thread <= wr_thread_in(0);
     wr_data_type <= wr_data_type_in(0);
-	wr_data_model <= wr_data_model_in(0);
+    wr_data_model <= wr_data_model_in(0);
     wr_mcast <= wr_mcast_in(0);
 elsif wr_req_in(1)='1' then
     wr_datavalid <= wr_datavalid_in(1);
@@ -377,7 +375,7 @@ elsif wr_req_in(1)='1' then
     wr_bus_id <= wr_bus_id_in(1);
     wr_thread <= wr_thread_in(1);
     wr_data_type <= wr_data_type_in(1);
-	wr_data_model <= wr_data_model_in(1);
+    wr_data_model <= wr_data_model_in(1);
     wr_mcast <= wr_mcast_in(1);
 else
     wr_datavalid <= wr_datavalid_in(2);
@@ -396,10 +394,14 @@ else
     wr_bus_id <= wr_bus_id_in(2);
     wr_thread <= wr_thread_in(2);
     wr_data_type <= wr_data_type_in(2);
-	wr_data_model <= wr_data_model_in(2);
+    wr_data_model <= wr_data_model_in(2);
     wr_mcast <= wr_mcast_in(2);
 end if;
 end process;
+
+----
+--- Packet write request to FIFO record
+----
 
 process(wr_vector,wr_stream,wr_stream_id,wr_scatter,wr_end,wr_data_flow,wr_mcast,wr_data_type,wr_data_model,wr_thread,wr_bus_id,wr_burstlen,wr_addr,wr_fork,wr_addr_mode,wr_data,wr_datavalid)
 variable len_v:integer;
@@ -441,13 +443,11 @@ begin
     len_v := len_v+wr_scatter'length;
     fifo_data(len_v+wr_data_flow'length-1 downto len_v) <= wr_data_flow;
     len_v := len_v+wr_data_flow'length;
-	for I in 0 to FORK-1 loop
+    for I in 0 to FORK-1 loop
        fifo_data(len_v+wr_end(I)'length-1 downto len_v) <= std_logic_vector(wr_end(I));
        len_v := len_v+wr_end(I)'length;
     end loop;
 end process;
-
-
 
 --------
 -- Transfer data from one of the FIFO (chosen by arbiter) to external write bus
@@ -505,7 +505,7 @@ begin
         bus_id_r <= (others=>'0');
         bus_thread_r <= (others=>'0');
         bus_data_type_r <= (others=>'0');
-		bus_data_model_r <= (others=>'0');
+        bus_data_model_r <= (others=>'0');
         bus_mcast_r <= (others=>'1');
         bus_vector_r <= (others=>'0');
         bus_stream_r <= '0';
@@ -677,10 +677,10 @@ begin
                 end if;
                 len_v:=1+ddr_data_width_c;
                 FOR I in 0 to FORK-1 loop
-				   bus_addr_v(I) := unsigned(q_r(len_v+BUS_WIDTH-1 downto len_v));
+                   bus_addr_v(I) := unsigned(q_r(len_v+BUS_WIDTH-1 downto len_v));
                    len_v := len_v+BUS_WIDTH;
                 end loop;
-				bus_fork_v := q_r(len_v+FORK-1 downto len_v);
+                bus_fork_v := q_r(len_v+FORK-1 downto len_v);
                 len_v := len_v+FORK;
                 bus_addr_mode_v := q_r(len_v);
                 len_v := len_v+1;
@@ -715,14 +715,14 @@ begin
                 vector_v := q_r(len_v+vector_v'length-1 downto len_v);
                 len_v := len_v+vector_v'length;
                 stream_v := q_r(len_v);
-	            len_v := len_v+1;
-	            stream_id_v := unsigned(q_r(len_v+stream_id_t'length-1 downto len_v));
+                len_v := len_v+1;
+                stream_id_v := unsigned(q_r(len_v+stream_id_t'length-1 downto len_v));
                 len_v := len_v + stream_id_t'length;
-				scatter_v := q_r(len_v+scatter_v'length-1 downto len_v);
+                scatter_v := q_r(len_v+scatter_v'length-1 downto len_v);
                 len_v := len_v+scatter_v'length;
                 data_flow_v := q_r(len_v+data_flow_v'length-1 downto len_v);
                 len_v := len_v+data_flow_v'length;
-	            for I in 0 to FORK-1 loop
+                for I in 0 to FORK-1 loop
                    end_v(I) := unsigned(q_r(len_v+end_v(I)'length-1 downto len_v));
                    len_v := len_v+end_v(I)'length;
                 end loop;
@@ -758,15 +758,15 @@ begin
                 bus_fork_r <= bus_fork_v;
                 bus_addr_mode_r <= bus_addr_mode_v;
                 bus_vm_r <= bus_vm_v;
-				bus_writedata_r <= bus_writedata_v;
+                bus_writedata_r <= bus_writedata_v;
                 bus_id_r <= bus_id_v;
                 bus_thread_r <= bus_thread_v;
                 bus_data_type_r <= bus_data_type_v;
-				bus_data_model_r <= bus_data_model_v;
+                bus_data_model_r <= bus_data_model_v;
                 bus_mcast_r <= bus_mcast_v;
                 bus_vector_r <= vector_v;
                 bus_stream_r <= stream_v;
-	            bus_stream_id_r <= stream_id_v;
+                bus_stream_id_r <= stream_id_v;
                 bus_scatter_r <= scatter_v;
                 bus_data_flow_r <= data_flow_v;
                 bus_end_r <= end_v;
@@ -779,7 +779,6 @@ end process;
 process(clock_in,reset_in)
 variable fifo_avail_v:unsigned(FIFO_DEPTH-1 downto 0);
 variable avail_v:unsigned(FIFO_DEPTH-1 downto 0);
---variable pending_v:unsigned(FIFO_DEPTH-1 downto 0);
 begin
 if reset_in='0' then
    wr_full_r <= '0';
@@ -787,7 +786,6 @@ if reset_in='0' then
 else
    if clock_in'event and clock_in='1' then
       avail_v := unsigned(not usedw);
-
       if(avail_v <= to_unsigned(burstlen_max_c+8,FIFO_DEPTH)) then
          wr_full_r <= '1';
       else
@@ -799,7 +797,6 @@ end if;
 end process;
 
 emptyn <= '1' when (empty='0') and ((empty2='0') or q(0)='0') else '0';
-
 
 process(valid_r,valid_rr,bus_wait_request_in,empty,emptyn,q)
 begin

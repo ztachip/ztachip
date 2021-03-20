@@ -31,9 +31,9 @@ USE altera_mf.all;
 
 ENTITY dp_fetch IS
     GENERIC (
-            DP_THREAD_ID    :integer;
-            NUM_DP_SRC_PORT :integer;
-            NUM_DP_DST_PORT :integer
+            DP_THREAD_ID     : integer;
+            NUM_DP_SRC_PORT  : integer;
+            NUM_DP_DST_PORT  : integer
             );
     port(
             -- Signal from Avalon bus...
@@ -46,22 +46,28 @@ ENTITY dp_fetch IS
             SIGNAL bus_read_in              : IN STD_LOGIC;
             SIGNAL bus_writedata_in         : IN STD_LOGIC_VECTOR(host_width_c-1 DOWNTO 0);
             SIGNAL bus_readdata_out         : OUT STD_LOGIC_VECTOR(host_width_c-1 DOWNTO 0);
-            SIGNAL bus_waitrequest_out      : OUT STD_LOGIC;            
+            SIGNAL bus_waitrequest_out      : OUT STD_LOGIC;
+                        
             -- Signal from next stage
+            
             SIGNAL ready_in                 : IN STD_LOGIC_VECTOR(dp_max_gen_c-1 downto 0);        
+            
             -- Signal to next stage
+            
             SIGNAL instruction_valid_out    : OUT STD_LOGIC_VECTOR(dp_max_gen_c-1 downto 0);
             SIGNAL instruction_out          : OUT dp_instruction_t;
             SIGNAL pre_instruction_out      : OUT dp_instruction_t;
 
             -- Sink counter
+            
             SIGNAL pcore_sink_counter_in    : IN dp_counters_t(1 downto 0);
             SIGNAL sram_sink_counter_in     : IN dp_counters_t(1 downto 0);
             SIGNAL ddr_sink_counter_in      : IN dp_counter_t;
 
             -- Task control
+            
             SIGNAL task_start_addr_out      : OUT instruction_addr_t;
-			SIGNAL task_pending_out         : OUT STD_LOGIC;
+            SIGNAL task_pending_out         : OUT STD_LOGIC;
             SIGNAL task_out                 : OUT STD_LOGIC;
             SIGNAL task_vm_out              : OUT STD_LOGIC;
             SIGNAL task_pcore_out           : OUT pcore_t;
@@ -71,22 +77,24 @@ ENTITY dp_fetch IS
             SIGNAL task_data_model_out      : OUT dp_data_model_t;
             SIGNAL task_busy_in             : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
             SIGNAL task_ready_in            : IN STD_LOGIC;
+
             -- Indication
+
             SIGNAL indication_avail_out     : OUT STD_LOGIC;
 
-            SIGNAL log1_in                   : IN STD_LOGIC_VECTOR(host_width_c-1 downto 0);
-            SIGNAL log1_valid_in             : IN STD_LOGIC;
+            SIGNAL log1_in                  : IN STD_LOGIC_VECTOR(host_width_c-1 downto 0);
+            SIGNAL log1_valid_in            : IN STD_LOGIC;
 
-            SIGNAL log2_in                   : IN STD_LOGIC_VECTOR(host_width_c-1 downto 0);
-            SIGNAL log2_valid_in             : IN STD_LOGIC;
+            SIGNAL log2_in                  : IN STD_LOGIC_VECTOR(host_width_c-1 downto 0);
+            SIGNAL log2_valid_in            : IN STD_LOGIC;
 
-            SIGNAL pcore_read_pending_p0_in    : STD_LOGIC_VECTOR(NUM_DP_DST_PORT-1 downto 0);
-            SIGNAL sram_read_pending_p0_in     : STD_LOGIC_VECTOR(NUM_DP_DST_PORT-1 downto 0);
-            SIGNAL ddr_read_pending_p0_in      : STD_LOGIC_VECTOR(NUM_DP_DST_PORT-1 downto 0);
+            SIGNAL pcore_read_pending_p0_in : STD_LOGIC_VECTOR(NUM_DP_DST_PORT-1 downto 0);
+            SIGNAL sram_read_pending_p0_in  : STD_LOGIC_VECTOR(NUM_DP_DST_PORT-1 downto 0);
+            SIGNAL ddr_read_pending_p0_in   : STD_LOGIC_VECTOR(NUM_DP_DST_PORT-1 downto 0);
 
-            SIGNAL pcore_read_pending_p1_in    : STD_LOGIC_VECTOR(NUM_DP_DST_PORT-1 downto 0);
-            SIGNAL sram_read_pending_p1_in     : STD_LOGIC_VECTOR(NUM_DP_DST_PORT-1 downto 0);
-            SIGNAL ddr_read_pending_p1_in      : STD_LOGIC_VECTOR(NUM_DP_DST_PORT-1 downto 0)
+            SIGNAL pcore_read_pending_p1_in : STD_LOGIC_VECTOR(NUM_DP_DST_PORT-1 downto 0);
+            SIGNAL sram_read_pending_p1_in  : STD_LOGIC_VECTOR(NUM_DP_DST_PORT-1 downto 0);
+            SIGNAL ddr_read_pending_p1_in   : STD_LOGIC_VECTOR(NUM_DP_DST_PORT-1 downto 0)
     );
 END dp_fetch;
 
@@ -94,25 +102,25 @@ ARCHITECTURE dp_fetch_behaviour of dp_fetch is
 
 COMPONENT altsyncram
 GENERIC (
-        address_aclr_b          : STRING;
-        address_reg_b           : STRING;
-        clock_enable_input_a    : STRING;
-        clock_enable_input_b    : STRING;
-        clock_enable_output_b   : STRING;
-        intended_device_family  : STRING;
-        lpm_type                : STRING;
-        numwords_a              : NATURAL;
-        numwords_b              : NATURAL;
-        operation_mode          : STRING;
-        outdata_aclr_b          : STRING;
-        outdata_reg_b           : STRING;
-        power_up_uninitialized  : STRING;
+        address_aclr_b                     : STRING;
+        address_reg_b                      : STRING;
+        clock_enable_input_a               : STRING;
+        clock_enable_input_b               : STRING;
+        clock_enable_output_b              : STRING;
+        intended_device_family             : STRING;
+        lpm_type                           : STRING;
+        numwords_a                         : NATURAL;
+        numwords_b                         : NATURAL;
+        operation_mode                     : STRING;
+        outdata_aclr_b                     : STRING;
+        outdata_reg_b                      : STRING;
+        power_up_uninitialized             : STRING;
         read_during_write_mode_mixed_ports : STRING;
-        widthad_a               : NATURAL;
-        widthad_b               : NATURAL;
-        width_a                 : NATURAL;
-        width_b                 : NATURAL;
-        width_byteena_a         : NATURAL
+        widthad_a                          : NATURAL;
+        widthad_b                          : NATURAL;
+        width_a                            : NATURAL;
+        width_b                            : NATURAL;
+        width_byteena_a                    : NATURAL
     );
     PORT (
         address_a   : IN STD_LOGIC_VECTOR (widthad_a-1 DOWNTO 0);
@@ -139,19 +147,19 @@ COMPONENT dcfifo
         use_eab                 : STRING;
         write_aclr_synch        : STRING;
         wrsync_delaypipe        : NATURAL
-	);
-	PORT (
-         aclr    : IN STD_LOGIC ;
-         data    : IN STD_LOGIC_VECTOR (lpm_width-1 DOWNTO 0);
-         rdclk   : IN STD_LOGIC ;
-         rdreq   : IN STD_LOGIC ;
-         wrclk   : IN STD_LOGIC ;
-         wrreq   : IN STD_LOGIC ;
-         q       : OUT STD_LOGIC_VECTOR (lpm_width-1 DOWNTO 0);
-         rdempty : OUT STD_LOGIC ;
-         rdusedw : OUT STD_LOGIC_VECTOR (lpm_widthu-1 DOWNTO 0);
-         wrfull  : OUT STD_LOGIC ;
-         wrusedw : OUT STD_LOGIC_VECTOR (lpm_widthu-1 DOWNTO 0)
+        );
+   PORT (
+        aclr     : IN STD_LOGIC ;
+        data     : IN STD_LOGIC_VECTOR (lpm_width-1 DOWNTO 0);
+        rdclk    : IN STD_LOGIC ;
+        rdreq    : IN STD_LOGIC ;
+        wrclk    : IN STD_LOGIC ;
+        wrreq    : IN STD_LOGIC ;
+        q        : OUT STD_LOGIC_VECTOR (lpm_width-1 DOWNTO 0);
+        rdempty  : OUT STD_LOGIC ;
+        rdusedw  : OUT STD_LOGIC_VECTOR (lpm_widthu-1 DOWNTO 0);
+        wrfull   : OUT STD_LOGIC ;
+        wrusedw  : OUT STD_LOGIC_VECTOR (lpm_widthu-1 DOWNTO 0)
    );
 END COMPONENT;
 
@@ -185,9 +193,7 @@ SIGNAL sink_ddr_busy_r:STD_LOGIC;
 SIGNAL pcore_source_busy_r:STD_LOGIC_VECTOR(1 downto 0);
 SIGNAL sram_source_busy_r:STD_LOGIC_VECTOR(1 downto 0);
 SIGNAL ddr_source_busy_r:STD_LOGIC;
-
 SIGNAL log_enable_r:STD_LOGIC;
-
 SIGNAL print_indication_r:STD_LOGIC;
 SIGNAL print_indication_rr:STD_LOGIC;
 SIGNAL print_param_r:STD_LOGIC_VECTOR(2*host_width_c-1 downto 0);
@@ -212,7 +218,9 @@ SIGNAL indication_wrusedw:std_logic_vector(dp_indication_depth_c-1 downto 0);
 SIGNAL indication_parm_r:std_logic_vector(dp_indication_num_parm_c*host_width_c-1 downto 0);
 SIGNAL indication_r:std_logic_vector(host_width_c-1 downto 0);
 SIGNAL indication_sync_r:std_logic;
+
 -- Avalon bus read control
+
 SIGNAL bus_readdata_r:STD_LOGIC_VECTOR(host_width_c-1 DOWNTO 0);
 
 SIGNAL instruction_valid_r:STD_LOGIC_VECTOR(dp_max_gen_c-1 downto 0);
@@ -248,6 +256,7 @@ SIGNAL task2:STD_LOGIC;
 SIGNAL waitrequest:STD_LOGIC;
 
 -- Current allocated resources for each DP engine
+
 SIGNAL source_bus_id_r:dp_bus_ids_t(dp_max_gen_c-1 downto 0);
 SIGNAL source_vm_r:std_logic_vector(dp_max_gen_c-1 downto 0);
 SIGNAL dest_bus_id_r:dp_bus_ids_t(dp_max_gen_c-1 downto 0);
@@ -263,92 +272,95 @@ SIGNAL condition_vm1_busy_r:dp_condition_t;
 -- Pack template into a linear buffer
 
 function pack_dp_template(rec_in: dp_template_t) return dp_template_record_t is
+
 variable len_v:integer;
 variable q_v:dp_template_record_t;
 begin
-len_v := 0;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.stride0'length) := std_logic_vector(rec_in.stride0);
-len_v := len_v + rec_in.stride0'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.stride0_count'length) := std_logic_vector(rec_in.stride0_count);
-len_v := len_v + rec_in.stride0_count'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.stride0_max'length) := std_logic_vector(rec_in.stride0_max);
-len_v := len_v + rec_in.stride0_max'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.stride0_min'length) := std_logic_vector(rec_in.stride0_min);
-len_v := len_v + rec_in.stride0_min'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.stride1'length) := std_logic_vector(rec_in.stride1);
-len_v := len_v + rec_in.stride1'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.stride1_count'length) := std_logic_vector(rec_in.stride1_count);
-len_v := len_v + rec_in.stride1_count'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.stride1_max'length) := std_logic_vector(rec_in.stride1_max);
-len_v := len_v + rec_in.stride1_max'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.stride1_min'length) := std_logic_vector(rec_in.stride1_min);
-len_v := len_v + rec_in.stride1_min'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.stride2'length) := std_logic_vector(rec_in.stride2);
-len_v := len_v + rec_in.stride2'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.stride2_count'length) := std_logic_vector(rec_in.stride2_count);
-len_v := len_v + rec_in.stride2_count'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.stride2_max'length) := std_logic_vector(rec_in.stride2_max);
-len_v := len_v + rec_in.stride2_max'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.stride2_min'length) := std_logic_vector(rec_in.stride2_min);
-len_v := len_v + rec_in.stride2_min'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.stride3'length) := std_logic_vector(rec_in.stride3);
-len_v := len_v + rec_in.stride3'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.stride3_count'length) := std_logic_vector(rec_in.stride3_count);
-len_v := len_v + rec_in.stride3_count'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.stride3_max'length) := std_logic_vector(rec_in.stride3_max);
-len_v := len_v + rec_in.stride3_max'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.stride3_min'length) := std_logic_vector(rec_in.stride3_min);
-len_v := len_v + rec_in.stride3_min'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.stride4'length) := std_logic_vector(rec_in.stride4);
-len_v := len_v + rec_in.stride4'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.stride4_count'length) := std_logic_vector(rec_in.stride4_count);
-len_v := len_v + rec_in.stride4_count'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.stride4_max'length) := std_logic_vector(rec_in.stride4_max);
-len_v := len_v + rec_in.stride4_max'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.stride4_min'length) := std_logic_vector(rec_in.stride4_min);
-len_v := len_v + rec_in.stride4_min'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.burst_max'length) := std_logic_vector(rec_in.burst_max);
-len_v := len_v + rec_in.burst_max'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.burst_max2'length) := std_logic_vector(rec_in.burst_max2);
-len_v := len_v + rec_in.burst_max2'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.burst_max_init'length) := std_logic_vector(rec_in.burst_max_init);
-len_v := len_v + rec_in.burst_max_init'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.burst_max_index'length) := std_logic_vector(rec_in.burst_max_index);
-len_v := len_v + rec_in.burst_max_index'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.burst_min'length) := std_logic_vector(rec_in.burst_min);
-len_v := len_v + rec_in.burst_min'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.bar'length) := std_logic_vector(rec_in.bar);
-len_v := len_v + rec_in.bar'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.count'length) := std_logic_vector(rec_in.count);
-len_v := len_v + rec_in.count'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.burstStride'length) := std_logic_vector(rec_in.burstStride);
-len_v := len_v + rec_in.burstStride'length;
-q_v(q_v'length-len_v-1) := rec_in.double_precision;
-len_v := len_v + 1;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.data_model'length) := std_logic_vector(rec_in.data_model);
-len_v := len_v + rec_in.data_model'length;
-q_v(q_v'length-len_v-1) := rec_in.scatter;
-len_v := len_v + 1;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.totalcount'length) := std_logic_vector(rec_in.totalcount);
-len_v := len_v + rec_in.totalcount'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.mcast'length) := std_logic_vector(rec_in.mcast);
-len_v := len_v + rec_in.mcast'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.data'length) := std_logic_vector(rec_in.data);
-len_v := len_v + rec_in.data'length;
-q_v(q_v'length-len_v-1) := rec_in.repeat;
-len_v := len_v + 1;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.datatype'length) := std_logic_vector(rec_in.datatype);
-len_v := len_v + rec_in.datatype'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.bus_id'length) := std_logic_vector(rec_in.bus_id);
-len_v := len_v + rec_in.bus_id'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.bufsize'length) := std_logic_vector(rec_in.bufsize);
-len_v := len_v + rec_in.bufsize'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.burst_max_len'length) := std_logic_vector(rec_in.burst_max_len);
-len_v := len_v + rec_in.burst_max_len'length;
-return q_v;
+   len_v := 0;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.stride0'length) := std_logic_vector(rec_in.stride0);
+   len_v := len_v + rec_in.stride0'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.stride0_count'length) := std_logic_vector(rec_in.stride0_count);
+   len_v := len_v + rec_in.stride0_count'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.stride0_max'length) := std_logic_vector(rec_in.stride0_max);
+   len_v := len_v + rec_in.stride0_max'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.stride0_min'length) := std_logic_vector(rec_in.stride0_min);
+   len_v := len_v + rec_in.stride0_min'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.stride1'length) := std_logic_vector(rec_in.stride1);
+   len_v := len_v + rec_in.stride1'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.stride1_count'length) := std_logic_vector(rec_in.stride1_count);
+   len_v := len_v + rec_in.stride1_count'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.stride1_max'length) := std_logic_vector(rec_in.stride1_max);
+   len_v := len_v + rec_in.stride1_max'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.stride1_min'length) := std_logic_vector(rec_in.stride1_min);
+   len_v := len_v + rec_in.stride1_min'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.stride2'length) := std_logic_vector(rec_in.stride2);
+   len_v := len_v + rec_in.stride2'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.stride2_count'length) := std_logic_vector(rec_in.stride2_count);
+   len_v := len_v + rec_in.stride2_count'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.stride2_max'length) := std_logic_vector(rec_in.stride2_max);
+   len_v := len_v + rec_in.stride2_max'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.stride2_min'length) := std_logic_vector(rec_in.stride2_min);
+   len_v := len_v + rec_in.stride2_min'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.stride3'length) := std_logic_vector(rec_in.stride3);
+   len_v := len_v + rec_in.stride3'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.stride3_count'length) := std_logic_vector(rec_in.stride3_count);
+   len_v := len_v + rec_in.stride3_count'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.stride3_max'length) := std_logic_vector(rec_in.stride3_max);
+   len_v := len_v + rec_in.stride3_max'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.stride3_min'length) := std_logic_vector(rec_in.stride3_min);
+   len_v := len_v + rec_in.stride3_min'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.stride4'length) := std_logic_vector(rec_in.stride4);
+   len_v := len_v + rec_in.stride4'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.stride4_count'length) := std_logic_vector(rec_in.stride4_count);
+   len_v := len_v + rec_in.stride4_count'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.stride4_max'length) := std_logic_vector(rec_in.stride4_max);
+   len_v := len_v + rec_in.stride4_max'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.stride4_min'length) := std_logic_vector(rec_in.stride4_min);
+   len_v := len_v + rec_in.stride4_min'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.burst_max'length) := std_logic_vector(rec_in.burst_max);
+   len_v := len_v + rec_in.burst_max'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.burst_max2'length) := std_logic_vector(rec_in.burst_max2);
+   len_v := len_v + rec_in.burst_max2'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.burst_max_init'length) := std_logic_vector(rec_in.burst_max_init);
+   len_v := len_v + rec_in.burst_max_init'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.burst_max_index'length) := std_logic_vector(rec_in.burst_max_index);
+   len_v := len_v + rec_in.burst_max_index'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.burst_min'length) := std_logic_vector(rec_in.burst_min);
+   len_v := len_v + rec_in.burst_min'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.bar'length) := std_logic_vector(rec_in.bar);
+   len_v := len_v + rec_in.bar'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.count'length) := std_logic_vector(rec_in.count);
+   len_v := len_v + rec_in.count'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.burstStride'length) := std_logic_vector(rec_in.burstStride);
+   len_v := len_v + rec_in.burstStride'length;
+   q_v(q_v'length-len_v-1) := rec_in.double_precision;
+   len_v := len_v + 1;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.data_model'length) := std_logic_vector(rec_in.data_model);
+   len_v := len_v + rec_in.data_model'length;
+   q_v(q_v'length-len_v-1) := rec_in.scatter;
+   len_v := len_v + 1;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.totalcount'length) := std_logic_vector(rec_in.totalcount);
+   len_v := len_v + rec_in.totalcount'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.mcast'length) := std_logic_vector(rec_in.mcast);
+   len_v := len_v + rec_in.mcast'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.data'length) := std_logic_vector(rec_in.data);
+   len_v := len_v + rec_in.data'length;
+   q_v(q_v'length-len_v-1) := rec_in.repeat;
+   len_v := len_v + 1;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.datatype'length) := std_logic_vector(rec_in.datatype);
+   len_v := len_v + rec_in.datatype'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.bus_id'length) := std_logic_vector(rec_in.bus_id);
+   len_v := len_v + rec_in.bus_id'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.bufsize'length) := std_logic_vector(rec_in.bufsize);
+   len_v := len_v + rec_in.bufsize'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.burst_max_len'length) := std_logic_vector(rec_in.burst_max_len);
+   len_v := len_v + rec_in.burst_max_len'length;
+   return q_v;
 end function pack_dp_template;
 
+-------
 -- Unpack dp_template from a linear buffer
+--------
 
 function unpack_dp_template(q_in : dp_template_record_t) return dp_template_t is  
 variable rec_v:dp_template_t;
@@ -444,170 +456,170 @@ function pack_fifo(rec_in : dp_instruction_t) return dp_fifo_record_t is
 variable len_v:integer;
 variable q_v:dp_fifo_record_t;
 begin
-len_v := 0;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.opcode'length) := std_logic_vector(rec_in.opcode);
-len_v := len_v + rec_in.opcode'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.condition'length) := std_logic_vector(rec_in.condition);
-len_v := len_v + rec_in.condition'length;
-q_v(q_v'length-len_v-1) := rec_in.vm;
-len_v := len_v + 1;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.stride0'length) := std_logic_vector(rec_in.source.stride0);
-len_v := len_v + rec_in.source.stride0'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.stride0_count'length) := std_logic_vector(rec_in.source.stride0_count);
-len_v := len_v + rec_in.source.stride0_count'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.stride0_max'length) := std_logic_vector(rec_in.source.stride0_max);
-len_v := len_v + rec_in.source.stride0_max'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.stride0_min'length) := std_logic_vector(rec_in.source.stride0_min);
-len_v := len_v + rec_in.source.stride0_min'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.stride1'length) := std_logic_vector(rec_in.source.stride1);
-len_v := len_v + rec_in.source.stride1'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.stride1_count'length) := std_logic_vector(rec_in.source.stride1_count);
-len_v := len_v + rec_in.source.stride1_count'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.stride1_max'length) := std_logic_vector(rec_in.source.stride1_max);
-len_v := len_v + rec_in.source.stride1_max'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.stride1_min'length) := std_logic_vector(rec_in.source.stride1_min);
-len_v := len_v + rec_in.source.stride1_min'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.stride2'length) := std_logic_vector(rec_in.source.stride2);
-len_v := len_v + rec_in.source.stride2'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.stride2_count'length) := std_logic_vector(rec_in.source.stride2_count);
-len_v := len_v + rec_in.source.stride2_count'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.stride2_max'length) := std_logic_vector(rec_in.source.stride2_max);
-len_v := len_v + rec_in.source.stride2_max'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.stride2_min'length) := std_logic_vector(rec_in.source.stride2_min);
-len_v := len_v + rec_in.source.stride2_min'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.stride3'length) := std_logic_vector(rec_in.source.stride3);
-len_v := len_v + rec_in.source.stride3'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.stride3_count'length) := std_logic_vector(rec_in.source.stride3_count);
-len_v := len_v + rec_in.source.stride3_count'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.stride3_max'length) := std_logic_vector(rec_in.source.stride3_max);
-len_v := len_v + rec_in.source.stride3_max'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.stride3_min'length) := std_logic_vector(rec_in.source.stride3_min);
-len_v := len_v + rec_in.source.stride3_min'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.stride4'length) := std_logic_vector(rec_in.source.stride4);
-len_v := len_v + rec_in.source.stride4'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.stride4_count'length) := std_logic_vector(rec_in.source.stride4_count);
-len_v := len_v + rec_in.source.stride4_count'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.stride4_max'length) := std_logic_vector(rec_in.source.stride4_max);
-len_v := len_v + rec_in.source.stride4_max'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.stride4_min'length) := std_logic_vector(rec_in.source.stride4_min);
-len_v := len_v + rec_in.source.stride4_min'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.burst_max'length) := std_logic_vector(rec_in.source.burst_max);
-len_v := len_v + rec_in.source.burst_max'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.burst_max2'length) := std_logic_vector(rec_in.source.burst_max2);
-len_v := len_v + rec_in.source.burst_max2'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.burst_max_init'length) := std_logic_vector(rec_in.source.burst_max_init);
-len_v := len_v + rec_in.source.burst_max_init'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.burst_max_index'length) := std_logic_vector(rec_in.source.burst_max_index);
-len_v := len_v + rec_in.source.burst_max_index'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.burst_min'length) := std_logic_vector(rec_in.source.burst_min);
-len_v := len_v + rec_in.source.burst_min'length;
-q_v(q_v'length-len_v-1) := rec_in.source.double_precision;
-len_v := len_v + 1;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.data_model'length) := std_logic_vector(rec_in.source.data_model);
-len_v := len_v + rec_in.source.data_model'length;
-q_v(q_v'length-len_v-1) := rec_in.source.scatter;
-len_v := len_v + 1;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.bar'length) := std_logic_vector(rec_in.source.bar);
-len_v := len_v + rec_in.source.bar'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.count'length) := std_logic_vector(rec_in.source.count);
-len_v := len_v + rec_in.source.count'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.burstStride'length) := std_logic_vector(rec_in.source.burstStride);
-len_v := len_v + rec_in.source.burstStride'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.bufsize'length) := std_logic_vector(rec_in.source.bufsize);
-len_v := len_v + rec_in.source.bufsize'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.burst_max_len'length) := std_logic_vector(rec_in.source.burst_max_len);
-len_v := len_v + rec_in.source.burst_max_len'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source_bus_id'length) := std_logic_vector(rec_in.source_bus_id);
-len_v := len_v + rec_in.source_bus_id'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source_data_type'length) := std_logic_vector(rec_in.source_data_type);
-len_v := len_v + rec_in.source_data_type'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.stride0'length) := std_logic_vector(rec_in.dest.stride0);
-len_v := len_v + rec_in.dest.stride0'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.stride0_count'length) := std_logic_vector(rec_in.dest.stride0_count);
-len_v := len_v + rec_in.dest.stride0_count'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.stride0_max'length) := std_logic_vector(rec_in.dest.stride0_max);
-len_v := len_v + rec_in.dest.stride0_max'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.stride0_min'length) := std_logic_vector(rec_in.dest.stride0_min);
-len_v := len_v + rec_in.dest.stride0_min'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.stride1'length) := std_logic_vector(rec_in.dest.stride1);
-len_v := len_v + rec_in.dest.stride1'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.stride1_count'length) := std_logic_vector(rec_in.dest.stride1_count);
-len_v := len_v + rec_in.dest.stride1_count'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.stride1_max'length) := std_logic_vector(rec_in.dest.stride1_max);
-len_v := len_v + rec_in.dest.stride1_max'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.stride1_min'length) := std_logic_vector(rec_in.dest.stride1_min);
-len_v := len_v + rec_in.dest.stride1_min'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.stride2'length) := std_logic_vector(rec_in.dest.stride2);
-len_v := len_v + rec_in.dest.stride2'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.stride2_count'length) := std_logic_vector(rec_in.dest.stride2_count);
-len_v := len_v + rec_in.dest.stride2_count'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.stride2_max'length) := std_logic_vector(rec_in.dest.stride2_max);
-len_v := len_v + rec_in.dest.stride2_max'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.stride2_min'length) := std_logic_vector(rec_in.dest.stride2_min);
-len_v := len_v + rec_in.dest.stride2_min'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.stride3'length) := std_logic_vector(rec_in.dest.stride3);
-len_v := len_v + rec_in.dest.stride3'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.stride3_count'length) := std_logic_vector(rec_in.dest.stride3_count);
-len_v := len_v + rec_in.dest.stride3_count'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.stride3_max'length) := std_logic_vector(rec_in.dest.stride3_max);
-len_v := len_v + rec_in.dest.stride3_max'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.stride3_min'length) := std_logic_vector(rec_in.dest.stride3_min);
-len_v := len_v + rec_in.dest.stride3_min'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.stride4'length) := std_logic_vector(rec_in.dest.stride4);
-len_v := len_v + rec_in.dest.stride4'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.stride4_count'length) := std_logic_vector(rec_in.dest.stride4_count);
-len_v := len_v + rec_in.dest.stride4_count'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.stride4_max'length) := std_logic_vector(rec_in.dest.stride4_max);
-len_v := len_v + rec_in.dest.stride4_max'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.stride4_min'length) := std_logic_vector(rec_in.dest.stride4_min);
-len_v := len_v + rec_in.dest.stride4_min'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.burst_max'length) := std_logic_vector(rec_in.dest.burst_max);
-len_v := len_v + rec_in.dest.burst_max'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.burst_max2'length) := std_logic_vector(rec_in.dest.burst_max2);
-len_v := len_v + rec_in.dest.burst_max2'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.burst_max_init'length) := std_logic_vector(rec_in.dest.burst_max_init);
-len_v := len_v + rec_in.dest.burst_max_init'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.burst_max_index'length) := std_logic_vector(rec_in.dest.burst_max_index);
-len_v := len_v + rec_in.dest.burst_max_index'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.burst_min'length) := std_logic_vector(rec_in.dest.burst_min);
-len_v := len_v + rec_in.dest.burst_min'length;
-q_v(q_v'length-len_v-1) := rec_in.dest.double_precision;
-len_v := len_v + 1;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.data_model'length) := std_logic_vector(rec_in.dest.data_model);
-len_v := len_v + rec_in.dest.data_model'length;
-q_v(q_v'length-len_v-1) := rec_in.dest.scatter;
-len_v := len_v + 1;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.bar'length) := std_logic_vector(rec_in.dest.bar);
-len_v := len_v + rec_in.dest.bar'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.count'length) := std_logic_vector(rec_in.dest.count);
-len_v := len_v + rec_in.dest.count'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.burstStride'length) := std_logic_vector(rec_in.dest.burstStride);
-len_v := len_v + rec_in.dest.burstStride'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.bufsize'length) := std_logic_vector(rec_in.dest.bufsize);
-len_v := len_v + rec_in.dest.bufsize'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.burst_max_len'length) := std_logic_vector(rec_in.dest.burst_max_len);
-len_v := len_v + rec_in.dest.burst_max_len'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest_bus_id'length) := std_logic_vector(rec_in.dest_bus_id);
-len_v := len_v + rec_in.dest_bus_id'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest_data_type'length) := std_logic_vector(rec_in.dest_data_type);
-len_v := len_v + rec_in.dest_data_type'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.mcast'length) := std_logic_vector(rec_in.mcast);
-len_v := len_v + rec_in.mcast'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.count'length) := std_logic_vector(rec_in.count);
-len_v := len_v + rec_in.count'length;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.data'length) := std_logic_vector(rec_in.data);
-len_v := len_v + rec_in.data'length;
-q_v(q_v'length-len_v-1) := std_logic(rec_in.repeat);
-len_v := len_v + 1;
-q_v(q_v'length-len_v-1) := std_logic(rec_in.source_addr_mode);
-len_v := len_v + 1;
-q_v(q_v'length-len_v-1) := std_logic(rec_in.dest_addr_mode);
-len_v := len_v + 1;
-q_v(q_v'length-len_v-1) := std_logic(rec_in.stream_process);
-len_v := len_v + 1;
-q_v(q_v'length-len_v-1 downto q_v'length-len_v-stream_id_t'length) := std_logic_vector(rec_in.stream_process_id);
-len_v := len_v + stream_id_t'length;
-return q_v;
+   len_v := 0;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.opcode'length) := std_logic_vector(rec_in.opcode);
+   len_v := len_v + rec_in.opcode'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.condition'length) := std_logic_vector(rec_in.condition);
+   len_v := len_v + rec_in.condition'length;
+   q_v(q_v'length-len_v-1) := rec_in.vm;
+   len_v := len_v + 1;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.stride0'length) := std_logic_vector(rec_in.source.stride0);
+   len_v := len_v + rec_in.source.stride0'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.stride0_count'length) := std_logic_vector(rec_in.source.stride0_count);
+   len_v := len_v + rec_in.source.stride0_count'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.stride0_max'length) := std_logic_vector(rec_in.source.stride0_max);
+   len_v := len_v + rec_in.source.stride0_max'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.stride0_min'length) := std_logic_vector(rec_in.source.stride0_min);
+   len_v := len_v + rec_in.source.stride0_min'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.stride1'length) := std_logic_vector(rec_in.source.stride1);
+   len_v := len_v + rec_in.source.stride1'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.stride1_count'length) := std_logic_vector(rec_in.source.stride1_count);
+   len_v := len_v + rec_in.source.stride1_count'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.stride1_max'length) := std_logic_vector(rec_in.source.stride1_max);
+   len_v := len_v + rec_in.source.stride1_max'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.stride1_min'length) := std_logic_vector(rec_in.source.stride1_min);
+   len_v := len_v + rec_in.source.stride1_min'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.stride2'length) := std_logic_vector(rec_in.source.stride2);
+   len_v := len_v + rec_in.source.stride2'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.stride2_count'length) := std_logic_vector(rec_in.source.stride2_count);
+   len_v := len_v + rec_in.source.stride2_count'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.stride2_max'length) := std_logic_vector(rec_in.source.stride2_max);
+   len_v := len_v + rec_in.source.stride2_max'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.stride2_min'length) := std_logic_vector(rec_in.source.stride2_min);
+   len_v := len_v + rec_in.source.stride2_min'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.stride3'length) := std_logic_vector(rec_in.source.stride3);
+   len_v := len_v + rec_in.source.stride3'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.stride3_count'length) := std_logic_vector(rec_in.source.stride3_count);
+   len_v := len_v + rec_in.source.stride3_count'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.stride3_max'length) := std_logic_vector(rec_in.source.stride3_max);
+   len_v := len_v + rec_in.source.stride3_max'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.stride3_min'length) := std_logic_vector(rec_in.source.stride3_min);
+   len_v := len_v + rec_in.source.stride3_min'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.stride4'length) := std_logic_vector(rec_in.source.stride4);
+   len_v := len_v + rec_in.source.stride4'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.stride4_count'length) := std_logic_vector(rec_in.source.stride4_count);
+   len_v := len_v + rec_in.source.stride4_count'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.stride4_max'length) := std_logic_vector(rec_in.source.stride4_max);
+   len_v := len_v + rec_in.source.stride4_max'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.stride4_min'length) := std_logic_vector(rec_in.source.stride4_min);
+   len_v := len_v + rec_in.source.stride4_min'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.burst_max'length) := std_logic_vector(rec_in.source.burst_max);
+   len_v := len_v + rec_in.source.burst_max'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.burst_max2'length) := std_logic_vector(rec_in.source.burst_max2);
+   len_v := len_v + rec_in.source.burst_max2'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.burst_max_init'length) := std_logic_vector(rec_in.source.burst_max_init);
+   len_v := len_v + rec_in.source.burst_max_init'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.burst_max_index'length) := std_logic_vector(rec_in.source.burst_max_index);
+   len_v := len_v + rec_in.source.burst_max_index'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.burst_min'length) := std_logic_vector(rec_in.source.burst_min);
+   len_v := len_v + rec_in.source.burst_min'length;
+   q_v(q_v'length-len_v-1) := rec_in.source.double_precision;
+   len_v := len_v + 1;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.data_model'length) := std_logic_vector(rec_in.source.data_model);
+   len_v := len_v + rec_in.source.data_model'length;
+   q_v(q_v'length-len_v-1) := rec_in.source.scatter;
+   len_v := len_v + 1;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.bar'length) := std_logic_vector(rec_in.source.bar);
+   len_v := len_v + rec_in.source.bar'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.count'length) := std_logic_vector(rec_in.source.count);
+   len_v := len_v + rec_in.source.count'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.burstStride'length) := std_logic_vector(rec_in.source.burstStride);
+   len_v := len_v + rec_in.source.burstStride'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.bufsize'length) := std_logic_vector(rec_in.source.bufsize);
+   len_v := len_v + rec_in.source.bufsize'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source.burst_max_len'length) := std_logic_vector(rec_in.source.burst_max_len);
+   len_v := len_v + rec_in.source.burst_max_len'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source_bus_id'length) := std_logic_vector(rec_in.source_bus_id);
+   len_v := len_v + rec_in.source_bus_id'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.source_data_type'length) := std_logic_vector(rec_in.source_data_type);
+   len_v := len_v + rec_in.source_data_type'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.stride0'length) := std_logic_vector(rec_in.dest.stride0);
+   len_v := len_v + rec_in.dest.stride0'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.stride0_count'length) := std_logic_vector(rec_in.dest.stride0_count);
+   len_v := len_v + rec_in.dest.stride0_count'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.stride0_max'length) := std_logic_vector(rec_in.dest.stride0_max);
+   len_v := len_v + rec_in.dest.stride0_max'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.stride0_min'length) := std_logic_vector(rec_in.dest.stride0_min);
+   len_v := len_v + rec_in.dest.stride0_min'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.stride1'length) := std_logic_vector(rec_in.dest.stride1);
+   len_v := len_v + rec_in.dest.stride1'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.stride1_count'length) := std_logic_vector(rec_in.dest.stride1_count);
+   len_v := len_v + rec_in.dest.stride1_count'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.stride1_max'length) := std_logic_vector(rec_in.dest.stride1_max);
+   len_v := len_v + rec_in.dest.stride1_max'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.stride1_min'length) := std_logic_vector(rec_in.dest.stride1_min);
+   len_v := len_v + rec_in.dest.stride1_min'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.stride2'length) := std_logic_vector(rec_in.dest.stride2);
+   len_v := len_v + rec_in.dest.stride2'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.stride2_count'length) := std_logic_vector(rec_in.dest.stride2_count);
+   len_v := len_v + rec_in.dest.stride2_count'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.stride2_max'length) := std_logic_vector(rec_in.dest.stride2_max);
+   len_v := len_v + rec_in.dest.stride2_max'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.stride2_min'length) := std_logic_vector(rec_in.dest.stride2_min);
+   len_v := len_v + rec_in.dest.stride2_min'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.stride3'length) := std_logic_vector(rec_in.dest.stride3);
+   len_v := len_v + rec_in.dest.stride3'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.stride3_count'length) := std_logic_vector(rec_in.dest.stride3_count);
+   len_v := len_v + rec_in.dest.stride3_count'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.stride3_max'length) := std_logic_vector(rec_in.dest.stride3_max);
+   len_v := len_v + rec_in.dest.stride3_max'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.stride3_min'length) := std_logic_vector(rec_in.dest.stride3_min);
+   len_v := len_v + rec_in.dest.stride3_min'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.stride4'length) := std_logic_vector(rec_in.dest.stride4);
+   len_v := len_v + rec_in.dest.stride4'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.stride4_count'length) := std_logic_vector(rec_in.dest.stride4_count);
+   len_v := len_v + rec_in.dest.stride4_count'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.stride4_max'length) := std_logic_vector(rec_in.dest.stride4_max);
+   len_v := len_v + rec_in.dest.stride4_max'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.stride4_min'length) := std_logic_vector(rec_in.dest.stride4_min);
+   len_v := len_v + rec_in.dest.stride4_min'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.burst_max'length) := std_logic_vector(rec_in.dest.burst_max);
+   len_v := len_v + rec_in.dest.burst_max'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.burst_max2'length) := std_logic_vector(rec_in.dest.burst_max2);
+   len_v := len_v + rec_in.dest.burst_max2'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.burst_max_init'length) := std_logic_vector(rec_in.dest.burst_max_init);
+   len_v := len_v + rec_in.dest.burst_max_init'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.burst_max_index'length) := std_logic_vector(rec_in.dest.burst_max_index);
+   len_v := len_v + rec_in.dest.burst_max_index'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.burst_min'length) := std_logic_vector(rec_in.dest.burst_min);
+   len_v := len_v + rec_in.dest.burst_min'length;
+   q_v(q_v'length-len_v-1) := rec_in.dest.double_precision;
+   len_v := len_v + 1;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.data_model'length) := std_logic_vector(rec_in.dest.data_model);
+   len_v := len_v + rec_in.dest.data_model'length;
+   q_v(q_v'length-len_v-1) := rec_in.dest.scatter;
+   len_v := len_v + 1;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.bar'length) := std_logic_vector(rec_in.dest.bar);
+   len_v := len_v + rec_in.dest.bar'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.count'length) := std_logic_vector(rec_in.dest.count);
+   len_v := len_v + rec_in.dest.count'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.burstStride'length) := std_logic_vector(rec_in.dest.burstStride);
+   len_v := len_v + rec_in.dest.burstStride'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.bufsize'length) := std_logic_vector(rec_in.dest.bufsize);
+   len_v := len_v + rec_in.dest.bufsize'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest.burst_max_len'length) := std_logic_vector(rec_in.dest.burst_max_len);
+   len_v := len_v + rec_in.dest.burst_max_len'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest_bus_id'length) := std_logic_vector(rec_in.dest_bus_id);
+   len_v := len_v + rec_in.dest_bus_id'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.dest_data_type'length) := std_logic_vector(rec_in.dest_data_type);
+   len_v := len_v + rec_in.dest_data_type'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.mcast'length) := std_logic_vector(rec_in.mcast);
+   len_v := len_v + rec_in.mcast'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.count'length) := std_logic_vector(rec_in.count);
+   len_v := len_v + rec_in.count'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.data'length) := std_logic_vector(rec_in.data);
+   len_v := len_v + rec_in.data'length;
+   q_v(q_v'length-len_v-1) := std_logic(rec_in.repeat);
+   len_v := len_v + 1;
+   q_v(q_v'length-len_v-1) := std_logic(rec_in.source_addr_mode);
+   len_v := len_v + 1;
+   q_v(q_v'length-len_v-1) := std_logic(rec_in.dest_addr_mode);
+   len_v := len_v + 1;
+   q_v(q_v'length-len_v-1) := std_logic(rec_in.stream_process);
+   len_v := len_v + 1;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-stream_id_t'length) := std_logic_vector(rec_in.stream_process_id);
+   len_v := len_v + stream_id_t'length;
+   return q_v;
 end function pack_fifo;
 
 --------
@@ -792,13 +804,13 @@ function pack_generic_fifo(rec_in : dp_instruction_generic_t) return dp_fifo_rec
 variable q_v:dp_fifo_record_t;
 variable padding_v:std_logic_vector(dp_fifo_record_t'length-rec_in.opcode'length-rec_in.condition'length-rec_in.param'length-rec_in.parameters'length-1 downto 0);
 begin
-padding_v := (others=>'0');
-q_v :=      std_logic_vector(rec_in.opcode) & 
-            std_logic_vector(rec_in.condition) &
-            std_logic_vector(rec_in.param) &
-            std_logic_vector(rec_in.parameters) &
-            padding_v;
-return q_v;
+   padding_v := (others=>'0');
+   q_v := std_logic_vector(rec_in.opcode) & 
+          std_logic_vector(rec_in.condition) &
+          std_logic_vector(rec_in.param) &
+          std_logic_vector(rec_in.parameters) &
+          padding_v;
+   return q_v;
 end function pack_generic_fifo;
 
 -------------
@@ -833,44 +845,43 @@ function opcode_exec_decode(bus_writedata_in : std_logic_vector(host_width_c-1 d
                             mcast_in:std_logic_vector(mcast_t'length-1 downto 0);
                             count_in:unsigned(dp_addr_width_c-1 downto 0);
                             data_in:std_logic_vector(2*data_width_c-1 downto 0);
-							       repeat_in:std_logic
+                            repeat_in:std_logic
                             ) return dp_instruction_t is
 variable rec_v:dp_instruction_t;
 variable len_v:integer;
 variable condition_v:dp_condition_t; 
 begin  
-len_v := 0;
-rec_v.opcode := unsigned(bus_writedata_in(rec_v.opcode'length+len_v-1 downto len_v));
-len_v := len_v+rec_v.opcode'length;
-condition_v := bus_writedata_in(rec_v.condition'length+len_v-1 downto len_v);
-rec_v.condition := condition_v;
-len_v := len_v+rec_v.condition'length;
-rec_v.vm := bus_writedata_in(len_v);
-len_v := len_v+1;
-rec_v.source := src_template_in;
-rec_v.source_bus_id := source_bus_id_in;
-len_v := len_v+rec_v.source_bus_id'length;
-rec_v.source_data_type := datatype_in;
-len_v := len_v+1;
-rec_v.dest := dest_template_in;
-rec_v.dest_bus_id := dest_bus_id_in;
-len_v := len_v+rec_v.dest_bus_id'length;
-rec_v.dest_data_type := datatype_in;
-len_v := len_v+1;
-rec_v.source_addr_mode := bus_writedata_in(len_v);
-len_v := len_v+1;
-rec_v.dest_addr_mode := bus_writedata_in(len_v);
-len_v := len_v+1;
-rec_v.stream_process := bus_writedata_in(len_v);
-len_v := len_v+1;
-rec_v.stream_process_id := unsigned(bus_writedata_in(stream_id_t'length+len_v-1 downto len_v));
-len_v := len_v+stream_id_t'length;
-
-rec_v.mcast := mcast_in;
-rec_v.count := count_in;
-rec_v.data := data_in;
-rec_v.repeat := repeat_in;
-return rec_v;
+   len_v := 0;
+   rec_v.opcode := unsigned(bus_writedata_in(rec_v.opcode'length+len_v-1 downto len_v));
+   len_v := len_v+rec_v.opcode'length;
+   condition_v := bus_writedata_in(rec_v.condition'length+len_v-1 downto len_v);
+   rec_v.condition := condition_v;
+   len_v := len_v+rec_v.condition'length;
+   rec_v.vm := bus_writedata_in(len_v);
+   len_v := len_v+1;
+   rec_v.source := src_template_in;
+   rec_v.source_bus_id := source_bus_id_in;
+   len_v := len_v+rec_v.source_bus_id'length;
+   rec_v.source_data_type := datatype_in;
+   len_v := len_v+1;
+   rec_v.dest := dest_template_in;
+   rec_v.dest_bus_id := dest_bus_id_in;
+   len_v := len_v+rec_v.dest_bus_id'length;
+   rec_v.dest_data_type := datatype_in;
+   len_v := len_v+1;
+   rec_v.source_addr_mode := bus_writedata_in(len_v);
+   len_v := len_v+1;
+   rec_v.dest_addr_mode := bus_writedata_in(len_v);
+   len_v := len_v+1;
+   rec_v.stream_process := bus_writedata_in(len_v);
+   len_v := len_v+1;
+   rec_v.stream_process_id := unsigned(bus_writedata_in(stream_id_t'length+len_v-1 downto len_v));
+   len_v := len_v+stream_id_t'length;
+   rec_v.mcast := mcast_in;
+   rec_v.count := count_in;
+   rec_v.data := data_in;
+   rec_v.repeat := repeat_in;
+   return rec_v;
 end function opcode_exec_decode;
 
 -------
@@ -878,21 +889,20 @@ end function opcode_exec_decode;
 -------
 
 function opcode_generic_decode(bus_writedata_in : std_logic_vector(host_width_c-1 downto 0);
-                                parameters:std_logic_vector(host_width_c*dp_indication_num_parm_c-1 downto 0)
-                              ) 
-                return dp_instruction_generic_t is
+                                parameters:std_logic_vector(host_width_c*dp_indication_num_parm_c-1 downto 0)) 
+                              return dp_instruction_generic_t is
 variable rec_v:dp_instruction_generic_t;
 variable len_v:integer;
 begin  
-len_v:=0;
-rec_v.opcode := unsigned(bus_writedata_in(rec_v.opcode'length+len_v-1 downto len_v));
-len_v := len_v+rec_v.opcode'length;
-rec_v.condition := bus_writedata_in(rec_v.condition'length+len_v-1 downto len_v);
-len_v := len_v+rec_v.condition'length;
-rec_v.param := bus_writedata_in(rec_v.param'length+len_v-1 downto len_v);
-len_v := len_v+rec_v.param'length;
-rec_v.parameters := parameters;
-return rec_v;
+   len_v:=0;
+   rec_v.opcode := unsigned(bus_writedata_in(rec_v.opcode'length+len_v-1 downto len_v));
+   len_v := len_v+rec_v.opcode'length;
+   rec_v.condition := bus_writedata_in(rec_v.condition'length+len_v-1 downto len_v);
+   len_v := len_v+rec_v.condition'length;
+   rec_v.param := bus_writedata_in(rec_v.param'length+len_v-1 downto len_v);
+   len_v := len_v+rec_v.param'length;
+   rec_v.parameters := parameters;
+   return rec_v;
 end function opcode_generic_decode;
 
 -------------
@@ -1020,8 +1030,6 @@ else
       end if;
    end if;
 end if;
-
-
 end process;
 
 
@@ -1032,34 +1040,34 @@ end process;
 log_wrreq2 <= log_wrreq and log_enable_r and (not log_full);
 
 log_fifo_i : dcfifo
-	GENERIC MAP (
-		intended_device_family => "Cyclone V",
-		lpm_numwords => log_max_c,
-		lpm_showahead => "ON",
-		lpm_type => "dcfifo",
-		lpm_width => 2*host_width_c,
-		lpm_widthu => log_depth_c,
-		overflow_checking => "ON",
-		rdsync_delaypipe => 5,
-		read_aclr_synch => "OFF",
-		underflow_checking => "ON",
-		use_eab => "ON",
-		write_aclr_synch => "OFF",
-		wrsync_delaypipe => 5
-	)
-	PORT MAP (
-        aclr => resetn,
-		data => log_write,
-		rdclk => mclock_in,
-		rdreq => log_rdreq,
-		wrclk => clock_in,
-		wrreq => log_wrreq2,
-		q => log_read,
-		rdempty => log_empty,
-		rdusedw => open,
-		wrfull => log_full,
-		wrusedw => open
-	);
+   GENERIC MAP (
+      intended_device_family => "Cyclone V",
+      lpm_numwords => log_max_c,
+      lpm_showahead => "ON",
+      lpm_type => "dcfifo",
+      lpm_width => 2*host_width_c,
+      lpm_widthu => log_depth_c,
+      overflow_checking => "ON",
+      rdsync_delaypipe => 5,
+      read_aclr_synch => "OFF",
+      underflow_checking => "ON",
+      use_eab => "ON",
+      write_aclr_synch => "OFF",
+      wrsync_delaypipe => 5
+      )
+   PORT MAP (
+      aclr => resetn,
+      data => log_write,
+      rdclk => mclock_in,
+      rdreq => log_rdreq,
+      wrclk => clock_in,
+      wrreq => log_wrreq2,
+      q => log_read,
+      rdempty => log_empty,
+      rdusedw => open,
+      wrfull => log_full,
+      wrusedw => open
+      );
 
 
 ----------
@@ -1069,12 +1077,11 @@ log_fifo_i : dcfifo
 rdreq <= '1' when (valid='1') and ((ready='1' and pause='0')) else '0';
 
 fifo_i : dp_fifo
-	PORT MAP (
+   PORT MAP (
         clock_in=>clock_in,
         mclock_in=>mclock_in,
         reset_in=>reset_in,
         mreset_in=>mreset_in,
-
         writedata_in=>data,
         wreq_in=>wreq,
         readdata1_out=>q1,
@@ -1084,9 +1091,8 @@ fifo_i : dp_fifo
         valid1_out=>valids(0),
         valid2_out=>valids(1),
         full_out=>full,
-
         fifo_avail_out => fifo_avail
-	);
+        );
 
 ----------
 -- MEM block to store template variables
@@ -1137,47 +1143,51 @@ in_indication <= std_logic_vector(orec_generic.opcode) & orec_generic.parameters
 
 indication_i : dcfifo
    GENERIC MAP (
-		intended_device_family => "Cyclone V",
-		lpm_numwords => dp_indication_max_c,
-		lpm_showahead => "ON",
-		lpm_type => "dcfifo",
-		lpm_width => dp_indication_num_parm_c*host_width_c+dp_opcode_t'length,
-		lpm_widthu => dp_indication_depth_c,
-		overflow_checking => "ON",
-		rdsync_delaypipe => 5,
-		read_aclr_synch => "OFF",
-		underflow_checking => "ON",
-		use_eab => "ON",
-		write_aclr_synch => "OFF",
-		wrsync_delaypipe => 5
-	)
-	PORT MAP (
-        aclr => resetn,
-		data => in_indication,
-		rdclk => mclock_in,
-		rdreq => indication_rdreq,
-		wrclk => clock_in,
-		wrreq => wreq2_indication,
-		q => indication,
-		rdempty => indication_empty,
-		rdusedw => indication_rdusedw,
-		wrfull => indication_full,
-		wrusedw => indication_wrusedw
-	);
+      intended_device_family => "Cyclone V",
+      lpm_numwords => dp_indication_max_c,
+      lpm_showahead => "ON",
+      lpm_type => "dcfifo",
+      lpm_width => dp_indication_num_parm_c*host_width_c+dp_opcode_t'length,
+      lpm_widthu => dp_indication_depth_c,
+      overflow_checking => "ON",
+      rdsync_delaypipe => 5,
+      read_aclr_synch => "OFF",
+      underflow_checking => "ON",
+      use_eab => "ON",
+      write_aclr_synch => "OFF",
+      wrsync_delaypipe => 5
+      )
+   PORT MAP (
+      aclr => resetn,
+      data => in_indication,
+      rdclk => mclock_in,
+      rdreq => indication_rdreq,
+      wrclk => clock_in,
+      wrreq => wreq2_indication,
+      q => indication,
+      rdempty => indication_empty,
+      rdusedw => indication_rdusedw,
+      wrfull => indication_full,
+      wrusedw => indication_wrusedw
+      );
 
 
 pcore_read_pending <= pcore_read_pending_p0_in or pcore_read_pending_p1_in;
+
 sram_read_pending <= sram_read_pending_p0_in or sram_read_pending_p1_in;
+
 ddr_read_pending <= ddr_read_pending_p0_in or ddr_read_pending_p1_in;
 
 bus_readdata_out <= bus_readdata_r when rden_r='1' else (others=>'Z');
 
 regno <= unsigned(bus_addr_r(register_t'length-1 downto 0));
+
 regno2 <= unsigned(bus_addr_r(register2_t'length+register_t'length-1 downto register_t'length));
 
 match <= '1';
 
 -- Pack instruction to put into FIFO 
+
 data <= pack_fifo(irec) when (irec.opcode=dp_opcode_transfer_c) else pack_generic_fifo(irec_generic);
 
 --------------------
@@ -1216,28 +1226,30 @@ wreq <= (wreq_all and match);
 --------------------------------------
 
 -- Check which DP engine is ready to accept new instructions
+
 ready2(0) <= '1' when valid='1' and avail(0)='1' and (orec.opcode = dp_opcode_transfer_c) else '0';
+
 ready2(1) <= '1' when valid='1' and avail(1)='1' and (orec.opcode = dp_opcode_transfer_c) else '0';
 
 process(valid,avail,ready2,orec,source_bus_id_r,source_vm_r,dest_bus_id_r,instruction_valid_r)
 begin
-    if valid='1' and (orec.opcode /= dp_opcode_transfer_c) then
-       ready <= '1';
-       ready_which <= '0';
-	elsif ready2(0)='1' and 
-          ((orec.source_bus_id /= source_bus_id_r(1) and orec.dest_bus_id/=dest_bus_id_r(1)) or (avail(1)='1')) then
-       -- Use first DP if it is ready and the second DP also not using the same source/dest bus
-	   ready <= ready2(0);
-	   ready_which <= '0';    
-	elsif ready2(1)='1' and 
-          ((orec.source_bus_id /= source_bus_id_r(0) and orec.dest_bus_id/=dest_bus_id_r(0)) or (avail(0)='1')) then
-       -- Use second DP if it is ready and the first DP also not using the same source/dest bus
-	   ready <= ready2(1);
-	   ready_which <= '1';  
-	else
-	   ready <= '0';
-	   ready_which <= '0';
-	end if;
+   if valid='1' and (orec.opcode /= dp_opcode_transfer_c) then
+      ready <= '1';
+      ready_which <= '0';
+   elsif ready2(0)='1' and 
+      ((orec.source_bus_id /= source_bus_id_r(1) and orec.dest_bus_id/=dest_bus_id_r(1)) or (avail(1)='1')) then
+      -- Use first DP if it is ready and the second DP also not using the same source/dest bus
+      ready <= ready2(0);
+      ready_which <= '0';    
+   elsif ready2(1)='1' and 
+         ((orec.source_bus_id /= source_bus_id_r(0) and orec.dest_bus_id/=dest_bus_id_r(0)) or (avail(0)='1')) then
+      -- Use second DP if it is ready and the first DP also not using the same source/dest bus
+      ready <= ready2(1);
+      ready_which <= '1';  
+   else
+      ready <= '0';
+      ready_which <= '0';
+   end if;
 end process;
 
 indication_rdreq <= '1' when bus_read_r='1' and regno=(register_dp_read_indication_c) and match='1' else '0';
@@ -1250,23 +1262,23 @@ log_rdreq <= '1' when bus_read_r='1' and regno=(register_dp_read_log_c) and matc
 
 process(mreset_in,mclock_in)
 begin
-    if mreset_in='0' then
-        bus_addr_r <= (others=>'0');
-        bus_write_r <= '0';
-        bus_read_r <= '0';
-        bus_writedata_r <= (others=>'0');
-    else
-        if mclock_in'event and mclock_in='1' then
-            bus_addr_r <= bus_addr_in;
-            if waitrequest='0' then
-               bus_write_r <= bus_write_in;
-            else
-               bus_write_r <= '0';
-            end if;
-            bus_read_r <= bus_read_in;
-            bus_writedata_r <= bus_writedata_in;
-        end if;
-    end if;
+   if mreset_in='0' then
+      bus_addr_r <= (others=>'0');
+      bus_write_r <= '0';
+      bus_read_r <= '0';
+      bus_writedata_r <= (others=>'0');
+   else
+      if mclock_in'event and mclock_in='1' then
+         bus_addr_r <= bus_addr_in;
+         if waitrequest='0' then
+            bus_write_r <= bus_write_in;
+         else
+            bus_write_r <= '0';
+         end if;
+         bus_read_r <= bus_read_in;
+         bus_writedata_r <= bus_writedata_in;
+      end if;
+   end if;
 end process;
 
 -------------------
@@ -1312,17 +1324,15 @@ begin
                     assert false report "Unsupported DP function" severity error;
                     -- Read number of FIFO slots available to accept new DP instructions
                     bus_readdata_r(fifo_avail'length-1 downto 0) <= fifo_avail;
-	                bus_readdata_r(bus_readdata_r'length-1 downto fifo_avail'length) <= (others=>'0');
+                    bus_readdata_r(bus_readdata_r'length-1 downto fifo_avail'length) <= (others=>'0');
                     rden_r <= '1';
---                      bus_readdata_r <= (others=>'0');
---                      rden_r <= '1';
                 elsif regno=register_dp_read_log_c  then
                     if log_empty='0' then
                        bus_readdata_r <= log_read(host_width_c-1 downto 0);
-	                else
+                    else
                        bus_readdata_r <= (others=>'0');
                     end if;
-					log_readtime_r <= log_read(2*host_width_c-1 downto host_width_c);
+                    log_readtime_r <= log_read(2*host_width_c-1 downto host_width_c);
                     rden_r <= '1';
                 elsif regno=register_dp_read_log_time_c  then
                     bus_readdata_r <= log_readtime_r;
@@ -1363,150 +1373,150 @@ begin
                    dest_template_r <= template_r;
                 end if;
                 template_r <= ((others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'1'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),'0',(others=>'0'),'0',(others=>'0'),(others=>'1'),(others=>'0'),'0',(others=>'0'),(others=>'0'),(others=>'1'),(others=>'0'));
-			end if;
-			if bus_write_r='1' then
-                    if regno=register_dp_template_c then
-                        -- Set source address information for subsequent dp_opcode_transfer_c instruction.
-                        if regno2=to_unsigned(register2_dp_stride0_c,regno2'length) then
-                            template_r.stride0 <= unsigned(bus_writedata_r(dp_addr_width_c-1 downto 0));
-                        end if;
-                        if regno2=to_unsigned(register2_dp_stride0_count_c,regno2'length) then
-                            template_r.stride0_count <= unsigned(bus_writedata_r(dp_addr_width_c-1 downto 0));                        
-                        end if;
-                        if regno2=to_unsigned(register2_dp_stride0_max_c,regno2'length) then
-                            template_r.stride0_max <= unsigned(bus_writedata_r(dp_addr_width_c downto 0));                        
-                        end if;
-                        if regno2=to_unsigned(register2_dp_stride1_c,regno2'length) then
-                            template_r.stride1 <= unsigned(bus_writedata_r(dp_addr_width_c-1 downto 0));
-                        end if;
-                        if regno2=to_unsigned(register2_dp_stride1_count_c,regno2'length) then
-                            template_r.stride1_count <= unsigned(bus_writedata_r(dp_addr_width_c-1 downto 0));
-                        end if;
-                        if regno2=to_unsigned(register2_dp_stride1_max_c,regno2'length) then
-                            template_r.stride1_max <= unsigned(bus_writedata_r(dp_addr_width_c downto 0));                        
-                        end if;
-                        if regno2=to_unsigned(register2_dp_stride2_c,regno2'length) then
-                            template_r.stride2 <= unsigned(bus_writedata_r(dp_addr_width_c-1 downto 0));
-                        end if;
-                        if regno2=to_unsigned(register2_dp_stride2_count_c,regno2'length) then
-                            template_r.stride2_count <= unsigned(bus_writedata_r(dp_addr_width_c-1 downto 0));
-                        end if;
-                        if regno2=to_unsigned(register2_dp_stride2_max_c,regno2'length) then
-                            template_r.stride2_max <= unsigned(bus_writedata_r(dp_addr_width_c downto 0));                        
-                        end if;
-                        if regno2=to_unsigned(register2_dp_stride3_c,regno2'length) then
-                            template_r.stride3 <= unsigned(bus_writedata_r(dp_addr_width_c-1 downto 0));
-                        end if;
-                        if regno2=to_unsigned(register2_dp_stride3_count_c,regno2'length) then
-                            template_r.stride3_count <= unsigned(bus_writedata_r(dp_addr_width_c-1 downto 0));
-                        end if;
-                        if regno2=to_unsigned(register2_dp_stride3_max_c,regno2'length) then
-                            template_r.stride3_max <= unsigned(bus_writedata_r(dp_addr_width_c downto 0));                        
-                        end if;
-                        if regno2=to_unsigned(register2_dp_stride4_c,regno2'length) then
-                            template_r.stride4 <= unsigned(bus_writedata_r(dp_addr_width_c-1 downto 0));
-                        end if;
-                        if regno2=to_unsigned(register2_dp_stride4_count_c,regno2'length) then
-                            template_r.stride4_count <= unsigned(bus_writedata_r(dp_addr_width_c-1 downto 0));
-                        end if;
-                        if regno2=to_unsigned(register2_dp_stride4_max_c,regno2'length) then
-                            template_r.stride4_max <= unsigned(bus_writedata_r(dp_addr_width_c downto 0));                        
-                        end if;
-                        if regno2=to_unsigned(register2_dp_burst_max_c,regno2'length) then
-                            template_r.burst_max <= unsigned(bus_writedata_r(dp_addr_width_c downto 0));                        
-                            template_r.burst_max2 <= unsigned(bus_writedata_r(dp_addr_width_c downto 0));                        
-                            template_r.burst_max_init <= unsigned(bus_writedata_r(dp_addr_width_c downto 0));                        
-                        end if;
-                        if regno2=to_unsigned(register2_dp_burst_max2_c,regno2'length) then
-                            template_r.burst_max2 <= unsigned(bus_writedata_r(dp_addr_width_c downto 0));                        
-                        end if;
-                        if regno2=to_unsigned(register2_dp_burst_max_init_c,regno2'length) then
-                            template_r.burst_max_init <= unsigned(bus_writedata_r(dp_addr_width_c downto 0));                        
-                        end if;
-                        if regno2=to_unsigned(register2_dp_burst_max_index_c,regno2'length) then
-                            template_r.burst_max_index <= unsigned(bus_writedata_r(template_r.burst_max_index'length-1 downto 0));                        
-                        end if;
-                        if regno2=to_unsigned(register2_dp_bar_c,regno2'length) then
-                            if load_r='1' then
-   						       template_r.bar <= unsigned(bus_writedata_r(dp_addr_width_c-1 downto 0));
-                            else
-   						       template_r.bar <= template_r.bar+unsigned(bus_writedata_r(dp_addr_width_c-1 downto 0));
-                            end if;
-                        end if;
-                        if regno2=to_unsigned(register2_dp_bufsize_c,regno2'length) then
-                            template_r.bufsize <= unsigned(bus_writedata_r(dp_addr_width_c-1 downto 0));
-                        end if;
-                        if regno2=to_unsigned(register2_dp_burst_max_len_c,regno2'length) then
-                            template_r.burst_max_len <= unsigned(bus_writedata_r(dp_addr_width_c-1 downto 0));
-                        end if;
-                        if regno2=to_unsigned(register2_dp_count_c,regno2'length) then
-                            template_r.count <= unsigned(bus_writedata_r(dp_addr_width_c-1 downto 0));
-                        end if;
-                        if regno2=to_unsigned(register2_dp_burst_stride_c,regno2'length) then
-                            template_r.burstStride <= unsigned(bus_writedata_r(dp_addr_width_c-1 downto 0));
-                        end if;
-                        if regno2=to_unsigned(register2_dp_mode_c,regno2'length) then
-                            if bus_writedata_r(0)='1' then
-                               pos_v := dp_template_id_t'length+1;
-							   template_r.double_precision <= bus_writedata_r(pos_v);
-                               pos_v := pos_v+1;
-							   template_r.datatype <= unsigned(bus_writedata_r(pos_v+template_r.datatype'length-1 downto pos_v));
-                               pos_v := pos_v+dp_data_type_t'length;
-							   template_r.data_model <= bus_writedata_r(pos_v+template_r.data_model'length-1 downto pos_v);
-                               pos_v := pos_v+dp_data_model_t'length;
-							   template_r.scatter <= bus_writedata_r(pos_v);
-	                           pos_v := pos_v+1;
-							   template_r.bus_id <= unsigned(bus_writedata_r(pos_v+dp_bus_id_t'length-1 downto pos_v));
-                               pos_v := pos_v+dp_bus_id_t'length;
-                               template_r.repeat <= bus_writedata_r(pos_v);
-                               pos_v := pos_v+1;
-                               template_r.mcast <= bus_writedata_r(pos_v+template_r.mcast'length-1 downto pos_v);
-                               pos_v := pos_v+template_r.mcast'length;
-                            end if;
-                            load_busid_r <= unsigned(bus_writedata_r(dp_template_id_t'length downto 1));
-                        end if;
-                        if regno2=to_unsigned(register2_dp_stride0_min_c,regno2'length) then
-                            template_r.stride0_min <= unsigned(bus_writedata_r(dp_addr_width_c downto 0));
-                        end if;
-                        if regno2=to_unsigned(register2_dp_stride1_min_c,regno2'length) then
-                            template_r.stride1_min <= unsigned(bus_writedata_r(dp_addr_width_c downto 0));
-                        end if;
-                        if regno2=to_unsigned(register2_dp_stride2_min_c,regno2'length) then
-                            template_r.stride2_min <= unsigned(bus_writedata_r(dp_addr_width_c downto 0));
-                        end if;
-                        if regno2=to_unsigned(register2_dp_stride3_min_c,regno2'length) then
-                            template_r.stride3_min <= unsigned(bus_writedata_r(dp_addr_width_c downto 0));
-                        end if;
-                        if regno2=to_unsigned(register2_dp_stride4_min_c,regno2'length) then
-                            template_r.stride4_min <= unsigned(bus_writedata_r(dp_addr_width_c downto 0));
-                        end if;
-                        if regno2=to_unsigned(register2_dp_burst_min_c,regno2'length) then
-                            template_r.burst_min <= unsigned(bus_writedata_r(dp_addr_width_c downto 0));
-                        end if;
-                        if regno2=to_unsigned(register2_dp_totalcount_c,regno2'length) then
-                           -- Set number of words to be transfered with subsequent dp_opcode_transfer_c instruction
-                            template_r.totalcount <= unsigned(bus_writedata_r(template_r.totalcount'length-1 downto 0));
-                        end if;
-                        if regno2=to_unsigned(register2_dp_data_c,regno2'length) then
-                           -- Set constant value used in case a transfer is running out of source address.
-                            template_r.data <= bus_writedata_r(template_r.data'length-1 downto 0);
-                        end if;
-                    elsif regno=register_dp_restore_c then
-                        template_r <= dp_var_template;
-                    end if;
-                    if regno=register_dp_indication_parm0_c then
-                        -- Set first parameter of a subsequent dp_opcode_indication_c instruction
-                        indication_parm_r(host_width_c-1 downto 0) <= bus_writedata_r;
-                    end if;
-                    if regno=register_dp_indication_parm1_c then
-                        -- Set second parameter of a subsequent dp_opcode_indication_c instruction
-                        indication_parm_r(2*host_width_c-1 downto host_width_c) <= bus_writedata_r;
-                    end if;
             end if;
-			if load='1' then
-               load_r <= '1';
-			else
-               load_r <= '0';
+            if bus_write_r='1' then
+                if regno=register_dp_template_c then
+                    -- Set source address information for subsequent dp_opcode_transfer_c instruction.
+                    if regno2=to_unsigned(register2_dp_stride0_c,regno2'length) then
+                        template_r.stride0 <= unsigned(bus_writedata_r(dp_addr_width_c-1 downto 0));
+                    end if;
+                    if regno2=to_unsigned(register2_dp_stride0_count_c,regno2'length) then
+                        template_r.stride0_count <= unsigned(bus_writedata_r(dp_addr_width_c-1 downto 0));                        
+                    end if;
+                    if regno2=to_unsigned(register2_dp_stride0_max_c,regno2'length) then
+                        template_r.stride0_max <= unsigned(bus_writedata_r(dp_addr_width_c downto 0));                        
+                    end if;
+                    if regno2=to_unsigned(register2_dp_stride1_c,regno2'length) then
+                        template_r.stride1 <= unsigned(bus_writedata_r(dp_addr_width_c-1 downto 0));
+                    end if;
+                    if regno2=to_unsigned(register2_dp_stride1_count_c,regno2'length) then
+                        template_r.stride1_count <= unsigned(bus_writedata_r(dp_addr_width_c-1 downto 0));
+                    end if;
+                    if regno2=to_unsigned(register2_dp_stride1_max_c,regno2'length) then
+                        template_r.stride1_max <= unsigned(bus_writedata_r(dp_addr_width_c downto 0));                        
+                    end if;
+                    if regno2=to_unsigned(register2_dp_stride2_c,regno2'length) then
+                        template_r.stride2 <= unsigned(bus_writedata_r(dp_addr_width_c-1 downto 0));
+                    end if;
+                    if regno2=to_unsigned(register2_dp_stride2_count_c,regno2'length) then
+                        template_r.stride2_count <= unsigned(bus_writedata_r(dp_addr_width_c-1 downto 0));
+                    end if;
+                    if regno2=to_unsigned(register2_dp_stride2_max_c,regno2'length) then
+                        template_r.stride2_max <= unsigned(bus_writedata_r(dp_addr_width_c downto 0));                        
+                    end if;
+                    if regno2=to_unsigned(register2_dp_stride3_c,regno2'length) then
+                        template_r.stride3 <= unsigned(bus_writedata_r(dp_addr_width_c-1 downto 0));
+                    end if;
+                    if regno2=to_unsigned(register2_dp_stride3_count_c,regno2'length) then
+                        template_r.stride3_count <= unsigned(bus_writedata_r(dp_addr_width_c-1 downto 0));
+                    end if;
+                    if regno2=to_unsigned(register2_dp_stride3_max_c,regno2'length) then
+                        template_r.stride3_max <= unsigned(bus_writedata_r(dp_addr_width_c downto 0));                        
+                    end if;
+                    if regno2=to_unsigned(register2_dp_stride4_c,regno2'length) then
+                        template_r.stride4 <= unsigned(bus_writedata_r(dp_addr_width_c-1 downto 0));
+                    end if;
+                    if regno2=to_unsigned(register2_dp_stride4_count_c,regno2'length) then
+                        template_r.stride4_count <= unsigned(bus_writedata_r(dp_addr_width_c-1 downto 0));
+                    end if;
+                    if regno2=to_unsigned(register2_dp_stride4_max_c,regno2'length) then
+                        template_r.stride4_max <= unsigned(bus_writedata_r(dp_addr_width_c downto 0));                        
+                    end if;
+                    if regno2=to_unsigned(register2_dp_burst_max_c,regno2'length) then
+                        template_r.burst_max <= unsigned(bus_writedata_r(dp_addr_width_c downto 0));                        
+                        template_r.burst_max2 <= unsigned(bus_writedata_r(dp_addr_width_c downto 0));                        
+                        template_r.burst_max_init <= unsigned(bus_writedata_r(dp_addr_width_c downto 0));                        
+                    end if;
+                    if regno2=to_unsigned(register2_dp_burst_max2_c,regno2'length) then
+                        template_r.burst_max2 <= unsigned(bus_writedata_r(dp_addr_width_c downto 0));                        
+                    end if;
+                    if regno2=to_unsigned(register2_dp_burst_max_init_c,regno2'length) then
+                        template_r.burst_max_init <= unsigned(bus_writedata_r(dp_addr_width_c downto 0));                        
+                    end if;
+                    if regno2=to_unsigned(register2_dp_burst_max_index_c,regno2'length) then
+                        template_r.burst_max_index <= unsigned(bus_writedata_r(template_r.burst_max_index'length-1 downto 0));                        
+                    end if;
+                    if regno2=to_unsigned(register2_dp_bar_c,regno2'length) then
+                        if load_r='1' then
+                            template_r.bar <= unsigned(bus_writedata_r(dp_addr_width_c-1 downto 0));
+                        else
+                            template_r.bar <= template_r.bar+unsigned(bus_writedata_r(dp_addr_width_c-1 downto 0));
+                        end if;
+                    end if;
+                    if regno2=to_unsigned(register2_dp_bufsize_c,regno2'length) then
+                        template_r.bufsize <= unsigned(bus_writedata_r(dp_addr_width_c-1 downto 0));
+                    end if;
+                    if regno2=to_unsigned(register2_dp_burst_max_len_c,regno2'length) then
+                        template_r.burst_max_len <= unsigned(bus_writedata_r(dp_addr_width_c-1 downto 0));
+                    end if;
+                    if regno2=to_unsigned(register2_dp_count_c,regno2'length) then
+                        template_r.count <= unsigned(bus_writedata_r(dp_addr_width_c-1 downto 0));
+                    end if;
+                    if regno2=to_unsigned(register2_dp_burst_stride_c,regno2'length) then
+                        template_r.burstStride <= unsigned(bus_writedata_r(dp_addr_width_c-1 downto 0));
+                    end if;
+                    if regno2=to_unsigned(register2_dp_mode_c,regno2'length) then
+                        if bus_writedata_r(0)='1' then
+                           pos_v := dp_template_id_t'length+1;
+                           template_r.double_precision <= bus_writedata_r(pos_v);
+                           pos_v := pos_v+1;
+                           template_r.datatype <= unsigned(bus_writedata_r(pos_v+template_r.datatype'length-1 downto pos_v));
+                           pos_v := pos_v+dp_data_type_t'length;
+                           template_r.data_model <= bus_writedata_r(pos_v+template_r.data_model'length-1 downto pos_v);
+                           pos_v := pos_v+dp_data_model_t'length;
+                           template_r.scatter <= bus_writedata_r(pos_v);
+                           pos_v := pos_v+1;
+                           template_r.bus_id <= unsigned(bus_writedata_r(pos_v+dp_bus_id_t'length-1 downto pos_v));
+                           pos_v := pos_v+dp_bus_id_t'length;
+                           template_r.repeat <= bus_writedata_r(pos_v);
+                           pos_v := pos_v+1;
+                           template_r.mcast <= bus_writedata_r(pos_v+template_r.mcast'length-1 downto pos_v);
+                           pos_v := pos_v+template_r.mcast'length;
+                        end if;
+                        load_busid_r <= unsigned(bus_writedata_r(dp_template_id_t'length downto 1));
+                    end if;
+                    if regno2=to_unsigned(register2_dp_stride0_min_c,regno2'length) then
+                        template_r.stride0_min <= unsigned(bus_writedata_r(dp_addr_width_c downto 0));
+                    end if;
+                    if regno2=to_unsigned(register2_dp_stride1_min_c,regno2'length) then
+                        template_r.stride1_min <= unsigned(bus_writedata_r(dp_addr_width_c downto 0));
+                    end if;
+                    if regno2=to_unsigned(register2_dp_stride2_min_c,regno2'length) then
+                        template_r.stride2_min <= unsigned(bus_writedata_r(dp_addr_width_c downto 0));
+                    end if;
+                    if regno2=to_unsigned(register2_dp_stride3_min_c,regno2'length) then
+                        template_r.stride3_min <= unsigned(bus_writedata_r(dp_addr_width_c downto 0));
+                    end if;
+                    if regno2=to_unsigned(register2_dp_stride4_min_c,regno2'length) then
+                        template_r.stride4_min <= unsigned(bus_writedata_r(dp_addr_width_c downto 0));
+                    end if;
+                    if regno2=to_unsigned(register2_dp_burst_min_c,regno2'length) then
+                        template_r.burst_min <= unsigned(bus_writedata_r(dp_addr_width_c downto 0));
+                    end if;
+                    if regno2=to_unsigned(register2_dp_totalcount_c,regno2'length) then
+                        -- Set number of words to be transfered with subsequent dp_opcode_transfer_c instruction
+                        template_r.totalcount <= unsigned(bus_writedata_r(template_r.totalcount'length-1 downto 0));
+                    end if;
+                    if regno2=to_unsigned(register2_dp_data_c,regno2'length) then
+                        -- Set constant value used in case a transfer is running out of source address.
+                        template_r.data <= bus_writedata_r(template_r.data'length-1 downto 0);
+                    end if;
+                elsif regno=register_dp_restore_c then
+                    template_r <= dp_var_template;
+                end if;
+                if regno=register_dp_indication_parm0_c then
+                    -- Set first parameter of a subsequent dp_opcode_indication_c instruction
+                    indication_parm_r(host_width_c-1 downto 0) <= bus_writedata_r;
+                end if;
+                if regno=register_dp_indication_parm1_c then
+                    -- Set second parameter of a subsequent dp_opcode_indication_c instruction
+                    indication_parm_r(2*host_width_c-1 downto host_width_c) <= bus_writedata_r;
+                end if;
+            end if;
+            if load='1' then
+                load_r <= '1';
+            else
+                load_r <= '0';
             end if;
         end if;
     end if;
@@ -1522,48 +1532,48 @@ if reset_in = '0' then
 else
    if clock_in'event and clock_in='1' then
 
-         -- Determine is a bus is safe to issue a new read request
-	     -- If read is being targeted to a new destination from previous read, then all read transactions 
-         -- must be completed first
+      -- Determine is a bus is safe to issue a new read request
+      -- If read is being targeted to a new destination from previous read, then all read transactions 
+      -- must be completed first
 
-         source_is_safe_v(dp_bus_id_register_c)(dp_bus_id_register_c) := (not sram_read_pending(dp_bus_id_register_c)) and (not ddr_read_pending(dp_bus_id_register_c));
-         source_is_safe_v(dp_bus_id_register_c)(dp_bus_id_sram_c) := (not pcore_read_pending(dp_bus_id_register_c)) and (not ddr_read_pending(dp_bus_id_register_c));
-         source_is_safe_v(dp_bus_id_register_c)(dp_bus_id_ddr_c) := (not pcore_read_pending(dp_bus_id_register_c)) and (not sram_read_pending(dp_bus_id_register_c));
+      source_is_safe_v(dp_bus_id_register_c)(dp_bus_id_register_c) := (not sram_read_pending(dp_bus_id_register_c)) and (not ddr_read_pending(dp_bus_id_register_c));
+      source_is_safe_v(dp_bus_id_register_c)(dp_bus_id_sram_c) := (not pcore_read_pending(dp_bus_id_register_c)) and (not ddr_read_pending(dp_bus_id_register_c));
+      source_is_safe_v(dp_bus_id_register_c)(dp_bus_id_ddr_c) := (not pcore_read_pending(dp_bus_id_register_c)) and (not sram_read_pending(dp_bus_id_register_c));
 
-         source_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_register_c) := (not sram_read_pending(dp_bus_id_sram_c)) and (not ddr_read_pending(dp_bus_id_sram_c));
-         source_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_sram_c) := (not pcore_read_pending(dp_bus_id_sram_c)) and (not ddr_read_pending(dp_bus_id_sram_c));
-         source_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_ddr_c) := (not pcore_read_pending(dp_bus_id_sram_c)) and (not sram_read_pending(dp_bus_id_sram_c));
+      source_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_register_c) := (not sram_read_pending(dp_bus_id_sram_c)) and (not ddr_read_pending(dp_bus_id_sram_c));
+      source_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_sram_c) := (not pcore_read_pending(dp_bus_id_sram_c)) and (not ddr_read_pending(dp_bus_id_sram_c));
+      source_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_ddr_c) := (not pcore_read_pending(dp_bus_id_sram_c)) and (not sram_read_pending(dp_bus_id_sram_c));
 
-         source_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_register_c) := (not sram_read_pending(dp_bus_id_ddr_c)) and (not ddr_read_pending(dp_bus_id_ddr_c));
-         source_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_sram_c) := (not pcore_read_pending(dp_bus_id_ddr_c)) and (not ddr_read_pending(dp_bus_id_ddr_c));
-         source_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_ddr_c) := (not pcore_read_pending(dp_bus_id_ddr_c)) and (not sram_read_pending(dp_bus_id_ddr_c));
+      source_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_register_c) := (not sram_read_pending(dp_bus_id_ddr_c)) and (not ddr_read_pending(dp_bus_id_ddr_c));
+      source_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_sram_c) := (not pcore_read_pending(dp_bus_id_ddr_c)) and (not ddr_read_pending(dp_bus_id_ddr_c));
+      source_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_ddr_c) := (not pcore_read_pending(dp_bus_id_ddr_c)) and (not sram_read_pending(dp_bus_id_ddr_c));
 
-         -- Avoid data arrived at sinker out of order.
-         -- If sinker receives data from multiple sources, they may have different latency.
-         -- Check is we change source to a sinker, make sure all pending read have been completed...
+      -- Avoid data arrived at sinker out of order.
+      -- If sinker receives data from multiple sources, they may have different latency.
+      -- Check is we change source to a sinker, make sure all pending read have been completed...
 
-         dest_is_safe_v(dp_bus_id_register_c)(dp_bus_id_register_c) := (not pcore_read_pending(dp_bus_id_sram_c)) and (not pcore_read_pending(dp_bus_id_ddr_c));
-         dest_is_safe_v(dp_bus_id_register_c)(dp_bus_id_sram_c) := (not pcore_read_pending(dp_bus_id_register_c)) and (not pcore_read_pending(dp_bus_id_ddr_c));
-         dest_is_safe_v(dp_bus_id_register_c)(dp_bus_id_ddr_c) := (not pcore_read_pending(dp_bus_id_register_c)) and (not pcore_read_pending(dp_bus_id_sram_c));
+      dest_is_safe_v(dp_bus_id_register_c)(dp_bus_id_register_c) := (not pcore_read_pending(dp_bus_id_sram_c)) and (not pcore_read_pending(dp_bus_id_ddr_c));
+      dest_is_safe_v(dp_bus_id_register_c)(dp_bus_id_sram_c) := (not pcore_read_pending(dp_bus_id_register_c)) and (not pcore_read_pending(dp_bus_id_ddr_c));
+      dest_is_safe_v(dp_bus_id_register_c)(dp_bus_id_ddr_c) := (not pcore_read_pending(dp_bus_id_register_c)) and (not pcore_read_pending(dp_bus_id_sram_c));
 
-         dest_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_register_c) := (not sram_read_pending(dp_bus_id_sram_c)) and (not sram_read_pending(dp_bus_id_ddr_c));
-         dest_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_sram_c) := (not sram_read_pending(dp_bus_id_register_c)) and (not sram_read_pending(dp_bus_id_ddr_c));
-         dest_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_ddr_c) := (not sram_read_pending(dp_bus_id_register_c)) and (not sram_read_pending(dp_bus_id_sram_c));
+      dest_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_register_c) := (not sram_read_pending(dp_bus_id_sram_c)) and (not sram_read_pending(dp_bus_id_ddr_c));
+      dest_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_sram_c) := (not sram_read_pending(dp_bus_id_register_c)) and (not sram_read_pending(dp_bus_id_ddr_c));
+      dest_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_ddr_c) := (not sram_read_pending(dp_bus_id_register_c)) and (not sram_read_pending(dp_bus_id_sram_c));
 
-         dest_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_register_c) := (not ddr_read_pending(dp_bus_id_sram_c)) and (not ddr_read_pending(dp_bus_id_ddr_c));
-         dest_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_sram_c) := (not ddr_read_pending(dp_bus_id_register_c)) and (not ddr_read_pending(dp_bus_id_ddr_c));
-         dest_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_ddr_c) := (not ddr_read_pending(dp_bus_id_register_c)) and (not ddr_read_pending(dp_bus_id_sram_c));
+      dest_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_register_c) := (not ddr_read_pending(dp_bus_id_sram_c)) and (not ddr_read_pending(dp_bus_id_ddr_c));
+      dest_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_sram_c) := (not ddr_read_pending(dp_bus_id_register_c)) and (not ddr_read_pending(dp_bus_id_ddr_c));
+      dest_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_ddr_c) := (not ddr_read_pending(dp_bus_id_register_c)) and (not ddr_read_pending(dp_bus_id_sram_c));
 
-         -- New DP transaction is safe when it is safe for both source and destination
-         new_cmd_is_safe_r(dp_bus_id_register_c)(dp_bus_id_register_c) <= source_is_safe_v(dp_bus_id_register_c)(dp_bus_id_register_c) and dest_is_safe_v(dp_bus_id_register_c)(dp_bus_id_register_c);
-         new_cmd_is_safe_r(dp_bus_id_register_c)(dp_bus_id_sram_c) <= source_is_safe_v(dp_bus_id_register_c)(dp_bus_id_sram_c) and dest_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_register_c);
-         new_cmd_is_safe_r(dp_bus_id_register_c)(dp_bus_id_ddr_c) <= source_is_safe_v(dp_bus_id_register_c)(dp_bus_id_ddr_c) and dest_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_register_c);
-         new_cmd_is_safe_r(dp_bus_id_sram_c)(dp_bus_id_register_c) <= source_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_register_c) and dest_is_safe_v(dp_bus_id_register_c)(dp_bus_id_sram_c);
-         new_cmd_is_safe_r(dp_bus_id_sram_c)(dp_bus_id_sram_c) <= source_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_sram_c) and dest_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_sram_c);
-         new_cmd_is_safe_r(dp_bus_id_sram_c)(dp_bus_id_ddr_c) <= source_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_ddr_c) and dest_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_sram_c);
-         new_cmd_is_safe_r(dp_bus_id_ddr_c)(dp_bus_id_register_c) <= source_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_register_c) and dest_is_safe_v(dp_bus_id_register_c)(dp_bus_id_ddr_c);
-         new_cmd_is_safe_r(dp_bus_id_ddr_c)(dp_bus_id_sram_c) <= source_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_sram_c) and dest_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_ddr_c);
-         new_cmd_is_safe_r(dp_bus_id_ddr_c)(dp_bus_id_ddr_c) <= source_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_ddr_c) and dest_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_ddr_c);
+      -- New DP transaction is safe when it is safe for both source and destination
+      new_cmd_is_safe_r(dp_bus_id_register_c)(dp_bus_id_register_c) <= source_is_safe_v(dp_bus_id_register_c)(dp_bus_id_register_c) and dest_is_safe_v(dp_bus_id_register_c)(dp_bus_id_register_c);
+      new_cmd_is_safe_r(dp_bus_id_register_c)(dp_bus_id_sram_c) <= source_is_safe_v(dp_bus_id_register_c)(dp_bus_id_sram_c) and dest_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_register_c);
+      new_cmd_is_safe_r(dp_bus_id_register_c)(dp_bus_id_ddr_c) <= source_is_safe_v(dp_bus_id_register_c)(dp_bus_id_ddr_c) and dest_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_register_c);
+      new_cmd_is_safe_r(dp_bus_id_sram_c)(dp_bus_id_register_c) <= source_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_register_c) and dest_is_safe_v(dp_bus_id_register_c)(dp_bus_id_sram_c);
+      new_cmd_is_safe_r(dp_bus_id_sram_c)(dp_bus_id_sram_c) <= source_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_sram_c) and dest_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_sram_c);
+      new_cmd_is_safe_r(dp_bus_id_sram_c)(dp_bus_id_ddr_c) <= source_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_ddr_c) and dest_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_sram_c);
+      new_cmd_is_safe_r(dp_bus_id_ddr_c)(dp_bus_id_register_c) <= source_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_register_c) and dest_is_safe_v(dp_bus_id_register_c)(dp_bus_id_ddr_c);
+      new_cmd_is_safe_r(dp_bus_id_ddr_c)(dp_bus_id_sram_c) <= source_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_sram_c) and dest_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_ddr_c);
+      new_cmd_is_safe_r(dp_bus_id_ddr_c)(dp_bus_id_ddr_c) <= source_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_ddr_c) and dest_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_ddr_c);
    end if;
 end if;
 end process;
@@ -1573,39 +1583,39 @@ outOfOrderOk <= '1' when
       (orecs(0).opcode = dp_opcode_transfer_c) and 
       (orecs(1).condition = std_logic_vector(to_unsigned(0,dp_condition_t'length))) and
       (
-	  (orecs(0).vm /= orecs(1).vm) or
-	  (
+      (orecs(0).vm /= orecs(1).vm) or
+      (
       (orecs(0).condition(dp_condition_register_flush_c)='0' or (orecs(1).dest_bus_id /=dp_bus_id_register_c and orecs(1).source_bus_id /=dp_bus_id_register_c)) and
       (orecs(0).condition(dp_condition_sram_flush_c)='0' or (orecs(1).dest_bus_id /=dp_bus_id_sram_c and orecs(1).source_bus_id /=dp_bus_id_sram_c)) and
       (orecs(0).condition(dp_condition_ddr_flush_c)='0' or (orecs(1).dest_bus_id /=dp_bus_id_ddr_c and orecs(1).source_bus_id /=dp_bus_id_ddr_c))
-	  )
+      )
       )
       else '0';
 
 process(valids,pauses,orecs,rdreq)
 variable pause_v:std_logic;
 begin
-if pauses(0)='0' then
-   -- Always prefer current instruction
-   orec <= orecs(0);
-   valid <= valids(0);
-   rdreqs(0) <= rdreq;
-   rdreqs(1) <= '0';
-   pause <= pauses(0);
-elsif pauses(1)='0' and outOfOrderOk='1' then
-   -- Can execute out of order
-   orec <= orecs(1);
-   valid <= valids(1);
-   rdreqs(0) <= '0';
-   rdreqs(1) <= rdreq;
-   pause <= pauses(1);
-else
-   orec <= orecs(0);
-   valid <= valids(0);
-   rdreqs(0) <= rdreq;
-   rdreqs(1) <= '0';
-   pause <= pauses(0);
-end if;
+   if pauses(0)='0' then
+      -- Always prefer current instruction
+      orec <= orecs(0);
+      valid <= valids(0);
+      rdreqs(0) <= rdreq;
+      rdreqs(1) <= '0';
+      pause <= pauses(0);
+   elsif pauses(1)='0' and outOfOrderOk='1' then
+      -- Can execute out of order
+      orec <= orecs(1);
+      valid <= valids(1);
+      rdreqs(0) <= '0';
+      rdreqs(1) <= rdreq;
+      pause <= pauses(1);
+   else
+      orec <= orecs(0);
+      valid <= valids(0);
+      rdreqs(0) <= rdreq;
+      rdreqs(1) <= '0';
+      pause <= pauses(0);
+   end if;
 end process;
 
 
@@ -1648,7 +1658,7 @@ if valids(I)='1' then
         end if;
     elsif orecs(I).opcode = dp_opcode_transfer_c then
          if task_r='1' and 
-		       (
+               (
                (orecs(I).source_bus_id=to_unsigned(dp_bus_id_register_c,dp_bus_id_t'length) and orecs(I).vm=task_vm_r) or
                (orecs(I).dest_bus_id=to_unsigned(dp_bus_id_register_c,dp_bus_id_t'length) and orecs(I).vm=task_vm_r)  
                ) then
@@ -1717,7 +1727,7 @@ if ready='1' and
     task <=  '1';
     task_vm <= '0';
     offset_v := 0;
-	task_start_addr <= orec_generic.param(offset_v+task_start_addr'length-1 downto offset_v);
+    task_start_addr <= orec_generic.param(offset_v+task_start_addr'length-1 downto offset_v);
     offset_v := offset_v+task_start_addr'length;
     task_pcore <= unsigned(orec_generic.param(offset_v+task_pcore'length-1 downto offset_v));
     offset_v := offset_v+task_pcore'length;
@@ -1727,10 +1737,10 @@ if ready='1' and
     offset_v := offset_v+max_iregister_auto_c;
     task_tid_mask <= orec_generic.param(offset_v+task_tid_mask'length-1 downto offset_v);
     offset_v := offset_v+task_tid_mask'length;
-	task_data_model <= orec_generic.param(offset_v+task_data_model'length-1 downto offset_v);
-	offset_v := offset_v+task_data_model'length;
+    task_data_model <= orec_generic.param(offset_v+task_data_model'length-1 downto offset_v);
+    offset_v := offset_v+task_data_model'length;
     FOR I in 0 to max_iregister_auto_c-1 loop
-       task_iregister_auto((I+1)*iregister_width_c-1 downto I*iregister_width_c) <= unsigned(orec_generic.parameters(iregister_width_c+I*host_width_c-1 downto I*host_width_c));
+        task_iregister_auto((I+1)*iregister_width_c-1 downto I*iregister_width_c) <= unsigned(orec_generic.parameters(iregister_width_c+I*host_width_c-1 downto I*host_width_c));
     end loop;
     assert max_iregister_auto_c <= dp_indication_num_parm_c report "Too many iregister_auto" severity note;
 elsif ready='1' and 
@@ -1739,7 +1749,7 @@ elsif ready='1' and
     task <=  '1';
     task_vm <= '1';
     offset_v := 0;
-	task_start_addr <= orec_generic.param(offset_v+task_start_addr'length-1 downto offset_v);
+    task_start_addr <= orec_generic.param(offset_v+task_start_addr'length-1 downto offset_v);
     offset_v := offset_v+task_start_addr'length;
     task_pcore <= unsigned(orec_generic.param(offset_v+task_pcore'length-1 downto offset_v));
     offset_v := offset_v+task_pcore'length;
@@ -1749,8 +1759,8 @@ elsif ready='1' and
     offset_v := offset_v+max_iregister_auto_c;
     task_tid_mask <= orec_generic.param(offset_v+task_tid_mask'length-1 downto offset_v);
     offset_v := offset_v+task_tid_mask'length;
-	task_data_model <= orec_generic.param(offset_v+task_data_model'length-1 downto offset_v);
-	offset_v := offset_v+task_data_model'length;
+    task_data_model <= orec_generic.param(offset_v+task_data_model'length-1 downto offset_v);
+    offset_v := offset_v+task_data_model'length;
     FOR I in 0 to max_iregister_auto_c-1 loop
        task_iregister_auto((I+1)*iregister_width_c-1 downto I*iregister_width_c) <= unsigned(orec_generic.parameters(iregister_width_c+I*host_width_c-1 downto I*host_width_c));
     end loop;
@@ -1762,7 +1772,7 @@ else
     task_pcore <= (others=>'1');
     task_lockstep <= '0';
     task_tid_mask <= (others=>'1');
-	task_data_model <= (others=>'0');
+    task_data_model <= (others=>'0');
     task_iregister_auto <= (others=>'0');
 end if;
 end process;
@@ -1806,34 +1816,34 @@ end process;
 process(reset_in,clock_in)
 begin
     if reset_in = '0' then
-		task_r <= '0';
-		task_vm_r <= '0';
+        task_r <= '0';
+        task_vm_r <= '0';
         task_early_transfer_r <= '0';
-		task_start_addr_r <= (others=>'0');
-		task_pcore_r <= (others=>'1');
-		task_lockstep_r <= '0';
-		task_tid_mask_r <= (others=>'1');
-		task_data_model_r <= (others=>'0');
-		task_iregister_auto_r <= (others=>'0');
+        task_start_addr_r <= (others=>'0');
+        task_pcore_r <= (others=>'1');
+        task_lockstep_r <= '0';
+        task_tid_mask_r <= (others=>'1');
+        task_data_model_r <= (others=>'0');
+        task_iregister_auto_r <= (others=>'0');
     else
         if clock_in'event and clock_in='1' then
-			if task_r='0' then
-				task_r <= task;
-				task_vm_r <= task_vm;
-				task_early_transfer_r <= '0';
-				task_start_addr_r <= task_start_addr;
-				task_pcore_r <= task_pcore;
-				task_lockstep_r <= task_lockstep;
-				task_tid_mask_r <= task_tid_mask;
-				task_data_model_r <= task_data_model;
-				task_iregister_auto_r <= task_iregister_auto;
-			elsif task2='1' then
-				task_r <= '0';
-			else
-				task_early_transfer_r <= wreq2;
-			end if;
-		end if;
-	end if;
+            if task_r='0' then
+                task_r <= task;
+                task_vm_r <= task_vm;
+                task_early_transfer_r <= '0';
+                task_start_addr_r <= task_start_addr;
+                task_pcore_r <= task_pcore;
+                task_lockstep_r <= task_lockstep;
+                task_tid_mask_r <= task_tid_mask;
+                task_data_model_r <= task_data_model;
+                task_iregister_auto_r <= task_iregister_auto;
+            elsif task2='1' then
+                task_r <= '0';
+            else
+                task_early_transfer_r <= wreq2;
+            end if;
+        end if;
+    end if;
 end process;
 
 instruction <= orec;
@@ -1874,6 +1884,7 @@ begin
         end if;
     end if;
 end process;
+
 ---------------
 -- Fetch instructions from primary FIFO to secondary FIFO 
 -- if next stage is ready
@@ -1888,60 +1899,59 @@ variable pcore_source_busy_v:STD_LOGIC_VECTOR(1 downto 0);
 variable sram_source_busy_v:STD_LOGIC_VECTOR(1 downto 0);
 variable ddr_source_busy_v:STD_LOGIC;
 begin
-    if reset_in = '0' then
-        pcore_sink_counter_r <= (others=>(others=>'0'));
-		sram_sink_counter_r <= (others=>(others=>'0'));
-		ddr_sink_counter_r <= (others=>'0');
-        sink_pcore_busy_r <= (others=>'0');
-	    sink_sram_busy_r <= (others=>'0');
-        sink_ddr_busy_r <= '0';
-        indication_full_r <= '0';
-        pcore_source_busy_r <= (others=>'0');
-        sram_source_busy_r <= (others=>'0');
-        ddr_source_busy_r <= '0';
-        condition_vm0_busy_r <= (others=>'0');
-        condition_vm1_busy_r <= (others=>'0');
-    else
-        if clock_in'event and clock_in='1' then
+   if reset_in = '0' then
+      pcore_sink_counter_r <= (others=>(others=>'0'));
+      sram_sink_counter_r <= (others=>(others=>'0'));
+      ddr_sink_counter_r <= (others=>'0');
+      sink_pcore_busy_r <= (others=>'0');
+      sink_sram_busy_r <= (others=>'0');
+      sink_ddr_busy_r <= '0';
+      indication_full_r <= '0';
+      pcore_source_busy_r <= (others=>'0');
+      sram_source_busy_r <= (others=>'0');
+      ddr_source_busy_r <= '0';
+      condition_vm0_busy_r <= (others=>'0');
+      condition_vm1_busy_r <= (others=>'0');
+   else
+      if clock_in'event and clock_in='1' then
 
-            -- Check if indication fifo is almost full
-            if(unsigned(indication_wrusedw) >= to_unsigned(dp_indication_max_c-8,dp_indication_depth_c)) then
-               indication_full_r <= '1';
-            else
-               indication_full_r <= '0';
-            end if; 
+         -- Check if indication fifo is almost full
+         if(unsigned(indication_wrusedw) >= to_unsigned(dp_indication_max_c-8,dp_indication_depth_c)) then
+            indication_full_r <= '1';
+         else
+            indication_full_r <= '0';
+         end if; 
 
-            -- Update total number of sink bytes from issues DP transactions
-            if instruction_valid_r /= "00" then
-                count_v := instruction_r.count;
-                if instruction_r.dest.double_precision='1' and instruction_r.dest_bus_id /=dp_bus_id_register_c then
-                   count_v := count_v sll 1;
-                end if;
-				if instruction_r.dest_bus_id=to_unsigned(dp_bus_id_register_c,dp_bus_id_t'length) then
-					if instruction_r.vm='0' then
-						pcore_sink_counter_r(0) <= pcore_sink_counter_r(0)+count_v;
-					else
-						pcore_sink_counter_r(1) <= pcore_sink_counter_r(1)+count_v;
-					end if;
-				elsif instruction_r.dest_bus_id=to_unsigned(dp_bus_id_sram_c,dp_bus_id_t'length) then
-					if instruction_r.vm='0' then
-					   sram_sink_counter_r(0) <= sram_sink_counter_r(0)+count_v;
-                    else
-					   sram_sink_counter_r(1) <= sram_sink_counter_r(1)+count_v;
-                    end if;
-				else
-					ddr_sink_counter_r <= ddr_sink_counter_r+count_v;
-				end if;
+         -- Update total number of sink bytes from issues DP transactions
+         if instruction_valid_r /= "00" then
+            count_v := instruction_r.count;
+            if instruction_r.dest.double_precision='1' and instruction_r.dest_bus_id /=dp_bus_id_register_c then
+               count_v := count_v sll 1;
+            end if;
+            if instruction_r.dest_bus_id=to_unsigned(dp_bus_id_register_c,dp_bus_id_t'length) then
+               if instruction_r.vm='0' then
+                  pcore_sink_counter_r(0) <= pcore_sink_counter_r(0)+count_v;
+               else
+                  pcore_sink_counter_r(1) <= pcore_sink_counter_r(1)+count_v;
+               end if;
+               elsif instruction_r.dest_bus_id=to_unsigned(dp_bus_id_sram_c,dp_bus_id_t'length) then
+                  if instruction_r.vm='0' then
+                     sram_sink_counter_r(0) <= sram_sink_counter_r(0)+count_v;
+                  else
+                     sram_sink_counter_r(1) <= sram_sink_counter_r(1)+count_v;
+                  end if;
+               else
+                  ddr_sink_counter_r <= ddr_sink_counter_r+count_v;
+               end if;
             end if;
 
-	        -- Mark that there is a pending write transaction to PCORE's process 0 memory space
+            -- Mark that there is a pending write transaction to PCORE's process 0 memory space
             if wreq2 /= '0' and 
-                orec.dest_bus_id=to_unsigned(dp_bus_id_register_c,dp_bus_id_t'length) and
-				orec.vm='0' then
+               orec.dest_bus_id=to_unsigned(dp_bus_id_register_c,dp_bus_id_t'length) and orec.vm='0' then
                sink_pcore_busy_v(0) := '1';
             elsif instruction_valid_r /= "00" and 
-                instruction_r.dest_bus_id=to_unsigned(dp_bus_id_register_c,dp_bus_id_t'length) and
-				instruction_r.vm='0' then
+                  instruction_r.dest_bus_id=to_unsigned(dp_bus_id_register_c,dp_bus_id_t'length) and
+                  instruction_r.vm='0' then
                sink_pcore_busy_v(0) := '1';
             elsif pcore_sink_counter_r(0)=pcore_sink_counter_in(0) then
                sink_pcore_busy_v(0) := '0';
@@ -1949,15 +1959,13 @@ begin
                sink_pcore_busy_v(0) := '1';
             end if;
 
-	        -- Mark that there is a pending write transaction to PCORE's process 1 memory space
+            -- Mark that there is a pending write transaction to PCORE's process 1 memory space
 
-            if wreq2 /= '0' and 
-                orec.dest_bus_id=to_unsigned(dp_bus_id_register_c,dp_bus_id_t'length) and
-				orec.vm='1' then
+            if wreq2 /= '0' and orec.dest_bus_id=to_unsigned(dp_bus_id_register_c,dp_bus_id_t'length) and orec.vm='1' then
                sink_pcore_busy_v(1) := '1';
             elsif instruction_valid_r /= "00" and 
-                instruction_r.dest_bus_id=to_unsigned(dp_bus_id_register_c,dp_bus_id_t'length) and
-				instruction_r.vm='1' then
+               instruction_r.dest_bus_id=to_unsigned(dp_bus_id_register_c,dp_bus_id_t'length) and
+               instruction_r.vm='1' then
                sink_pcore_busy_v(1) := '1';
             elsif pcore_sink_counter_r(1)=pcore_sink_counter_in(1) then
                sink_pcore_busy_v(1) := '0';
@@ -1965,7 +1973,7 @@ begin
                sink_pcore_busy_v(1) := '1';
             end if;
 
-	        -- Mark that there is a pending write transaction to SRAM memory space
+            -- Mark that there is a pending write transaction to SRAM memory space
 
             if wreq2 /= '0' and orec.dest_bus_id=to_unsigned(dp_bus_id_sram_c,dp_bus_id_t'length) and orec.vm='0' then
                sink_sram_busy_v(0) := '1';
@@ -1987,7 +1995,7 @@ begin
                sink_sram_busy_v(1) := '1';
             end if;
 
-	        -- Mark that there is a pending write transaction to DDR memory space
+            -- Mark that there is a pending write transaction to DDR memory space
 			
             if wreq2 /= '0' and orec.dest_bus_id=to_unsigned(dp_bus_id_ddr_c,dp_bus_id_t'length) then
                sink_ddr_busy_v := '1';
@@ -2026,6 +2034,7 @@ begin
             end if;
 
             -- Check if there is no pending SRAM space read 
+
             if (source_bus_id_r(0)=to_unsigned(dp_bus_id_sram_c,dp_bus_id_t'length) and source_vm_r(0)='0' and (avail(0)='0')) or
                (source_bus_id_r(1)=to_unsigned(dp_bus_id_sram_c,dp_bus_id_t'length) and source_vm_r(1)='0' and (avail(1)='0')) or
                (pcore_read_pending_p0_in(dp_bus_id_sram_c)='1') or
@@ -2047,6 +2056,7 @@ begin
             end if;
 
             -- Check if there is no pending DDR space read 
+
             if (source_bus_id_r(0)=to_unsigned(dp_bus_id_ddr_c,dp_bus_id_t'length) and (avail(0)='0')) or
                (source_bus_id_r(1)=to_unsigned(dp_bus_id_ddr_c,dp_bus_id_t'length) and (avail(1)='0')) or
                (pcore_read_pending(dp_bus_id_ddr_c)='1') or
@@ -2058,6 +2068,7 @@ begin
             end if;
 
             -- As soon as DP transaction is issued, marked the source as busy
+
             if wreq2 /= '0' and orec.source_bus_id=to_unsigned(dp_bus_id_register_c,dp_bus_id_t'length) and
                orec.vm='0' then
                pcore_source_busy_v(0) := '1';
@@ -2101,20 +2112,21 @@ begin
 end process;
            
 -- Register log entries 
+
 process(reset_in,clock_in)
 variable count_v:unsigned(dp_addr_width_c-1 downto 0);
 begin
-    if reset_in = '0' then
-	  log_time_r <= (others=>'0');
+   if reset_in = '0' then
+      log_time_r <= (others=>'0');
       log_status_last_r <= (others=>'0');
-    else
-        if clock_in'event and clock_in='1' then
-           log_time_r <= log_time_r+1;
-           if log_wrreq='1' and log_write(log_type_t'length-1 downto 0) /= log_type_print_c then
-              log_status_last_r <= log_write;
-           end if;
-        end if;
-    end if;
+   else
+      if clock_in'event and clock_in='1' then
+         log_time_r <= log_time_r+1;
+         if log_wrreq='1' and log_write(log_type_t'length-1 downto 0) /= log_type_print_c then
+            log_status_last_r <= log_write;
+         end if;
+      end if;
+   end if;
 end process;		
 			            
 end dp_fetch_behaviour;

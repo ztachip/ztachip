@@ -39,7 +39,9 @@ ENTITY dp_source IS
     port(
         SIGNAL clock_in                 : IN STD_LOGIC;
         SIGNAL reset_in                 : IN STD_LOGIC;
+
         -- Signal to drive memory bus to perform read access        
+        
         SIGNAL bus_addr_out             : OUT dp_addrs_t(FORK-1 downto 0);
         SIGNAL bus_addr_mode_out        : OUT STD_LOGIC;
         SIGNAL bus_cs_out               : OUT STD_LOGIC;
@@ -54,14 +56,16 @@ ENTITY dp_source IS
         SIGNAL bus_read_start_out       : OUT unsigned(ddr_vector_depth_c downto 0);
         SIGNAL bus_read_end_out         : OUT vectors_t(FORK-1 downto 0);
         SIGNAL bus_readdatavalid_in     : IN STD_LOGIC;
-        SIGNAL bus_readdatavalid_vm_in: IN STD_LOGIC;
+        SIGNAL bus_readdatavalid_vm_in  : IN STD_LOGIC;
         SIGNAL bus_readdata_in          : IN STD_LOGIC_VECTOR(ddr_data_width_c*FORK-1 DOWNTO 0);
         SIGNAL bus_wait_request_in      : IN STD_LOGIC;
         SIGNAL bus_burstlen_out         : OUT burstlen_t;
         SIGNAL bus_id_out               : OUT dp_bus_id_t;
         SIGNAL bus_data_type_out        : OUT dp_data_type_t;
-		SIGNAL bus_data_model_out		: OUT dp_data_model_t;
+        SIGNAL bus_data_model_out       : OUT dp_data_model_t;
+
         -- Signal from DP generator
+        
         SIGNAL gen_waitreq_out          : OUT STD_LOGIC;
         SIGNAL gen_valid_in             : IN STD_LOGIC;
         SIGNAL gen_vm_in                : IN STD_LOGIC;
@@ -95,6 +99,7 @@ ENTITY dp_source IS
         SIGNAL gen_src_data_in          : IN STD_LOGIC_VECTOR(ddr_data_width_c-1 downto 0);
 
         -- Signal to send received data to transmit node
+        
         SIGNAL wr_req_out               : OUT STD_LOGIC_VECTOR(NUM_DP_DST_PORT-1 downto 0);
         SIGNAL wr_full_in               : IN STD_LOGIC_VECTOR(NUM_DP_DST_PORT-1 downto 0);
         SIGNAL wr_data_flow_out         : OUT data_flows_t(NUM_DP_DST_PORT-1 downto 0);
@@ -110,7 +115,7 @@ ENTITY dp_source IS
         SIGNAL wr_datavalid_out         : OUT STD_LOGIC;
         SIGNAL wr_data_out              : OUT dp_data_t;
         SIGNAL wr_readdatavalid_out     : OUT STD_LOGIC;
-        SIGNAL wr_readdatavalid_vm_out : OUT STD_LOGIC;
+        SIGNAL wr_readdatavalid_vm_out  : OUT STD_LOGIC;
         SIGNAL wr_readdata_out          : OUT dp_fork_data_t;
         SIGNAL wr_burstlen_out          : OUT burstlen_t;
         SIGNAL wr_bus_id_out            : OUT dp_bus_id_t;
@@ -152,7 +157,6 @@ gen_valid <= gen_valid_in and (not wr_full_in(to_integer(gen_bus_id_dest_in)));
 
 
 bus_readdata <= bus_readdata_in when bus_readdatavalid_in='1' else (others=>'0');
---bus_readdata <= bus_readdata_in;
  
 delay_i1: delay generic map(DEPTH => read_latency_max_c) 
             port map(clock_in => clock_in,reset_in => reset_in,in_in=>wr_req,out_out=>wr_req2,enable_in=>'1');
@@ -170,6 +174,7 @@ delay_i8: delay generic map(DEPTH => read_latency_max_c)
             port map(clock_in => clock_in,reset_in => reset_in,in_in=>gen_src_eof_in,out_out=>gen_src_eof2,enable_in=>'1');
 delay_i9: delayv generic map(SIZE=>ddr_data_width_c,DEPTH => read_latency_max_c) 
             port map(clock_in => clock_in,reset_in => reset_in,in_in=>gen_src_data_in,out_out=>gen_src_data2,enable_in=>'1');
+
 GEN: if read_latency_max_c > LATENCY generate
 delay_i10: delayv generic map(SIZE=>ddr_data_width_c*FORK,DEPTH => (read_latency_max_c-LATENCY)) 
             port map(clock_in => clock_in,reset_in => reset_in,in_in=>bus_readdata,out_out=>bus_readdata2,enable_in=>'1');
@@ -203,8 +208,6 @@ bus_read_start_out <= gen_src_start_in;
 bus_read_end_out <= gen_src_end_in(FORK-1 downto 0);
 bus_burstlen_out <= gen_src_burstlen_in;
 doit <= gen_valid;
-
---VUONG
 wr_data_out <= gen_src_data_in;
 
 
@@ -243,21 +246,15 @@ wr_data_model_out <= dp_data_model;
 FOR I in 0 to NUM_DP_DST_PORT-1 LOOP
     if I=to_integer(dp_bus_id) then
         wr_req_out(I) <= wr_req;
-        wr_vector_out(I) <= gen_dst_vector_in;
-        wr_stream_out(I) <= gen_dest_stream_in;
-        wr_stream_id_out(I) <= gen_stream_id_in;
-        wr_data_flow_out(I) <= gen_data_flow_in;
-        wr_scatter_out(I) <= gen_dst_scatter_in;
-        wr_end_out(I) <= gen_dst_end_in;
     else
         wr_req_out(I) <= '0';
-        wr_vector_out(I) <= (others=>'0');
-        wr_stream_out(I) <= '0';
-        wr_stream_id_out(I) <= (others=>'0');
-        wr_data_flow_out(I) <= (others=>'0');
-        wr_scatter_out(I) <= (others=>'0');
-        wr_end_out(I) <= (others=>(others=>'0'));
     end if;
+    wr_vector_out(I) <= gen_dst_vector_in;
+    wr_stream_out(I) <= gen_dest_stream_in;
+    wr_stream_id_out(I) <= gen_stream_id_in;
+    wr_data_flow_out(I) <= gen_data_flow_in;
+    wr_scatter_out(I) <= gen_dst_scatter_in;
+    wr_end_out(I) <= gen_dst_end_in;
 END LOOP;
 END PROCESS;
 
@@ -267,29 +264,19 @@ process(doit,bus_wait_request_in,gen_fork_in,gen_dst_addr_in,gen_dst_burstlen_in
 begin
     if doit='1' and (bus_wait_request_in='0' or gen_src_eof_in='1') then
         wr_req <= '1';
-        wr_addr <= gen_dst_addr_in(FORK-1 downto 0);
-        wr_fork <= gen_fork_in(FORK-1 downto 0);
-        wr_addr_mode <= gen_dst_addr_mode_in;
-        wr_src_vm <= gen_vm_in;
-        wr_burstlen <= gen_dst_burstlen_in;
-        dp_bus_id <= gen_bus_id_dest_in;
-        dp_data_type <= gen_data_type_dest_in;
-		dp_data_model <= gen_data_model_dest_in;
-        dp_thread <= gen_thread_in;
-        dp_mcast <= gen_mcast_in;
     else
         wr_req <= '0';
-        wr_addr <= (others=>(others=>'0'));
-        wr_fork <= (others=>'0');
-        wr_addr_mode <= '0';
-        wr_src_vm <= '0';
-        wr_burstlen <= (others=>'0');
-        dp_bus_id <= (others=>'0');
-        dp_data_type <= (others=>'0');
-		dp_data_model <= (others=>'0');
-        dp_thread <= (others=>'0');
-        dp_mcast <= (others=>'1');
     end if;
+    wr_addr <= gen_dst_addr_in(FORK-1 downto 0);
+    wr_fork <= gen_fork_in(FORK-1 downto 0);
+    wr_addr_mode <= gen_dst_addr_mode_in;
+    wr_src_vm <= gen_vm_in;
+    wr_burstlen <= gen_dst_burstlen_in;
+    dp_bus_id <= gen_bus_id_dest_in;
+    dp_data_type <= gen_data_type_dest_in;
+    dp_data_model <= gen_data_model_dest_in;
+    dp_thread <= gen_thread_in;
+    dp_mcast <= gen_mcast_in;
 end process;
 
 END dp_source_behaviour;
