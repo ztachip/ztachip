@@ -1217,35 +1217,12 @@ COMPONENT sram IS
     );
 END COMPONENT;
 
-COMPONENT ddr IS
-    generic(
-        TX_ENABLE        : boolean;
-        RX_ENABLE        : boolean
-        );
+COMPONENT ddr_tx IS
     port(
         SIGNAL clock_in                 : IN STD_LOGIC;
         SIGNAL reset_in                 : IN STD_LOGIC;
         SIGNAL dclock_in                : IN STD_LOGIC;
         SIGNAL dreset_in                : IN STD_LOGIC;
-
-        -- Bus interface for read2 master to DDR
-        SIGNAL read_addr_in             : IN STD_LOGIC_VECTOR(dp_addr_width_c-1 DOWNTO 0);
-        SIGNAL read_cs_in               : IN STD_LOGIC;
-        SIGNAL read_in                  : IN STD_LOGIC;
-        SIGNAL read_vm_in               : IN STD_LOGIC;
-        SIGNAL read_vector_in           : IN dp_vector_t;
-        SIGNAL read_fork_in             : IN STD_LOGIC_VECTOR(fork_max_c-1 downto 0);
-        SIGNAL read_start_in            : unsigned(ddr_vector_depth_c downto 0);
-        SIGNAL read_end_in              : unsigned(ddr_vector_depth_c downto 0);
-        SIGNAL read_data_ready_out      : OUT STD_LOGIC;
-        SIGNAL read_fork_out            : OUT STD_LOGIC_VECTOR(fork_max_c-1 downto 0);
-        SIGNAL read_data_wait_in        : IN STD_LOGIC;
-        SIGNAL read_data_valid_out      : OUT STD_LOGIC;
-        SIGNAL read_data_valid_vm_out   : OUT STD_LOGIC;
-        SIGNAL read_data_out            : OUT STD_LOGIC_VECTOR(ddr_data_width_c-1 DOWNTO 0);
-        SIGNAL read_wait_request_out    : OUT STD_LOGIC;
-        SIGNAL read_burstlen_in         : IN burstlen_t;
-        SIGNAL read_filler_data_in      : IN STD_LOGIC_VECTOR(2*data_width_c-1 downto 0);
 
         -- Bus interface for write master to DDR
         SIGNAL write_addr_in            : IN STD_LOGIC_VECTOR(dp_addr_width_c-1 DOWNTO 0);
@@ -1262,12 +1239,9 @@ COMPONENT ddr IS
         SIGNAL ddr_addr_out             : OUT std_logic_vector(ddr_bus_width_c-1 downto 0);
         SIGNAL ddr_burstlen_out         : OUT unsigned(ddr_burstlen_width_c-1 downto 0);
         SIGNAL ddr_burstbegin_out       : OUT std_logic;
-        SIGNAL ddr_readdatavalid_in     : IN std_logic;
         SIGNAL ddr_write_out            : OUT std_logic;
-        SIGNAL ddr_read_out             : OUT std_logic;
         SIGNAL ddr_writedata_out        : OUT std_logic_vector(ddr_data_width_c-1 downto 0);
         SIGNAL ddr_byteenable_out       : OUT std_logic_vector(ddr_data_byte_width_c-1 downto 0);
-        SIGNAL ddr_readdata_in          : IN std_logic_vector(ddr_data_width_c-1 downto 0);
         SIGNAL ddr_wait_request_in      : IN std_logic
         );
 END COMPONENT;

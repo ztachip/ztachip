@@ -791,35 +791,12 @@ cell_ddr_0_writedata <= (others=>'0');
 cell_ddr_0_byteenable <= (others=>'0');
 
 
-ddr_tx_i: ddr
-   GENERIC MAP(
-        TX_ENABLE=>true,
-        RX_ENABLE=>false
-    )
+ddr_tx_i: ddr_tx
     port map(
         clock_in=>pclock_in,
         reset_in=>preset_in,
         dclock_in=>dclock_in,
         dreset_in=>dreset_in,
-
-        read_addr_in=>(others=>'0'),
-        read_cs_in=>'0',
-        read_in=>'0',
-        read_vm_in=>'0',
-        read_vector_in=>(others=>'0'),
-        read_fork_in=>(others=>'0'),
-        read_start_in=>(others=>'0'),
-        read_end_in=>(others=>'0'),
-        read_data_ready_out=>open,
-        read_fork_out=>open,
-        read_data_wait_in=>'0',
-        read_filler_data_in=>(others=>'0'),
-
-		read_data_valid_out=>open,
-        read_data_valid_vm_out=>open,
-        read_data_out=>open,
-        read_wait_request_out=>open,
-        read_burstlen_in=>(others=>'0'),
 
         write_addr_in=>ddr_write_addr,
         write_cs_in=>ddr_write_enable_2,
@@ -835,15 +812,13 @@ ddr_tx_i: ddr
         ddr_addr_out=>cell_ddr_1_addr,
         ddr_burstlen_out=>cell_ddr_1_burstlen,
         ddr_burstbegin_out=>cell_ddr_1_burstbegin,
-        ddr_readdatavalid_in=>cell_ddr_1_readdatavalid,
         ddr_write_out=>cell_ddr_1_write,
-        ddr_read_out=>cell_ddr_1_read,
         ddr_writedata_out=>cell_ddr_1_writedata,
         ddr_byteenable_out=>cell_ddr_1_byteenable,
-        ddr_readdata_in=>cell_ddr_1_readdata,
         ddr_wait_request_in=>cell_ddr_1_wait_request
         );
 
+cell_ddr_1_read <= '0';
 
 --------
 -- Instantiate data plane processor
