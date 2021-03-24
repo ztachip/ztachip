@@ -96,9 +96,9 @@ ENTITY dp_gen IS
         SIGNAL gen_src_start_out                : OUT unsigned(ddr_vector_depth_c downto 0);
         SIGNAL gen_src_end_out                  : OUT vector_fork_t;
         SIGNAL gen_dst_end_out                  : OUT vector_fork_t;
-        SIGNAL gen_addr_source_out              : OUT dp_addrs_t(fork_max_c-1 downto 0);
+        SIGNAL gen_addr_source_out              : OUT dp_full_addrs_t(fork_max_c-1 downto 0);
         SIGNAL gen_addr_source_mode_out         : OUT STD_LOGIC;
-        SIGNAL gen_addr_dest_out                : OUT dp_addrs_t(fork_max_c-1 downto 0);
+        SIGNAL gen_addr_dest_out                : OUT dp_full_addrs_t(fork_max_c-1 downto 0);
         SIGNAL gen_addr_dest_mode_out           : OUT STD_LOGIC;
         SIGNAL gen_eof_out                      : OUT STD_LOGIC;
         SIGNAL gen_bus_id_source_out            : OUT dp_bus_id_t;
@@ -282,12 +282,12 @@ SIGNAL s_bufsize_r:dp_addr_t;
 SIGNAL s_bufsize_rr:dp_addr_t;
 SIGNAL s_temp0_r:unsigned(dp_addr_width_c-1 downto 0);
 SIGNAL s_temp1_r:unsigned(dp_addr_width_c-1 downto 0);
-SIGNAL s_temp2_r:dp_addr_t;
+SIGNAL s_temp2_r:dp_full_addr_t;
 SIGNAL s_temp3_r:unsigned(dp_addr_width_c-1 downto 0);
 SIGNAL s_temp4_r:unsigned(dp_addr_width_c-1 downto 0);
 SIGNAL s_temp5_r:unsigned(dp_addr_width_c-1 downto 0);
-SIGNAL s_temp4_rr:dp_addr_t;
-SIGNAL s_gen_addr_r:dp_addr_t;
+SIGNAL s_temp4_rr:dp_full_addr_t;
+SIGNAL s_gen_addr_r:dp_full_addr_t;
 SIGNAL s_gen_burstlen_r:burstlen_t;
 SIGNAL s_gen_burstlen_rr:burstlen_t;
 SIGNAL s_gen_burstlen_progress_r:std_logic;
@@ -310,12 +310,12 @@ SIGNAL d_bufsize_r:dp_addr_t;
 SIGNAL d_bufsize_rr:dp_addr_t;
 SIGNAL d_temp0_r:unsigned(dp_addr_width_c-1 downto 0);
 SIGNAL d_temp1_r:unsigned(dp_addr_width_c-1 downto 0);
-SIGNAL d_temp2_r:unsigned(dp_addr_width_c-1 downto 0);
+SIGNAL d_temp2_r:unsigned(dp_full_addr_width_c-1 downto 0);
 SIGNAL d_temp3_r:unsigned(dp_addr_width_c-1 downto 0);
 SIGNAL d_temp4_r:unsigned(dp_addr_width_c-1 downto 0);
 SIGNAL d_temp5_r:unsigned(dp_addr_width_c-1 downto 0);
-SIGNAL d_temp4_rr:dp_addr_t;
-SIGNAL d_gen_addr_r:dp_addr_t;
+SIGNAL d_temp4_rr:dp_full_addr_t;
+SIGNAL d_gen_addr_r:dp_full_addr_t;
 SIGNAL d_gen_burstlen_r:burstlen_t;
 SIGNAL d_gen_burstlen_rr:burstlen_t;
 
@@ -777,7 +777,7 @@ process(reset_in,clock_in)
 variable s_burstlen_v:burstlen_t;
 variable d_burstlen_v:burstlen_t;
 variable burstRemain_v:unsigned(dp_addr_width_c-1 downto 0);
-variable addr_v:unsigned(dp_addr_width_c-1 downto 0);
+variable addr_v:unsigned(dp_full_addr_width_c-1 downto 0);
 variable s_end_v:burstpos_end_t;
 variable d_end_v:burstpos_end_t;
 variable remain_v:signed(dp_addr_width_c downto 0);
@@ -980,12 +980,12 @@ begin
                 s_temp1_r <= s_i0_r+s_i1_r+s_i3_r; -- First stage of address calculation
                 s_bufsize_r <= s_template_r.bufsize(dp_addr_width_c-1 downto 0);
                 s_bufsize_rr <= s_bufsize_r;
-                s_temp2_r <= s_template_r.bar(dp_addr_width_c-1 downto 0); -- First stage of address calculation
+                s_temp2_r <= s_template_r.bar(dp_full_addr_width_c-1 downto 0); -- First stage of address calculation
                 s_temp3_r <= s_template_r.count(dp_addr_width_c-1 downto 0)-s_burstlen_r; -- First stage of address calculation
                 s_temp4_r <= s_burstpos_r+s_i2_r+s_i4_r; -- First stage of address calculation
                 s_temp5_r <= s_temp1_r+s_temp4_r; -- Second stage of address calculation
                 s_temp4_rr <= s_temp2_r; -- Second stage of address calculation
-                addr_v := unsigned(s_temp5_r)+s_temp4_rr;
+                addr_v := resize(unsigned(s_temp5_r),dp_full_addr_width_c)+s_temp4_rr;
                 if src_double_rrr='1' then
                    s_gen_addr_r <= addr_v sll 1; -- Third stage of address calculation
                 else
@@ -1170,7 +1170,7 @@ begin
                 d_temp5_r <= d_temp1_r+d_temp4_r; -- Second stage of address calculation
 
                 d_temp4_rr <= d_temp2_r; -- Second stage of address calculation
-                addr_v := unsigned(d_temp5_r)+d_temp4_rr;
+                addr_v := resize(unsigned(d_temp5_r),dp_full_addr_width_c)+d_temp4_rr;
                 if dst_double_rrr='1' then
                    d_gen_addr_r <= addr_v sll 1; -- Third stage of address calculation
                 else

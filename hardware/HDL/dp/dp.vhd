@@ -132,7 +132,7 @@ ENTITY dp IS
 
             -- Bus interface for read master 3
             
-            SIGNAL readmaster3_addr_out             : OUT STD_LOGIC_VECTOR(dp_addr_width_c-1 downto 0);
+            SIGNAL readmaster3_addr_out             : OUT STD_LOGIC_VECTOR(dp_full_addr_width_c-1 downto 0);
             SIGNAL readmaster3_cs_out               : OUT STD_LOGIC;
             SIGNAL readmaster3_read_out             : OUT STD_LOGIC;
             SIGNAL readmaster3_read_vm_out          : OUT STD_LOGIC;
@@ -150,7 +150,7 @@ ENTITY dp IS
 
             -- Bus interface for write master 3
             
-            SIGNAL writemaster3_addr_out            : OUT STD_LOGIC_VECTOR(dp_addr_width_c-1 downto 0);
+            SIGNAL writemaster3_addr_out            : OUT STD_LOGIC_VECTOR(dp_full_addr_width_c-1 downto 0);
             SIGNAL writemaster3_cs_out              : OUT STD_LOGIC;
             SIGNAL writemaster3_write_out           : OUT STD_LOGIC;
             SIGNAL writemaster3_vm_out              : OUT STD_LOGIC;
@@ -199,11 +199,11 @@ SIGNAL pre_instruction: dp_instruction_t;
 
 SIGNAL gen_pcore_src_valid:STD_LOGIC;
 SIGNAL gen_pcore_vm:STD_LOGIC;
-SIGNAL gen_pcore_src_addr: dp_addrs_t(fork_max_c-1 downto 0);
+SIGNAL gen_pcore_src_addr: dp_full_addrs_t(fork_max_c-1 downto 0);
 SIGNAL gen_pcore_src_addr_mode:STD_LOGIC;
 SIGNAL gen_pcore_src_eof: STD_LOGIC;
 SIGNAL gen_pcore_src_burstlen: burstlen_t;
-SIGNAL gen_pcore_dst_addr: dp_addrs_t(fork_max_c-1 downto 0);
+SIGNAL gen_pcore_dst_addr: dp_full_addrs_t(fork_max_c-1 downto 0);
 SIGNAL gen_pcore_dst_addr_mode:STD_LOGIC;
 SIGNAL gen_pcore_dst_burstlen: burstlen_t;
 SIGNAL gen_pcore_bus_id_source: dp_bus_id_t;
@@ -230,11 +230,11 @@ SIGNAL gen_pcore_stream_id:stream_id_t;
 
 SIGNAL gen_sram_src_valid:STD_LOGIC;
 SIGNAL gen_sram_vm:STD_LOGIC;
-SIGNAL gen_sram_src_addr: dp_addrs_t(fork_max_c-1 downto 0);
+SIGNAL gen_sram_src_addr: dp_full_addrs_t(fork_max_c-1 downto 0);
 SIGNAL gen_sram_src_addr_mode:STD_LOGIC;
 SIGNAL gen_sram_src_eof: STD_LOGIC;
 SIGNAL gen_sram_src_burstlen: burstlen_t;
-SIGNAL gen_sram_dst_addr: dp_addrs_t(fork_max_c-1 downto 0);
+SIGNAL gen_sram_dst_addr: dp_full_addrs_t(fork_max_c-1 downto 0);
 SIGNAL gen_sram_dst_addr_mode:STD_LOGIC;
 SIGNAL gen_sram_dst_burstlen: burstlen_t;
 SIGNAL gen_sram_bus_id_source: dp_bus_id_t;
@@ -261,11 +261,11 @@ SIGNAL gen_sram_stream_id:stream_id_t;
 
 SIGNAL gen_ddr_src_valid:STD_LOGIC;
 SIGNAL gen_ddr_vm:STD_LOGIC;
-SIGNAL gen_ddr_src_addr: dp_addrs_t(fork_max_c-1 downto 0);
+SIGNAL gen_ddr_src_addr: dp_full_addrs_t(fork_max_c-1 downto 0);
 SIGNAL gen_ddr_src_addr_mode:STD_LOGIC;
 SIGNAL gen_ddr_src_eof: STD_LOGIC;
 SIGNAL gen_ddr_src_burstlen: burstlen_t;
-SIGNAL gen_ddr_dst_addr: dp_addrs_t(fork_max_c-1 downto 0);
+SIGNAL gen_ddr_dst_addr: dp_full_addrs_t(fork_max_c-1 downto 0);
 SIGNAL gen_ddr_dst_addr_mode:STD_LOGIC;
 SIGNAL gen_ddr_dst_burstlen: burstlen_t;
 SIGNAL gen_ddr_bus_id_source: dp_bus_id_t;
@@ -291,7 +291,7 @@ SIGNAL gen_ddr_dest_stream:STD_LOGIC;
 SIGNAL gen_ddr_stream_id:stream_id_t;
 
 SIGNAL wr_datavalid: STD_LOGIC_VECTOR(NUM_DP_SRC_PORT-1 downto 0);
-SIGNAL wr_addr:dp_fork_addrs_t(NUM_DP_SRC_PORT-1 downto 0);
+SIGNAL wr_addr:dp_fork_full_addrs_t(NUM_DP_SRC_PORT-1 downto 0);
 SIGNAL wr_fork:dp_forks_t(NUM_DP_SRC_PORT-1 downto 0);
 SIGNAL wr_addr_mode:STD_LOGIC_VECTOR(NUM_DP_SRC_PORT-1 downto 0);
 SIGNAL wr_src_vm:STD_LOGIC_VECTOR(NUM_DP_SRC_PORT-1 downto 0);
@@ -374,22 +374,22 @@ SIGNAL log1_valid:STD_LOGIC;
 SIGNAL log2:STD_LOGIC_VECTOR(host_width_c-1 downto 0);
 SIGNAL log2_valid:STD_LOGIC;
 
-SIGNAL readmaster1_addr:dp_addrs_t(fork_max_c-1 downto 0);
-SIGNAL readmaster2_addr:dp_addrs_t(fork_sram_c-1 downto 0);
-SIGNAL readmaster3_addr:dp_addrs_t(fork_ddr_c-1 downto 0);
-SIGNAL writemaster1_addr:dp_addrs_t(fork_max_c-1 downto 0);
-SIGNAL writemaster2_addr:dp_addrs_t(fork_sram_c-1 downto 0);
-SIGNAL writemaster3_addr:dp_addrs_t(fork_ddr_c-1 downto 0);
+SIGNAL readmaster1_addr:dp_full_addrs_t(fork_max_c-1 downto 0);
+SIGNAL readmaster2_addr:dp_full_addrs_t(fork_sram_c-1 downto 0);
+SIGNAL readmaster3_addr:dp_full_addrs_t(fork_ddr_c-1 downto 0);
+SIGNAL writemaster1_addr:dp_full_addrs_t(fork_max_c-1 downto 0);
+SIGNAL writemaster2_addr:dp_full_addrs_t(fork_sram_c-1 downto 0);
+SIGNAL writemaster3_addr:dp_full_addrs_t(fork_ddr_c-1 downto 0);
 
 begin
 
 readmaster1_addr_out <= std_logic_vector(readmaster1_addr(0)(local_bus_width_c-1 DOWNTO 0));
 readmaster2_addr_out <= std_logic_vector(readmaster2_addr(0)(dp_bus2_addr_width_c-1 DOWNTO 0));
-readmaster3_addr_out <= std_logic_vector(readmaster3_addr(0));
+readmaster3_addr_out <= std_logic_vector(readmaster3_addr(0)(dp_full_addr_width_c-1 DOWNTO 0));
 readmaster3_filler_data_out <= wr_data(dp_bus_id_ddr_c)(2*data_width_c-1 downto 0);
 writemaster1_addr_out <= std_logic_vector(writemaster1_addr(0)(local_bus_width_c-1 DOWNTO 0));
 writemaster2_addr_out <= std_logic_vector(writemaster2_addr(0)(dp_bus2_addr_width_c-1 DOWNTO 0));
-writemaster3_addr_out <= std_logic_vector(writemaster3_addr(0));
+writemaster3_addr_out <= std_logic_vector(writemaster3_addr(0)(dp_full_addr_width_c-1 DOWNTO 0));
 
 -- Combine indication available signals from the 2 DP threads
 indication_avail_out <= indication_avail;
@@ -589,7 +589,7 @@ dp_source1_i: dp_source
             BUS_ID=>dp_bus_id_register_c,
             NUM_DP_DST_PORT=>NUM_DP_DST_PORT,
             LATENCY=>read_latency_register_c,
-            BUS_WIDTH=>dp_addr_width_c,
+            BUS_WIDTH=>dp_full_addr_width_c,
             FORK=>fork_pcore_c,
             INSTANCE=>0
         )
@@ -723,7 +723,7 @@ dp_source2_i: dp_source
             BUS_ID=>dp_bus_id_sram_c,
             NUM_DP_DST_PORT=>NUM_DP_DST_PORT,
             LATENCY=>read_latency_sram_c,
-            BUS_WIDTH=>dp_addr_width_c,
+            BUS_WIDTH=>dp_full_addr_width_c,
             FORK=>fork_sram_c,
             INSTANCE=>0
         )
@@ -856,7 +856,7 @@ dp_source3_i0: dp_source
             BUS_ID=>dp_bus_id_ddr_c,
             NUM_DP_DST_PORT=>NUM_DP_DST_PORT,
             LATENCY=>read_latency_ddr_c,
-            BUS_WIDTH=>dp_addr_width_c,
+            BUS_WIDTH=>dp_full_addr_width_c,
             FORK=>fork_ddr_c,
             INSTANCE=>0
         )
@@ -989,10 +989,9 @@ dp_sink1_i: dp_sink
         GENERIC MAP(
             NUM_DP_SRC_PORT=>NUM_DP_SRC_PORT,
             BURST_MODE=>DP_WRITEMASTER1_BURST_MODE,
-            BUS_WIDTH=>dp_addr_width_c,
+            BUS_WIDTH=>dp_full_addr_width_c,
             FORK=>fork_pcore_c,
-            FIFO_DEPTH=>9,
-            ADDR_PROCESS_MASK=>std_logic_vector(to_unsigned(2**(local_bus_width_c-1),dp_addr_width_c))
+            FIFO_DEPTH=>9
             )
         PORT MAP(
             clock_in=>clock_in,
@@ -1058,10 +1057,9 @@ dp_sink2_i: dp_sink
         GENERIC MAP(
             NUM_DP_SRC_PORT=>NUM_DP_SRC_PORT,
             BURST_MODE=>DP_WRITEMASTER2_BURST_MODE,
-            BUS_WIDTH=>dp_addr_width_c,
+            BUS_WIDTH=>dp_full_addr_width_c,
             FORK=>fork_sram_c,
-            FIFO_DEPTH=>9,
-            ADDR_PROCESS_MASK=>(others=>'0')
+            FIFO_DEPTH=>9
             ) 
         PORT MAP(
             clock_in=>clock_in,
@@ -1126,10 +1124,9 @@ dp_sink3_i: dp_sink
         GENERIC MAP(
             NUM_DP_SRC_PORT=>NUM_DP_SRC_PORT,
             BURST_MODE=>DP_WRITEMASTER3_BURST_MODE,
-            BUS_WIDTH=>dp_addr_width_c,
+            BUS_WIDTH=>dp_full_addr_width_c,
             FORK=>fork_ddr_c,
-            FIFO_DEPTH=>9,
-            ADDR_PROCESS_MASK=>(others=>'0')
+            FIFO_DEPTH=>9
             ) 
         PORT MAP(
             clock_in=>clock_in,

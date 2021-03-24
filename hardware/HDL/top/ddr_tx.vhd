@@ -38,7 +38,7 @@ ENTITY ddr_tx IS
         
         -- Bus interface for write master to DDR
 
-        SIGNAL write_addr_in            : IN STD_LOGIC_VECTOR(dp_addr_width_c-1 DOWNTO 0);
+        SIGNAL write_addr_in            : IN STD_LOGIC_VECTOR(dp_full_addr_width_c-1 DOWNTO 0);
         SIGNAL write_cs_in              : IN STD_LOGIC;
         SIGNAL write_in                 : IN STD_LOGIC;
         SIGNAL write_vector_in          : IN dp_vector_t;   
@@ -406,8 +406,8 @@ variable write_burstlen_v:std_logic_vector(burstlen_t'length-1 downto 0);
 variable ddr_addr_v:std_logic_vector(ddr_bus_width_c-1 downto 0);
    begin
    if wrburstbegin_r='0' then
-      ddr_addr_v(ddr_bus_width_c-1 downto dp_addr_width_c+data_byte_width_depth_c) := (others=>'0');
-      ddr_addr_v(dp_addr_width_c+data_byte_width_depth_c-1 downto ddr_vector_depth_c+data_byte_width_depth_c) := write_addr_in(dp_addr_width_c-1 downto ddr_vector_depth_c);
+      ddr_addr_v(ddr_bus_width_c-1 downto dp_full_addr_width_c+data_byte_width_depth_c) := (others=>'0');
+      ddr_addr_v(dp_full_addr_width_c+data_byte_width_depth_c-1 downto ddr_vector_depth_c+data_byte_width_depth_c) := write_addr_in(dp_full_addr_width_c-1 downto ddr_vector_depth_c);
       ddr_addr_v(ddr_vector_depth_c+data_byte_width_depth_c-1 downto 0) := (others=>'0');
       wr_ddr_burstlen <= unsigned(write_burstlen3);
       wr_ddr_addr <= std_logic_vector(unsigned(ddr_addr_v));

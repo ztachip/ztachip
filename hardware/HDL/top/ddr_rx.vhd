@@ -37,7 +37,7 @@ ENTITY ddr_rx IS
 
         -- Bus interface for read2 master to DDR
 
-        SIGNAL read_addr_in             : IN STD_LOGIC_VECTOR(dp_addr_width_c-1 DOWNTO 0);
+        SIGNAL read_addr_in             : IN STD_LOGIC_VECTOR(dp_full_addr_width_c-1 DOWNTO 0);
         SIGNAL read_cs_in               : IN STD_LOGIC;
         SIGNAL read_in                  : IN STD_LOGIC;
         SIGNAL read_vm_in               : IN STD_LOGIC;
@@ -241,7 +241,7 @@ SIGNAL read_data_ready:std_logic;
 
 SIGNAL read_burstlen2:burstlen_t;
 SIGNAL read_burstlen3:burstlen_t;
-SIGNAL read_addr:STD_LOGIC_VECTOR(dp_addr_width_c-1 DOWNTO 0);
+SIGNAL read_addr:STD_LOGIC_VECTOR(dp_full_addr_width_c-1 DOWNTO 0);
 
 SIGNAL read_piggyback:STD_LOGIC;
 SIGNAL read_piggyback_r:STD_LOGIC;
@@ -634,8 +634,8 @@ end process;
 process(read2,read_addr,read_burstlen2,read_burstlen3,read_vector_in,read_piggyback_r)
 variable ddr_addr_v:std_logic_vector(ddr_bus_width_c-1 downto 0);
 begin
-   ddr_addr_v(ddr_bus_width_c-1 downto dp_addr_width_c+data_byte_width_depth_c) := (others=>'0');
-   ddr_addr_v(dp_addr_width_c+data_byte_width_depth_c-1 downto ddr_vector_depth_c+data_byte_width_depth_c) := read_addr(dp_addr_width_c-1 downto ddr_vector_depth_c);
+   ddr_addr_v(ddr_bus_width_c-1 downto dp_full_addr_width_c+data_byte_width_depth_c) := (others=>'0');
+   ddr_addr_v(dp_full_addr_width_c+data_byte_width_depth_c-1 downto ddr_vector_depth_c+data_byte_width_depth_c) := read_addr(dp_full_addr_width_c-1 downto ddr_vector_depth_c);
    ddr_addr_v(ddr_vector_depth_c+data_byte_width_depth_c-1 downto 0) := (others=>'0');
    if read_piggyback_r='0' then
       rd_ddr_burstlen <= unsigned(read_burstlen3);

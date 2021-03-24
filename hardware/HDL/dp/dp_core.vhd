@@ -114,7 +114,7 @@ ENTITY dp_core IS
             SIGNAL writemaster2_counter_in      : IN dp_counters_t(1 downto 0);
 
             -- Bus interface for read master 3
-            SIGNAL readmaster3_addr_out         : OUT STD_LOGIC_VECTOR(dp_addr_width_c-1 downto 0);
+            SIGNAL readmaster3_addr_out         : OUT STD_LOGIC_VECTOR(dp_full_addr_width_c-1 downto 0);
             SIGNAL readmaster3_cs_out           : OUT STD_LOGIC;
             SIGNAL readmaster3_read_out         : OUT STD_LOGIC;
             SIGNAL readmaster3_read_vm_out      : OUT STD_LOGIC;
@@ -131,7 +131,7 @@ ENTITY dp_core IS
             SIGNAL readmaster3_filler_data_out  : OUT STD_LOGIC_VECTOR(2*data_width_c-1 downto 0);
 
             -- Bus interface for write master 3
-            SIGNAL writemaster3_addr_out        : OUT STD_LOGIC_VECTOR(dp_addr_width_c-1 downto 0);
+            SIGNAL writemaster3_addr_out        : OUT STD_LOGIC_VECTOR(dp_full_addr_width_c-1 downto 0);
             SIGNAL writemaster3_cs_out          : OUT STD_LOGIC;
             SIGNAL writemaster3_write_out       : OUT STD_LOGIC;
             SIGNAL writemaster3_vm_out          : OUT STD_LOGIC;

@@ -108,6 +108,7 @@ ZtaStatus TENSOR::setDimension(std::vector<int> &_dim) {
 }
 
 ZtaStatus TENSOR::allocate(ZTA_SHARED_MEM shm) {
+   assert(m_size < (1<<(DP_ADDR_WIDTH-1))); // Tensor must be less than half tensor address dynamic range
    if(m_shm && !m_isAlias)
       ztahostFreeSharedMem(m_shm);
    m_isAlias=false;

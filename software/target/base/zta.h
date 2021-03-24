@@ -186,7 +186,7 @@
 #define CONSTANT_SIZE      (1<<CONSTANT_DEPTH)
 
 // Number of address bits to access DDR space window
-#define DP_ADDR_WIDTH   30
+#define DP_ADDR_WIDTH   24
 
 // Max size of DDR space window
 #define MAX_DP_ADDR_SIZE (1 << DP_ADDR_WIDTH)

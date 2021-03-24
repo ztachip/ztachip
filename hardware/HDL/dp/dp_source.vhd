@@ -42,7 +42,7 @@ ENTITY dp_source IS
 
         -- Signal to drive memory bus to perform read access        
         
-        SIGNAL bus_addr_out             : OUT dp_addrs_t(FORK-1 downto 0);
+        SIGNAL bus_addr_out             : OUT dp_full_addrs_t(FORK-1 downto 0);
         SIGNAL bus_addr_mode_out        : OUT STD_LOGIC;
         SIGNAL bus_cs_out               : OUT STD_LOGIC;
         SIGNAL bus_read_out             : OUT STD_LOGIC;
@@ -82,9 +82,9 @@ ENTITY dp_source IS
         SIGNAL gen_src_end_in           : vector_fork_t;
         SIGNAL gen_dst_end_in           : vector_fork_t;
         SIGNAL gen_src_eof_in           : IN STD_LOGIC;
-        SIGNAL gen_src_addr_in          : IN dp_addrs_t(fork_max_c-1 downto 0);
+        SIGNAL gen_src_addr_in          : IN dp_full_addrs_t(fork_max_c-1 downto 0);
         SIGNAL gen_src_addr_mode_in     : IN STD_LOGIC;
-        SIGNAL gen_dst_addr_in          : IN dp_addrs_t(fork_max_c-1 downto 0);
+        SIGNAL gen_dst_addr_in          : IN dp_full_addrs_t(fork_max_c-1 downto 0);
         SIGNAL gen_dst_addr_mode_in     : IN STD_LOGIC;
         SIGNAL gen_bus_id_source_in     : IN dp_bus_id_t;
         SIGNAL gen_data_type_source_in  : IN dp_data_type_t;
@@ -108,7 +108,7 @@ ENTITY dp_source IS
         SIGNAL wr_stream_id_out         : OUT stream_ids_t(NUM_DP_DST_PORT-1 downto 0);
         SIGNAL wr_scatter_out           : OUT scatters_t(NUM_DP_DST_PORT-1 downto 0);
         SIGNAL wr_end_out               : OUT vector_forks_t(NUM_DP_DST_PORT-1 downto 0);
-        SIGNAL wr_addr_out              : OUT dp_addrs_t(fork_max_c-1 downto 0);
+        SIGNAL wr_addr_out              : OUT dp_full_addrs_t(fork_max_c-1 downto 0);
         SIGNAL wr_fork_out              : OUT STD_LOGIC_VECTOR(fork_max_c-1 downto 0);
         SIGNAL wr_addr_mode_out         : OUT STD_LOGIC;
         SIGNAL wr_src_vm_out            : OUT STD_LOGIC;
@@ -129,7 +129,7 @@ END dp_source;
 ARCHITECTURE dp_source_behaviour OF dp_source IS
 SIGNAL doit:STD_LOGIC;
 SIGNAL wr_req: STD_LOGIC;
-SIGNAL wr_addr: dp_addrs_t(FORK-1 downto 0);
+SIGNAL wr_addr: dp_full_addrs_t(FORK-1 downto 0);
 SIGNAL wr_fork: STD_LOGIC_VECTOR(FORK-1 downto 0);
 SIGNAL wr_addr_mode:STD_LOGIC;
 SIGNAL wr_src_vm:STD_LOGIC;

@@ -561,7 +561,13 @@ type dp_data_types_t is array(natural range <>) of dp_data_type_t;  -- array of 
 --- DP window address width
 ---------
 
-constant dp_addr_width_c: integer:=30;
+constant dp_addr_width_c: integer:=24;
+
+---
+-- Full address for DP engine
+----
+
+constant dp_full_addr_width_c: integer:=30;
 
 
 ---------
@@ -622,7 +628,7 @@ record
     burst_max_init: unsigned(dp_addr_width_c downto 0);
     burst_max_index: unsigned(2 downto 0);
     burst_min: unsigned(dp_addr_width_c downto 0);        -- Max value for burst
-    bar: unsigned(dp_addr_width_c-1 downto 0);              -- Base address of this transfer
+    bar: unsigned(dp_full_addr_width_c-1 downto 0);              -- Base address of this transfer
     count:unsigned(dp_addr_width_c-1 downto 0);             -- Number of transfer
     burstStride:unsigned(dp_addr_width_c-1 downto 0);       -- Increment after each transfer
 
@@ -640,7 +646,7 @@ record
     burst_max_len:unsigned(dp_addr_width_c-1 downto 0);     -- Max burst length
 end record;
 
-constant dp_template_width_c:integer:=27*dp_addr_width_c+14+2+3+dp_addr_width_c+mcast_width_c+2*data_width_c+1+dp_data_type_t'length+dp_bus_id_t'length+dp_addr_width_c+dp_data_model_t'length+dp_addr_width_c;
+constant dp_template_width_c:integer:=26*dp_addr_width_c+dp_full_addr_width_c+14+2+3+dp_addr_width_c+mcast_width_c+2*data_width_c+1+dp_data_type_t'length+dp_bus_id_t'length+dp_addr_width_c+dp_data_model_t'length+dp_addr_width_c;
 
 constant dp_template_id_depth_c:integer :=4; -- LOG(dp_template_var_max_c)
 constant dp_template_max_c:integer      :=(2**dp_template_id_depth_c);
@@ -656,8 +662,12 @@ subtype dp_template_id_t is unsigned(dp_template_id_depth_c-1 downto 0);        
 
 subtype dp_addr_t is unsigned(dp_addr_width_c-1 downto 0);          -- DP address
 type dp_addrs_t is array(natural range <>) of dp_addr_t;            -- array of DP addresses
+subtype dp_full_addr_t is unsigned(dp_full_addr_width_c-1 downto 0);          -- DP address
+type dp_full_addrs_t is array(natural range <>) of dp_full_addr_t;            -- array of DP addresses
 subtype dp_fork_addr_t is dp_addrs_t(fork_max_c-1 downto 0);
 type dp_fork_addrs_t is array(natural range <>) of dp_fork_addr_t;
+subtype dp_fork_full_addr_t is dp_full_addrs_t(fork_max_c-1 downto 0);
+type dp_fork_full_addrs_t is array(natural range <>) of dp_fork_full_addr_t;
 subtype dp_data_t is std_logic_vector(ddr_data_width_c-1 DOWNTO 0); -- DP data word
 type dp_datas_t is array(natural range <>) of dp_data_t;            -- array of DP data words
 subtype dp_fork_data_t is dp_datas_t(fork_max_c-1 downto 0);
@@ -780,7 +790,7 @@ end record;
 
 -- dp_instruction_t width
 -- WARNING must update when changing dp_instruction_t definition
-constant dp_instruction_width_c :integer:=(59*dp_addr_width_c+2*dp_data_model_t'length+14*2+3*2+2*dp_bus_id_t'length+2*dp_data_type_t'length+2*1+dp_condition_t'length+dp_opcode_t'length+1+mcast_width_c+2*data_width_c+1+2+2+1+stream_id_t'length);
+constant dp_instruction_width_c :integer:=(57*dp_addr_width_c+2*dp_full_addr_width_c+2*dp_data_model_t'length+14*2+3*2+2*dp_bus_id_t'length+2*dp_data_type_t'length+2*1+dp_condition_t'length+dp_opcode_t'length+1+mcast_width_c+2*data_width_c+1+2+2+1+stream_id_t'length);
 
 -- Array of dp_instruction_t
 type dp_instructions_t is array(natural range <>) of dp_instruction_t;
@@ -1225,7 +1235,7 @@ COMPONENT ddr_tx IS
         SIGNAL dreset_in                : IN STD_LOGIC;
 
         -- Bus interface for write master to DDR
-        SIGNAL write_addr_in            : IN STD_LOGIC_VECTOR(dp_addr_width_c-1 DOWNTO 0);
+        SIGNAL write_addr_in            : IN STD_LOGIC_VECTOR(dp_full_addr_width_c-1 DOWNTO 0);
         SIGNAL write_cs_in              : IN STD_LOGIC;
         SIGNAL write_in                 : IN STD_LOGIC;
         SIGNAL write_vector_in          : IN dp_vector_t;
@@ -1254,7 +1264,7 @@ COMPONENT ddr_rx IS
         SIGNAL dreset_in                : IN STD_LOGIC;
 
         -- Bus interface for read2 master to DDR
-        SIGNAL read_addr_in             : IN STD_LOGIC_VECTOR(dp_addr_width_c-1 DOWNTO 0);
+        SIGNAL read_addr_in             : IN STD_LOGIC_VECTOR(dp_full_addr_width_c-1 DOWNTO 0);
         SIGNAL read_cs_in               : IN STD_LOGIC;
         SIGNAL read_in                  : IN STD_LOGIC;
         SIGNAL read_vm_in               : IN STD_LOGIC;
@@ -1533,7 +1543,7 @@ COMPONENT dp IS
         SIGNAL writemaster2_counter_in      : IN dp_counters_t(1 downto 0);            
 
         -- Bus interface for read master DDR
-        SIGNAL readmaster3_addr_out         : OUT STD_LOGIC_VECTOR(dp_addr_width_c-1 downto 0);
+        SIGNAL readmaster3_addr_out         : OUT STD_LOGIC_VECTOR(dp_full_addr_width_c-1 downto 0);
         SIGNAL readmaster3_cs_out           : OUT STD_LOGIC;
         SIGNAL readmaster3_read_out         : OUT STD_LOGIC;
         SIGNAL readmaster3_read_vm_out      : OUT STD_LOGIC;
@@ -1550,7 +1560,7 @@ COMPONENT dp IS
         SIGNAL readmaster3_filler_data_out  : OUT STD_LOGIC_VECTOR(2*data_width_c-1 downto 0);
 
         -- Bus interface for write master DDR
-        SIGNAL writemaster3_addr_out        : OUT STD_LOGIC_VECTOR(dp_addr_width_c-1 downto 0);
+        SIGNAL writemaster3_addr_out        : OUT STD_LOGIC_VECTOR(dp_full_addr_width_c-1 downto 0);
         SIGNAL writemaster3_cs_out          : OUT STD_LOGIC;
         SIGNAL writemaster3_write_out       : OUT STD_LOGIC;
         SIGNAL writemaster3_vm_out          : OUT STD_LOGIC;
@@ -1709,9 +1719,9 @@ COMPONENT dp_gen_core IS
        SIGNAL gen_pcore_src_start_out:out unsigned(ddr_vector_depth_c downto 0);
        SIGNAL gen_pcore_src_end_out:out vector_fork_t;
        SIGNAL gen_pcore_dst_end_out:out vector_fork_t;
-       SIGNAL gen_pcore_src_addr_out: out dp_addrs_t(fork_max_c-1 downto 0);
+       SIGNAL gen_pcore_src_addr_out: out dp_full_addrs_t(fork_max_c-1 downto 0);
        SIGNAL gen_pcore_src_addr_mode_out:out STD_LOGIC;
-       SIGNAL gen_pcore_dst_addr_out: out dp_addrs_t(fork_max_c-1 downto 0);
+       SIGNAL gen_pcore_dst_addr_out: out dp_full_addrs_t(fork_max_c-1 downto 0);
        SIGNAL gen_pcore_dst_addr_mode_out:out STD_LOGIC;
        SIGNAL gen_pcore_src_eof_out: out STD_LOGIC;
        SIGNAL gen_pcore_bus_id_source_out: out dp_bus_id_t;
@@ -1743,9 +1753,9 @@ COMPONENT dp_gen_core IS
        SIGNAL gen_sram_src_start_out:out unsigned(ddr_vector_depth_c downto 0);
        SIGNAL gen_sram_src_end_out:out vector_fork_t;
        SIGNAL gen_sram_dst_end_out:out vector_fork_t;
-       SIGNAL gen_sram_src_addr_out:out dp_addrs_t(fork_max_c-1 downto 0);
+       SIGNAL gen_sram_src_addr_out:out dp_full_addrs_t(fork_max_c-1 downto 0);
        SIGNAL gen_sram_src_addr_mode_out:out STD_LOGIC;
-       SIGNAL gen_sram_dst_addr_out:out dp_addrs_t(fork_max_c-1 downto 0);
+       SIGNAL gen_sram_dst_addr_out:out dp_full_addrs_t(fork_max_c-1 downto 0);
        SIGNAL gen_sram_dst_addr_mode_out:out STD_LOGIC;
        SIGNAL gen_sram_src_eof_out:out STD_LOGIC;
        SIGNAL gen_sram_bus_id_source_out:out dp_bus_id_t;
@@ -1776,9 +1786,9 @@ COMPONENT dp_gen_core IS
        SIGNAL gen_ddr_src_start_out:out unsigned(ddr_vector_depth_c downto 0);
        SIGNAL gen_ddr_src_end_out:out vector_fork_t;
        SIGNAL gen_ddr_dst_end_out:out vector_fork_t;
-       SIGNAL gen_ddr_src_addr_out:out dp_addrs_t(fork_max_c-1 downto 0);
+       SIGNAL gen_ddr_src_addr_out:out dp_full_addrs_t(fork_max_c-1 downto 0);
        SIGNAL gen_ddr_src_addr_mode_out:out STD_LOGIC;
-       SIGNAL gen_ddr_dst_addr_out:out dp_addrs_t(fork_max_c-1 downto 0);
+       SIGNAL gen_ddr_dst_addr_out:out dp_full_addrs_t(fork_max_c-1 downto 0);
        SIGNAL gen_ddr_dst_addr_mode_out:out STD_LOGIC;
        SIGNAL gen_ddr_src_eof_out:out STD_LOGIC;
        SIGNAL gen_ddr_bus_id_source_out:out dp_bus_id_t;
@@ -1851,9 +1861,9 @@ COMPONENT dp_gen IS
         SIGNAL gen_src_start_out                : OUT unsigned(ddr_vector_depth_c+1-1 downto 0);
         SIGNAL gen_src_end_out                  : OUT vector_fork_t;
         SIGNAL gen_dst_end_out                  : OUT vector_fork_t;
-        SIGNAL gen_addr_source_out              : OUT dp_addrs_t(fork_max_c-1 downto 0);
+        SIGNAL gen_addr_source_out              : OUT dp_full_addrs_t(fork_max_c-1 downto 0);
         SIGNAL gen_addr_source_mode_out         : OUT STD_LOGIC;
-        SIGNAL gen_addr_dest_out                : OUT dp_addrs_t(fork_max_c-1 downto 0);
+        SIGNAL gen_addr_dest_out                : OUT dp_full_addrs_t(fork_max_c-1 downto 0);
         SIGNAL gen_addr_dest_mode_out           : OUT STD_LOGIC;
         SIGNAL gen_eof_out                      : OUT STD_LOGIC;
         SIGNAL gen_bus_id_source_out            : OUT dp_bus_id_t;
@@ -1955,7 +1965,7 @@ COMPONENT dp_source IS
         SIGNAL clock_in                 : IN STD_LOGIC;
         SIGNAL reset_in                 : IN STD_LOGIC;
         -- Signal to drive memory bus to perform read access        
-        SIGNAL bus_addr_out             : OUT dp_addrs_t(FORK-1 downto 0);
+        SIGNAL bus_addr_out             : OUT dp_full_addrs_t(FORK-1 downto 0);
         SIGNAL bus_addr_mode_out        : OUT STD_LOGIC;
         SIGNAL bus_cs_out               : OUT STD_LOGIC;
         SIGNAL bus_read_out             : OUT STD_LOGIC;
@@ -1994,9 +2004,9 @@ COMPONENT dp_source IS
         SIGNAL gen_src_end_in           : vector_fork_t;
         SIGNAL gen_dst_end_in           : vector_fork_t;
         SIGNAL gen_src_eof_in           : IN STD_LOGIC;
-        SIGNAL gen_src_addr_in          : IN dp_addrs_t(fork_max_c-1 downto 0);
+        SIGNAL gen_src_addr_in          : IN dp_full_addrs_t(fork_max_c-1 downto 0);
         SIGNAL gen_src_addr_mode_in     : IN STD_LOGIC;
-        SIGNAL gen_dst_addr_in          : IN dp_addrs_t(fork_max_c-1 downto 0);
+        SIGNAL gen_dst_addr_in          : IN dp_full_addrs_t(fork_max_c-1 downto 0);
         SIGNAL gen_dst_addr_mode_in     : IN STD_LOGIC;
         SIGNAL gen_bus_id_source_in     : IN dp_bus_id_t;
         SIGNAL gen_data_type_source_in  : IN dp_data_type_t;
@@ -2019,7 +2029,7 @@ COMPONENT dp_source IS
         SIGNAL wr_stream_id_out         : OUT stream_ids_t(NUM_DP_DST_PORT-1 downto 0);
         SIGNAL wr_scatter_out           : OUT scatters_t(NUM_DP_DST_PORT-1 downto 0);
         SIGNAL wr_end_out               : OUT vector_forks_t(NUM_DP_DST_PORT-1 downto 0);
-        SIGNAL wr_addr_out              : OUT dp_addrs_t(fork_max_c-1 downto 0);
+        SIGNAL wr_addr_out              : OUT dp_full_addrs_t(fork_max_c-1 downto 0);
         SIGNAL wr_fork_out              : OUT STD_LOGIC_VECTOR(fork_max_c-1 downto 0);
         SIGNAL wr_src_vm_out            : OUT STD_LOGIC;
         SIGNAL wr_addr_mode_out         : OUT STD_LOGIC;
@@ -2043,13 +2053,12 @@ COMPONENT dp_sink IS
         BURST_MODE      :STD_LOGIC;
         BUS_WIDTH       :integer;
         FORK            : integer;
-        FIFO_DEPTH      : integer;
-        ADDR_PROCESS_MASK : std_logic_vector(dp_addr_width_c-1 downto 0)
+        FIFO_DEPTH      : integer
         );
     PORT(   
         SIGNAL clock_in                 : IN STD_LOGIC;
         SIGNAL reset_in                 : IN STD_LOGIC;
-        SIGNAL bus_addr_out             : OUT dp_addrs_t(FORK-1 downto 0);
+        SIGNAL bus_addr_out             : OUT dp_full_addrs_t(FORK-1 downto 0);
         SIGNAL bus_fork_out             : OUT STD_LOGIC_VECTOR(FORK-1 downto 0);
         SIGNAL bus_addr_mode_out        : OUT STD_LOGIC;
         SIGNAL bus_vm_out               : OUT STD_LOGIC;
@@ -2081,7 +2090,7 @@ COMPONENT dp_sink IS
         SIGNAL wr_data_flow_in          : IN data_flows_t(NUM_DP_SRC_PORT-1 downto 0);
         SIGNAL wr_scatter_in            : IN scatters_t(NUM_DP_SRC_PORT-1 downto 0);
         SIGNAL wr_end_in                : IN vector_forks_t(NUM_DP_SRC_PORT-1 downto 0);
-        SIGNAL wr_addr_in               : IN dp_fork_addrs_t(NUM_DP_SRC_PORT-1 downto 0);
+        SIGNAL wr_addr_in               : IN dp_fork_full_addrs_t(NUM_DP_SRC_PORT-1 downto 0);
         SIGNAL wr_fork_in               : IN dp_forks_t(NUM_DP_SRC_PORT-1 downto 0);
         SIGNAL wr_addr_mode_in          : IN STD_LOGIC_VECTOR(NUM_DP_SRC_PORT-1 downto 0);
         SIGNAL wr_src_vm_in             : IN STD_LOGIC_VECTOR(NUM_DP_SRC_PORT-1 downto 0);
@@ -2190,7 +2199,7 @@ COMPONENT dp_core IS
         SIGNAL writemaster2_counter_in      : IN dp_counters_t(1 downto 0);            
 
         -- Bus interface for read master DDR
-        SIGNAL readmaster3_addr_out         : OUT STD_LOGIC_VECTOR(dp_addr_width_c-1 downto 0);
+        SIGNAL readmaster3_addr_out         : OUT STD_LOGIC_VECTOR(dp_full_addr_width_c-1 downto 0);
         SIGNAL readmaster3_cs_out           : OUT STD_LOGIC;
         SIGNAL readmaster3_read_out         : OUT STD_LOGIC;
         SIGNAL readmaster3_read_vm_out      : OUT STD_LOGIC;
@@ -2207,7 +2216,7 @@ COMPONENT dp_core IS
         SIGNAL readmaster3_filler_data_out  : OUT STD_LOGIC_VECTOR(2*data_width_c-1 downto 0);
 
         -- Bus interface for write master DDR
-        SIGNAL writemaster3_addr_out        : OUT STD_LOGIC_VECTOR(dp_addr_width_c-1 downto 0);
+        SIGNAL writemaster3_addr_out        : OUT STD_LOGIC_VECTOR(dp_full_addr_width_c-1 downto 0);
         SIGNAL writemaster3_cs_out          : OUT STD_LOGIC;
         SIGNAL writemaster3_write_out       : OUT STD_LOGIC;
         SIGNAL writemaster3_vm_out          : OUT STD_LOGIC;

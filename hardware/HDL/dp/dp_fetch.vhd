@@ -1438,9 +1438,9 @@ begin
                     end if;
                     if regno2=to_unsigned(register2_dp_bar_c,regno2'length) then
                         if load_r='1' then
-                            template_r.bar <= unsigned(bus_writedata_r(dp_addr_width_c-1 downto 0));
+                            template_r.bar <= unsigned(bus_writedata_r(dp_full_addr_width_c-1 downto 0));
                         else
-                            template_r.bar <= template_r.bar+unsigned(bus_writedata_r(dp_addr_width_c-1 downto 0));
+                            template_r.bar <= template_r.bar+unsigned(bus_writedata_r(dp_full_addr_width_c-1 downto 0));
                         end if;
                     end if;
                     if regno2=to_unsigned(register2_dp_bufsize_c,regno2'length) then

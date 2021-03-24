@@ -195,7 +195,7 @@ SIGNAL sram_write_vector: dp_vector_t;
 SIGNAL sram_write_data: STD_LOGIC_VECTOR(fork_max_c*ddr_data_width_c-1 DOWNTO 0);
 
 -- Interface to DP1 read port 3
-SIGNAL ddr_read_addr: std_logic_vector(dp_addr_width_c-1 downto 0);
+SIGNAL ddr_read_addr: std_logic_vector(dp_full_addr_width_c-1 downto 0);
 SIGNAL ddr_read_enable: STD_LOGIC;
 SIGNAL ddr_read_enable_2:STD_LOGIC;
 SIGNAL ddr_read_wait: STD_LOGIC;
@@ -206,7 +206,7 @@ SIGNAL ddr_read_burstlen: burstlen_t;
 SIGNAL ddr_read_filler_data: STD_LOGIC_VECTOR(2*data_width_c-1 downto 0);
 
 -- Interface to DP1 write port 3
-SIGNAL ddr_write_addr: std_logic_vector(dp_addr_width_c-1 downto 0);
+SIGNAL ddr_write_addr: std_logic_vector(dp_full_addr_width_c-1 downto 0);
 SIGNAL ddr_write_enable: STD_LOGIC;
 SIGNAL ddr_write_enable_2:STD_LOGIC;
 SIGNAL ddr_write_wait: STD_LOGIC;

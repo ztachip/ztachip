@@ -37,14 +37,13 @@ ENTITY dp_sink IS
         BURST_MODE        : STD_LOGIC;
         BUS_WIDTH         : integer;
         FORK              : integer;
-        FIFO_DEPTH        : integer;
-        ADDR_PROCESS_MASK : std_logic_vector(dp_addr_width_c-1 downto 0)
+        FIFO_DEPTH        : integer
         );
     PORT(   
         SIGNAL clock_in                : IN STD_LOGIC;
         SIGNAL reset_in                : IN STD_LOGIC;
 
-        SIGNAL bus_addr_out            : OUT dp_addrs_t(FORK-1 downto 0);
+        SIGNAL bus_addr_out            : OUT dp_full_addrs_t(FORK-1 downto 0);
         SIGNAL bus_fork_out            : OUT STD_LOGIC_VECTOR(FORK-1 downto 0);
         SIGNAL bus_addr_mode_out       : OUT STD_LOGIC;
         SIGNAL bus_vm_out              : OUT STD_LOGIC;
@@ -76,7 +75,7 @@ ENTITY dp_sink IS
         SIGNAL wr_stream_id_in         : IN stream_ids_t(NUM_DP_SRC_PORT-1 downto 0);
         SIGNAL wr_scatter_in           : IN scatters_t(NUM_DP_SRC_PORT-1 downto 0);
         SIGNAL wr_end_in               : IN vector_forks_t(NUM_DP_SRC_PORT-1 downto 0);
-        SIGNAL wr_addr_in              : IN dp_fork_addrs_t(NUM_DP_SRC_PORT-1 downto 0);
+        SIGNAL wr_addr_in              : IN dp_fork_full_addrs_t(NUM_DP_SRC_PORT-1 downto 0);
         SIGNAL wr_fork_in              : IN dp_forks_t(NUM_DP_SRC_PORT-1 downto 0);
         SIGNAL wr_addr_mode_in         : IN STD_LOGIC_VECTOR(NUM_DP_SRC_PORT-1 downto 0);
         SIGNAL wr_src_vm_in            : IN STD_LOGIC_VECTOR(NUM_DP_SRC_PORT-1 downto 0);
@@ -120,7 +119,7 @@ SIGNAL bus_vector_r:dp_vector_t;
 SIGNAL bus_stream_r:std_logic;
 SIGNAL bus_stream_id_r:stream_id_t;
 SIGNAL bus_scatter_r:scatter_t;
-SIGNAL bus_addr_r:dp_addrs_t(FORK-1 downto 0);
+SIGNAL bus_addr_r:dp_full_addrs_t(FORK-1 downto 0);
 SIGNAL bus_fork_r:std_logic_vector(FORK-1 downto 0);
 SIGNAL bus_addr_mode_r:STD_LOGIC;
 SIGNAL bus_vm_r:STD_LOGIC;
@@ -156,7 +155,7 @@ SIGNAL usedw: usedw_t;
 SIGNAL usedw2: usedw_t;
 SIGNAL fifo_data:fifo_data_t;
 
-SIGNAL wr_addr:dp_addrs_t(fork_max_c-1 downto 0);
+SIGNAL wr_addr:dp_full_addrs_t(fork_max_c-1 downto 0);
 SIGNAL wr_fork:std_logic_vector(FORK-1 downto 0);
 SIGNAL wr_addr_mode:STD_LOGIC;
 SIGNAL wr_vm:STD_LOGIC;
@@ -455,7 +454,7 @@ end process;
 
 process(reset_in,clock_in)
 variable bus_burstlen_v:burstlen_t;
-variable bus_addr_v:dp_addrs_t(FORK-1 downto 0);
+variable bus_addr_v:dp_full_addrs_t(FORK-1 downto 0);
 variable bus_fork_v:std_logic_vector(FORK-1 downto 0);
 variable bus_addr_mode_v:STD_LOGIC;
 variable bus_writedata_v:STD_LOGIC_VECTOR(ddr_data_width_c*FORK-1 DOWNTO 0);
