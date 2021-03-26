@@ -15,8 +15,8 @@
 ------------------------------------------------------------------------------
 
 --------
--- This module implements message queue for MCORE and host to communicate with
--- each other
+-- This module implements clock crossing between host interface bus and mcore/pcore
+-- clock domain
 --------
 
 library std;
@@ -30,27 +30,33 @@ USE altera_mf.all;
 
 ENTITY avalon_lw_adapter IS
     port(
-        SIGNAL hclock_in            : IN STD_LOGIC;
-        SIGNAL mclock_in            : IN STD_LOGIC;
-        SIGNAL pclock_in            : IN STD_LOGIC;
-        SIGNAL hreset_in            : IN STD_LOGIC;
-        SIGNAL mreset_in            : IN STD_LOGIC;
-        SIGNAL preset_in            : IN STD_LOGIC;
+        SIGNAL hclock_in              : IN STD_LOGIC;
+        SIGNAL mclock_in              : IN STD_LOGIC;
+        SIGNAL pclock_in              : IN STD_LOGIC;
+        SIGNAL hreset_in              : IN STD_LOGIC;
+        SIGNAL mreset_in              : IN STD_LOGIC;
+        SIGNAL preset_in              : IN STD_LOGIC;
+        
         -- Interface with host
-        SIGNAL host_addr_in         : IN std_logic_vector(avalon_bus_width_c-1 downto 0);
-        SIGNAL host_write_in        : IN STD_LOGIC;
-        SIGNAL host_read_in         : IN STD_LOGIC;
-        SIGNAL host_writedata_in    : IN STD_LOGIC_VECTOR(host_width_c-1 DOWNTO 0);
-        SIGNAL host_readdata_out    : OUT STD_LOGIC_VECTOR(host_width_c-1 DOWNTO 0);
-        SIGNAL host_waitrequest_out : OUT STD_LOGIC;
+        
+        SIGNAL host_addr_in           : IN std_logic_vector(avalon_bus_width_c-1 downto 0);
+        SIGNAL host_write_in          : IN STD_LOGIC;
+        SIGNAL host_read_in           : IN STD_LOGIC;
+        SIGNAL host_writedata_in      : IN STD_LOGIC_VECTOR(host_width_c-1 DOWNTO 0);
+        SIGNAL host_readdata_out      : OUT STD_LOGIC_VECTOR(host_width_c-1 DOWNTO 0);
+        SIGNAL host_waitrequest_out   : OUT STD_LOGIC;
+        
         -- Interface with MCORE
+        
         SIGNAL m_addr_out             : OUT std_logic_vector(avalon_bus_width_c-1 downto 0);
         SIGNAL m_write_out            : OUT STD_LOGIC;
         SIGNAL m_read_out             : OUT STD_LOGIC;
         SIGNAL m_writedata_out        : OUT STD_LOGIC_VECTOR(host_width_c-1 DOWNTO 0);
         SIGNAL m_readdata_in          : IN STD_LOGIC_VECTOR(host_width_c-1 DOWNTO 0);
         SIGNAL m_readdatavalid_in     : IN STD_LOGIC;
+        
         -- Interface with PCLOCK
+        
         SIGNAL p_addr_out             : OUT std_logic_vector(avalon_bus_width_c-1 downto 0);
         SIGNAL p_write_out            : OUT STD_LOGIC;
         SIGNAL p_read_out             : OUT STD_LOGIC;
@@ -83,12 +89,14 @@ BEGIN
 host_readdata_out <= readdata_r when readdatavalid_r='1' else (others=>'Z');
 
 avalon_lw_i0 : avalon_lw
-	PORT MAP (
+    PORT MAP (
        hclock_in => hclock_in,
        clock_in => mclock_in,
        hreset_in => hreset_in,
        reset_in => mreset_in,
+    
        -- Interface with host
+    
        host_addr_in => host_addr_in,
        host_write_in => write,
        host_read_in => read,
@@ -96,22 +104,26 @@ avalon_lw_i0 : avalon_lw
        host_readdata_out => readdata1,
        host_readdatavalid_out => readdatavalid1,
        host_ready_out => ready1,
+    
        -- Interface with MCORE
+    
        addr_out => m_addr_out,
        write_out => m_write_out,
        read_out => m_read_out,
        writedata_out => m_writedata_out,
        readdata_in => m_readdata_in,
        readdatavalid_in => m_readdatavalid_in
-	);
+       );
 
 avalon_lw_i1 : avalon_lw
-	PORT MAP (
+   PORT MAP (
        hclock_in => hclock_in,
        clock_in => pclock_in,
        hreset_in => hreset_in,
        reset_in => preset_in,
+   
        -- Interface with host
+   
        host_addr_in => host_addr_in,
        host_write_in => write,
        host_read_in => read,
@@ -119,14 +131,17 @@ avalon_lw_i1 : avalon_lw
        host_readdata_out => readdata2,
        host_readdatavalid_out => readdatavalid2,
        host_ready_out => ready2,
+   
        -- Interface with MCORE
+   
        addr_out => p_addr_out,
        write_out => p_write_out,
        read_out => p_read_out,
        writedata_out => p_writedata_out,
        readdata_in => p_readdata_in,
        readdatavalid_in => p_readdatavalid_in
-	);
+       );
+
 process(waitresponse_r,ready1,ready2,host_read_in,host_write_in,readdatavalid1,readdatavalid2)
 begin
 if waitresponse_r='0' then
@@ -181,7 +196,7 @@ begin
          else
             readdata_r <= readdata2;
          end if;
-		 readdatavalid_r <= readdatavalid1 or readdatavalid2;
+         readdatavalid_r <= readdatavalid1 or readdatavalid2;
       end if;
    end if;
 end process;

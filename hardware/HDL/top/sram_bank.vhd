@@ -47,6 +47,39 @@ END sram_bank;
 
 ARCHITECTURE behavior OF sram_bank IS
 
+COMPONENT altsyncram
+GENERIC (
+        address_aclr_b                      : STRING;
+        address_reg_b                       : STRING;
+        clock_enable_input_a                : STRING;
+        clock_enable_input_b                : STRING;
+        clock_enable_output_b               : STRING;
+        intended_device_family              : STRING;
+        lpm_type                            : STRING;
+        numwords_a                          : NATURAL;
+        numwords_b                          : NATURAL;
+        operation_mode                      : STRING;
+        outdata_aclr_b                      : STRING;
+        outdata_reg_b                       : STRING;
+        power_up_uninitialized              : STRING;
+        read_during_write_mode_mixed_ports  : STRING;
+        widthad_a                           : NATURAL;
+        widthad_b                           : NATURAL;
+        width_a                             : NATURAL;
+        width_b                             : NATURAL;
+        width_byteena_a                     : NATURAL
+    );
+    PORT (
+        address_a   : IN STD_LOGIC_VECTOR (widthad_a-1 DOWNTO 0);
+        byteena_a   : IN STD_LOGIC_VECTOR (width_byteena_a-1 DOWNTO 0);
+        clock0      : IN STD_LOGIC ;
+        data_a      : IN STD_LOGIC_VECTOR (width_a-1 DOWNTO 0);
+        q_b         : OUT STD_LOGIC_VECTOR (width_b-1 DOWNTO 0);
+        wren_a      : IN STD_LOGIC ;
+        address_b   : IN STD_LOGIC_VECTOR (widthad_b-1 DOWNTO 0)
+    );
+END COMPONENT;
+
 SIGNAL wr_addr_r:STD_LOGIC_VECTOR(DEPTH-1 downto 0);
 SIGNAL byteena_r:STD_LOGIC_VECTOR(ddr_data_byte_width_c-1 downto 0);
 SIGNAL writedata_r:STD_LOGIC_VECTOR(ddr_data_width_c-1 DOWNTO 0);
@@ -74,39 +107,6 @@ attribute preserve of wren_r : SIGNAL is true;
 attribute preserve of rden_r : SIGNAL is true;
 attribute preserve of rden_rr : SIGNAL is true;
 attribute preserve of rd_addr_r : SIGNAL is true;
-
-COMPONENT altsyncram
-GENERIC (
-        address_aclr_b                      : STRING;
-        address_reg_b                       : STRING;
-        clock_enable_input_a                : STRING;
-        clock_enable_input_b                : STRING;
-        clock_enable_output_b               : STRING;
-        intended_device_family              : STRING;
-        lpm_type                            : STRING;
-        numwords_a                          : NATURAL;
-        numwords_b                          : NATURAL;
-        operation_mode                      : STRING;
-        outdata_aclr_b                      : STRING;
-        outdata_reg_b                       : STRING;
-        power_up_uninitialized              : STRING;
-        read_during_write_mode_mixed_ports  : STRING;
-        widthad_a                           : NATURAL;
-        widthad_b                           : NATURAL;
-        width_a                             : NATURAL;
-        width_b                             : NATURAL;
-        width_byteena_a                     : NATURAL
-    );
-    PORT (
-            address_a   : IN STD_LOGIC_VECTOR (widthad_a-1 DOWNTO 0);
-            byteena_a   : IN STD_LOGIC_VECTOR (width_byteena_a-1 DOWNTO 0);
-            clock0      : IN STD_LOGIC ;
-            data_a      : IN STD_LOGIC_VECTOR (width_a-1 DOWNTO 0);
-            q_b         : OUT STD_LOGIC_VECTOR (width_b-1 DOWNTO 0);
-            wren_a      : IN STD_LOGIC ;
-            address_b   : IN STD_LOGIC_VECTOR (widthad_b-1 DOWNTO 0)
-    );
-END COMPONENT;
 
 BEGIN
 

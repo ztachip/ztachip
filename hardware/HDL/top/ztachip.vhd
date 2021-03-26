@@ -30,21 +30,21 @@ USE altera_mf.all;
 
 ENTITY ztachip IS
     port(   
-	        hclock_in                   : IN STD_LOGIC;
-			hreset_in					: IN STD_LOGIC;
-            pclock_in                   : IN STD_LOGIC;
-			preset_in					: IN STD_LOGIC;
-            mclock_in                   : IN STD_LOGIC;
-            mreset_in                   : IN STD_LOGIC;                        
-            dclock_in                   : IN STD_LOGIC;
-            dreset_in                   : IN STD_LOGIC;                        
+            hclock_in                     : IN STD_LOGIC;
+            hreset_in                     : IN STD_LOGIC;
+            pclock_in                     : IN STD_LOGIC;
+            preset_in                     : IN STD_LOGIC;
+            mclock_in                     : IN STD_LOGIC;
+            mreset_in                     : IN STD_LOGIC;                        
+            dclock_in                     : IN STD_LOGIC;
+            dreset_in                     : IN STD_LOGIC;                        
             
-			avalon_bus_addr_in          : IN std_logic_vector(avalon_bus_width_c-1 downto 0);
-            avalon_bus_write_in         : IN std_logic;
-            avalon_bus_writedata_in     : IN std_logic_vector(host_width_c-1 downto 0);
-            avalon_bus_readdata_out     : OUT std_logic_vector(host_width_c-1 downto 0);
-            avalon_bus_wait_request_out : OUT std_logic;
-            avalon_bus_read_in          : IN std_logic;
+            avalon_bus_addr_in            : IN std_logic_vector(avalon_bus_width_c-1 downto 0);
+            avalon_bus_write_in           : IN std_logic;
+            avalon_bus_writedata_in       : IN std_logic_vector(host_width_c-1 downto 0);
+            avalon_bus_readdata_out       : OUT std_logic_vector(host_width_c-1 downto 0);
+            avalon_bus_wait_request_out   : OUT std_logic;
+            avalon_bus_read_in            : IN std_logic;
 
             cell_ddr_0_addr_out           : OUT std_logic_vector(ddr_bus_width_c-1 downto 0);
             cell_ddr_0_burstlen_out       : OUT unsigned(ddr_burstlen_width_c-1 downto 0);
@@ -69,51 +69,55 @@ ENTITY ztachip IS
             cell_ddr_1_wait_request_in    : IN std_logic;  
 
             -- Indication
-            SIGNAL indication_avail_out : OUT STD_LOGIC
-            
+            SIGNAL indication_avail_out   : OUT STD_LOGIC
             );
 END ztachip;
 
 ARCHITECTURE ztachip_behavior of ztachip IS 
 
 COMPONENT dcfifo
-	GENERIC (
-		intended_device_family  : STRING;
-		lpm_numwords            : NATURAL;
-		lpm_showahead           : STRING;
-		lpm_type                : STRING;
-		lpm_width               : NATURAL;
-		lpm_widthu              : NATURAL;
-		overflow_checking       : STRING;
-		rdsync_delaypipe        : NATURAL;
-		underflow_checking      : STRING;
-		use_eab                 : STRING;
-		wrsync_delaypipe        : NATURAL
-	);
-	PORT (
-			data	: IN STD_LOGIC_VECTOR (lpm_width-1 DOWNTO 0);
-			rdclk	: IN STD_LOGIC;
-			rdreq	: IN STD_LOGIC;
-			wrclk	: IN STD_LOGIC;
-			wrreq	: IN STD_LOGIC;
-            wrusedw : OUT STD_LOGIC_VECTOR(lpm_widthu-1 downto 0);
-			q	    : OUT STD_LOGIC_VECTOR (lpm_width-1 DOWNTO 0);
-			rdempty	: OUT STD_LOGIC;
-			wrfull	: OUT STD_LOGIC 
-	);
+   GENERIC (
+      intended_device_family  : STRING;
+      lpm_numwords            : NATURAL;
+      lpm_showahead           : STRING;
+      lpm_type                : STRING;
+      lpm_width               : NATURAL;
+      lpm_widthu              : NATURAL;
+      overflow_checking       : STRING;
+      rdsync_delaypipe        : NATURAL;
+      underflow_checking      : STRING;
+      use_eab                 : STRING;
+      wrsync_delaypipe        : NATURAL
+   );
+   PORT (
+      data      : IN STD_LOGIC_VECTOR (lpm_width-1 DOWNTO 0);
+      rdclk     : IN STD_LOGIC;
+      rdreq     : IN STD_LOGIC;
+      wrclk     : IN STD_LOGIC;
+      wrreq     : IN STD_LOGIC;
+      wrusedw   : OUT STD_LOGIC_VECTOR(lpm_widthu-1 downto 0);
+      q         : OUT STD_LOGIC_VECTOR (lpm_width-1 DOWNTO 0);
+      rdempty   : OUT STD_LOGIC;
+      wrfull    : OUT STD_LOGIC 
+   );
 END COMPONENT;
 
 -- Bus signals for MCLOCK domain
+
 SIGNAL m_config_wren: STD_LOGIC;
 SIGNAL m_config_rden: STD_LOGIC;
+
 -- Avalon bus signal cloked for MCLOCK domain
+
 SIGNAL m_avalon_bus_address:std_logic_vector(avalon_bus_width_c-1 downto 0);
 SIGNAL m_avalon_bus_write:std_logic;
 SIGNAL m_avalon_bus_writedata:std_logic_vector(host_width_c-1 downto 0);
 SIGNAL m_avalon_bus_readdata:std_logic_vector(host_width_c-1 downto 0);
 SIGNAL m_avalon_bus_readdatavalid:std_logic;
 SIGNAL m_avalon_bus_read:std_logic;
+
 -- Program instruction space
+
 SIGNAL m_mcode_write:STD_LOGIC;
 SIGNAL m_mdata_write:STD_LOGIC;
 SIGNAL m_avalon_bus_page:avalon_bus_page_t;
@@ -124,31 +128,35 @@ SIGNAL m_page_is_config: STD_LOGIC;
 
 --- Bus signals for PCLOCK domain
 -- Bus signals for bus access
+
 SIGNAL p_config_wren: STD_LOGIC;
 SIGNAL p_config_rden: STD_LOGIC;
+
 -- Avalon bus signal cloked for MCLOCK domain
+
 SIGNAL p_avalon_bus_address:std_logic_vector(avalon_bus_width_c-1 downto 0);
 SIGNAL p_avalon_bus_write:std_logic;
 SIGNAL p_avalon_bus_writedata:std_logic_vector(host_width_c-1 downto 0);
 SIGNAL p_avalon_bus_readdata:std_logic_vector(host_width_c-1 downto 0);
 SIGNAL p_avalon_bus_readdatavalid:std_logic;
 SIGNAL p_avalon_bus_read:std_logic;
+
 -- Program instruction space
+
 SIGNAL p_mcode_write:STD_LOGIC;
 SIGNAL p_mdata_write:STD_LOGIC;
 SIGNAL p_avalon_bus_page:avalon_bus_page_t;
 SIGNAL p_avalon_bus_addr:STD_LOGIC_VECTOR(avalon_page_width_c-1 downto 0);
-SIGNAL p_page_is_mcode : STD_LOGIC;
-SIGNAL p_page_is_mdata : STD_LOGIC;
-SIGNAL p_page_is_config: STD_LOGIC;
-
+SIGNAL p_page_is_mcode:STD_LOGIC;
+SIGNAL p_page_is_mdata:STD_LOGIC;
+SIGNAL p_page_is_config:STD_LOGIC;
 
 SIGNAL avalon_bus_wait_request:std_logic;
-
 SIGNAL msgq_readdatavalid:std_logic;
 SIGNAL sys_config_readdatavalid:std_logic;
 
 -- Task completion signals
+
 SIGNAL pcore_busy:STD_LOGIC_VECTOR(1 downto 0);
 SIGNAL busy:STD_LOGIC_VECTOR(1 downto 0);
 SIGNAL pcore_read_busy:STD_LOGIC;
@@ -156,6 +164,7 @@ SIGNAL pcore_write_busy:STD_LOGIC;
 SIGNAL ready:STD_LOGIC;
 
 -- Interface to DP1 read port 1
+
 SIGNAL pcore_read_addr: STD_LOGIC_VECTOR(local_bus_width_c-1 DOWNTO 0);
 SIGNAL pcore_read_fork: dp_fork_t;
 SIGNAL pcore_read_addr_mode: STD_LOGIC;
@@ -168,6 +177,7 @@ SIGNAL pcore_read_data_valid2: STD_LOGIC;
 SIGNAL pcore_read_gen_valid2:STD_LOGIC;
 
 -- Interface to DP1 write port 1
+
 SIGNAL pcore_write_addr: STD_LOGIC_VECTOR(local_bus_width_c-1 DOWNTO 0);
 SIGNAL pcore_write_fork: dp_fork_t;
 SIGNAL pcore_write_addr_mode: STD_LOGIC;
@@ -177,6 +187,7 @@ SIGNAL pcore_write_gen_valid:STD_LOGIC;
 SIGNAL pcore_write_data: STD_LOGIC_VECTOR(fork_max_c*ddr_data_width_c-1 DOWNTO 0);
 
 -- Interface to DP1 read port 2
+
 SIGNAL sram_read_addr: STD_LOGIC_VECTOR(sram_depth_c-1 DOWNTO 0);
 SIGNAL sram_read_fork: dp_fork_t;
 SIGNAL sram_read_enable: STD_LOGIC;
@@ -188,6 +199,7 @@ SIGNAL sram_readdata_vm:STD_LOGIC;
 SIGNAL sram_read_vm:STD_LOGIC;
 
 -- Interface to DP1 write port 2
+
 SIGNAL sram_write_addr: STD_LOGIC_VECTOR(sram_depth_c-1 DOWNTO 0);
 SIGNAL sram_write_fork: dp_fork_t;
 SIGNAL sram_write_enable: STD_LOGIC;
@@ -195,6 +207,7 @@ SIGNAL sram_write_vector: dp_vector_t;
 SIGNAL sram_write_data: STD_LOGIC_VECTOR(fork_max_c*ddr_data_width_c-1 DOWNTO 0);
 
 -- Interface to DP1 read port 3
+
 SIGNAL ddr_read_addr: std_logic_vector(dp_full_addr_width_c-1 downto 0);
 SIGNAL ddr_read_enable: STD_LOGIC;
 SIGNAL ddr_read_enable_2:STD_LOGIC;
@@ -206,6 +219,7 @@ SIGNAL ddr_read_burstlen: burstlen_t;
 SIGNAL ddr_read_filler_data: STD_LOGIC_VECTOR(2*data_width_c-1 downto 0);
 
 -- Interface to DP1 write port 3
+
 SIGNAL ddr_write_addr: std_logic_vector(dp_full_addr_width_c-1 downto 0);
 SIGNAL ddr_write_enable: STD_LOGIC;
 SIGNAL ddr_write_enable_2:STD_LOGIC;
@@ -218,13 +232,12 @@ SIGNAL ddr_write_burstlen3: burstlen_t;
 
 SIGNAL ddr_data_ready:STD_LOGIC_VECTOR(fork_max_c-1 downto 0);
 SIGNAL ddr_data_wait:STD_LOGIC_VECTOR(fork_max_c-1 downto 0);
-
 SIGNAL ddr_write_end:vectors_t(fork_ddr_c-1 downto 0);
-
 SIGNAL ddr_read_vm:STD_LOGIC;
 SIGNAL ddr_readdata_vm:STD_LOGIC;
 
 -- Task control
+
 SIGNAL task_start_addr:instruction_addr_t;
 SIGNAL task:STD_LOGIC;
 SIGNAL task_vm:STD_LOGIC;
@@ -233,6 +246,7 @@ SIGNAL task_pcore:pcore_t;
 SIGNAL bar:dp_addrs_t(dp_bus_id_max_c-1 downto 0);
 
 -- Write counter
+
 SIGNAL pcore_write_counter_r:dp_counters_t(1 DOWNTO 0);
 SIGNAL sram_write_counter_r:dp_counters_t(1 DOWNTO 0);
 SIGNAL ddr_write_counter_r:dp_counter_t;
@@ -362,8 +376,6 @@ SIGNAL swdl_wait:std_logic;
 SIGNAL swdl_write_enable:std_logic;
 BEGIN
 
-
-
 -- Bus signals for MCLOCK domain
 
 m_avalon_bus_page <= unsigned(m_avalon_bus_address(avalon_bus_width_c-1 downto avalon_bus_width_c-avalon_bus_page_t'length));
@@ -377,7 +389,6 @@ m_mdata_write <= m_avalon_bus_write and m_page_is_mdata;
 
 m_config_wren <= m_avalon_bus_write and m_page_is_config;
 m_config_rden <= m_avalon_bus_read and m_page_is_config;
-
 
 -- Bus signals for PCLOCK domain
 
@@ -393,18 +404,19 @@ p_mdata_write <= p_avalon_bus_write and p_page_is_mdata;
 p_config_wren <= p_avalon_bus_write and p_page_is_config;
 p_config_rden <= p_avalon_bus_read and p_page_is_config;
 
-
 bar(dp_bus_id_register_c) <= (others=>'0');
 bar(dp_bus_id_sram_c) <= (others=>'0');
 bar(dp_bus_id_ddr_c)(dp_addr_width_c-1) <= '0';
 bar(dp_bus_id_ddr_c)(dp_addr_width_c-2 downto 0) <= (others=>'0');
 
 -- MCORE read/write enable signal
+
 mcore_io_bank <= mcore_addr(io_depth_c-1 downto io_depth_c-mcore_io_bank_t'length);
 mcore_register_rden <= '1' when (mcore_rden='1' and mcore_io_bank=mcore_io_bank_register_c) else '0';
 mcore_register_wren <= '1' when (mcore_wren='1' and mcore_io_bank=mcore_io_bank_register_c) else '0';
 
 -- PCORE read signals
+
 pcore_read_addr <= dp_pcore_read_addr;
 pcore_read_addr_mode <= dp_pcore_read_addr_mode;
 pcore_read_enable <= dp_pcore_read_enable and (not pcore_read_busy); 
@@ -418,6 +430,7 @@ pcore_read_gen_valid <= '1';
 pcore_read_fork <= dp_pcore_read_fork;
 
 -- SRAM read signals
+
 sram_read_addr <= dp_sram_read_addr(sram_depth_c-1 downto 0);
 sram_read_enable <= dp_sram_read_enable;
 sram_read_vector <= dp_sram_read_vector;
@@ -425,13 +438,16 @@ sram_read_gen_valid <= '1';
 sram_read_fork <= dp_sram_read_fork;
 
 -- Control register read signals
+
 register_rden <= '1' when mcore_register_rden='1' and mcore_register_waitrequest_r='0' else '0';
 
 -- Generate waitrequest to DP when there is a conflict with MCORE while accessing SRAM
+
 dp_sram_read_wait <= '0';
 dp_sram_write_wait <= swdl_wait and swdl_write_enable;
 
 -- Generate waitrequest to DP when there is a conflict with MCORE while accessing PCORE
+
 pcore_read_busy <= dp_pcore_read_enable and (((not dp_pcore_read_vm) and pcore_busy(0)) or (dp_pcore_read_vm and pcore_busy(1)));
 pcore_write_busy <= dp_pcore_write_enable and (((not dp_pcore_write_vm) and pcore_busy(0)) or (dp_pcore_write_vm and pcore_busy(1)));
 
@@ -439,6 +455,7 @@ dp_pcore_read_wait <= pcore_read_busy or pcore_read_wait;
 dp_pcore_write_wait <= pcore_write_busy or pcore_write_wait;
 
 -- MUX writedata to SRAM. Source can be from DP or MCORE
+
 sram_write_data <= dp_sram_write_data;
 sram_write_addr <= dp_sram_write_addr(sram_depth_c-1 downto 0);
 sram_write_enable <= '1' when (dp_sram_write_enable='1' and dp_sram_write_page=dp_bus2_page_sram_c) else '0';
@@ -446,9 +463,11 @@ sram_write_vector <= dp_sram_write_vector;
 sram_write_fork <= dp_sram_write_fork;
 
 -- swdl Stream write 
+
 swdl_write_enable <= '1' when (dp_sram_write_enable='1' and dp_sram_write_page=dp_bus2_page_mcore_code_c) else '0';
 
 -- MUX writedata to PCORE. Source can be from DP or MCORE
+
 pcore_write_addr <= dp_pcore_write_addr;
 pcore_write_fork <= dp_pcore_write_fork;
 pcore_write_data <= dp_pcore_write_data;
@@ -463,10 +482,11 @@ pcore_write_scatter2 <= pcore_write_scatter;
 pcore_write_gen_valid <= '1';
 
 -- SRAM write page
+
 dp_sram_write_page <= dp_sram_write_addr(dp_sram_write_addr'length-1 downto dp_sram_write_addr'length-dp_bus2_page_t'length);
 
-
 -- Generate waitrequest to MCORE
+
 mcore_waitrequest <= mcore_register_waitrequest or dp_waitrequest;
 
 pcore_read_data_valid2 <= pcore_read_data_valid and pcore_read_gen_valid2;
@@ -476,6 +496,7 @@ avalon_bus_readdata_out <= avalon_bus_readdata_r;
 m_avalon_bus_readdatavalid <= msgq_readdatavalid or sys_config_readdatavalid;
 
 -- Generate MCORE wait request for control register access. Need 1 wait state
+
 mcore_register_waitrequest <= '1' when (mcore_register_rden='1' and (mcore_register_waitrequest_r='0' or mcore_register_waitrequest_rr='0'))  else '0';
 process(mreset_in,mclock_in)
 begin
@@ -540,11 +561,11 @@ begin
     else
         if pclock_in'event and pclock_in='1' then
             if dp_pcore_write_enable='1' and dp_pcore_write_wait='0' then
-				if dp_pcore_write_vm='0' then
-					vm_v:=0;
-				else
-					vm_v:=1;
-				end if;
+                if dp_pcore_write_vm='0' then
+                    vm_v:=0;
+                else
+                    vm_v:=1;
+                end if;
                 if dp_pcore_write_vector=std_logic_vector(to_unsigned(ddr_vector_width_c/4-1,ddr_vector_depth_c)) then
                    pcore_write_counter_r(vm_v) <= pcore_write_counter_r(vm_v)+(ddr_vector_width_c/4);
                 elsif dp_pcore_write_vector=std_logic_vector(to_unsigned(ddr_vector_width_c/2-1,ddr_vector_depth_c)) then
@@ -556,11 +577,11 @@ begin
                 end if;
             end if;
             if dp_sram_write_enable='1' and dp_sram_write_wait='0' then
-				if dp_sram_write_vm='0' then
-					sram_vm_v:=0;
-				else
-					sram_vm_v:=1;
-				end if;
+                if dp_sram_write_vm='0' then
+                    sram_vm_v:=0;
+                else
+                    sram_vm_v:=1;
+                end if;
                 if dp_sram_write_vector=std_logic_vector(to_unsigned(ddr_vector_width_c/4-1,ddr_vector_depth_c)) then
                    sram_write_counter_r(sram_vm_v) <= sram_write_counter_r(sram_vm_v)+(ddr_vector_width_c/4);
                 elsif dp_sram_write_vector=std_logic_vector(to_unsigned(ddr_vector_width_c/2-1,ddr_vector_depth_c)) then
@@ -605,7 +626,6 @@ msgq_i : msgq
         host_readdata_out => m_avalon_bus_readdata,
         host_readdatavalid_out=>msgq_readdatavalid,
         host_msg_avail_out=>indication_avail_out,
-
         -- Interface with MCORE
         mcore_addr_in => mcore_addr(register_addr_t'length-1 downto 0),
         mcore_write_in => mcore_register_wren,
@@ -634,7 +654,7 @@ sram_i: sram_core
         dp_read_vector_in => sram_read_vector,
         dp_read_gen_valid_in => sram_read_gen_valid,
         dp_writedata_in => sram_write_data,
-		dp_readdatavalid_out => sram_read_data_valid,
+        dp_readdatavalid_out => sram_read_data_valid,
         dp_readdatavalid_vm_out => sram_readdata_vm,
         dp_readdata_out => sram_read_data);
 
@@ -751,6 +771,10 @@ else
 end if;
 end process;
 
+----
+-- DDR RX
+----
+
 ddr_rx_i: ddr_rx
     port map(
         clock_in=>pclock_in,
@@ -771,7 +795,7 @@ ddr_rx_i: ddr_rx
         read_data_wait_in=>ddr_data_wait(0),
         read_filler_data_in=>ddr_read_filler_data,
 
-		read_data_valid_out=>ddr_read_data_valid,
+        read_data_valid_out=>ddr_read_data_valid,
         read_data_valid_vm_out=>ddr_readdata_vm,
         read_data_out=>ddr_read_data,
         read_wait_request_out=>ddr_read_wait,
@@ -790,6 +814,9 @@ cell_ddr_0_write <= '0';
 cell_ddr_0_writedata <= (others=>'0');
 cell_ddr_0_byteenable <= (others=>'0');
 
+---
+-- DDR TX
+-----
 
 ddr_tx_i: ddr_tx
     port map(
@@ -830,7 +857,9 @@ dp_1_i: dp_core
         reset_in=>preset_in,   
         mclock_in=>mclock_in,
         mreset_in=>mreset_in,               
+
         -- Configuration bus
+
         bus_addr_in=>mcore_addr(register_addr_t'length-1 downto 0),
         bus_write_in=>mcore_register_wren,
         bus_read_in=>register_rden,
@@ -839,6 +868,7 @@ dp_1_i: dp_core
         bus_waitrequest_out=>dp_waitrequest,
 
         -- Bus interface for read master to PCORE
+
         readmaster1_addr_out=>dp_pcore_read_addr,
         readmaster1_fork_out=>dp_pcore_read_fork,
         readmaster1_addr_mode_out=>dp_pcore_read_addr_mode,
@@ -850,7 +880,7 @@ dp_1_i: dp_core
         readmaster1_read_stream_id_out=>pcore_read_stream_id,
         readmaster1_read_vector_out=>dp_pcore_read_vector,
         readmaster1_read_scatter_out=>pcore_read_scatter,
-		readmaster1_readdatavalid_in => pcore_read_data_valid2,
+        readmaster1_readdatavalid_in => pcore_read_data_valid2,
         readmaster1_readdatavalid_vm_in=>pcore_readdata_vm,
         readmaster1_readdata_in=>pcore_read_data,
         readmaster1_wait_request_in=>dp_pcore_read_wait,
@@ -877,7 +907,7 @@ dp_1_i: dp_core
         writemaster1_burstlen_out=>open,
         writemaster1_bus_id_out=>open,
         writemaster1_data_type_out=>dp_pcore_write_data_type,
-		writemaster1_data_model_out=>dp_pcore_write_data_model,
+        writemaster1_data_model_out=>dp_pcore_write_data_model,
         writemaster1_thread_out=>open,
         writemaster1_counter_in=>pcore_write_counter_r,
 
@@ -889,7 +919,7 @@ dp_1_i: dp_core
         readmaster2_read_vm_out=>sram_read_vm,
         readmaster2_read_vector_out=>dp_sram_read_vector,
         readmaster2_read_scatter_out=>open,
-		readmaster2_readdatavalid_in => sram_read_data_valid,
+        readmaster2_readdatavalid_in => sram_read_data_valid,
         readmaster2_readdatavalid_vm_in=> sram_readdata_vm,
         readmaster2_readdata_in=>sram_read_data(fork_sram_c*ddr_data_width_c-1 downto 0),
         readmaster2_wait_request_in=>dp_sram_read_wait,
@@ -897,6 +927,7 @@ dp_1_i: dp_core
         readmaster2_bus_id_out=>open,
 
         -- Bus interface for write master to SRAM
+        
         writemaster2_addr_out=>dp_sram_write_addr,
         writemaster2_fork_out=>dp_sram_write_fork(fork_sram_c-1 downto 0),
         writemaster2_cs_out=>open,
@@ -912,6 +943,7 @@ dp_1_i: dp_core
         writemaster2_counter_in=>sram_write_counter_r,
 
         -- Bus interface for read master to DDR
+        
         readmaster3_addr_out=>ddr_read_addr,
         readmaster3_cs_out=>open,
         readmaster3_read_out=>ddr_read_enable,
@@ -920,8 +952,8 @@ dp_1_i: dp_core
         readmaster3_read_scatter_out=>open,
         readmaster3_read_start_out=>ddr_read_start,
         readmaster3_read_end_out=>ddr_read_end,
-		readmaster3_readdatavalid_in => ddr_read_data_valid,
-		readmaster3_readdatavalid_vm_in => ddr_readdata_vm, 
+        readmaster3_readdatavalid_in => ddr_read_data_valid,
+        readmaster3_readdatavalid_vm_in => ddr_readdata_vm, 
         readmaster3_readdata_in=>ddr_read_data,
         readmaster3_wait_request_in=>ddr_read_wait_2,
         readmaster3_burstlen_out=>ddr_read_burstlen,
@@ -953,11 +985,10 @@ dp_1_i: dp_core
         task_lockstep_out=>task_lockstep,
         task_tid_mask_out=>task_tid_mask,
         task_iregister_auto_out=>task_iregister_auto,
-		task_data_model_out=>task_data_model,
+        task_data_model_out=>task_data_model,
         task_busy_in=>busy,
         task_ready_in=>ready,
         task_busy_out=>pcore_busy,
-
 
         -- BAR
 
@@ -990,10 +1021,11 @@ sys_config_i: sys_config
     
 core_i: core 
    port map(
-		clock_in => pclock_in,
+        clock_in => pclock_in,
         reset_in => preset_in,
 
         -- DP interface
+        
         dp_rd_addr_in => pcore_read_addr,
         dp_rd_fork_in => pcore_read_fork,
         dp_rd_addr_mode_in => pcore_read_addr_mode,
@@ -1009,7 +1041,7 @@ core_i: core
         dp_read_stream_in => pcore_read_stream,
         dp_read_stream_id_in => pcore_read_stream_id,
         dp_read_data_type_in => pcore_read_data_type,
-		dp_read_data_model_in => pcore_read_data_model,
+        dp_read_data_model_in => pcore_read_data_model,
         dp_read_vector_in => pcore_read_vector,
         dp_read_scatter_in => pcore_read_scatter2,
         dp_read_gen_valid_in => pcore_read_gen_valid,
@@ -1017,7 +1049,7 @@ core_i: core
         dp_writedata_in => pcore_write_data,
         dp_write_data_flow_in => pcore_write_data_flow,
         dp_write_data_type_in => pcore_write_data_type,	
-		dp_write_data_model_in => pcore_write_data_model,
+        dp_write_data_model_in => pcore_write_data_model,
         dp_write_vector_in => pcore_write_vector,
         dp_write_stream_in => pcore_write_stream,
         dp_write_stream_id_in => pcore_write_stream_id,
@@ -1026,7 +1058,9 @@ core_i: core
         dp_read_gen_valid_out=> pcore_read_gen_valid2,
         dp_readdata_out => pcore_read_data,
         dp_readdata_vm_out=>pcore_readdata_vm,
+        
         -- Task control
+        
         task_start_addr_in => task_start_addr,
         task_in => task,
         task_vm_in => task_vm,
@@ -1034,12 +1068,13 @@ core_i: core
         task_lockstep_in => task_lockstep,
         task_tid_mask_in => task_tid_mask,
         task_iregister_auto_in => task_iregister_auto,
-		task_data_model_in => task_data_model,
+        task_data_model_in => task_data_model,
 
         busy_out => busy,
         ready_out => ready,
 
         -- Configuration commands
+        
         config_in => p_config_wren,
         config_reg_in => p_avalon_bus_addr(register_addr_t'length-1 downto 0),
         config_data_in => p_avalon_bus_writedata
@@ -1066,12 +1101,14 @@ swdl_i: swdl
        mcore_readdata_out => register_readdata(host_width_c-1 downto 0),
 
        -- SWDL directly from host 
+       
        host_write_in => m_mcode_write,
        host_writedata_in => m_avalon_bus_writedata,
        host_write_addr_in => m_avalon_bus_addr,
        
        -- SWDL from DDR streaming
-	   stream_write_addr_in => dp_sram_write_addr,
+       
+       stream_write_addr_in => dp_sram_write_addr,
        stream_write_data_in => dp_sram_write_data(ddr_data_width_c-1 downto 0),
        stream_write_enable_in => swdl_write_enable,
        stream_wait_out => swdl_wait,
@@ -1079,7 +1116,7 @@ swdl_i: swdl
        prog_text_ena_out => prog_text_ena,
        prog_text_data_out => prog_text_data,
        prog_text_addr_out => prog_text_addr
-        ); 
+       ); 
 
 mcore_i:mcore
     PORT MAP(

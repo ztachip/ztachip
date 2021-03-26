@@ -15,8 +15,7 @@
 ------------------------------------------------------------------------------
 
 --------
--- This module implements message queue for MCORE and host to communicate with
--- each other
+-- This module implements clock crossing between host interface bus and another clock domain
 --------
 
 library std;
@@ -30,55 +29,59 @@ USE altera_mf.all;
 
 ENTITY avalon_lw IS
     port(
-        SIGNAL hclock_in            : IN STD_LOGIC;
-        SIGNAL clock_in             : IN STD_LOGIC;
-        SIGNAL hreset_in            : IN STD_LOGIC;
-        SIGNAL reset_in             : IN STD_LOGIC;
+        SIGNAL hclock_in              : IN STD_LOGIC;
+        SIGNAL clock_in               : IN STD_LOGIC;
+        SIGNAL hreset_in              : IN STD_LOGIC;
+        SIGNAL reset_in               : IN STD_LOGIC;
+      
         -- Interface with host
-        SIGNAL host_addr_in         : IN std_logic_vector(avalon_bus_width_c-1 downto 0);
-        SIGNAL host_write_in        : IN STD_LOGIC;
-        SIGNAL host_read_in         : IN STD_LOGIC;
-        SIGNAL host_writedata_in    : IN STD_LOGIC_VECTOR(host_width_c-1 DOWNTO 0);
-        SIGNAL host_readdata_out    : OUT STD_LOGIC_VECTOR(host_width_c-1 DOWNTO 0);
-        SIGNAL host_readdatavalid_out: OUT STD_LOGIC;
-        SIGNAL host_ready_out       : OUT STD_LOGIC;
+      
+        SIGNAL host_addr_in           : IN std_logic_vector(avalon_bus_width_c-1 downto 0);
+        SIGNAL host_write_in          : IN STD_LOGIC;
+        SIGNAL host_read_in           : IN STD_LOGIC;
+        SIGNAL host_writedata_in      : IN STD_LOGIC_VECTOR(host_width_c-1 DOWNTO 0);
+        SIGNAL host_readdata_out      : OUT STD_LOGIC_VECTOR(host_width_c-1 DOWNTO 0);
+        SIGNAL host_readdatavalid_out : OUT STD_LOGIC;
+        SIGNAL host_ready_out         : OUT STD_LOGIC;
+      
         -- Interface with MCORE
-        SIGNAL addr_out             : OUT std_logic_vector(avalon_bus_width_c-1 downto 0);
-        SIGNAL write_out            : OUT STD_LOGIC;
-        SIGNAL read_out             : OUT STD_LOGIC;
-        SIGNAL writedata_out        : OUT STD_LOGIC_VECTOR(host_width_c-1 DOWNTO 0);
-        SIGNAL readdata_in          : IN STD_LOGIC_VECTOR(host_width_c-1 DOWNTO 0);
-        SIGNAL readdatavalid_in     : IN STD_LOGIC
-        );        
+      
+        SIGNAL addr_out               : OUT std_logic_vector(avalon_bus_width_c-1 downto 0);
+        SIGNAL write_out              : OUT STD_LOGIC;
+        SIGNAL read_out               : OUT STD_LOGIC;
+        SIGNAL writedata_out          : OUT STD_LOGIC_VECTOR(host_width_c-1 DOWNTO 0);
+        SIGNAL readdata_in            : IN STD_LOGIC_VECTOR(host_width_c-1 DOWNTO 0);
+        SIGNAL readdatavalid_in       : IN STD_LOGIC
+        );  
 END avalon_lw;
 
 ARCHITECTURE avalon_lw_behaviour of avalon_lw is
 
-COMPONENT dcfifo
-	GENERIC (
-		intended_device_family  : STRING;
-		lpm_numwords            : NATURAL;
-		lpm_showahead           : STRING;
-		lpm_type                : STRING;
-		lpm_width               : NATURAL;
-		lpm_widthu              : NATURAL;
-		overflow_checking       : STRING;
-		rdsync_delaypipe        : NATURAL;
-		underflow_checking      : STRING;
-		use_eab                 : STRING;
-		wrsync_delaypipe        : NATURAL
-	);
-	PORT (
-			data	: IN STD_LOGIC_VECTOR (lpm_width-1 DOWNTO 0);
-			rdclk	: IN STD_LOGIC;
-			rdreq	: IN STD_LOGIC;
-			wrclk	: IN STD_LOGIC;
-			wrreq	: IN STD_LOGIC;
-            wrusedw : OUT STD_LOGIC_VECTOR(lpm_widthu-1 downto 0);
-			q	    : OUT STD_LOGIC_VECTOR (lpm_width-1 DOWNTO 0);
-			rdempty	: OUT STD_LOGIC;
-			wrfull	: OUT STD_LOGIC 
-	);
+COMPONENT dcfifo IS
+   GENERIC (
+      intended_device_family  : STRING;
+      lpm_numwords            : NATURAL;
+      lpm_showahead           : STRING;
+      lpm_type                : STRING;
+      lpm_width               : NATURAL;
+      lpm_widthu              : NATURAL;
+      overflow_checking       : STRING;
+      rdsync_delaypipe        : NATURAL;
+      underflow_checking      : STRING;
+      use_eab                 : STRING;
+      wrsync_delaypipe        : NATURAL
+   );
+   PORT (
+      data      : IN STD_LOGIC_VECTOR (lpm_width-1 DOWNTO 0);
+      rdclk     : IN STD_LOGIC;
+      rdreq     : IN STD_LOGIC;
+      wrclk     : IN STD_LOGIC;
+      wrreq     : IN STD_LOGIC;
+      wrusedw   : OUT STD_LOGIC_VECTOR(lpm_widthu-1 downto 0);
+      q         : OUT STD_LOGIC_VECTOR (lpm_width-1 DOWNTO 0);
+      rdempty   : OUT STD_LOGIC;
+      wrfull    : OUT STD_LOGIC 
+   );
 END COMPONENT;
 
 constant a2z_fifo_width_c:integer:=host_width_c+avalon_bus_width_c+2;
@@ -115,34 +118,35 @@ BEGIN
 ---
 
 a2z : dcfifo
-	GENERIC MAP (
-		intended_device_family => "Cyclone V",
-		lpm_numwords => 2**a2z_fifo_depth_c,
-		lpm_showahead => "ON",
-		lpm_type => "dcfifo",
-		lpm_width => a2z_fifo_width_c,
-		lpm_widthu => a2z_fifo_depth_c,
-		overflow_checking => "ON",
-		rdsync_delaypipe => 5,
-		underflow_checking => "ON",
-		use_eab => "ON",
-		wrsync_delaypipe => 5
-	)
-	PORT MAP (
-		data => a2z_data,
-		wrclk => hclock_in,
-		wrreq => a2z_wrreq,
-		wrfull => a2z_wrfull,
-        wrusedw => wrusedw,
-
-		rdclk => clock_in,
-		rdreq => a2z_rdreq,
-		q => a2z_q,
-		rdempty => a2z_rdempty
-	);
+   GENERIC MAP (
+      intended_device_family => "Cyclone V",
+      lpm_numwords => 2**a2z_fifo_depth_c,
+      lpm_showahead => "ON",
+      lpm_type => "dcfifo",
+      lpm_width => a2z_fifo_width_c,
+      lpm_widthu => a2z_fifo_depth_c,
+      overflow_checking => "ON",
+      rdsync_delaypipe => 5,
+      underflow_checking => "ON",
+      use_eab => "ON",
+      wrsync_delaypipe => 5
+   )
+   PORT MAP (
+      data => a2z_data,
+      wrclk => hclock_in,
+      wrreq => a2z_wrreq,
+      wrfull => a2z_wrfull,
+      wrusedw => wrusedw,
+      rdclk => clock_in,
+      rdreq => a2z_rdreq,
+      q => a2z_q,
+      rdempty => a2z_rdempty
+   );
 
 host_readdata_out <= z2a_q_r;
+
 host_readdatavalid_out <= z2a_rdreq_r;
+
 host_ready_out <= not wrusedw_r(wrusedw_r'length-1);
 
 process(host_writedata_in,host_addr_in,host_read_in,host_write_in)
@@ -164,31 +168,30 @@ z2a_rdreq <= not z2a_rdempty;
 
 -- FIFO for dataflow from ztachip to avalon...
 z2a : dcfifo
-	GENERIC MAP (
-		intended_device_family => "Cyclone V",
-		lpm_numwords => 2**z2a_fifo_depth_c,
-		lpm_showahead => "ON",
-		lpm_type => "dcfifo",
-		lpm_width => host_width_c,
-		lpm_widthu => z2a_fifo_depth_c,
-		overflow_checking => "ON",
-		rdsync_delaypipe => 5,
-		underflow_checking => "ON",
-		use_eab => "ON",
-		wrsync_delaypipe => 5
-	)
-	PORT MAP (
-		rdclk => hclock_in,
-		rdreq => z2a_rdreq,
-		q => z2a_q,
-		rdempty => z2a_rdempty,
-
-		data => readdata_in,
-		wrclk => clock_in,
-		wrreq => readdatavalid_in,
-        wrusedw => wrusedw2,
-		wrfull => open -- not possible to be full...
-	);
+   GENERIC MAP (
+      intended_device_family => "Cyclone V",
+      lpm_numwords => 2**z2a_fifo_depth_c,
+      lpm_showahead => "ON",
+      lpm_type => "dcfifo",
+      lpm_width => host_width_c,
+      lpm_widthu => z2a_fifo_depth_c,
+      overflow_checking => "ON",
+      rdsync_delaypipe => 5,
+      underflow_checking => "ON",
+      use_eab => "ON",
+      wrsync_delaypipe => 5
+   )
+   PORT MAP (
+      rdclk => hclock_in,
+      rdreq => z2a_rdreq,
+      q => z2a_q,
+      rdempty => z2a_rdempty,
+      data => readdata_in,
+      wrclk => clock_in,
+      wrreq => readdatavalid_in,
+      wrusedw => wrusedw2,
+      wrfull => open
+);
 
 process(a2z_rdempty,a2z_q)
 variable pos_v:integer;

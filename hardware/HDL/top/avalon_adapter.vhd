@@ -24,10 +24,16 @@ use work.hpc_pkg.all;
 LIBRARY altera_mf;
 USE altera_mf.all;
 
+------
+--  Bus adapter for Avalon Bus
+--- ztachip bus interface is very similar Avalon Bus except that burst begin signal
+--- stays high until acknowledged.
+-------
+
 ENTITY avalon_adapter IS
    PORT( 
-        SIGNAL clock_in             : IN STD_LOGIC;
-        SIGNAL reset_in             : IN STD_LOGIC;
+        SIGNAL clock_in                : IN STD_LOGIC;
+        SIGNAL reset_in                : IN STD_LOGIC;
 
         SIGNAL ddr_addr_in             : IN std_logic_vector(ddr_bus_width_c-1 downto 0);
         SIGNAL ddr_burstlen_in         : IN unsigned(ddr_burstlen_width_c-1 downto 0);

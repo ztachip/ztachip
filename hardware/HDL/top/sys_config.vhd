@@ -49,11 +49,12 @@ SIGNAL sreset_r:STD_LOGIC;
 BEGIN
 
 wregno <= unsigned(bus_addr_in(register_t'length-1 downto 0));
+
 bus_readdata_out <= (others=>'Z');
+
 bus_readdatavalid_out <= '0';
 sreset_out <= sreset_r;
  
-
 ---------
 --- Process register access from host
 ----------

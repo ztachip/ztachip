@@ -32,65 +32,66 @@ ENTITY cell IS
     generic (
         CID:integer
         );
-    port(   clock_in                     : IN STD_LOGIC;
-            reset_in                     : IN STD_LOGIC;
+    port(   clock_in                        : IN STD_LOGIC;
+            reset_in                        : IN STD_LOGIC;
             -- DP interface
-            SIGNAL dp_rd_vm_in           : IN STD_LOGIC;
-            SIGNAL dp_wr_vm_in           : IN STD_LOGIC;
-            SIGNAL dp_code_in            : IN STD_LOGIC;
-            SIGNAL dp_rd_addr_in         : IN STD_LOGIC_VECTOR(local_bus_width_c-1 DOWNTO 0);
-            SIGNAL dp_rd_addr_step_in    : IN STD_LOGIC_VECTOR(local_bus_width_c-1 DOWNTO 0);
-            SIGNAL dp_rd_fork_in         : IN STD_LOGIC;
-            SIGNAL dp_rd_share_in        : IN STD_LOGIC;
-            SIGNAL dp_wr_addr_in         : IN STD_LOGIC_VECTOR(local_bus_width_c-1 DOWNTO 0);  
-            SIGNAL dp_wr_addr_step_in    : IN STD_LOGIC_VECTOR(local_bus_width_c-1 DOWNTO 0);  
-            SIGNAL dp_wr_fork_in         : IN STD_LOGIC;
-            SIGNAL dp_wr_share_in        : IN STD_LOGIC;          
-            SIGNAL dp_wr_mcast_in        : IN mcast_t;
-            SIGNAL dp_write_in           : IN STD_LOGIC;
-            SIGNAL dp_write_gen_valid_in : IN STD_LOGIC;
-            SIGNAL dp_write_vector_in    : IN dp_vector_t;
-            SIGNAL dp_write_scatter_in   : IN scatter_t;
-            SIGNAL dp_read_in            : IN STD_LOGIC;
-            SIGNAL dp_read_vector_in     : IN dp_vector_t;
-            SIGNAL dp_read_scatter_in    : IN scatter_t;
-            SIGNAL dp_read_gen_valid_in  : IN STD_LOGIC;
-            SIGNAL dp_read_data_flow_in  : IN data_flow_t;
-            SIGNAL dp_read_data_type_in  : IN dp_data_type_t;
-            SIGNAL dp_read_stream_in     : IN STD_LOGIC;
-            SIGNAL dp_read_stream_id_in  : IN stream_id_t;
-            SIGNAL dp_writedata_in       : IN STD_LOGIC_VECTOR(ddrx_data_width_c-1 DOWNTO 0);
-            SIGNAL dp_readdata_out       : OUT STD_LOGIC_VECTOR(ddrx_data_width_c-1 DOWNTO 0);
-            SIGNAL dp_readdata_vm_out    : OUT STD_LOGIC;
-            SIGNAL dp_read_vector_out    : OUT unsigned(ddr_vector_depth_c-1 downto 0);
-            SIGNAL dp_read_vaddr_out     : OUT STD_LOGIC_VECTOR(ddr_vector_depth_c-1 downto 0);
-            SIGNAL dp_readdata_valid_out : OUT STD_LOGIC;
-            SIGNAL dp_read_gen_valid_out : OUT STD_LOGIC;
-            SIGNAL dp_read_data_flow_out : OUT data_flow_t;
-            SIGNAL dp_read_data_type_out : OUT dp_data_type_t;
-            SIGNAL dp_read_stream_out    : OUT STD_LOGIC;
-            SIGNAL dp_read_stream_id_out : OUT stream_id_t;
-            SIGNAL dp_config_in          : IN STD_LOGIC;
+            SIGNAL dp_rd_vm_in              : IN STD_LOGIC;
+            SIGNAL dp_wr_vm_in              : IN STD_LOGIC;
+            SIGNAL dp_code_in               : IN STD_LOGIC;
+            SIGNAL dp_rd_addr_in            : IN STD_LOGIC_VECTOR(local_bus_width_c-1 DOWNTO 0);
+            SIGNAL dp_rd_addr_step_in       : IN STD_LOGIC_VECTOR(local_bus_width_c-1 DOWNTO 0);
+            SIGNAL dp_rd_fork_in            : IN STD_LOGIC;
+            SIGNAL dp_rd_share_in           : IN STD_LOGIC;
+            SIGNAL dp_wr_addr_in            : IN STD_LOGIC_VECTOR(local_bus_width_c-1 DOWNTO 0);  
+            SIGNAL dp_wr_addr_step_in       : IN STD_LOGIC_VECTOR(local_bus_width_c-1 DOWNTO 0);  
+            SIGNAL dp_wr_fork_in            : IN STD_LOGIC;
+            SIGNAL dp_wr_share_in           : IN STD_LOGIC;          
+            SIGNAL dp_wr_mcast_in           : IN mcast_t;
+            SIGNAL dp_write_in              : IN STD_LOGIC;
+            SIGNAL dp_write_gen_valid_in    : IN STD_LOGIC;
+            SIGNAL dp_write_vector_in       : IN dp_vector_t;
+            SIGNAL dp_write_scatter_in      : IN scatter_t;
+            SIGNAL dp_read_in               : IN STD_LOGIC;
+            SIGNAL dp_read_vector_in        : IN dp_vector_t;
+            SIGNAL dp_read_scatter_in       : IN scatter_t;
+            SIGNAL dp_read_gen_valid_in     : IN STD_LOGIC;
+            SIGNAL dp_read_data_flow_in     : IN data_flow_t;
+            SIGNAL dp_read_data_type_in     : IN dp_data_type_t;
+            SIGNAL dp_read_stream_in        : IN STD_LOGIC;
+            SIGNAL dp_read_stream_id_in     : IN stream_id_t;
+            SIGNAL dp_writedata_in          : IN STD_LOGIC_VECTOR(ddrx_data_width_c-1 DOWNTO 0);
+            SIGNAL dp_readdata_out          : OUT STD_LOGIC_VECTOR(ddrx_data_width_c-1 DOWNTO 0);
+            SIGNAL dp_readdata_vm_out       : OUT STD_LOGIC;
+            SIGNAL dp_read_vector_out       : OUT unsigned(ddr_vector_depth_c-1 downto 0);
+            SIGNAL dp_read_vaddr_out        : OUT STD_LOGIC_VECTOR(ddr_vector_depth_c-1 downto 0);
+            SIGNAL dp_readdata_valid_out    : OUT STD_LOGIC;
+            SIGNAL dp_read_gen_valid_out    : OUT STD_LOGIC;
+            SIGNAL dp_read_data_flow_out    : OUT data_flow_t;
+            SIGNAL dp_read_data_type_out    : OUT dp_data_type_t;
+            SIGNAL dp_read_stream_out       : OUT STD_LOGIC;
+            SIGNAL dp_read_stream_id_out    : OUT stream_id_t;
+            SIGNAL dp_config_in             : IN STD_LOGIC;
 
             -- Instruction interface
-            SIGNAL instruction_mu_in       : IN STD_LOGIC_VECTOR(mu_instruction_width_c-1 DOWNTO 0);
-            SIGNAL instruction_imu_in      : IN STD_LOGIC_VECTOR(imu_instruction_width_c-1 DOWNTO 0);
-            SIGNAL instruction_mu_valid_in : IN STD_LOGIC;
-            SIGNAL instruction_imu_valid_in: IN STD_LOGIC;
-            SIGNAL vm_in                   : IN STD_LOGIC;
-			SIGNAL data_model_in           : IN dp_data_model_t;
-            SIGNAL enable_in               : IN STD_LOGIC_VECTOR(pid_max_c-1 downto 0);
-            SIGNAL tid_in                  : IN tid_t;
-            SIGNAL tid_valid1_in           : IN STD_LOGIC;
-            SIGNAL pre_tid_in              : IN tid_t;
-            SIGNAL pre_tid_valid1_in       : IN STD_LOGIC;
-            SIGNAL pre_pre_tid_in          : IN tid_t;
-            SIGNAL pre_pre_tid_valid1_in   : IN STD_LOGIC;
-            SIGNAL pre_pre_vm_in           : IN STD_LOGIC;
-			SIGNAL pre_pre_data_model_in   : IN dp_data_model_t;
-            SIGNAL pre_iregister_auto_in   : IN iregister_auto_t;
-            SIGNAL i_y_neg_out             : OUT STD_LOGIC_VECTOR(pid_max_c-1 downto 0);
-            SIGNAL i_y_zero_out            : OUT STD_LOGIC_VECTOR(pid_max_c-1 downto 0)
+
+            SIGNAL instruction_mu_in        : IN STD_LOGIC_VECTOR(mu_instruction_width_c-1 DOWNTO 0);
+            SIGNAL instruction_imu_in       : IN STD_LOGIC_VECTOR(imu_instruction_width_c-1 DOWNTO 0);
+            SIGNAL instruction_mu_valid_in  : IN STD_LOGIC;
+            SIGNAL instruction_imu_valid_in : IN STD_LOGIC;
+            SIGNAL vm_in                    : IN STD_LOGIC;
+            SIGNAL data_model_in            : IN dp_data_model_t;
+            SIGNAL enable_in                : IN STD_LOGIC_VECTOR(pid_max_c-1 downto 0);
+            SIGNAL tid_in                   : IN tid_t;
+            SIGNAL tid_valid1_in            : IN STD_LOGIC;
+            SIGNAL pre_tid_in               : IN tid_t;
+            SIGNAL pre_tid_valid1_in        : IN STD_LOGIC;
+            SIGNAL pre_pre_tid_in           : IN tid_t;
+            SIGNAL pre_pre_tid_valid1_in    : IN STD_LOGIC;
+            SIGNAL pre_pre_vm_in            : IN STD_LOGIC;
+            SIGNAL pre_pre_data_model_in    : IN dp_data_model_t;
+            SIGNAL pre_iregister_auto_in    : IN iregister_auto_t;
+            SIGNAL i_y_neg_out              : OUT STD_LOGIC_VECTOR(pid_max_c-1 downto 0);
+            SIGNAL i_y_zero_out             : OUT STD_LOGIC_VECTOR(pid_max_c-1 downto 0)
             );
 END cell;
 
@@ -174,7 +175,6 @@ attribute dont_merge of dp_read_stream_in_r : SIGNAL is true;
 attribute dont_merge of dp_read_stream_id_in_r : SIGNAL is true;
 attribute dont_merge of dp_writedata_in_r : SIGNAL is true;
 attribute dont_merge of dp_config_in_r : SIGNAL is true;
-
 
 attribute preserve : boolean;
 attribute preserve of dp_readena_r : SIGNAL is true;
@@ -305,7 +305,6 @@ pcore_i: pcore
         clock_in => clock_in,
         reset_in => reset_in,
 
-
         -- Instruction interface
 
         instruction_mu_in => instruction_mu_in,
@@ -313,7 +312,7 @@ pcore_i: pcore
         instruction_mu_valid_in => instruction_mu_valid_in,
         instruction_imu_valid_in => instruction_imu_valid_in,
         vm_in => vm_in,
-		data_model_in => data_model_in,
+        data_model_in => data_model_in,
         enable_in => enable_in(I),
         tid_in => tid_in,
         tid_valid1_in => tid_valid1_in,
@@ -321,17 +320,14 @@ pcore_i: pcore
         pre_tid_valid1_in => pre_tid_valid1_in,
         pre_pre_tid_in => pre_pre_tid_in,
         pre_pre_tid_valid1_in => pre_pre_tid_valid1_in,
-
         pre_pre_vm_in => pre_pre_vm_in,
-		pre_pre_data_model_in => pre_pre_data_model_in,
-
+        pre_pre_data_model_in => pre_pre_data_model_in,
         pre_iregister_auto_in => pre_iregister_auto_in,
-
         i_y_neg_out => i_y_neg_out(I),
         i_y_zero_out => i_y_zero_out(I),
-
 		
         -- DP interface
+
         dp_rd_vm_in => dp_rd_vm_in_r,
         dp_wr_vm_in => dp_wr_vm_in_r,
         dp_code_in => dp_code_in_r,
@@ -383,10 +379,8 @@ dp_read_gen_valid(I) <= '0';
 end generate GEN2;
 end generate GEN_REG;                                            
 
-
 process(reset_in,clock_in)
 begin
-
 if reset_in = '0' then
    dp_rd_vm_in_r <= '0';
    dp_wr_vm_in_r <= '0';

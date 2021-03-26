@@ -29,23 +29,25 @@ USE altera_mf.all;
 
 ENTITY sram_core IS
     PORT (
-        SIGNAL clock_in             : IN STD_LOGIC;
-        SIGNAL reset_in             : IN STD_LOGIC;
+        SIGNAL clock_in                : IN STD_LOGIC;
+        SIGNAL reset_in                : IN STD_LOGIC;
+
         -- DP interface
-        SIGNAL dp_rd_addr_in        : IN STD_LOGIC_VECTOR(sram_depth_c-1 DOWNTO 0);
-        SIGNAL dp_wr_addr_in        : IN STD_LOGIC_VECTOR(sram_depth_c-1 DOWNTO 0);        
-        SIGNAL dp_rd_fork_in        : IN dp_fork_t;
-        SIGNAL dp_wr_fork_in        : IN dp_fork_t;
-        SIGNAL dp_write_in          : IN STD_LOGIC;
-        SIGNAL dp_write_vector_in   : IN dp_vector_t;
-        SIGNAL dp_read_in           : IN STD_LOGIC;
-        SIGNAL dp_read_vm_in        : IN STD_LOGIC;
-        SIGNAL dp_read_vector_in    : IN dp_vector_t;
-        SIGNAL dp_read_gen_valid_in : IN STD_LOGIC;
-        SIGNAL dp_writedata_in      : IN STD_LOGIC_VECTOR(ddr_data_width_c-1 DOWNTO 0);
-		SIGNAL dp_readdatavalid_out : OUT STD_LOGIC;
-        SIGNAL dp_readdatavalid_vm_out: OUT STD_LOGIC;
-        SIGNAL dp_readdata_out      : OUT STD_LOGIC_VECTOR(ddr_data_width_c-1 DOWNTO 0)
+        
+        SIGNAL dp_rd_addr_in           : IN STD_LOGIC_VECTOR(sram_depth_c-1 DOWNTO 0);
+        SIGNAL dp_wr_addr_in           : IN STD_LOGIC_VECTOR(sram_depth_c-1 DOWNTO 0);        
+        SIGNAL dp_rd_fork_in           : IN dp_fork_t;
+        SIGNAL dp_wr_fork_in           : IN dp_fork_t;
+        SIGNAL dp_write_in             : IN STD_LOGIC;
+        SIGNAL dp_write_vector_in      : IN dp_vector_t;
+        SIGNAL dp_read_in              : IN STD_LOGIC;
+        SIGNAL dp_read_vm_in           : IN STD_LOGIC;
+        SIGNAL dp_read_vector_in       : IN dp_vector_t;
+        SIGNAL dp_read_gen_valid_in    : IN STD_LOGIC;
+        SIGNAL dp_writedata_in         : IN STD_LOGIC_VECTOR(ddr_data_width_c-1 DOWNTO 0);
+        SIGNAL dp_readdatavalid_out    : OUT STD_LOGIC;
+        SIGNAL dp_readdatavalid_vm_out : OUT STD_LOGIC;
+        SIGNAL dp_readdata_out         : OUT STD_LOGIC_VECTOR(ddr_data_width_c-1 DOWNTO 0)
     );
 END sram_core;
 
@@ -64,31 +66,33 @@ BEGIN
 dp_readdatavalid_out <= '0' when readdatavalid=std_logic_vector(to_unsigned(0,sram_num_bank_c)) else '1';
 
 -- MUX write access to the bank
+
 process(dp_wr_addr_in,dp_writedata_in,dp_write_in)
 begin
    -- This is single access
    case dp_wr_addr_in(sram_depth_c-1 downto sram_bank_depth_c) is
       when "0" => 
-	     write(0) <= dp_write_in;
-		 write(1) <= '0';
-		 writedata <= dp_writedata_in(ddr_data_width_c-1 downto 0);
+         write(0) <= dp_write_in;
+         write(1) <= '0';
+         writedata <= dp_writedata_in(ddr_data_width_c-1 downto 0);
       when others=>
-	     write(0) <= '0';
-		 write(1) <= dp_write_in;
-		 writedata <= dp_writedata_in(ddr_data_width_c-1 downto 0);
+         write(0) <= '0';
+         write(1) <= dp_write_in;
+         writedata <= dp_writedata_in(ddr_data_width_c-1 downto 0);
    end case;
 end process;
 
 -- MUX read access to the bank
+
 process(dp_rd_addr_in,dp_read_in)
 begin
    case dp_rd_addr_in(sram_depth_c-1 downto sram_bank_depth_c) is
       when "0" => 
-	     read(0) <= dp_read_in;
-		 read(1) <= '0';
+         read(0) <= dp_read_in;
+         read(1) <= '0';
       when others=>
-	     read(0) <= '0';
-		 read(1) <= dp_read_in;
+         read(0) <= '0';
+         read(1) <= dp_read_in;
    end case;
 end process;
 
@@ -138,7 +142,7 @@ sram_i : sram
         dp_read_vector_in=>dp_read_vector_in,
         dp_read_gen_valid_in=>dp_read_gen_valid_in,
         dp_writedata_in=>writedata,
-		dp_readdatavalid_out=>readdatavalid(I),
+        dp_readdatavalid_out=>readdatavalid(I),
         dp_readdata_out => readdata(I)
     );
 END GENERATE GEN_SRAM;

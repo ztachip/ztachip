@@ -34,7 +34,9 @@ ENTITY sram IS
     PORT (
         SIGNAL clock_in             : IN STD_LOGIC;
         SIGNAL reset_in             : IN STD_LOGIC;
+
         -- DP interface
+        
         SIGNAL dp_rd_addr_in        : IN STD_LOGIC_VECTOR(DEPTH-1 DOWNTO 0);
         SIGNAL dp_wr_addr_in        : IN STD_LOGIC_VECTOR(DEPTH-1 DOWNTO 0);        
         SIGNAL dp_write_in          : IN STD_LOGIC;
@@ -43,46 +45,12 @@ ENTITY sram IS
         SIGNAL dp_read_vector_in    : IN dp_vector_t;
         SIGNAL dp_read_gen_valid_in : IN STD_LOGIC;
         SIGNAL dp_writedata_in      : IN STD_LOGIC_VECTOR(ddr_data_width_c-1 DOWNTO 0);
-		SIGNAL dp_readdatavalid_out : OUT STD_LOGIC;
+        SIGNAL dp_readdatavalid_out : OUT STD_LOGIC;
         SIGNAL dp_readdata_out      : OUT STD_LOGIC_VECTOR(ddr_data_width_c-1 DOWNTO 0)
     );
 END sram;
 
 ARCHITECTURE behavior OF sram IS
-SIGNAL q:STD_LOGIC_VECTOR(ddr_data_width_c-1 downto 0);
-SIGNAL q_r:STD_LOGIC_VECTOR(ddr_data_width_c-1 downto 0);
-SIGNAL rden_r:STD_LOGIC;
-SIGNAL rden_rr:STD_LOGIC;
-SIGNAL rden_rrr:STD_LOGIC;
-SIGNAL rd_vector_r:STD_LOGIC_VECTOR(ddr_vector_depth_c-1 downto 0);
-SIGNAL rd_vector_rr:STD_LOGIC_VECTOR(ddr_vector_depth_c-1 downto 0);
-SIGNAL rd_vector_rrr:STD_LOGIC_VECTOR(ddr_vector_depth_c-1 downto 0);
-SIGNAL valid:STD_LOGIC;
-SIGNAL dp_wr_addr:STD_LOGIC_VECTOR(DEPTH-ddr_vector_depth_c-1 downto 0);
-SIGNAL dp_rd_addr:STD_LOGIC_VECTOR(DEPTH-ddr_vector_depth_c-1 downto 0);
-SIGNAL rd_addr_r:STD_LOGIC_VECTOR(DEPTH-1 DOWNTO 0);
-SIGNAL rd_addr_rr:STD_LOGIC_VECTOR(DEPTH-1 DOWNTO 0);
-SIGNAL rd_addr_rrr:STD_LOGIC_VECTOR(DEPTH-1 DOWNTO 0);
-SIGNAL byteena:STD_LOGIC_VECTOR(ddr_data_byte_width_c-1 downto 0);
-SIGNAL dp_writedata:STD_LOGIC_VECTOR(ddr_data_width_c-1 DOWNTO 0);
-SIGNAL wr_addr_r:STD_LOGIC_VECTOR(DEPTH-ddr_vector_depth_c-1 downto 0);
-SIGNAL byteena_r:STD_LOGIC_VECTOR(ddr_data_byte_width_c-1 downto 0);
-SIGNAL writedata_r:STD_LOGIC_VECTOR(ddr_data_width_c-1 DOWNTO 0);
-SIGNAL wren_r:std_logic;
-SIGNAL dp_readdata_r:STD_LOGIC_VECTOR(ddr_data_width_c-1 DOWNTO 0);
-SIGNAL dp_readdatavalid:STD_LOGIC;
-SIGNAL dp_readdatavalid_r:STD_LOGIC;
-attribute dont_merge : boolean;
-attribute dont_merge of rden_r : SIGNAL is true;
-attribute dont_merge of rd_vector_r : SIGNAL is true;
-attribute dont_merge of rd_addr_r : SIGNAL is true;
-attribute dont_merge of writedata_r : SIGNAL is true;
-attribute dont_merge of wren_r : SIGNAL is true;
-attribute dont_merge of wr_addr_r : SIGNAL is true;
-
-attribute preserve : boolean;
-attribute preserve of dp_readdatavalid_r : SIGNAL is true;
-attribute preserve of dp_readdata_r : SIGNAL is true;
 
 COMPONENT altsyncram
 GENERIC (
@@ -116,16 +84,49 @@ GENERIC (
             address_b   : IN STD_LOGIC_VECTOR (widthad_b-1 DOWNTO 0)
     );
 END COMPONENT;
+ 
+SIGNAL q:STD_LOGIC_VECTOR(ddr_data_width_c-1 downto 0);
+SIGNAL q_r:STD_LOGIC_VECTOR(ddr_data_width_c-1 downto 0);
+SIGNAL rden_r:STD_LOGIC;
+SIGNAL rden_rr:STD_LOGIC;
+SIGNAL rden_rrr:STD_LOGIC;
+SIGNAL rd_vector_r:STD_LOGIC_VECTOR(ddr_vector_depth_c-1 downto 0);
+SIGNAL rd_vector_rr:STD_LOGIC_VECTOR(ddr_vector_depth_c-1 downto 0);
+SIGNAL rd_vector_rrr:STD_LOGIC_VECTOR(ddr_vector_depth_c-1 downto 0);
+SIGNAL valid:STD_LOGIC;
+SIGNAL dp_wr_addr:STD_LOGIC_VECTOR(DEPTH-ddr_vector_depth_c-1 downto 0);
+SIGNAL dp_rd_addr:STD_LOGIC_VECTOR(DEPTH-ddr_vector_depth_c-1 downto 0);
+SIGNAL rd_addr_r:STD_LOGIC_VECTOR(DEPTH-1 DOWNTO 0);
+SIGNAL rd_addr_rr:STD_LOGIC_VECTOR(DEPTH-1 DOWNTO 0);
+SIGNAL rd_addr_rrr:STD_LOGIC_VECTOR(DEPTH-1 DOWNTO 0);
+SIGNAL byteena:STD_LOGIC_VECTOR(ddr_data_byte_width_c-1 downto 0);
+SIGNAL dp_writedata:STD_LOGIC_VECTOR(ddr_data_width_c-1 DOWNTO 0);
+SIGNAL wr_addr_r:STD_LOGIC_VECTOR(DEPTH-ddr_vector_depth_c-1 downto 0);
+SIGNAL byteena_r:STD_LOGIC_VECTOR(ddr_data_byte_width_c-1 downto 0);
+SIGNAL writedata_r:STD_LOGIC_VECTOR(ddr_data_width_c-1 DOWNTO 0);
+SIGNAL wren_r:std_logic;
+SIGNAL dp_readdata_r:STD_LOGIC_VECTOR(ddr_data_width_c-1 DOWNTO 0);
+SIGNAL dp_readdatavalid:STD_LOGIC;
+SIGNAL dp_readdatavalid_r:STD_LOGIC;
+
+attribute dont_merge : boolean;
+attribute dont_merge of rden_r : SIGNAL is true;
+attribute dont_merge of rd_vector_r : SIGNAL is true;
+attribute dont_merge of rd_addr_r : SIGNAL is true;
+attribute dont_merge of writedata_r : SIGNAL is true;
+attribute dont_merge of wren_r : SIGNAL is true;
+attribute dont_merge of wr_addr_r : SIGNAL is true;
+attribute preserve : boolean;
+attribute preserve of dp_readdatavalid_r : SIGNAL is true;
+attribute preserve of dp_readdata_r : SIGNAL is true;
 
 BEGIN
-
 
 valid <= dp_read_in and dp_read_gen_valid_in;
 dp_readdata_out <= dp_readdata_r when dp_readdatavalid_r='1' else (others=>'Z');
 dp_readdatavalid_out <= dp_readdatavalid_r;
 delay_i1: delay generic map(DEPTH => read_latency_sram_c-1) 
             port map(clock_in => clock_in,reset_in => reset_in,in_in=>valid,out_out=>dp_readdatavalid,enable_in=>'1');
-
 dp_wr_addr <= dp_wr_addr_in(DEPTH-1 downto ddr_vector_depth_c);
 dp_rd_addr <= dp_rd_addr_in(DEPTH-1 downto ddr_vector_depth_c);
 
@@ -381,7 +382,6 @@ altsyncram_i : altsyncram
         address_a => wr_addr_r,
         byteena_a => byteena_r,
         clock0 => clock_in,
--- TODO VECTOR
         data_a => writedata_r,
         wren_a => wren_r,
         address_b => rd_addr_r(DEPTH-1 downto ddr_vector_depth_c),
