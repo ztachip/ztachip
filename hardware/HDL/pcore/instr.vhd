@@ -14,9 +14,11 @@
 -- limitations under the License.
 ------------------------------------------------------------------------------
 
-------
--- A cell contains 4 pcores
-------
+-------
+--- Implement PCORE instruction dispatcher
+--- There is just one instruction dispatcher since all PCORES are executing in
+--- lock step.
+--------
 
 library std;
 use std.standard.all;
@@ -29,37 +31,42 @@ use work.hpc_pkg.all;
 
 
 ENTITY instr IS
-    port(   clock_in                     : IN STD_LOGIC;
-            reset_in                     : IN STD_LOGIC;
+    port(   clock_in                           : IN STD_LOGIC;
+            reset_in                           : IN STD_LOGIC;
+
             -- DP interface
-            SIGNAL dp_code_in            : IN STD_LOGIC;
-            SIGNAL dp_config_in          : IN STD_LOGIC;
-            SIGNAL dp_wr_addr_in         : IN STD_LOGIC_VECTOR(local_bus_width_c-1 DOWNTO 0);  
-            SIGNAL dp_write_in           : IN STD_LOGIC;
-            SIGNAL dp_writedata_in       : IN STD_LOGIC_VECTOR(ddrx_data_width_c-1 DOWNTO 0);
+            
+            SIGNAL dp_code_in                  : IN STD_LOGIC;
+            SIGNAL dp_config_in                : IN STD_LOGIC;
+            SIGNAL dp_wr_addr_in               : IN STD_LOGIC_VECTOR(local_bus_width_c-1 DOWNTO 0);  
+            SIGNAL dp_write_in                 : IN STD_LOGIC;
+            SIGNAL dp_writedata_in             : IN STD_LOGIC_VECTOR(ddrx_data_width_c-1 DOWNTO 0);
+
             -- Busy status
-            SIGNAL busy_out              : OUT STD_LOGIC_VECTOR(1 downto 0);
-            SIGNAL ready_out             : OUT STD_LOGIC;
+            
+            SIGNAL busy_out                    : OUT STD_LOGIC_VECTOR(1 downto 0);
+            SIGNAL ready_out                   : OUT STD_LOGIC;
 
             -- Instruction interface
-            SIGNAL instruction_mu_out       : OUT STD_LOGIC_VECTOR(mu_instruction_width_c-1 DOWNTO 0);
-            SIGNAL instruction_imu_out      : OUT STD_LOGIC_VECTOR(imu_instruction_width_c-1 DOWNTO 0);
-            SIGNAL instruction_mu_valid_out : OUT STD_LOGIC;
-            SIGNAL instruction_imu_valid_out: OUT STD_LOGIC;
-            SIGNAL vm_out                   : OUT STD_LOGIC;
-			SIGNAL data_model_out			: OUT dp_data_model_t;
-            SIGNAL enable_out               : OUT STD_LOGIC_VECTOR(pid_gen_max_c-1 downto 0);
-            SIGNAL tid_out                  : OUT tid_t;
-            SIGNAL tid_valid1_out           : OUT STD_LOGIC;
-            SIGNAL pre_tid_out              : OUT tid_t;
-            SIGNAL pre_tid_valid1_out       : OUT STD_LOGIC;
-            SIGNAL pre_pre_tid_out          : OUT tid_t;
-            SIGNAL pre_pre_tid_valid1_out   : OUT STD_LOGIC;
-            SIGNAL pre_pre_vm_out           : OUT STD_LOGIC;
-			SIGNAL pre_pre_data_model_out	: OUT dp_data_model_t;
-            SIGNAL pre_iregister_auto_out   : OUT iregister_auto_t;
-            SIGNAL i_y_neg_in               : IN STD_LOGIC_VECTOR(pid_gen_max_c-1 downto 0);
-            SIGNAL i_y_zero_in              : IN STD_LOGIC_VECTOR(pid_gen_max_c-1 downto 0)
+
+            SIGNAL instruction_mu_out          : OUT STD_LOGIC_VECTOR(mu_instruction_width_c-1 DOWNTO 0);
+            SIGNAL instruction_imu_out         : OUT STD_LOGIC_VECTOR(imu_instruction_width_c-1 DOWNTO 0);
+            SIGNAL instruction_mu_valid_out    : OUT STD_LOGIC;
+            SIGNAL instruction_imu_valid_out   : OUT STD_LOGIC;
+            SIGNAL vm_out                      : OUT STD_LOGIC;
+            SIGNAL data_model_out              : OUT dp_data_model_t;
+            SIGNAL enable_out                  : OUT STD_LOGIC_VECTOR(pid_gen_max_c-1 downto 0);
+            SIGNAL tid_out                     : OUT tid_t;
+            SIGNAL tid_valid1_out              : OUT STD_LOGIC;
+            SIGNAL pre_tid_out                 : OUT tid_t;
+            SIGNAL pre_tid_valid1_out          : OUT STD_LOGIC;
+            SIGNAL pre_pre_tid_out             : OUT tid_t;
+            SIGNAL pre_pre_tid_valid1_out      : OUT STD_LOGIC;
+            SIGNAL pre_pre_vm_out              : OUT STD_LOGIC;
+            SIGNAL pre_pre_data_model_out      : OUT dp_data_model_t;
+            SIGNAL pre_iregister_auto_out      : OUT iregister_auto_t;
+            SIGNAL i_y_neg_in                  : IN STD_LOGIC_VECTOR(pid_gen_max_c-1 downto 0);
+            SIGNAL i_y_zero_in                 : IN STD_LOGIC_VECTOR(pid_gen_max_c-1 downto 0)
             );
 END instr;
 
@@ -137,6 +144,7 @@ instruction <= dp_writedata_in_r(instruction'length-1 downto 0);
 instruction_write <= '1' when (dp_write_in_r='1' and dp_code_in_r='1' ) else '0';
 
 y_neg_all <= '0' when i_y_neg_in=std_logic_vector(to_unsigned(0,pid_gen_max_c)) else '1';
+
 y_zero_all <= '0' when i_y_zero_in=std_logic_vector(to_unsigned(0,pid_gen_max_c)) else '1';
 
 rom_i: rom2 port map(clock_in=>clock_in,
@@ -150,46 +158,45 @@ rom_i: rom2 port map(clock_in=>clock_in,
                     );
 
 instr_fetch_i: instr_fetch port map(clock_in=>clock_in,
-                                            reset_in=>reset_in,
-                                            instruction_mu_out => instruction_mu_out,
-                                            instruction_imu_out => instruction_imu_out,
-                                            instruction_mu_valid_out => instruction_mu_valid_out,
-                                            instruction_imu_valid_out => instruction_imu_valid_out,
-                                            instruction_vm_out=>vm_out,
+                                    reset_in=>reset_in,
+                                    instruction_mu_out => instruction_mu_out,
+                                    instruction_imu_out => instruction_imu_out,
+                                    instruction_mu_valid_out => instruction_mu_valid_out,
+                                    instruction_imu_valid_out => instruction_imu_valid_out,
+                                    instruction_vm_out=>vm_out,
 											instruction_data_model_out=>data_model_out,
-                                            instruction_tid_out =>tid_out,
-                                            instruction_tid_valid_out =>tid_valid1_out,
+                                    instruction_tid_out =>tid_out,
+                                    instruction_tid_valid_out =>tid_valid1_out,
 
-                                            instruction_pre_tid_out =>pre_tid_out,
-                                            instruction_pre_tid_valid_out =>pre_tid_valid1_out,
-                                            instruction_pre_pre_tid_out =>pre_pre_tid_out,
-                                            instruction_pre_pre_tid_valid_out =>pre_pre_tid_valid1_out,
+                                    instruction_pre_tid_out =>pre_tid_out,
+                                    instruction_pre_tid_valid_out =>pre_tid_valid1_out,
+                                    instruction_pre_pre_tid_out =>pre_pre_tid_out,
+                                    instruction_pre_pre_tid_valid_out =>pre_pre_tid_valid1_out,
 
-                                            instruction_pre_pre_vm_out => pre_pre_vm_out,
-											instruction_pre_pre_data_model_out => pre_pre_data_model_out,
+                                    instruction_pre_pre_vm_out => pre_pre_vm_out,
+                                    instruction_pre_pre_data_model_out => pre_pre_data_model_out,
 
-                                            instruction_pre_iregister_auto_out => pre_iregister_auto_out,
+                                    instruction_pre_iregister_auto_out => pre_iregister_auto_out,
 
-                                            instruction_pcore_enable_out => enable_out,
+                                    instruction_pcore_enable_out => enable_out,
 
-                                            i_y_neg_in => y_neg_all,
-                                            i_y_zero_in => y_zero_all,
+                                    i_y_neg_in => y_neg_all,
+                                    i_y_zero_in => y_zero_all,
 
-                                            rom_addr_out=>rom_addr,
-                                            rom_addr_plus_2_out=>rom_addr_plus_2,
-                                            rom_data_in=>rom_data,
+                                    rom_addr_out=>rom_addr,
+                                    rom_addr_plus_2_out=>rom_addr_plus_2,
+                                    rom_data_in=>rom_data,
 
-                                            busy_out=>busy_out,
-                                            ready_out=>ready_out,
-                                            task_start_addr_in=>task_start_addr_r,
-                                            task_in=>task_r,
-                                            task_pcore_max_in=>task_pcore_max_r,
-                                            task_vm_in=>task_vm_r,
-                                            task_lockstep_in=>task_lockstep_r,
-                                            task_tid_mask_in=>task_tid_mask_r,
-                                            task_iregister_auto_in=>task_iregister_auto_r,
-											task_data_model_in=>task_data_model_r
-                                            );
+                                    busy_out=>busy_out,
+                                    ready_out=>ready_out,
+                                    task_start_addr_in=>task_start_addr_r,
+                                    task_in=>task_r,
+                                    task_pcore_max_in=>task_pcore_max_r,
+                                    task_vm_in=>task_vm_r,
+                                    task_lockstep_in=>task_lockstep_r,
+                                    task_tid_mask_in=>task_tid_mask_r,
+                                    task_iregister_auto_in=>task_iregister_auto_r,											task_data_model_in=>task_data_model_r
+                                    );
 
 process(clock_in,reset_in)
 begin
@@ -257,7 +264,7 @@ begin
            pos_v:=pos_v+iregister_auto_v'length;
            data_model_v := dp_writedata_in_r(pos_v+data_model_v'length-1 downto pos_v);
 
-		   if dp_config_reg_v=dp_config_reg_exe_vm1_c then
+           if dp_config_reg_v=dp_config_reg_exe_vm1_c then
               task_vm_r <= '0';
            else 
               task_vm_r <= '1';

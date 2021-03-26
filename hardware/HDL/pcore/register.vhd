@@ -33,56 +33,57 @@ USE altera_mf.all;
 
 ENTITY register_bank IS
    PORT( 
-        SIGNAL clock_in         : IN STD_LOGIC;
-        SIGNAL reset_in         : IN STD_LOGIC;
+        SIGNAL clock_in                   : IN STD_LOGIC;
+        SIGNAL reset_in                   : IN STD_LOGIC;
 
-        SIGNAL rd_en_in        : IN STD_LOGIC;
-        SIGNAL rd_en_vm_in     : IN STD_LOGIC;
-        SIGNAL rd_en_out       : OUT STD_LOGIC;
-        SIGNAL rd_x1_vector_in : IN STD_LOGIC;
-        SIGNAL rd_x1_addr_in   : IN STD_LOGIC_VECTOR(register_file_depth_c-1 DOWNTO 0); -- Read address of port 1
-        SIGNAL rd_x2_vector_in : IN STD_LOGIC;
-        SIGNAL rd_x2_addr_in   : IN STD_LOGIC_VECTOR(register_file_depth_c-1 DOWNTO 0); -- Read address of port 2
-        SIGNAL rd_x1_data_out  : OUT STD_LOGIC_VECTOR(vregister_width_c-1 DOWNTO 0); -- Read value returned to port 1
-        SIGNAL rd_x2_data_out  : OUT STD_LOGIC_VECTOR(vregister_width_c-1 DOWNTO 0); -- Read value returned to port 2
+        SIGNAL rd_en_in                   : IN STD_LOGIC;
+        SIGNAL rd_en_vm_in                : IN STD_LOGIC;
+        SIGNAL rd_en_out                  : OUT STD_LOGIC;
+        SIGNAL rd_x1_vector_in            : IN STD_LOGIC;
+        SIGNAL rd_x1_addr_in              : IN STD_LOGIC_VECTOR(register_file_depth_c-1 DOWNTO 0); -- Read address of port 1
+        SIGNAL rd_x2_vector_in            : IN STD_LOGIC;
+        SIGNAL rd_x2_addr_in              : IN STD_LOGIC_VECTOR(register_file_depth_c-1 DOWNTO 0); -- Read address of port 2
+        SIGNAL rd_x1_data_out             : OUT STD_LOGIC_VECTOR(vregister_width_c-1 DOWNTO 0); -- Read value returned to port 1
+        SIGNAL rd_x2_data_out             : OUT STD_LOGIC_VECTOR(vregister_width_c-1 DOWNTO 0); -- Read value returned to port 2
 
-        SIGNAL wr_en_in        : IN STD_LOGIC; -- Write enable
-        SIGNAL wr_en_vm_in     : IN STD_LOGIC; -- Write enable
-        SIGNAL wr_vector_in    : IN STD_LOGIC;
-        SIGNAL wr_addr_in      : IN STD_LOGIC_VECTOR(register_file_depth_c-1 DOWNTO 0); -- Write address
-        SIGNAL wr_data_in      : IN STD_LOGIC_VECTOR(vregister_width_c-1 DOWNTO 0); -- Write value
-        SIGNAL wr_lane_in      : IN STD_LOGIC_VECTOR(vector_width_c-1 DOWNTO 0);
+        SIGNAL wr_en_in                   : IN STD_LOGIC; -- Write enable
+        SIGNAL wr_en_vm_in                : IN STD_LOGIC; -- Write enable
+        SIGNAL wr_vector_in               : IN STD_LOGIC;
+        SIGNAL wr_addr_in                 : IN STD_LOGIC_VECTOR(register_file_depth_c-1 DOWNTO 0); -- Write address
+        SIGNAL wr_data_in                 : IN STD_LOGIC_VECTOR(vregister_width_c-1 DOWNTO 0); -- Write value
+        SIGNAL wr_lane_in                 : IN STD_LOGIC_VECTOR(vector_width_c-1 DOWNTO 0);
 
         -- DP interface
-        SIGNAL dp_rd_vector_in    : IN unsigned(ddr_vector_depth_c-1 downto 0);
-        SIGNAL dp_rd_scatter_in   : IN scatter_t;
-        SIGNAL dp_rd_scatter_cnt_in: IN unsigned(ddr_vector_depth_c-1 downto 0);
-        SIGNAL dp_rd_scatter_vector_in: IN unsigned(ddr_vector_depth_c-1 downto 0);
-        SIGNAL dp_rd_gen_valid_in : IN STD_LOGIC;
-        SIGNAL dp_rd_data_flow_in : IN data_flow_t;
-        SIGNAL dp_rd_data_type_in : IN dp_data_type_t;
-        SIGNAL dp_rd_stream_in    : IN std_logic;
-        SIGNAL dp_rd_stream_id_in : stream_id_t;
-        SIGNAL dp_rd_addr_in      : IN STD_LOGIC_VECTOR(bus_width_c-1 DOWNTO 0);
-        SIGNAL dp_wr_vector_in    : IN unsigned(ddr_vector_depth_c-1 downto 0);
-        SIGNAL dp_wr_addr_in      : IN STD_LOGIC_VECTOR(bus_width_c-1 DOWNTO 0);
-        SIGNAL dp_write_in        : IN STD_LOGIC;
-        SIGNAL dp_write_vm_in     : IN STD_LOGIC;
-        SIGNAL dp_read_in         : IN STD_LOGIC;
-        SIGNAL dp_read_vm_in      : IN STD_LOGIC;
-        SIGNAL dp_writedata_in    : IN STD_LOGIC_VECTOR(ddrx_data_width_c-1 DOWNTO 0);
-        SIGNAL dp_readdata_out    : OUT STD_LOGIC_VECTOR(ddrx_data_width_c-1 DOWNTO 0);
-        SIGNAL dp_readena_out     : OUT STD_LOGIC;
-        SIGNAL dp_read_vector_out : OUT unsigned(ddr_vector_depth_c-1 downto 0);
-        SIGNAL dp_read_vaddr_out  : OUT STD_LOGIC_VECTOR(ddr_vector_depth_c-1 downto 0);
-        SIGNAL dp_read_scatter_out     : OUT scatter_t;
-        SIGNAL dp_read_scatter_cnt_out : OUT unsigned(ddr_vector_depth_c-1 downto 0);
+
+        SIGNAL dp_rd_vector_in            : IN unsigned(ddr_vector_depth_c-1 downto 0);
+        SIGNAL dp_rd_scatter_in           : IN scatter_t;
+        SIGNAL dp_rd_scatter_cnt_in       : IN unsigned(ddr_vector_depth_c-1 downto 0);
+        SIGNAL dp_rd_scatter_vector_in    : IN unsigned(ddr_vector_depth_c-1 downto 0);
+        SIGNAL dp_rd_gen_valid_in         : IN STD_LOGIC;
+        SIGNAL dp_rd_data_flow_in         : IN data_flow_t;
+        SIGNAL dp_rd_data_type_in         : IN dp_data_type_t;
+        SIGNAL dp_rd_stream_in            : IN std_logic;
+        SIGNAL dp_rd_stream_id_in         : stream_id_t;
+        SIGNAL dp_rd_addr_in              : IN STD_LOGIC_VECTOR(bus_width_c-1 DOWNTO 0);
+        SIGNAL dp_wr_vector_in            : IN unsigned(ddr_vector_depth_c-1 downto 0);
+        SIGNAL dp_wr_addr_in              : IN STD_LOGIC_VECTOR(bus_width_c-1 DOWNTO 0);
+        SIGNAL dp_write_in                : IN STD_LOGIC;
+        SIGNAL dp_write_vm_in             : IN STD_LOGIC;
+        SIGNAL dp_read_in                 : IN STD_LOGIC;
+        SIGNAL dp_read_vm_in              : IN STD_LOGIC;
+        SIGNAL dp_writedata_in            : IN STD_LOGIC_VECTOR(ddrx_data_width_c-1 DOWNTO 0);
+        SIGNAL dp_readdata_out            : OUT STD_LOGIC_VECTOR(ddrx_data_width_c-1 DOWNTO 0);
+        SIGNAL dp_readena_out             : OUT STD_LOGIC;
+        SIGNAL dp_read_vector_out         : OUT unsigned(ddr_vector_depth_c-1 downto 0);
+        SIGNAL dp_read_vaddr_out          : OUT STD_LOGIC_VECTOR(ddr_vector_depth_c-1 downto 0);
+        SIGNAL dp_read_scatter_out        : OUT scatter_t;
+        SIGNAL dp_read_scatter_cnt_out    : OUT unsigned(ddr_vector_depth_c-1 downto 0);
         SIGNAL dp_read_scatter_vector_out : OUT unsigned(ddr_vector_depth_c-1 downto 0);
-        SIGNAL dp_read_gen_valid_out : OUT STD_LOGIC;
-        SIGNAL dp_read_data_flow_out : OUT data_flow_t;
-        SIGNAL dp_read_data_type_out : OUT dp_data_type_t;
-        SIGNAL dp_read_stream_out    : OUT std_logic; 
-        SIGNAL dp_read_stream_id_out : OUT stream_id_t
+        SIGNAL dp_read_gen_valid_out      : OUT STD_LOGIC;
+        SIGNAL dp_read_data_flow_out      : OUT data_flow_t;
+        SIGNAL dp_read_data_type_out      : OUT dp_data_type_t;
+        SIGNAL dp_read_stream_out         : OUT std_logic; 
+        SIGNAL dp_read_stream_id_out      : OUT stream_id_t
         );
 END register_bank;
 

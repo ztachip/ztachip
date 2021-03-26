@@ -56,7 +56,7 @@ GENERIC (
         lpm_type                : STRING;
         numwords_a              : NATURAL;
         numwords_b              : NATURAL;
-		ram_block_type          : STRING;
+        ram_block_type          : STRING;
         operation_mode          : STRING;
         outdata_aclr_b          : STRING;
         outdata_reg_b           : STRING;

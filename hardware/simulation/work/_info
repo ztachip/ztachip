@@ -15,7 +15,7 @@ L4817
 VHXeXe?_kP;Gc<M=noU2ga1
 Z6 OV;C;10.1d;51
 32
-Z7 !s108 1616718742.589000
+Z7 !s108 1616730482.794000
 Z8 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/alu/adder.vhd|
 Z9 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/alu/adder.vhd|
 Z10 o-work work -2002 -explicit -O0
@@ -776,7 +776,7 @@ R11
 Earbiter
 Z13 w1615261389
 Z14 DPx4 work 6 config 0 22 nCj?R0d`=oDKU`mzDVEEo0
-Z15 DPx4 work 7 hpc_pkg 0 22 QOgUTX<Z7GM25JKE]?j`30
+Z15 DPx4 work 7 hpc_pkg 0 22 Cj>afG[7ja0GY:T5T4I0G3
 Z16 DPx4 ieee 11 numeric_std 0 22 O3PF8EB`?j9=z7KT`fn941
 R1
 R2
@@ -788,7 +788,7 @@ L28
 VRUbXDU_<9TLAdn2mT2Vd62
 R6
 32
-Z19 !s108 1616718740.025000
+Z19 !s108 1616730480.294000
 Z20 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/util/arbiter.vhd|
 Z21 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/util/arbiter.vhd|
 R10
@@ -829,7 +829,7 @@ L33
 VR[bD76YCzjjRG8;=NO:U70
 R6
 32
-Z25 !s108 1616718756.088000
+Z25 !s108 1616730496.588000
 Z26 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/top/avalon_adapter.vhd|
 Z27 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/top/avalon_adapter.vhd|
 R10
@@ -870,7 +870,7 @@ L30
 VfB3>zTBbbKW6XL_EhG`Q:2
 R6
 32
-Z31 !s108 1616718760.915000
+Z31 !s108 1616730500.815000
 Z32 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/top/avalon_lw.vhd|
 Z33 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/top/avalon_lw.vhd|
 R10
@@ -911,7 +911,7 @@ L31
 VQRgU[_LHk@32N1^ZA:fB43
 R6
 32
-Z37 !s108 1616718756.986000
+Z37 !s108 1616730497.335000
 Z38 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/top/avalon_lw_adapter.vhd|
 Z39 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/top/avalon_lw_adapter.vhd|
 R10
@@ -952,7 +952,7 @@ L31
 V>k`EhVgKk;9ZQXajRbMFh3
 R6
 32
-Z43 !s108 1616718760.201000
+Z43 !s108 1616730499.811000
 Z44 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/top/cell.vhd|
 Z45 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/top/cell.vhd|
 R10
@@ -982,21 +982,21 @@ Ecmem
 R13
 Z46 DPx9 altera_mf 20 altera_mf_components 0 22 zh;bE09gCIPDVLK?MN49L3
 R14
-R15
+Z47 DPx4 work 7 hpc_pkg 0 22 QOgUTX<Z7GM25JKE]?j`30
 R16
 R1
 R2
 R3
-Z47 8C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/cmem.vhd
-Z48 FC:/Users/vuong/VM/ztachip/hardware/HDL/pcore/cmem.vhd
+Z48 8C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/cmem.vhd
+Z49 FC:/Users/vuong/VM/ztachip/hardware/HDL/pcore/cmem.vhd
 l0
 L33
 VKeVc61iR;QP?R9hCb[9=h3
 R6
 32
-Z49 !s108 1616718735.193000
-Z50 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/cmem.vhd|
-Z51 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/cmem.vhd|
+Z50 !s108 1616725881.114000
+Z51 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/cmem.vhd|
+Z52 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/cmem.vhd|
 R10
 R11
 !s100 gRX[B_8f>z[@T[NiTP@1=1
@@ -1004,7 +1004,7 @@ R11
 Abehavior
 R46
 R14
-R15
+R47
 R16
 R1
 R2
@@ -1014,9 +1014,9 @@ L47
 Vbc?3Mk68=>N2o2JO3Uz`91
 R6
 32
-R49
 R50
 R51
+R52
 R10
 R11
 !s100 5J=fI3?BVf`A6aFRmkAAP0
@@ -1038,27 +1038,27 @@ R10
 R11
 !s100 `]IcVlSJLhEXKXC:49W>[0
 !i10b 1
-!s108 1616718726.471000
+!s108 1616730468.248000
 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/config.vhd|
 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/config.vhd|
 Ecore
-Z52 w1615956328
+Z53 w1615956328
 R15
 R14
 R16
 R1
 R2
 R3
-Z53 8C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/core.vhd
-Z54 FC:/Users/vuong/VM/ztachip/hardware/HDL/pcore/core.vhd
+Z54 8C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/core.vhd
+Z55 FC:/Users/vuong/VM/ztachip/hardware/HDL/pcore/core.vhd
 l0
 L29
 Vz>jn?SfDDKzS=7ZFT:2ZI2
 R6
 32
-Z55 !s108 1616718734.124000
-Z56 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/core.vhd|
-Z57 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/core.vhd|
+Z56 !s108 1616730475.023000
+Z57 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/core.vhd|
+Z58 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/core.vhd|
 R10
 R11
 !s100 d=7okgMkQGBKK>;S_bGc81
@@ -1075,38 +1075,38 @@ L89
 VLh9jf3z<<hj^P>0N2HUdV0
 R6
 32
-R55
 R56
 R57
+R58
 R10
 R11
 !s100 2RTYJT?a>g3a131ZKb?YU0
 !i10b 1
 Eddr
-Z58 w1616250897
+Z59 w1616250897
 R14
-Z59 DPx4 work 7 hpc_pkg 0 22 ;6iK5RlUH19]WU^T<_QAI1
+Z60 DPx4 work 7 hpc_pkg 0 22 ;6iK5RlUH19]WU^T<_QAI1
 R16
 R1
 R2
 R3
-Z60 8C:/Users/vuong/VM/ztachip/hardware/HDL/top/ddr.vhd
-Z61 FC:/Users/vuong/VM/ztachip/hardware/HDL/top/ddr.vhd
+Z61 8C:/Users/vuong/VM/ztachip/hardware/HDL/top/ddr.vhd
+Z62 FC:/Users/vuong/VM/ztachip/hardware/HDL/top/ddr.vhd
 l0
 L31
 V@d>N?O4<2aSiXX^Zma7741
 R6
 32
-Z62 !s108 1616304702.383000
-Z63 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/top/ddr.vhd|
-Z64 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/top/ddr.vhd|
+Z63 !s108 1616304702.383000
+Z64 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/top/ddr.vhd|
+Z65 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/top/ddr.vhd|
 R10
 R11
 !s100 o=SLK_Kze5CjEhmTa>8QJ1
 !i10b 1
 Addr_behavior
 R14
-R59
+R60
 R16
 R1
 R2
@@ -1116,31 +1116,31 @@ L89
 V>KhkMd_INa<_UDkSN8dB81
 R6
 32
-R62
 R63
 R64
+R65
 R10
 R11
 !s100 48;ig>NkV6hBiAoP?[@e^2
 !i10b 1
 Eddr_rx
-Z65 w1616561947
+Z66 w1616561947
 R14
 R15
 R16
 R1
 R2
 R3
-Z66 8C:/Users/vuong/VM/ztachip/hardware/HDL/top/ddr_rx.vhd
-Z67 FC:/Users/vuong/VM/ztachip/hardware/HDL/top/ddr_rx.vhd
+Z67 8C:/Users/vuong/VM/ztachip/hardware/HDL/top/ddr_rx.vhd
+Z68 FC:/Users/vuong/VM/ztachip/hardware/HDL/top/ddr_rx.vhd
 l0
 L31
 V4^^3HYjcEYWQB2V_Hac8l1
 R6
 32
-Z68 !s108 1616718761.476000
-Z69 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/top/ddr_rx.vhd|
-Z70 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/top/ddr_rx.vhd|
+Z69 !s108 1616730501.172000
+Z70 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/top/ddr_rx.vhd|
+Z71 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/top/ddr_rx.vhd|
 R10
 R11
 !s100 7nTm7o<kXK`lim0bTG1nk0
@@ -1158,22 +1158,22 @@ VM6Y2:P7X_A4T@@1^Xag1a3
 !s100 C7_3V7XUacLmn65JkcLBD3
 R6
 32
-R68
 R69
 R70
+R71
 R10
 R11
 !i10b 1
 Eddr_tx
-Z71 w1616561946
+Z72 w1616561946
 R14
 R15
 R16
 R1
 R2
 R3
-Z72 8C:/Users/vuong/VM/ztachip/hardware/HDL/top/ddr_tx.vhd
-Z73 FC:/Users/vuong/VM/ztachip/hardware/HDL/top/ddr_tx.vhd
+Z73 8C:/Users/vuong/VM/ztachip/hardware/HDL/top/ddr_tx.vhd
+Z74 FC:/Users/vuong/VM/ztachip/hardware/HDL/top/ddr_tx.vhd
 l0
 L31
 V_C[_5injo5E2Ng?GGE1nk3
@@ -1181,9 +1181,9 @@ V_C[_5injo5E2Ng?GGE1nk3
 R6
 32
 !i10b 1
-Z74 !s108 1616718761.833000
-Z75 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/top/ddr_tx.vhd|
-Z76 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/top/ddr_tx.vhd|
+Z75 !s108 1616730501.557000
+Z76 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/top/ddr_tx.vhd|
+Z77 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/top/ddr_tx.vhd|
 R10
 R11
 Addr_tx_behavior
@@ -1192,17 +1192,17 @@ R15
 R16
 R1
 R2
-Z77 DEx4 work 6 ddr_tx 0 22 _C[_5injo5E2Ng?GGE1nk3
+Z78 DEx4 work 6 ddr_tx 0 22 _C[_5injo5E2Ng?GGE1nk3
 l262
 L62
-Z78 V6=O?okWj@EHUR0J`=>Xko1
-Z79 !s100 ;Hm>JQeWOO]o7Y]PegSU>2
+Z79 V6=O?okWj@EHUR0J`=>Xko1
+Z80 !s100 ;Hm>JQeWOO]o7Y]PegSU>2
 R6
 32
 !i10b 1
-R74
 R75
 R76
+R77
 R10
 R11
 Edelay
@@ -1213,16 +1213,16 @@ R16
 R1
 R2
 R3
-Z80 8C:/Users/vuong/VM/ztachip/hardware/HDL/util/delay.vhd
-Z81 FC:/Users/vuong/VM/ztachip/hardware/HDL/util/delay.vhd
+Z81 8C:/Users/vuong/VM/ztachip/hardware/HDL/util/delay.vhd
+Z82 FC:/Users/vuong/VM/ztachip/hardware/HDL/util/delay.vhd
 l0
 L29
 V84A5cJDk]jV1eCd3Na=913
 R6
 32
-Z82 !s108 1616718739.548000
-Z83 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/util/delay.vhd|
-Z84 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/util/delay.vhd|
+Z83 !s108 1616730479.917000
+Z84 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/util/delay.vhd|
+Z85 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/util/delay.vhd|
 R10
 R11
 !s100 c]7dagV53[=]9Mz1mnJ=H0
@@ -1239,9 +1239,9 @@ L42
 V=[R4]e1jYCod]P7DcMTgm1
 R6
 32
-R82
 R83
 R84
+R85
 R10
 R11
 !s100 l080Q@1fjUAdieo75M0WU3
@@ -1254,16 +1254,16 @@ R16
 R1
 R2
 R3
-Z85 8C:/Users/vuong/VM/ztachip/hardware/HDL/util/delay2.vhd
-Z86 FC:/Users/vuong/VM/ztachip/hardware/HDL/util/delay2.vhd
+Z86 8C:/Users/vuong/VM/ztachip/hardware/HDL/util/delay2.vhd
+Z87 FC:/Users/vuong/VM/ztachip/hardware/HDL/util/delay2.vhd
 l0
 L29
 VnNkjca`ESMIBUVIji?JAO3
 R6
 32
-Z87 !s108 1616718740.367000
-Z88 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/util/delay2.vhd|
-Z89 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/util/delay2.vhd|
+Z88 !s108 1616730480.609000
+Z89 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/util/delay2.vhd|
+Z90 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/util/delay2.vhd|
 R10
 R11
 !s100 R]56dRO2nD1Nn;D<QmjOa3
@@ -1280,31 +1280,31 @@ L43
 VMcYm5TlIzCQ[GX:SWGEd10
 R6
 32
-R87
 R88
 R89
+R90
 R10
 R11
 !s100 CQJdU1GhlEig5TkeflREK0
 !i10b 1
 Edelayi
-R13
+Z91 w1616727710
 R14
 R15
 R16
 R1
 R2
 R3
-Z90 8C:/Users/vuong/VM/ztachip/hardware/HDL/util/delayi.vhd
-Z91 FC:/Users/vuong/VM/ztachip/hardware/HDL/util/delayi.vhd
+Z92 8C:/Users/vuong/VM/ztachip/hardware/HDL/util/delayi.vhd
+Z93 FC:/Users/vuong/VM/ztachip/hardware/HDL/util/delayi.vhd
 l0
 L28
 VRV2cOY`P>:QLEQ;97;I772
 R6
 32
-Z92 !s108 1616718739.052000
-Z93 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/util/delayi.vhd|
-Z94 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/util/delayi.vhd|
+Z94 !s108 1616730479.502000
+Z95 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/util/delayi.vhd|
+Z96 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/util/delayi.vhd|
 R10
 R11
 !s100 8@zY7M47UbnPL7nzW_AH72
@@ -1321,31 +1321,31 @@ L42
 V:N5ReWjNhciP=FfocJW<`1
 R6
 32
-R92
-R93
 R94
+R95
+R96
 R10
 R11
 !s100 _J?XbC^kDTAK9kgQ[L9lR0
 !i10b 1
 Edelayv
-R13
+R91
 R14
 R15
 R16
 R1
 R2
 R3
-Z95 8C:/Users/vuong/VM/ztachip/hardware/HDL/util/delayv.vhd
-Z96 FC:/Users/vuong/VM/ztachip/hardware/HDL/util/delayv.vhd
+Z97 8C:/Users/vuong/VM/ztachip/hardware/HDL/util/delayv.vhd
+Z98 FC:/Users/vuong/VM/ztachip/hardware/HDL/util/delayv.vhd
 l0
 L28
 ViQl?EJV1h8NLH?5ZGGmLY3
 R6
 32
-Z97 !s108 1616718741.066000
-Z98 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/util/delayv.vhd|
-Z99 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/util/delayv.vhd|
+Z99 !s108 1616730481.057000
+Z100 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/util/delayv.vhd|
+Z101 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/util/delayv.vhd|
 R10
 R11
 !s100 ?U@jgbEJ@G]AOP>DZ0b[d2
@@ -1362,31 +1362,31 @@ L42
 VP`R0i5mFL0_YP7C:<fjQ?2
 R6
 32
-R97
-R98
 R99
+R100
+R101
 R10
 R11
 !s100 I_9`VFzN4aN=9DH]oN?H=2
 !i10b 1
 Edp
-Z100 w1616563209
+Z102 w1616563209
 R14
 R15
 R16
 R1
 R2
 R3
-Z101 8C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp.vhd
-Z102 FC:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp.vhd
+Z103 8C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp.vhd
+Z104 FC:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp.vhd
 l0
 L32
 VR]K5o5Ya7ZbR5zo=kl]5M1
 R6
 32
-Z103 !s108 1616718727.866000
-Z104 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp.vhd|
-Z105 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp.vhd|
+Z105 !s108 1616730469.629000
+Z106 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp.vhd|
+Z107 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp.vhd|
 R10
 R11
 !s100 :T<`Dem3URRakMSnBb8Sa2
@@ -1403,34 +1403,34 @@ L193
 V[[QSj[[=9OWFmToXiQ2Mc1
 R6
 32
-R103
-R104
 R105
+R106
+R107
 R10
 R11
 !s100 @zR:1R3]nf386lN9;BYm71
 !i10b 1
 Edp_core
-Z106 w1616561772
+Z108 w1616725569
 R14
 R15
 R16
 R1
 R2
 R3
-Z107 8C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_core.vhd
-Z108 FC:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_core.vhd
+Z109 8C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_core.vhd
+Z110 FC:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_core.vhd
 l0
 L29
 VfngUM3XjGV9]mooD:P7AT2
 R6
 32
-Z109 !s108 1616718729.229000
-Z110 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_core.vhd|
-Z111 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_core.vhd|
+Z111 !s108 1616730470.083000
+Z112 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_core.vhd|
+Z113 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_core.vhd|
 R10
 R11
-!s100 WWKMnSU6^<FTzTa[c242d0
+!s100 lUIg3FRaVNjK5V8aDliUb1
 !i10b 1
 Adp_core_behaviour
 R14
@@ -1439,36 +1439,36 @@ R16
 R1
 R2
 DEx4 work 7 dp_core 0 22 fngUM3XjGV9]mooD:P7AT2
-l212
-L175
+l221
+L184
 VofZNgo6;kIPWVNALh8N[Y0
 R6
 32
-R109
-R110
 R111
+R112
+R113
 R10
 R11
-!s100 NkfH25:KZRIoeagR1dVSZ0
+!s100 JkKd52cOllz0_>:V7L68c0
 !i10b 1
 Edp_fetch
-Z112 w1616561366
+Z114 w1616561366
 R14
 R15
 R16
 R1
 R2
 R3
-Z113 8C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_fetch.vhd
-Z114 FC:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_fetch.vhd
+Z115 8C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_fetch.vhd
+Z116 FC:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_fetch.vhd
 l0
 L32
 V91FfPe<ASbY[E[kUo<eXa0
 R6
 32
-Z115 !s108 1616718730.844000
-Z116 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_fetch.vhd|
-Z117 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_fetch.vhd|
+Z117 !s108 1616730471.562000
+Z118 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_fetch.vhd|
+Z119 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_fetch.vhd|
 R10
 R11
 !s100 X;]VYh4TcV7JPk36eiDTo3
@@ -1485,31 +1485,31 @@ L101
 V9>8zkk9d?;Q5[i86cC1NG0
 R6
 32
-R115
-R116
 R117
+R118
+R119
 R10
 R11
 !s100 I;2G]ieYTnY;R[NZk97<j1
 !i10b 1
 Edp_fifo
-Z118 w1616100600
+Z120 w1616100600
 R14
 R15
 R16
 R1
 R2
 R3
-Z119 8C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_fifo.vhd
-Z120 FC:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_fifo.vhd
+Z121 8C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_fifo.vhd
+Z122 FC:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_fifo.vhd
 l0
 L33
 VJMmJD;W13kIX?5`iYYaMK2
 R6
 32
-Z121 !s108 1616718727.065000
-Z122 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_fifo.vhd|
-Z123 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_fifo.vhd|
+Z123 !s108 1616730468.796000
+Z124 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_fifo.vhd|
+Z125 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_fifo.vhd|
 R10
 R11
 !s100 0imb7>?jW@@YZz7[;58V?1
@@ -1526,31 +1526,31 @@ L55
 V9ZfR>0OeGJBK?eBAOVJ4P1
 R6
 32
-R121
-R122
 R123
+R124
+R125
 R10
 R11
 !s100 DFIoBMBoIO1IS3i7=PCYn3
 !i10b 1
 Edp_gen
-Z124 w1616562877
+Z126 w1616562877
 R14
 R15
 R16
 R1
 R2
 R3
-Z125 8C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_gen.vhd
-Z126 FC:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_gen.vhd
+Z127 8C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_gen.vhd
+Z128 FC:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_gen.vhd
 l0
 L33
 V3]VLd:j;?ZzYYKdWU63J53
 R6
 32
-Z127 !s108 1616718729.654000
-Z128 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_gen.vhd|
-Z129 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_gen.vhd|
+Z129 !s108 1616730470.678000
+Z130 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_gen.vhd|
+Z131 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_gen.vhd|
 R10
 R11
 !s100 7RNW^<Y[XY7BUbnQm7Z5z0
@@ -1567,31 +1567,31 @@ L123
 VLQJHjGaXS0ZC0c[LJ7UZd2
 R6
 32
-R127
-R128
 R129
+R130
+R131
 R10
 R11
 !s100 6=;T0LaF?I_Li<cMdhP8h1
 !i10b 1
 Edp_gen_core
-Z130 w1616561165
+Z132 w1616561165
 R14
 R15
 R16
 R1
 R2
 R3
-Z131 8C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_gen_core.vhd
-Z132 FC:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_gen_core.vhd
+Z133 8C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_gen_core.vhd
+Z134 FC:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_gen_core.vhd
 l0
 L25
 V3=QMja1FM7i5YD8UafV6`3
 R6
 32
-Z133 !s108 1616718730.351000
-Z134 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_gen_core.vhd|
-Z135 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_gen_core.vhd|
+Z135 !s108 1616730471.189000
+Z136 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_gen_core.vhd|
+Z137 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_gen_core.vhd|
 R10
 R11
 !s100 ?7j?baeOBUG6Y1=_6>DKZ3
@@ -1608,9 +1608,9 @@ L149
 VfTX90MbiBH_UkPgRUXn_`0
 R6
 32
-R133
-R134
 R135
+R136
+R137
 R10
 R11
 !s100 Y;_=`n?=[S1jWO>S2K^YG0
@@ -1618,28 +1618,28 @@ R11
 Edp_in_converter
 R12
 R14
-R15
+R47
 R16
 R1
 R2
 R3
-Z136 8C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_in_converter.vhd
-Z137 FC:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_in_converter.vhd
+Z138 8C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_in_converter.vhd
+Z139 FC:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_in_converter.vhd
 l0
 L32
 V;B_P7CE>N@TUGkoEjM0HL1
 R6
 32
-Z138 !s108 1616718728.300000
-Z139 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_in_converter.vhd|
-Z140 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_in_converter.vhd|
+Z140 !s108 1616724635.545000
+Z141 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_in_converter.vhd|
+Z142 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_in_converter.vhd|
 R10
 R11
 !s100 bc6fCBIXzc7QkmBXEWg]K1
 !i10b 1
 Adp_in_converter_behaviour
 R14
-R15
+R47
 R16
 R1
 R2
@@ -1649,9 +1649,9 @@ L47
 V[U5;>m23Yo7<O?6P0i@Di2
 R6
 32
-R138
-R139
 R140
+R141
+R142
 R10
 R11
 !s100 :AONWJPY>I_bMZ2B<mJl=3
@@ -1659,28 +1659,28 @@ R11
 Edp_out_converter
 R12
 R14
-R15
+R47
 R16
 R1
 R2
 R3
-Z141 8C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_out_converter.vhd
-Z142 FC:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_out_converter.vhd
+Z143 8C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_out_converter.vhd
+Z144 FC:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_out_converter.vhd
 l0
 L31
 VJLNXWLVLM3o8hZET1aGCP0
 R6
 32
-Z143 !s108 1616718728.869000
-Z144 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_out_converter.vhd|
-Z145 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_out_converter.vhd|
+Z145 !s108 1616724636.361000
+Z146 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_out_converter.vhd|
+Z147 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_out_converter.vhd|
 R10
 R11
 !s100 Z?Dfj]5zm?m@8]jDl2hcc1
 !i10b 1
 Adp_out_converter_behaviour
 R14
-R15
+R47
 R16
 R1
 R2
@@ -1690,31 +1690,31 @@ L65
 VQmPX0`WWm1[7:0?6W1nH30
 R6
 32
-R143
-R144
 R145
+R146
+R147
 R10
 R11
 !s100 C@ok`AIEHT2FZO?5hIRLO0
 !i10b 1
 Edp_sink
-Z146 w1616562416
+Z148 w1616562416
 R14
 R15
 R16
 R1
 R2
 R3
-Z147 8C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_sink.vhd
-Z148 FC:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_sink.vhd
+Z149 8C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_sink.vhd
+Z150 FC:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_sink.vhd
 l0
 L34
 VNC2m:I[db3K9]?g2XT1k?0
 R6
 32
-Z149 !s108 1616718731.554000
-Z150 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_sink.vhd|
-Z151 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_sink.vhd|
+Z151 !s108 1616730472.252000
+Z152 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_sink.vhd|
+Z153 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_sink.vhd|
 R10
 R11
 !s100 @7O2fbOmNaJMDU0NL6;?51
@@ -1731,31 +1731,31 @@ L99
 V<H1WKg6L;l@N;l1QBQ8]=0
 R6
 32
-R149
-R150
 R151
+R152
+R153
 R10
 R11
 !s100 XHz3:5X<2Ye]lVEd`OnfK0
 !i10b 1
 Edp_source
-R130
+R132
 R14
 R15
 R16
 R1
 R2
 R3
-Z152 8C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_source.vhd
-Z153 FC:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_source.vhd
+Z154 8C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_source.vhd
+Z155 FC:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_source.vhd
 l0
 L30
 V4Wc8=TJO0dhdd^EPCJilH2
 R6
 32
-Z154 !s108 1616718727.563000
-Z155 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_source.vhd|
-Z156 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_source.vhd|
+Z156 !s108 1616730469.256000
+Z157 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_source.vhd|
+Z158 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_source.vhd|
 R10
 R11
 !s100 faRTTN2M8@idTbEmb?FWZ0
@@ -1772,9 +1772,9 @@ L129
 V942Vh>nJb>Y:W2=d>=:]D0
 R6
 32
-R154
-R155
 R156
+R157
+R158
 R10
 R11
 !s100 z>D_g9TkfkMmlIQS8JB`50
@@ -1797,27 +1797,27 @@ R10
 R11
 !s100 fK:nId[@3Z1@]9@Bnj:Mm3
 !i10b 1
-!s108 1616718741.387000
+!s108 1616730481.598000
 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/alu/mu.vhd|
 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/alu/mu.vhd|
 Eflag
-Z157 w1616036348
+Z159 w1616036348
 R14
 R15
 R16
 R1
 R2
 R3
-Z158 8C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/flag.vhd
-Z159 FC:/Users/vuong/VM/ztachip/hardware/HDL/pcore/flag.vhd
+Z160 8C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/flag.vhd
+Z161 FC:/Users/vuong/VM/ztachip/hardware/HDL/pcore/flag.vhd
 l0
 L32
 V;`;HkWlZi2k0j;[3A<[>c1
 R6
 32
-Z160 !s108 1616718736.876000
-Z161 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/flag.vhd|
-Z162 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/flag.vhd|
+Z162 !s108 1616730476.974000
+Z163 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/flag.vhd|
+Z164 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/flag.vhd|
 R10
 R11
 !s100 2U2OMAbkc<8I[T:To@aHZ2
@@ -1834,9 +1834,9 @@ L58
 VM:fR4J0^a;7MAnf96g72l1
 R6
 32
-R160
-R161
 R162
+R163
+R164
 R10
 R11
 !s100 EcnA3AO<zfcS5R8IR;?RX0
@@ -1846,40 +1846,40 @@ R14
 R16
 R1
 R2
-w1616718667
+w1616730452
 R3
 8C:/Users/vuong/VM/ztachip/hardware/HDL/hpc_pkg.vhd
 FC:/Users/vuong/VM/ztachip/hardware/HDL/hpc_pkg.vhd
 l0
-L35
-VQOgUTX<Z7GM25JKE]?j`30
+L29
+VCj>afG[7ja0GY:T5T4I0G3
 R6
 32
 R10
 R11
-!s100 D:if56OkEh4_SQ:S9Rach0
+!s100 [nAffS0cXFT`8al>L2Kk90
 !i10b 1
-!s108 1616718726.708000
+!s108 1616730468.470000
 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/hpc_pkg.vhd|
 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/hpc_pkg.vhd|
 Eialu
-Z163 w1616036399
+Z165 w1616036399
 R14
 R15
 R16
 R1
 R2
 R3
-Z164 8C:/Users/vuong/VM/ztachip/hardware/HDL/ialu/ialu.vhd
-Z165 FC:/Users/vuong/VM/ztachip/hardware/HDL/ialu/ialu.vhd
+Z166 8C:/Users/vuong/VM/ztachip/hardware/HDL/ialu/ialu.vhd
+Z167 FC:/Users/vuong/VM/ztachip/hardware/HDL/ialu/ialu.vhd
 l0
 L30
 V32OnEXJH2E<D[HUk_NS:31
 R6
 32
-Z166 !s108 1616718755.468000
-Z167 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/ialu/ialu.vhd|
-Z168 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/ialu/ialu.vhd|
+Z168 !s108 1616730495.956000
+Z169 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/ialu/ialu.vhd|
+Z170 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/ialu/ialu.vhd|
 R10
 R11
 !s100 Tf<VF0lM=<;_Kf`IgWXBQ3
@@ -1896,34 +1896,34 @@ L44
 VfIMb=eadO@^;hBjhej;`E2
 R6
 32
-R166
-R167
 R168
+R169
+R170
 R10
 R11
 !s100 >MCNWgV>c60kSj<R6NojK0
 !i10b 1
 Einstr
-R13
+Z171 w1616726848
 R15
 R14
 R16
 R1
 R2
 R3
-Z169 8C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/instr.vhd
-Z170 FC:/Users/vuong/VM/ztachip/hardware/HDL/pcore/instr.vhd
+Z172 8C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/instr.vhd
+Z173 FC:/Users/vuong/VM/ztachip/hardware/HDL/pcore/instr.vhd
 l0
-L31
+L33
 VTGCcXTZeTBcKz[cXSLzbc2
 R6
 32
-Z171 !s108 1616718737.720000
-Z172 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/instr.vhd|
-Z173 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/instr.vhd|
+Z174 !s108 1616730478.218000
+Z175 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/instr.vhd|
+Z176 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/instr.vhd|
 R10
 R11
-!s100 S>?4UoYJGgAT;BEO]EbPd3
+!s100 _8CPFbdfPoeY=ZUQnF^^30
 !i10b 1
 Ainstr_behaviour
 R15
@@ -1932,36 +1932,36 @@ R16
 R1
 R2
 DEx4 work 5 instr 0 22 TGCcXTZeTBcKz[cXSLzbc2
-l129
-L66
+l136
+L73
 V9aSeYoKjiATD9X3>=zdhg0
 R6
 32
-R171
-R172
-R173
+R174
+R175
+R176
 R10
 R11
-!s100 [jaeRMOXnH7mjUic2KU^Q3
+!s100 FofNDkdcnF@i97Z:Mf`<o1
 !i10b 1
 Einstr_decoder2
-Z174 w1615866849
+Z177 w1615866849
 R14
 R15
 R16
 R1
 R2
 R3
-Z175 8C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/instr_decoder2.vhd
-Z176 FC:/Users/vuong/VM/ztachip/hardware/HDL/pcore/instr_decoder2.vhd
+Z178 8C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/instr_decoder2.vhd
+Z179 FC:/Users/vuong/VM/ztachip/hardware/HDL/pcore/instr_decoder2.vhd
 l0
 L33
 VRDf8YZn@`ol`S_aa[1`Wa0
 R6
 32
-Z177 !s108 1616718737.310000
-Z178 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/instr_decoder2.vhd|
-Z179 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/instr_decoder2.vhd|
+Z180 !s108 1616730477.685000
+Z181 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/instr_decoder2.vhd|
+Z182 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/instr_decoder2.vhd|
 R10
 R11
 !s100 jb:l916@zz8hPicJ6YG?Q0
@@ -1978,31 +1978,31 @@ L118
 V_;=JE`dcC=DJ6Ze[Ni0oI0
 R6
 32
-R177
-R178
-R179
+R180
+R181
+R182
 R10
 R11
 !s100 n;6:;IiNi>OSkG0Fa35`92
 !i10b 1
 Einstr_dispatch2
-Z180 w1615864406
+Z183 w1615864406
 R14
 R15
 R16
 R1
 R2
 R3
-Z181 8C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/instr_dispatch2.vhd
-Z182 FC:/Users/vuong/VM/ztachip/hardware/HDL/pcore/instr_dispatch2.vhd
+Z184 8C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/instr_dispatch2.vhd
+Z185 FC:/Users/vuong/VM/ztachip/hardware/HDL/pcore/instr_dispatch2.vhd
 l0
 L30
 V7cQ]><CFH6ea:QHDIDGjn0
 R6
 32
-Z183 !s108 1616718733.635000
-Z184 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/instr_dispatch2.vhd|
-Z185 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/instr_dispatch2.vhd|
+Z186 !s108 1616730474.293000
+Z187 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/instr_dispatch2.vhd|
+Z188 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/instr_dispatch2.vhd|
 R10
 R11
 !s100 5cOA9kBbkL^kdj29`zcOl2
@@ -2019,31 +2019,31 @@ L89
 V?AUDIWo@?@R<VST2kcjaW1
 R6
 32
-R183
-R184
-R185
+R186
+R187
+R188
 R10
 R11
 !s100 21kbdjfX<ajDc@KkCUom^2
 !i10b 1
 Einstr_fetch
-Z186 w1615953962
+Z189 w1615953962
 R14
 R15
 R16
 R1
 R2
 R3
-Z187 8C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/instr_fetch.vhd
-Z188 FC:/Users/vuong/VM/ztachip/hardware/HDL/pcore/instr_fetch.vhd
+Z190 8C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/instr_fetch.vhd
+Z191 FC:/Users/vuong/VM/ztachip/hardware/HDL/pcore/instr_fetch.vhd
 l0
 L33
 VICh>X=9:]eZ>[iM=fg<Qc0
 R6
 32
-Z189 !s108 1616718733.072000
-Z190 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/instr_fetch.vhd|
-Z191 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/instr_fetch.vhd|
+Z192 !s108 1616730473.842000
+Z193 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/instr_fetch.vhd|
+Z194 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/instr_fetch.vhd|
 R10
 R11
 !s100 M5KC1Q5KGn1dVPeeL5bJ43
@@ -2060,9 +2060,9 @@ L85
 VCR^`Dc1HR<FDOzKo31hHQ2
 R6
 32
-R189
-R190
-R191
+R192
+R193
+R194
 R10
 R11
 !s100 :EbIa;BO:OEkOYHiZ=@l:2
@@ -2075,16 +2075,16 @@ R16
 R1
 R2
 R3
-Z192 8C:/Users/vuong/VM/ztachip/hardware/HDL/ialu/iregister_file.vhd
-Z193 FC:/Users/vuong/VM/ztachip/hardware/HDL/ialu/iregister_file.vhd
+Z195 8C:/Users/vuong/VM/ztachip/hardware/HDL/ialu/iregister_file.vhd
+Z196 FC:/Users/vuong/VM/ztachip/hardware/HDL/ialu/iregister_file.vhd
 l0
 L33
 VPzgRgGBPzB9@lUjZbLkP`0
 R6
 32
-Z194 !s108 1616718755.090000
-Z195 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/ialu/iregister_file.vhd|
-Z196 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/ialu/iregister_file.vhd|
+Z197 !s108 1616730495.607000
+Z198 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/ialu/iregister_file.vhd|
+Z199 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/ialu/iregister_file.vhd|
 R10
 R11
 !s100 eiINod2GZ:[Q0IeKaN42o1
@@ -2101,9 +2101,9 @@ L52
 VH^EY3]`W_dSSd3o<4:Sgc3
 R6
 32
-R194
-R195
-R196
+R197
+R198
+R199
 R10
 R11
 !s100 2Y`W:j:e<<Ti:nzYaWI^91
@@ -2116,16 +2116,16 @@ R16
 R1
 R2
 R3
-Z197 8C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore.vhd
-Z198 FC:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore.vhd
+Z200 8C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore.vhd
+Z201 FC:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore.vhd
 l0
 L34
 VT6S2^3d`cT>EMXFjAPFdb1
 R6
 32
-Z199 !s108 1616718754.103000
-Z200 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore.vhd|
-Z201 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore.vhd|
+Z202 !s108 1616730494.625000
+Z203 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore.vhd|
+Z204 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore.vhd|
 R10
 R11
 !s100 6ooifXnF^BCJ8aP4`F09l2
@@ -2142,9 +2142,9 @@ L57
 V5bI2`K?G3IzPE4@m@Xm4=0
 R6
 32
-R199
-R200
-R201
+R202
+R203
+R204
 R10
 R11
 !s100 hb4f0BmRl0FUdXN]H9m2b2
@@ -2157,16 +2157,16 @@ R16
 R1
 R2
 R3
-Z202 8C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_decoder.vhd
-Z203 FC:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_decoder.vhd
+Z205 8C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_decoder.vhd
+Z206 FC:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_decoder.vhd
 l0
 L32
 V^YfF;fOdbNGkU4J_i4>RJ1
 R6
 32
-Z204 !s108 1616718750.163000
-Z205 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_decoder.vhd|
-Z206 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_decoder.vhd|
+Z207 !s108 1616730490.617000
+Z208 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_decoder.vhd|
+Z209 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_decoder.vhd|
 R10
 R11
 !s100 GcH=Ma?WaYK3baR>V4O[?0
@@ -2183,9 +2183,9 @@ L76
 VHez?_WMS0Jb?]EA4i`C4Q3
 R6
 32
-R204
-R205
-R206
+R207
+R208
+R209
 R10
 R11
 !s100 @VghY_V2`fW6Z>H8=GnmG2
@@ -2198,16 +2198,16 @@ R16
 R1
 R2
 R3
-Z207 8C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_exe.vhd
-Z208 FC:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_exe.vhd
+Z210 8C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_exe.vhd
+Z211 FC:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_exe.vhd
 l0
 L35
 VEV0FeL`7mejT@zjSUagWh0
 R6
 32
-Z209 !s108 1616718751.251000
-Z210 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_exe.vhd|
-Z211 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_exe.vhd|
+Z212 !s108 1616730491.769000
+Z213 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_exe.vhd|
+Z214 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_exe.vhd|
 R10
 R11
 !s100 4MM7PMm8k1aX8`NefYTM=3
@@ -2224,9 +2224,9 @@ L79
 VQfcT_;?H;ThHCPb8ZMoho1
 R6
 32
-R209
-R210
-R211
+R212
+R213
+R214
 R10
 R11
 !s100 O;K4eg5FnHL6ILA89=N4E3
@@ -2239,16 +2239,16 @@ R16
 R1
 R2
 R3
-Z212 8C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_exe2.vhd
-Z213 FC:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_exe2.vhd
+Z215 8C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_exe2.vhd
+Z216 FC:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_exe2.vhd
 l0
 L31
 VSW3H:7@:K<jzV`GD;GBK90
 R6
 32
-Z214 !s108 1616718753.717000
-Z215 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_exe2.vhd|
-Z216 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_exe2.vhd|
+Z217 !s108 1616730494.216000
+Z218 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_exe2.vhd|
+Z219 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_exe2.vhd|
 R10
 R11
 !s100 [XKD@U0LkD[ndc9ONlW_I0
@@ -2265,9 +2265,9 @@ L45
 V2^nF0DPl^D:EX>PkR2mKS1
 R6
 32
-R214
-R215
-R216
+R217
+R218
+R219
 R10
 R11
 !s100 BJa:zW;SW2zX<4ne8h[ag0
@@ -2280,16 +2280,16 @@ R16
 R1
 R2
 R3
-Z217 8C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_fetch.vhd
-Z218 FC:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_fetch.vhd
+Z220 8C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_fetch.vhd
+Z221 FC:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_fetch.vhd
 l0
 L40
 VkSC0i[6CjL1QnSDQ1VDf<0
 R6
 32
-Z219 !s108 1616718752.207000
-Z220 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_fetch.vhd|
-Z221 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_fetch.vhd|
+Z222 !s108 1616730492.638000
+Z223 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_fetch.vhd|
+Z224 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_fetch.vhd|
 R10
 R11
 !s100 ]kM@e2`d7[zdPd2Le6d842
@@ -2306,9 +2306,9 @@ L66
 VEomSeDD;j?Xi8YEgVQVca1
 R6
 32
-R219
-R220
-R221
+R222
+R223
+R224
 R10
 R11
 !s100 f2Og2VXlY3QgXY1Tl:Si[3
@@ -2321,16 +2321,16 @@ R16
 R1
 R2
 R3
-Z222 8C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_mem.vhd
-Z223 FC:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_mem.vhd
+Z225 8C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_mem.vhd
+Z226 FC:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_mem.vhd
 l0
 L31
 VWcPM11FG0L0?4VhHcPCRR0
 R6
 32
-Z224 !s108 1616718751.606000
-Z225 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_mem.vhd|
-Z226 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_mem.vhd|
+Z227 !s108 1616730492.090000
+Z228 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_mem.vhd|
+Z229 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_mem.vhd|
 R10
 R11
 !s100 ?`fN50Di_]kN:Hkcd]=RD0
@@ -2347,9 +2347,9 @@ L66
 V[EfF^BGi5dNHJF55LO1_;0
 R6
 32
-R224
-R225
-R226
+R227
+R228
+R229
 R10
 R11
 !s100 C^M`BD^i>dXPDlm4RG;;A2
@@ -2362,16 +2362,16 @@ R16
 R1
 R2
 R3
-Z227 8C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_ram.vhd
-Z228 FC:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_ram.vhd
+Z230 8C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_ram.vhd
+Z231 FC:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_ram.vhd
 l0
 L30
 VzPR^Wege1:P;7>lM;6Hja3
 R6
 32
-Z229 !s108 1616718752.886000
-Z230 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_ram.vhd|
-Z231 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_ram.vhd|
+Z232 !s108 1616730493.360000
+Z233 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_ram.vhd|
+Z234 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_ram.vhd|
 R10
 R11
 !s100 N`>e4?m:Ge21M?bHI]>5@3
@@ -2388,9 +2388,9 @@ L43
 VkG28;zbe?XAkGzkaPa[_N3
 R6
 32
-R229
-R230
-R231
+R232
+R233
+R234
 R10
 R11
 !s100 nQVJmh?cQ0W5G>35OFPkU2
@@ -2403,16 +2403,16 @@ R16
 R1
 R2
 R3
-Z232 8C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_register.vhd
-Z233 FC:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_register.vhd
+Z235 8C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_register.vhd
+Z236 FC:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_register.vhd
 l0
 L29
 VO:<>XG[cV<;gLMQ[fBNGE2
 R6
 32
-Z234 !s108 1616718753.414000
-Z235 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_register.vhd|
-Z236 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_register.vhd|
+Z237 !s108 1616730493.892000
+Z238 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_register.vhd|
+Z239 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_register.vhd|
 R10
 R11
 !s100 >TU7Xn[mPloo@]Pj1k`]?0
@@ -2429,31 +2429,31 @@ L53
 VRGE^:ejRRJW^YB>TBK6eN3
 R6
 32
-R234
-R235
-R236
+R237
+R238
+R239
 R10
 R11
 !s100 Y_?]5e2DX3Xh];16l1h?]2
 !i10b 1
 Emcore_rom
-R13
+Z240 w1616726321
 R14
 R15
 R16
 R1
 R2
 R3
-Z237 8C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_rom.vhd
-Z238 FC:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_rom.vhd
+Z241 8C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_rom.vhd
+Z242 FC:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_rom.vhd
 l0
 L31
 VUeYiahM1gW4P:MlVgj<0k2
 R6
 32
-Z239 !s108 1616718752.575000
-Z240 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_rom.vhd|
-Z241 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_rom.vhd|
+Z243 !s108 1616730493.004000
+Z244 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_rom.vhd|
+Z245 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_rom.vhd|
 R10
 R11
 !s100 JW6EBolde6zVfg[2Gb`X@0
@@ -2470,9 +2470,9 @@ L45
 VPGDA=kYGH]GJF]]N0AHQK2
 R6
 32
-R239
-R240
-R241
+R243
+R244
+R245
 R10
 R11
 !s100 ]m0`SD;72gb1S:NlX_E:@1
@@ -2485,16 +2485,16 @@ R16
 R1
 R2
 R3
-Z242 8C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_wb.vhd
-Z243 FC:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_wb.vhd
+Z246 8C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_wb.vhd
+Z247 FC:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_wb.vhd
 l0
 L30
 V0LcWd^?fNbzI4ODB7?8>n2
 R6
 32
-Z244 !s108 1616718750.887000
-Z245 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_wb.vhd|
-Z246 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_wb.vhd|
+Z248 !s108 1616730491.273000
+Z249 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_wb.vhd|
+Z250 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_wb.vhd|
 R10
 R11
 !s100 ebhnT^F46^V_6YXBI7lnA1
@@ -2511,31 +2511,31 @@ L45
 V<@hk7JP?PdmT^`DU1TB8h3
 R6
 32
-R244
-R245
-R246
+R248
+R249
+R250
 R10
 R11
 !s100 Z0DYz_T<jIHfo^K7[LQS=1
 !i10b 1
 Emsgq
-Z247 w1616716456
+Z251 w1616716456
 R14
 R15
 R16
 R1
 R2
 R3
-Z248 8C:/Users/vuong/VM/ztachip/hardware/HDL/top/msgq.vhd
-Z249 FC:/Users/vuong/VM/ztachip/hardware/HDL/top/msgq.vhd
+Z252 8C:/Users/vuong/VM/ztachip/hardware/HDL/top/msgq.vhd
+Z253 FC:/Users/vuong/VM/ztachip/hardware/HDL/top/msgq.vhd
 l0
 L30
 Vk>h?8NT6h:a9ONg85FClF3
 R6
 32
-Z250 !s108 1616718759.551000
-Z251 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/top/msgq.vhd|
-Z252 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/top/msgq.vhd|
+Z254 !s108 1616730499.493000
+Z255 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/top/msgq.vhd|
+Z256 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/top/msgq.vhd|
 R10
 R11
 !s100 n^Lm93QPddZ@KF0hK8]eC3
@@ -2552,31 +2552,31 @@ L57
 V:jC_?I]Z5`d2fRO1l:@Z^3
 R6
 32
-R250
-R251
-R252
+R254
+R255
+R256
 R10
 R11
 !s100 F??T6c5`PIiD2boW`9VC50
 !i10b 1
 Emu_adder
-Z253 w1616037267
+Z257 w1616037267
 R14
 R15
 R16
 R1
 R2
 R3
-Z254 8C:/Users/vuong/VM/ztachip/hardware/HDL/alu/imu.vhd
-Z255 FC:/Users/vuong/VM/ztachip/hardware/HDL/alu/imu.vhd
+Z258 8C:/Users/vuong/VM/ztachip/hardware/HDL/alu/imu.vhd
+Z259 FC:/Users/vuong/VM/ztachip/hardware/HDL/alu/imu.vhd
 l0
 L47
 V?miZi:]cHlf?0=QzF>F3B2
 R6
 32
-Z256 !s108 1616718749.721000
-Z257 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/alu/imu.vhd|
-Z258 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/alu/imu.vhd|
+Z260 !s108 1616730490.165000
+Z261 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/alu/imu.vhd|
+Z262 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/alu/imu.vhd|
 R10
 R11
 !s100 >EzW`gARQ=ghNSXHg]ZSQ1
@@ -2593,9 +2593,9 @@ L64
 VoY0V<3ck:[gm3SHB8Qc1g3
 R6
 32
-R256
-R257
-R258
+R260
+R261
+R262
 R10
 R11
 !s100 ig48lXTlN]]H1b42;R=L81
@@ -2605,16 +2605,16 @@ R12
 R1
 R2
 R3
-Z259 8C:/Users/vuong/VM/ztachip/hardware/HDL/alu/mul.vhd
-Z260 FC:/Users/vuong/VM/ztachip/hardware/HDL/alu/mul.vhd
+Z263 8C:/Users/vuong/VM/ztachip/hardware/HDL/alu/mul.vhd
+Z264 FC:/Users/vuong/VM/ztachip/hardware/HDL/alu/mul.vhd
 l0
 L1421
 VNmT6kcAEakfnzZm>;FIgj1
 R6
 32
-Z261 !s108 1616718741.746000
-Z262 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/alu/mul.vhd|
-Z263 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/alu/mul.vhd|
+Z265 !s108 1616730481.878000
+Z266 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/alu/mul.vhd|
+Z267 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/alu/mul.vhd|
 R10
 R11
 !s100 QLb_3o_6GXLB1ha>M<_dG3
@@ -2628,9 +2628,9 @@ L1432
 VBnHYF`oMeK=fZ<bTifBn>0
 R6
 32
-R261
-R262
-R263
+R265
+R266
+R267
 R10
 R11
 !s100 T0Wh?gCO]VVM;>g=CEhem3
@@ -2640,16 +2640,16 @@ R12
 R1
 R2
 R3
-R259
-R260
+R263
+R264
 l0
 L46
 Vj;GV17<2M>O34iG8]bDI02
 R6
 32
-R261
-R262
-R263
+R265
+R266
+R267
 R10
 R11
 !s100 94?4ZgK1aOiH^h3U1=TlY2
@@ -2663,31 +2663,31 @@ L56
 VZ7F7U@CK83ccTKbCILZ0Y0
 R6
 32
-R261
-R262
-R263
+R265
+R266
+R267
 R10
 R11
 !s100 NDBbc`WN0IQIZcGGf_Fj]2
 !i10b 1
 Epcore
-Z264 w1615861322
+Z268 w1615861322
 R14
 R15
 R16
 R1
 R2
 R3
-Z265 8C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/pcore.vhd
-Z266 FC:/Users/vuong/VM/ztachip/hardware/HDL/pcore/pcore.vhd
+Z269 8C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/pcore.vhd
+Z270 FC:/Users/vuong/VM/ztachip/hardware/HDL/pcore/pcore.vhd
 l0
 L15
 VYHHGbEoTM?OH=C7^gM1cF2
 R6
 32
-Z267 !s108 1616718734.661000
-Z268 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/pcore.vhd|
-Z269 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/pcore.vhd|
+Z271 !s108 1616730475.533000
+Z272 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/pcore.vhd|
+Z273 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/pcore.vhd|
 R10
 R11
 !s100 :ORBX=XTY1@5I=C]DK]7X2
@@ -2704,9 +2704,9 @@ L85
 V^80JROkNGnGm_Q=:gDCUb3
 R6
 32
-R267
-R268
-R269
+R271
+R272
+R273
 R10
 R11
 !s100 <Vb2S>SRglKfBi;RR6C0K1
@@ -2719,16 +2719,16 @@ R16
 R1
 R2
 R3
-Z270 8C:/Users/vuong/VM/ztachip/hardware/HDL/ialu/ram3.vhd
-Z271 FC:/Users/vuong/VM/ztachip/hardware/HDL/ialu/ram3.vhd
+Z274 8C:/Users/vuong/VM/ztachip/hardware/HDL/ialu/ram3.vhd
+Z275 FC:/Users/vuong/VM/ztachip/hardware/HDL/ialu/ram3.vhd
 l0
 L32
 Vk8?1c1Fz_F7G=7P1R9LId2
 R6
 32
-Z272 !s108 1616718754.703000
-Z273 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/ialu/ram3.vhd|
-Z274 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/ialu/ram3.vhd|
+Z276 !s108 1616730495.247000
+Z277 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/ialu/ram3.vhd|
+Z278 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/ialu/ram3.vhd|
 R10
 R11
 !s100 4EgH`nM>kf?V?=HBGTzCe3
@@ -2745,31 +2745,31 @@ L51
 VJ0l8mMe_eVc25dbe5_`_X3
 R6
 32
-R272
-R273
-R274
+R276
+R277
+R278
 R10
 R11
 !s100 UFN_^0OF;YZ9DZVDH;E`[1
 !i10b 1
 Eramtest
-Z275 w1615261391
+Z279 w1615261391
 R14
 R15
 R16
 R1
 R2
 R3
-Z276 8C:/Users/vuong/VM/ztachip/hardware/simulation/ramtest.vhd
-Z277 FC:/Users/vuong/VM/ztachip/hardware/simulation/ramtest.vhd
+Z280 8C:/Users/vuong/VM/ztachip/hardware/simulation/ramtest.vhd
+Z281 FC:/Users/vuong/VM/ztachip/hardware/simulation/ramtest.vhd
 l0
 L32
 VeJ9>9f=znK=`NEjPk8?<h2
 R6
 32
-Z278 !s108 1616718738.321000
-Z279 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/simulation/ramtest.vhd|
-Z280 !s107 C:/Users/vuong/VM/ztachip/hardware/simulation/ramtest.vhd|
+Z282 !s108 1616730478.653000
+Z283 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/simulation/ramtest.vhd|
+Z284 !s107 C:/Users/vuong/VM/ztachip/hardware/simulation/ramtest.vhd|
 R10
 R11
 !s100 QzOif3PIC^L7PBZH0jBme2
@@ -2786,31 +2786,31 @@ L58
 V<;1><59@M^V1=9cngLC^K1
 R6
 32
-R278
-R279
-R280
+R282
+R283
+R284
 R10
 R11
 !s100 VnMGMMzG[NSJ_AT;4JhlZ0
 !i10b 1
 Eregister_bank
-Z281 w1615941454
+Z285 w1615941454
 R14
 R15
 R16
 R1
 R2
 R3
-Z282 8C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/register_bank.vhd
-Z283 FC:/Users/vuong/VM/ztachip/hardware/HDL/pcore/register_bank.vhd
+Z286 8C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/register_bank.vhd
+Z287 FC:/Users/vuong/VM/ztachip/hardware/HDL/pcore/register_bank.vhd
 l0
 L59
 V:IVIi>3P0^[]FZX[zzeo83
 R6
 32
-Z284 !s108 1616718732.393000
-Z285 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/register_bank.vhd|
-Z286 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/register_bank.vhd|
+Z288 !s108 1616730473.159000
+Z289 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/register_bank.vhd|
+Z290 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/register_bank.vhd|
 R10
 R11
 !s100 kcnWR62]Rn;Z<h_19WzPo0
@@ -2827,31 +2827,31 @@ L115
 Vg5JQLHN:Q7`eRGAe@IgVe0
 R6
 32
-R284
-R285
-R286
+R288
+R289
+R290
 R10
 R11
 !s100 ?`1b]hb9eRD[I?H7ME?@^2
 !i10b 1
 Eregister_file
-Z287 w1615864253
+Z291 w1615864253
 R14
 R15
 R16
 R1
 R2
 R3
-Z288 8C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/register_file.vhd
-Z289 FC:/Users/vuong/VM/ztachip/hardware/HDL/pcore/register_file.vhd
+Z292 8C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/register_file.vhd
+Z293 FC:/Users/vuong/VM/ztachip/hardware/HDL/pcore/register_file.vhd
 l0
 L34
 V@Uzm4IWzR>0M:SJjK85U71
 R6
 32
-Z290 !s108 1616718735.843000
-Z291 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/register_file.vhd|
-Z292 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/register_file.vhd|
+Z294 !s108 1616730476.060000
+Z295 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/register_file.vhd|
+Z296 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/register_file.vhd|
 R10
 R11
 !s100 6bE<jlIPi[mUh`XM1X21A3
@@ -2868,31 +2868,31 @@ L75
 VcMi5D3VLk1]VO186BAdg>2
 R6
 32
-R290
-R291
-R292
+R294
+R295
+R296
 R10
 R11
 !s100 BXKnYNFaK151B4TQHjkfj1
 !i10b 1
 Erom2
-Z293 w1615954092
+Z297 w1615954092
 R14
 R15
 R16
 R1
 R2
 R3
-Z294 8C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/rom2.vhd
-Z295 FC:/Users/vuong/VM/ztachip/hardware/HDL/pcore/rom2.vhd
+Z298 8C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/rom2.vhd
+Z299 FC:/Users/vuong/VM/ztachip/hardware/HDL/pcore/rom2.vhd
 l0
 L30
 Vig4^X0C1158HAmi`Td9b>2
 R6
 32
-Z296 !s108 1616718732.017000
-Z297 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/rom2.vhd|
-Z298 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/rom2.vhd|
+Z300 !s108 1616730472.764000
+Z301 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/rom2.vhd|
+Z302 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/rom2.vhd|
 R10
 R11
 !s100 jF7o[lE]oZhQfZkM?WFna0
@@ -2909,31 +2909,31 @@ L43
 VZ2h_OW4AA`^NA;>3ZV64b2
 R6
 32
-R296
-R297
-R298
+R300
+R301
+R302
 R10
 R11
 !s100 ?F2E1zAT:;Z=<`TeAVSag2
 !i10b 1
 Esram
-Z299 w1616718288
+Z303 w1616718288
 R14
 R15
 R16
 R1
 R2
 R3
-Z300 8C:/Users/vuong/VM/ztachip/hardware/HDL/top/sram.vhd
-Z301 FC:/Users/vuong/VM/ztachip/hardware/HDL/top/sram.vhd
+Z304 8C:/Users/vuong/VM/ztachip/hardware/HDL/top/sram.vhd
+Z305 FC:/Users/vuong/VM/ztachip/hardware/HDL/top/sram.vhd
 l0
 L30
 V[5aC2?]i3d2=GMz_kP64C1
 R6
 32
-Z302 !s108 1616718756.433000
-Z303 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/top/sram.vhd|
-Z304 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/top/sram.vhd|
+Z306 !s108 1616730496.955000
+Z307 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/top/sram.vhd|
+Z308 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/top/sram.vhd|
 R10
 R11
 !s100 6Xl4Ne<=]Dz>`T;75NaRX3
@@ -2950,31 +2950,31 @@ L53
 VQEm_UMEoH8cE5WU=:D_LU1
 R6
 32
-R302
-R303
-R304
+R306
+R307
+R308
 R10
 R11
 !s100 zgW]iA2V:Q`ag;Zk_lFfV2
 !i10b 1
 Esram_bank
-Z305 w1616718374
+Z309 w1616718374
 R14
 R15
 R16
 R1
 R2
 R3
-Z306 8C:/Users/vuong/VM/ztachip/hardware/HDL/top/sram_bank.vhd
-Z307 FC:/Users/vuong/VM/ztachip/hardware/HDL/top/sram_bank.vhd
+Z310 8C:/Users/vuong/VM/ztachip/hardware/HDL/top/sram_bank.vhd
+Z311 FC:/Users/vuong/VM/ztachip/hardware/HDL/top/sram_bank.vhd
 l0
 L30
 VmU=:D1jZkB48Mj=gAZn:i3
 R6
 32
-Z308 !s108 1616718757.756000
-Z309 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/top/sram_bank.vhd|
-Z310 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/top/sram_bank.vhd|
+Z312 !s108 1616730497.643000
+Z313 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/top/sram_bank.vhd|
+Z314 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/top/sram_bank.vhd|
 R10
 R11
 !s100 87]9ck=iGKKlO?]EJ=N;F1
@@ -2991,31 +2991,31 @@ L48
 Va^dXGz1?z?Y`mQ5_E;XI?3
 R6
 32
-R308
-R309
-R310
+R312
+R313
+R314
 R10
 R11
 !s100 I>6h4@jQPSCj8Y0lkD>GX3
 !i10b 1
 Esram_core
-Z311 w1616716838
+Z315 w1616716838
 R14
 R15
 R16
 R1
 R2
 R3
-Z312 8C:/Users/vuong/VM/ztachip/hardware/HDL/top/sram_core.vhd
-Z313 FC:/Users/vuong/VM/ztachip/hardware/HDL/top/sram_core.vhd
+Z316 8C:/Users/vuong/VM/ztachip/hardware/HDL/top/sram_core.vhd
+Z317 FC:/Users/vuong/VM/ztachip/hardware/HDL/top/sram_core.vhd
 l0
 L30
 VA[OT6aOLmnPQI^4U37HAX3
 R6
 32
-Z314 !s108 1616718758.121000
-Z315 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/top/sram_core.vhd|
-Z316 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/top/sram_core.vhd|
+Z318 !s108 1616730498.309000
+Z319 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/top/sram_core.vhd|
+Z320 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/top/sram_core.vhd|
 R10
 R11
 !s100 6OdC:zciWW]B<2FAU1ZA[1
@@ -3032,9 +3032,9 @@ L54
 VibWFMWlMmChHECNdMGL2R3
 R6
 32
-R314
-R315
-R316
+R318
+R319
+R320
 R10
 R11
 !s100 h0ZOlSYTH>haHBi02[YT[3
@@ -3042,28 +3042,28 @@ R11
 Estack
 R13
 R14
-R15
+R47
 R16
 R1
 R2
 R3
-Z317 8C:/Users/vuong/VM/ztachip/hardware/HDL/top/stack.vhd
-Z318 FC:/Users/vuong/VM/ztachip/hardware/HDL/top/stack.vhd
+Z321 8C:/Users/vuong/VM/ztachip/hardware/HDL/top/stack.vhd
+Z322 FC:/Users/vuong/VM/ztachip/hardware/HDL/top/stack.vhd
 l0
 L33
 V;okgUzKcz4e^GX>CR^5FM3
 R6
 32
-Z319 !s108 1616563250.831000
-Z320 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/top/stack.vhd|
-Z321 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/top/stack.vhd|
+Z323 !s108 1616563250.831000
+Z324 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/top/stack.vhd|
+Z325 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/top/stack.vhd|
 R10
 R11
 !s100 aOW?Od43ZiPOY`IkfK0Id3
 !i10b 1
 Abehaviour
 R14
-R15
+R47
 R16
 R1
 R2
@@ -3073,34 +3073,34 @@ L51
 VC=R>RGl`:Gg69IMLZ3VPb2
 R6
 32
-R319
-R320
-R321
+R323
+R324
+R325
 R10
 R11
 !s100 li0J1@ES6lF<kV837@lR70
 !i10b 1
 Estream
-R13
+Z326 w1616727631
 R14
 R15
 R16
 R1
 R2
 R3
-Z322 8C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/stream.vhd
-Z323 FC:/Users/vuong/VM/ztachip/hardware/HDL/pcore/stream.vhd
+Z327 8C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/stream.vhd
+Z328 FC:/Users/vuong/VM/ztachip/hardware/HDL/pcore/stream.vhd
 l0
 L34
 Vf5D0F3kc4lN?WiI37JCj_1
 R6
 32
-Z324 !s108 1616718736.362000
-Z325 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/stream.vhd|
-Z326 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/stream.vhd|
+Z329 !s108 1616730476.585000
+Z330 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/stream.vhd|
+Z331 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/stream.vhd|
 R10
 R11
-!s100 V7MSDoDb9a@2fREZi`7_40
+!s100 J9?h@GTgK`j?7BhQ;54hG2
 !i10b 1
 Astream_behavior
 R14
@@ -3109,36 +3109,36 @@ R16
 R1
 R2
 DEx4 work 6 stream 0 22 f5D0F3kc4lN?WiI37JCj_1
-l131
-L47
+l134
+L49
 V2UE]m0IYI=O]>d5Di9mS93
 R6
 32
-R324
-R325
-R326
+R329
+R330
+R331
 R10
 R11
-!s100 cj<b[X`S6ZaFd2e@BVV5O1
+!s100 cI>c2YQc;^RKc51;Le_NB3
 !i10b 1
 Eswdl
-Z327 w1616718438
+Z332 w1616718438
 R14
 R15
 R16
 R1
 R2
 R3
-Z328 8C:/Users/vuong/VM/ztachip/hardware/HDL/top/swdl.vhd
-Z329 FC:/Users/vuong/VM/ztachip/hardware/HDL/top/swdl.vhd
+Z333 8C:/Users/vuong/VM/ztachip/hardware/HDL/top/swdl.vhd
+Z334 FC:/Users/vuong/VM/ztachip/hardware/HDL/top/swdl.vhd
 l0
 L32
 VDicPld^U2_DXL@E[gFFCY2
 R6
 32
-Z330 !s108 1616718758.828000
-Z331 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/top/swdl.vhd|
-Z332 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/top/swdl.vhd|
+Z335 !s108 1616730498.618000
+Z336 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/top/swdl.vhd|
+Z337 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/top/swdl.vhd|
 R10
 R11
 !s100 RAR:iLbGJKG`>NOE;LgAa0
@@ -3155,31 +3155,31 @@ L65
 V38kh;kT1cPO31:KSP:J822
 R6
 32
-R330
-R331
-R332
+R335
+R336
+R337
 R10
 R11
 !s100 5Fi^Ca:1;8C6z2f0zg3:_0
 !i10b 1
 Esys_config
-Z333 w1616717466
+Z338 w1616717466
 R14
 R15
 R16
 R1
 R2
 R3
-Z334 8C:/Users/vuong/VM/ztachip/hardware/HDL/top/sys_config.vhd
-Z335 FC:/Users/vuong/VM/ztachip/hardware/HDL/top/sys_config.vhd
+Z339 8C:/Users/vuong/VM/ztachip/hardware/HDL/top/sys_config.vhd
+Z340 FC:/Users/vuong/VM/ztachip/hardware/HDL/top/sys_config.vhd
 l0
 L30
 VlCDK?cKQFFZ4Y:Y6BB1zF1
 R6
 32
-Z336 !s108 1616718759.212000
-Z337 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/top/sys_config.vhd|
-Z338 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/top/sys_config.vhd|
+Z341 !s108 1616730498.963000
+Z342 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/top/sys_config.vhd|
+Z343 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/top/sys_config.vhd|
 R10
 R11
 !s100 6B3dzIDoAGAF7B7>XCR932
@@ -3196,31 +3196,31 @@ L46
 VJBOmC3nWL2Bo6LfVecU0Y1
 R6
 32
-R336
-R337
-R338
+R341
+R342
+R343
 R10
 R11
 !s100 e=P6?2LG?mN7RV^l7?[^^1
 !i10b 1
 Etestbench
-R275
+R279
 R14
 R15
 R16
 R1
 R2
 R3
-Z339 8C:/Users/vuong/VM/ztachip/hardware/simulation/testbench.vhd
-Z340 FC:/Users/vuong/VM/ztachip/hardware/simulation/testbench.vhd
+Z344 8C:/Users/vuong/VM/ztachip/hardware/simulation/testbench.vhd
+Z345 FC:/Users/vuong/VM/ztachip/hardware/simulation/testbench.vhd
 l0
 L30
 V^hIU>7m7V;1^DLEY`lBb>1
 R6
 32
-Z341 !s108 1616718738.746000
-Z342 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/simulation/testbench.vhd|
-Z343 !s107 C:/Users/vuong/VM/ztachip/hardware/simulation/testbench.vhd|
+Z346 !s108 1616730479.142000
+Z347 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/simulation/testbench.vhd|
+Z348 !s107 C:/Users/vuong/VM/ztachip/hardware/simulation/testbench.vhd|
 R10
 R11
 !s100 BozAgJQIYAQ2[_6lbHe0H2
@@ -3237,31 +3237,31 @@ L51
 V[mPFg5fGCCYI]E]`5dTo>3
 R6
 32
-R341
-R342
-R343
+R346
+R347
+R348
 R10
 R11
 !s100 MJ_onP7>a[G=mR0aZ>B5G0
 !i10b 1
 Eztachip
-Z344 w1616641004
+Z349 w1616641004
 R14
 R15
 R16
 R1
 R2
 R3
-Z345 8C:/Users/vuong/VM/ztachip/hardware/HDL/top/ztachip.vhd
-Z346 FC:/Users/vuong/VM/ztachip/hardware/HDL/top/ztachip.vhd
+Z350 8C:/Users/vuong/VM/ztachip/hardware/HDL/top/ztachip.vhd
+Z351 FC:/Users/vuong/VM/ztachip/hardware/HDL/top/ztachip.vhd
 l0
 L31
 Vd<S8HA<mTOei@EfeLmM3X3
 R6
 32
-Z347 !s108 1616718760.543000
-Z348 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/top/ztachip.vhd|
-Z349 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/top/ztachip.vhd|
+Z352 !s108 1616730500.175000
+Z353 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/vuong/VM/ztachip/hardware/HDL/top/ztachip.vhd|
+Z354 !s107 C:/Users/vuong/VM/ztachip/hardware/HDL/top/ztachip.vhd|
 R10
 R11
 !s100 B`EQgzBWNCNSEjI<I@dAc1
@@ -3278,9 +3278,9 @@ L76
 V^YbP8d^n>:=5Oc2X47BD?3
 R6
 32
-R347
-R348
-R349
+R352
+R353
+R354
 R10
 R11
 !s100 @c:d0lm1K1nz@B@5h[K5J1

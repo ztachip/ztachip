@@ -14,10 +14,10 @@
 -- limitations under the License.
 ------------------------------------------------------------------------------
 
-
-
 -------
---- This is the top level of PCORE processor array
+-- Stream processor
+-- Input vector is transformed to output vector based on lookup table and interpolation 
+-- coefficient
 -------
 
 library std;
@@ -37,7 +37,9 @@ ENTITY stream IS
         SIGNAL stream_id_in         : IN stream_id_t;
         SIGNAL input_in             : IN STD_LOGIC_VECTOR(register_width_c-1 downto 0);
         SIGNAL output_out           : OUT STD_LOGIC_VECTOR(register_width_c-1 downto 0);
+
         -- Host configuration
+        
         SIGNAL config_in            : IN STD_LOGIC;
         SIGNAL config_reg_in        : IN std_logic_vector(stream_lookup_depth_c-1 downto 0);
         SIGNAL config_data_in       : IN std_logic_vector(2*register_width_c-1 downto 0)
@@ -89,20 +91,21 @@ PORT (
 END COMPONENT;
 
 COMPONENT lpm_add_sub
-GENERIC (
-	lpm_direction		: STRING;
-	lpm_hint		: STRING;
-	lpm_representation		: STRING;
-	lpm_type		: STRING;
-	lpm_width		: NATURAL
-);
-PORT (
-		add_sub	: IN STD_LOGIC ;
-		dataa	: IN STD_LOGIC_VECTOR (lpm_width-1 DOWNTO 0);
-		datab	: IN STD_LOGIC_VECTOR (lpm_width-1 DOWNTO 0);
-		result	: OUT STD_LOGIC_VECTOR (lpm_width-1 DOWNTO 0)
+   GENERIC (
+      lpm_direction         : STRING;
+      lpm_hint              : STRING;
+      lpm_representation    : STRING;
+      lpm_type              : STRING;
+      lpm_width             : NATURAL
+   );
+   PORT (
+      add_sub   : IN STD_LOGIC ;
+      dataa     : IN STD_LOGIC_VECTOR (lpm_width-1 DOWNTO 0);
+      datab     : IN STD_LOGIC_VECTOR (lpm_width-1 DOWNTO 0);
+      result    : OUT STD_LOGIC_VECTOR (lpm_width-1 DOWNTO 0)
 );
 END COMPONENT;
+
 constant stream_lookup_depth2_c:integer:=(stream_lookup_depth_c-stream_id_t'length);
 SIGNAL stream_id_r:stream_id_t;
 SIGNAL input_r:STD_LOGIC_VECTOR(register_width_c-1 downto 0);
@@ -154,6 +157,7 @@ PORT MAP (
     wren_a => wena_r,
     q_a => readdata_lookup
 );
+
 mul_i : lpm_mult
     GENERIC MAP (
         lpm_hint => "DEDICATED_MULTIPLIER_CIRCUITRY=YES,MAXIMIZE_SPEED=5",
@@ -171,28 +175,33 @@ mul_i : lpm_mult
 
 y_mul_inc <= unsigned(y_mul_r(register_width_c-stream_lookup_depth2_c+register_width_c-1 downto register_width_c-stream_lookup_depth2_c-1))+
             to_unsigned(1,register_width_c+1);
+
 y_mul_round <= std_logic_vector(y_mul_inc(y_mul_inc'length-1 downto 1));
 
 adder_i : LPM_ADD_SUB
-	GENERIC MAP (
-		lpm_direction => "UNUSED",
-		lpm_hint => "ONE_INPUT_IS_CONSTANT=NO,CIN_USED=NO",
-		lpm_representation => "SIGNED",
-		lpm_type => "LPM_ADD_SUB",
-		lpm_width => register_width_c
-	)
-	PORT MAP (
-		add_sub => '1',
-		dataa => y_mul_round,
-		datab => readdata_rr,
-		result => output
-	);
+   GENERIC MAP (
+      lpm_direction => "UNUSED",
+      lpm_hint => "ONE_INPUT_IS_CONSTANT=NO,CIN_USED=NO",
+      lpm_representation => "SIGNED",
+      lpm_type => "LPM_ADD_SUB",
+      lpm_width => register_width_c
+   )
+   PORT MAP (
+      add_sub => '1',
+      dataa => y_mul_round,
+      datab => readdata_rr,
+      result => output
+   );
 
 
 output_out <= output_r;
+
 input <= std_logic_vector(stream_id_in) & input_in(register_width_c-1 downto register_width_c-stream_lookup_depth2_c);
+
 address <= waddr_r when wena_r='1' else input;
+
 remainder <= input_in(register_width_c-stream_lookup_depth2_c-1 downto 0);
+
 writedata <= writedata_r;
 
 

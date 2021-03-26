@@ -33,7 +33,7 @@ entity delayi is
     port(
         SIGNAL clock_in     : IN STD_LOGIC;
         SIGNAL reset_in     : IN STD_LOGIC;
-        SIGNAL in_in        : IN unsigned(SIZE-1 DOWNTO    0);
+        SIGNAL in_in        : IN unsigned(SIZE-1 DOWNTO 0);
         SIGNAL out_out      : OUT unsigned(SIZE-1 DOWNTO 0);
         SIGNAL enable_in    : IN STD_LOGIC
     );

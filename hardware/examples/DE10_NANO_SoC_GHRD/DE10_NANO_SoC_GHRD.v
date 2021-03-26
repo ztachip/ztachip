@@ -205,8 +205,8 @@ soc_system u0(
 
 // Source/Probe megawizard instance
 hps_reset hps_reset_inst(
-              .source_clk(pclk),
-              .source(hps_reset_req)
+           .source_clk(pclk),
+           .source(hps_reset_req)
           );
 
 altera_edge_detector pulse_cold_reset(
@@ -241,14 +241,14 @@ defparam pulse_debug_reset.IGNORE_RST_WHILE_BUSY = 1;
 
 
 pll pll_inst(
-		.refclk(FPGA_CLK1_50), //  refclk.clk
-		.rst(pll_reset),   //   reset.reset
-		.outclk_0(pclk), // outclk0.clk
+        .refclk(FPGA_CLK1_50), //  refclk.clk
+        .rst(pll_reset), //   reset.reset
+        .outclk_0(pclk), // outclk0.clk
         .outclk_1(mclk), // outclk0.clk
         .outclk_2(hclk), // outclk0.clk
         .outclk_3(dclk), // outclk0.clk
-		.locked(fpga_locked)    //  locked.export
-	);
+        .locked(fpga_locked) //  locked.export
+        );
 
 
 reg [25: 0] counter;
