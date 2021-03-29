@@ -1677,7 +1677,6 @@ cTerm *cGEN::genTermDirectIndexing(cInstructions *instructions,cAstNode *_root,c
    {
       cTerm_IMU *term=0,*term2;
       cInstruction *instruction2;
-      // VUONG -- Handler Integer variable as well....
       if(num_dim>=id->getNumDim())
       { 
          // All dimention are specified. This must be a reference 
@@ -2175,7 +2174,6 @@ cInstruction *cGEN::genStatement(cInstructions *instructions,cAstNode *_root,cAs
          {
             cIdentifierReturnValue *rvid;
 //            error(_node->m_lineNo,"Kernel function has no return value");
-         //VUONG Validate if return is expected
             rvid=cIdentifier::getReturnValue(func->getChild(1,eTOKEN_block_item_list));
             if(!rvid)
                error(_node->m_lineNo,"No return value expected");
@@ -3181,7 +3179,6 @@ int cGEN::gen(cAstNode *_root)
       {
          node3=node->getChildList();
          assert(node3!=0);
-//VUONG Should support integer return value for function
          if(node3->getID()==eTOKEN_declaration_specifiers)
          {
             if(node3->getChildList()->getID()==eTOKEN_KERNEL)

@@ -1003,7 +1003,6 @@ void cIdentifier::scanParm(
       assert(node3!=0);
       if(node3->getID()==eTOKEN_declaration_specifiers)
          node3=(cAstNode *)node3->getChildList()->getNext();
-      //VUONG Support integer return type
       if(node3->getID() == eTOKEN_FLOAT)
       {
          gotReturnValFloat=true;
@@ -1030,7 +1029,6 @@ void cIdentifier::scanParm(
             error(node->m_lineNo,"This C-syntax is not supported by this compiler");
          if((node3=node->getChild(1,eTOKEN_INT)))
          {
-            // VUONG Support array integer for parameter
             if(node2->getChild(1,eTOKEN_direct_declarator11))
                error(node->m_lineNo,"Integer parameter must be scalar");
 //            id=new cIdentifierInteger(owner,node2,node3,false,true,intParmIndex++);
@@ -1067,7 +1065,6 @@ void cIdentifier::scanParm(
             // Not allowed shared variable in parameter list...
             if(node->getChild(2,eTOKEN_declaration_specifiers,eTOKEN_SHARE))
             {
-               // VUONG Support array integer for parameter
                if(node2->getChild(1,eTOKEN_direct_declarator11))
                   error(node->m_lineNo,"Integer parameter must be scalar");
 //               id=new cIdentifierInteger(owner,node2,node3,false,true,intParmIndex++);
@@ -1078,7 +1075,6 @@ void cIdentifier::scanParm(
 #endif 
             if(node->getChild(2,eTOKEN_declaration_specifiers,eTOKEN_GLOBAL))
             {
-               // VUONG Support array integer for parameter
                if(node2->getChild(1,eTOKEN_direct_declarator11))
                   error(node->m_lineNo,"Integer parameter must be scalar");
                id=new cIdentifierInteger(owner,node2,node3,false,true,intParmIndex++);

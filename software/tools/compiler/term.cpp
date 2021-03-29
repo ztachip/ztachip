@@ -397,7 +397,6 @@ void cTerm::print()
 {
 }
 
-//VUONG
 bool cTerm::isDouble()
 {
    cIdentifierVector lst;
