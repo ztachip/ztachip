@@ -14,6 +14,63 @@
 // limitations under the License.
 //------------------------------------------------------------------------------
 
+// This file generates pcore assembly instructions based on AST tree
+//
+// pcores has a VLIW SIMD architecture
+//
+// Refer to https://github.com/ztachip/ztachip/blob/master/Documentation/vliw_design.md for pcore instruction
+// description.
+//
+// At each clock, 1 VLIW instruction can execute 1 vector operation + 1 scalar operation and 1 branching instruction
+// branching instruction is based on result value Y in the scalar operation
+// pcore has a throughput of 1 VLIW instruction per clock. 
+
+// pcore assembly has the following format
+// 
+//  MU : Instruction for the vector ALU, it has 3 input (X1,X1,ACCUMULATOR) and 1 output.
+//     OPCODE     [5 bit ] opcode for vector unit
+//     Y_TYPE     [1 bit ] 1 means Y is a accumulator,0 means Y is a word (12bit) 
+//     ACC_VECTOR [1 bit ] Accumulator input is vector
+//     ACC        [12 bit] Accumulator input identifier
+//     ACC_ATTR   [4 bit ] Accumulator input attribute. ACC and ACC_ATTR uniquely identifies which accumulator register
+//     X1_VECTOR  [1 bit ] X1 input is vector
+//     X1         [12 bit] X1 input identifier
+//     X1_ATTR    [4 bit ] X1 input attribute. X1 and X1_ATTR uniquely identifies X1 memory address 
+//     X2_VECTOR  [1 bit ] X2 input is vector
+//     X2         [12 bit] X2 input identifier
+//     X2_ATTR    [4 bit ] X2 input attribute. X2 and X2_ATTR uniquely identifies X2 memory address 
+//     Y_VECTOR   [1 bit ] Y output is vector
+//     Y          [12 bit] Y output identifier
+//     Y_ATTR     [4 bit ] Y output attribute. Y and Y_ATTR uniquely identifies Y memory address 
+// IMU : Instruction to scalar ALU unit
+//     OPCODE     [5 bit ] Scalar ALU opcode
+//     X1         [4 bit ] X1 identifier
+//     X2         [4 bit ] X2 identifier
+//     Y          [4 bit ] Y identifier
+//     Constant   [13 bit] Constant field
+// CTRL
+//     OPCODE     [5 bit ] Control opcode
+//     Address    [11 bit] Address to jump to if opcode condition is met. Condition is applied to Y value of scalar instruction above.
+//
+// Vector ALU parameter attibute options are:
+//    11xx  Pointer with index
+//    1011  Pointer no index
+//    1000  Shared no index
+//    1001  Private no index
+//    1010  Constant
+//    00xx  Share with index
+//    01xx  Private with index
+// 
+// Scalar ALU parameter attribute options are:
+//    1010   Zero value
+//    1011   Constant from IMU instruction constant field 
+//    1100   Thread id
+//    1101   PID id
+//    1110   RESULT from previous MU operation
+//    1000   LANE register. To enable/disable a vector lane
+//    Others Register value (0-7)
+// 
+
 #include <assert.h>
 #include <string.h>
 #include <stdio.h>

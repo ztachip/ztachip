@@ -105,6 +105,12 @@ public:
    bool CanScatter();
    std::string GetDimSize(cIdentifier *id,int index);
    int GenDef(FILE *out);
+   int GenVariableTensor(FILE *out, int _parm, cMcoreRange *_parmRange);
+   int GenConstantTensor(FILE *out, int _parm, cMcoreRange *_parmRange);
+   int GenPcoreTensor(FILE *out, int _parm, cMcoreRange *_parmRange,char *maskStr,int &maskMode);
+   int GenSpuTensor(FILE *out, int _parm, cMcoreRange *_parmRange);
+   int GenPcoreProgTensor(FILE *out, int _parm, cMcoreRange *_parmRange);
+   int GenSramDDRTensor(FILE *out, int _parm, cMcoreRange *_parmRange);
    int Gen(FILE *out,int _parm,cMcoreRange *_parmRange);
    int Validate();
    int getStrideRegisterIndex(int index,int dimSize,int scatter);
