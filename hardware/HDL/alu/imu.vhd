@@ -331,9 +331,7 @@ begin
          mul_x2_r <= x1_in;
       elsif mu_opcode_in=mu_opcode_assign_raw_c or
          mu_opcode_in=mu_opcode_assign_c or
-         mu_opcode_in=mu_opcode_shl_c or
          mu_opcode_in=mu_opcode_shla_c or
-         mu_opcode_in=mu_opcode_shr_c or
          mu_opcode_in=mu_opcode_shra_c then
          mul_x2_r <= (others=>'0');
       else
@@ -432,11 +430,9 @@ begin
                xreg_rr <= xreg_r;
             else
                case mu_opcode_r is
-                  when mu_opcode_shl_c|mu_opcode_shr_c =>
-                     xreg_rr <= std_logic_vector(resize(signed(x2_r),shift_width_c));
                   when mu_opcode_shla_c|mu_opcode_shra_c =>
                      xreg_rr <= std_logic_vector(resize(signed(xreg_r),shift_width_c));
-                  when mu_opcode_mul_c =>
+                  when mu_opcode_mul_c|mu_opcode_shl_c|mu_opcode_shr_c =>
                      xreg_rr <= (others=>'0');
                   when mu_opcode_assign_raw_c|mu_opcode_assign_c=>
                      xreg_rr(register_width_c-1 downto 0) <= x1_r;
