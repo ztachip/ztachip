@@ -358,7 +358,7 @@ when mcore_decoder_pseudo_jump_c =>
     load_exe2_out <= '0';
 when mcore_decoder_pseudo_lui_c =>
     -- lui $t,C $t=C<<16
-    opcode <= "000000"; -- Shift left
+    opcode <= mcore_alu_funct_sll_c; -- Shift left
     mem_opcode <= (others=>'0');
     x <= std_logic_vector(to_unsigned(16,x'length));
     y <= imm;
