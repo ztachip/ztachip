@@ -9,17 +9,6 @@ Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
 -- Compiling entity rom2
 -- Compiling architecture behavior of rom2
 
-} {} {}} ../HDL/ialu/ram3.vhd {1 {vcom -work work -2002 -explicit C:/Users/vuong/VM/ztachip/hardware/HDL/ialu/ram3.vhd
-Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
--- Loading package STANDARD
--- Loading package TEXTIO
--- Loading package std_logic_1164
--- Loading package NUMERIC_STD
--- Loading package config
--- Loading package hpc_pkg
--- Compiling entity ram3
--- Compiling architecture behavior of ram3
-
 } {} {}} ../HDL/top/ddr_rx.vhd {1 {vcom -work work -2002 -explicit C:/Users/vuong/VM/ztachip/hardware/HDL/top/ddr_rx.vhd
 Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
 -- Loading package STANDARD
@@ -31,7 +20,7 @@ Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
 -- Compiling entity ddr_rx
 -- Compiling architecture ddr_rx_behavior of ddr_rx
 
-} {} {}} ../HDL/mcore/mcore_decoder.vhd {1 {vcom -work work -2002 -explicit C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_decoder.vhd
+} {} {}} ../HDL/ialu/ram3.vhd {1 {vcom -work work -2002 -explicit C:/Users/vuong/VM/ztachip/hardware/HDL/ialu/ram3.vhd
 Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
 -- Loading package STANDARD
 -- Loading package TEXTIO
@@ -39,8 +28,8 @@ Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
 -- Loading package NUMERIC_STD
 -- Loading package config
 -- Loading package hpc_pkg
--- Compiling entity mcore_decoder
--- Compiling architecture behaviour of mcore_decoder
+-- Compiling entity ram3
+-- Compiling architecture behavior of ram3
 
 } {} {}} ../HDL/pcore/register_bank.vhd {1 {vcom -work work -2002 -explicit C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/register_bank.vhd
 Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
@@ -53,7 +42,7 @@ Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
 -- Compiling entity register_bank
 -- Compiling architecture behavior of register_bank
 
-} {} {}} ../HDL/pcore/pcore.vhd {1 {vcom -work work -2002 -explicit C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/pcore.vhd
+} {} {}} ../HDL/mcore/mcore_decoder.vhd {1 {vcom -work work -2002 -explicit C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_decoder.vhd
 Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
 -- Loading package STANDARD
 -- Loading package TEXTIO
@@ -61,30 +50,8 @@ Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
 -- Loading package NUMERIC_STD
 -- Loading package config
 -- Loading package hpc_pkg
--- Compiling entity pcore
--- Compiling architecture behavior of pcore
-
-} {} {}} ../HDL/pcore/core.vhd {1 {vcom -work work -2002 -explicit C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/core.vhd
-Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
--- Loading package STANDARD
--- Loading package TEXTIO
--- Loading package std_logic_1164
--- Loading package NUMERIC_STD
--- Loading package config
--- Loading package hpc_pkg
--- Compiling entity core
--- Compiling architecture core_behavior of core
-
-} {} {}} ../HDL/pcore/instr_dispatch2.vhd {1 {vcom -work work -2002 -explicit C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/instr_dispatch2.vhd
-Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
--- Loading package STANDARD
--- Loading package TEXTIO
--- Loading package std_logic_1164
--- Loading package NUMERIC_STD
--- Loading package config
--- Loading package hpc_pkg
--- Compiling entity instr_dispatch2
--- Compiling architecture behavior of instr_dispatch2
+-- Compiling entity mcore_decoder
+-- Compiling architecture behaviour of mcore_decoder
 
 } {} {}} ../HDL/pcore/instr_fetch.vhd {1 {vcom -work work -2002 -explicit C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/instr_fetch.vhd
 Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
@@ -97,7 +64,7 @@ Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
 -- Compiling entity instr_fetch
 -- Compiling architecture behavior of instr_fetch
 
-} {} {}} ../HDL/mcore/mcore_wb.vhd {1 {vcom -work work -2002 -explicit C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_wb.vhd
+} {} {}} ../HDL/pcore/instr_dispatch2.vhd {1 {vcom -work work -2002 -explicit C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/instr_dispatch2.vhd
 Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
 -- Loading package STANDARD
 -- Loading package TEXTIO
@@ -105,17 +72,30 @@ Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
 -- Loading package NUMERIC_STD
 -- Loading package config
 -- Loading package hpc_pkg
--- Compiling entity mcore_wb
--- Compiling architecture behaviour of mcore_wb
+-- Compiling entity instr_dispatch2
+-- Compiling architecture behavior of instr_dispatch2
 
-} {} {}} ../HDL/alu/mu.vhd {1 {vcom -work work -2002 -explicit C:/Users/vuong/VM/ztachip/hardware/HDL/alu/mu.vhd
+} {} {}} ../HDL/pcore/core.vhd {1 {vcom -work work -2002 -explicit C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/core.vhd
 Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
 -- Loading package STANDARD
 -- Loading package TEXTIO
 -- Loading package std_logic_1164
 -- Loading package NUMERIC_STD
 -- Loading package config
--- Compiling package dummy_pkg
+-- Loading package hpc_pkg
+-- Compiling entity core
+-- Compiling architecture core_behavior of core
+
+} {} {}} ../HDL/pcore/pcore.vhd {1 {vcom -work work -2002 -explicit C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/pcore.vhd
+Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Loading package config
+-- Loading package hpc_pkg
+-- Compiling entity pcore
+-- Compiling architecture behavior of pcore
 
 } {} {}} ../HDL/top/avalon_adapter.vhd {1 {vcom -work work -2002 -explicit C:/Users/vuong/VM/ztachip/hardware/HDL/top/avalon_adapter.vhd
 Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
@@ -127,6 +107,26 @@ Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
 -- Loading package hpc_pkg
 -- Compiling entity avalon_adapter
 -- Compiling architecture behaviour of avalon_adapter
+
+} {} {}} ../HDL/alu/mu.vhd {1 {vcom -work work -2002 -explicit C:/Users/vuong/VM/ztachip/hardware/HDL/alu/mu.vhd
+Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Loading package config
+-- Compiling package dummy_pkg
+
+} {} {}} ../HDL/mcore/mcore_wb.vhd {1 {vcom -work work -2002 -explicit C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_wb.vhd
+Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Loading package config
+-- Loading package hpc_pkg
+-- Compiling entity mcore_wb
+-- Compiling architecture behaviour of mcore_wb
 
 } {} {}} ../HDL/mcore/mcore_exe.vhd {1 {vcom -work work -2002 -explicit C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_exe.vhd
 Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
@@ -216,17 +216,6 @@ Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
 -- Compiling entity mcore_fetch
 -- Compiling architecture behaviour of mcore_fetch
 
-} {} {}} ../HDL/top/sram.vhd {1 {vcom -work work -2002 -explicit C:/Users/vuong/VM/ztachip/hardware/HDL/top/sram.vhd
-Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
--- Loading package STANDARD
--- Loading package TEXTIO
--- Loading package std_logic_1164
--- Loading package NUMERIC_STD
--- Loading package config
--- Loading package hpc_pkg
--- Compiling entity sram
--- Compiling architecture behavior of sram
-
 } {} {}} ../HDL/top/avalon_lw_adapter.vhd {1 {vcom -work work -2002 -explicit C:/Users/vuong/VM/ztachip/hardware/HDL/top/avalon_lw_adapter.vhd
 Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
 -- Loading package STANDARD
@@ -237,6 +226,17 @@ Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
 -- Loading package hpc_pkg
 -- Compiling entity avalon_lw_adapter
 -- Compiling architecture avalon_lw_adapter_behaviour of avalon_lw_adapter
+
+} {} {}} ../HDL/top/sram.vhd {1 {vcom -work work -2002 -explicit C:/Users/vuong/VM/ztachip/hardware/HDL/top/sram.vhd
+Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Loading package config
+-- Loading package hpc_pkg
+-- Compiling entity sram
+-- Compiling architecture behavior of sram
 
 } {} {}} testbench.vhd {1 {vcom -work work -2002 -explicit C:/Users/vuong/VM/ztachip/hardware/simulation/testbench.vhd
 Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
@@ -369,17 +369,6 @@ Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
 -- Compiling entity mcore_ram
 -- Compiling architecture behaviour of mcore_ram
 
-} {} {}} ../HDL/pcore/stream.vhd {1 {vcom -work work -2002 -explicit C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/stream.vhd
-Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
--- Loading package STANDARD
--- Loading package TEXTIO
--- Loading package std_logic_1164
--- Loading package NUMERIC_STD
--- Loading package config
--- Loading package hpc_pkg
--- Compiling entity stream
--- Compiling architecture stream_behavior of stream
-
 } {} {}} ../HDL/top/swdl.vhd {1 {vcom -work work -2002 -explicit C:/Users/vuong/VM/ztachip/hardware/HDL/top/swdl.vhd
 Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
 -- Loading package STANDARD
@@ -391,13 +380,16 @@ Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
 -- Compiling entity swdl
 -- Compiling architecture swdl_behaviour of swdl
 
-} {} {}} ../HDL/config.vhd {1 {vcom -work work -2002 -explicit C:/Users/vuong/VM/ztachip/hardware/HDL/config.vhd
+} {} {}} ../HDL/pcore/stream.vhd {1 {vcom -work work -2002 -explicit C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/stream.vhd
 Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
 -- Loading package STANDARD
 -- Loading package TEXTIO
 -- Loading package std_logic_1164
 -- Loading package NUMERIC_STD
--- Compiling package config
+-- Loading package config
+-- Loading package hpc_pkg
+-- Compiling entity stream
+-- Compiling architecture stream_behavior of stream
 
 } {} {}} ../HDL/top/sys_config.vhd {1 {vcom -work work -2002 -explicit C:/Users/vuong/VM/ztachip/hardware/HDL/top/sys_config.vhd
 Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
@@ -409,6 +401,14 @@ Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
 -- Loading package hpc_pkg
 -- Compiling entity sys_config
 -- Compiling architecture sys_config_behaviour of sys_config
+
+} {} {}} ../HDL/config.vhd {1 {vcom -work work -2002 -explicit C:/Users/vuong/VM/ztachip/hardware/HDL/config.vhd
+Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Compiling package config
 
 } {} {}} ../HDL/mcore/mcore_register.vhd {1 {vcom -work work -2002 -explicit C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_register.vhd
 Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
@@ -453,6 +453,15 @@ Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
 -- Loading package hpc_pkg
 -- Compiling entity flag
 -- Compiling architecture behavior of flag
+
+} {} {}} ../HDL/hpc_pkg.vhd {1 {vcom -work work -2002 -explicit C:/Users/vuong/VM/ztachip/hardware/HDL/hpc_pkg.vhd
+Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Loading package config
+-- Compiling package hpc_pkg
 
 } {} {}} ../HDL/mcore/mcore_exe2.vhd {1 {vcom -work work -2002 -explicit C:/Users/vuong/VM/ztachip/hardware/HDL/mcore/mcore_exe2.vhd
 Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
@@ -559,17 +568,6 @@ Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
 -- Compiling entity mcore
 -- Compiling architecture behaviour of mcore
 
-} {} {}} ../HDL/top/ztachip.vhd {1 {vcom -work work -2002 -explicit C:/Users/vuong/VM/ztachip/hardware/HDL/top/ztachip.vhd
-Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
--- Loading package STANDARD
--- Loading package TEXTIO
--- Loading package std_logic_1164
--- Loading package NUMERIC_STD
--- Loading package config
--- Loading package hpc_pkg
--- Compiling entity ztachip
--- Compiling architecture ztachip_behavior of ztachip
-
 } {} {}} ../HDL/top/avalon_lw.vhd {1 {vcom -work work -2002 -explicit C:/Users/vuong/VM/ztachip/hardware/HDL/top/avalon_lw.vhd
 Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
 -- Loading package STANDARD
@@ -580,6 +578,17 @@ Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
 -- Loading package hpc_pkg
 -- Compiling entity avalon_lw
 -- Compiling architecture avalon_lw_behaviour of avalon_lw
+
+} {} {}} ../HDL/top/ztachip.vhd {1 {vcom -work work -2002 -explicit C:/Users/vuong/VM/ztachip/hardware/HDL/top/ztachip.vhd
+Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Loading package config
+-- Loading package hpc_pkg
+-- Compiling entity ztachip
+-- Compiling architecture ztachip_behavior of ztachip
 
 } {} {}} ../HDL/util/delay2.vhd {1 {vcom -work work -2002 -explicit C:/Users/vuong/VM/ztachip/hardware/HDL/util/delay2.vhd
 Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
@@ -603,17 +612,6 @@ Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
 -- Compiling entity instr_decoder2
 -- Compiling architecture behavior of instr_decoder2
 
-} {} {}} ../HDL/pcore/instr.vhd {1 {vcom -work work -2002 -explicit C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/instr.vhd
-Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
--- Loading package STANDARD
--- Loading package TEXTIO
--- Loading package std_logic_1164
--- Loading package NUMERIC_STD
--- Loading package config
--- Loading package hpc_pkg
--- Compiling entity instr
--- Compiling architecture instr_behaviour of instr
-
 } {} {}} ../HDL/dp/dp_fetch.vhd {1 {vcom -work work -2002 -explicit C:/Users/vuong/VM/ztachip/hardware/HDL/dp/dp_fetch.vhd
 Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
 -- Loading package STANDARD
@@ -624,6 +622,17 @@ Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
 -- Loading package hpc_pkg
 -- Compiling entity dp_fetch
 -- Compiling architecture dp_fetch_behaviour of dp_fetch
+
+} {} {}} ../HDL/pcore/instr.vhd {1 {vcom -work work -2002 -explicit C:/Users/vuong/VM/ztachip/hardware/HDL/pcore/instr.vhd
+Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Loading package config
+-- Loading package hpc_pkg
+-- Compiling entity instr
+-- Compiling architecture instr_behaviour of instr
 
 } {} {}} ../HDL/util/delayv.vhd {1 {vcom -work work -2002 -explicit C:/Users/vuong/VM/ztachip/hardware/HDL/util/delayv.vhd
 Model Technology ModelSim ALTERA vcom 10.1d Compiler 2012.11 Nov  2 2012
