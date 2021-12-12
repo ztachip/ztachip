@@ -34,7 +34,6 @@ For information on how to build the toolchain yourself, refer to this [document]
 ```
       ~/intelFPGA/17.0/embedded/embedded_command_shell.sh
       cd [ZTACHIP]
-      source ./setup.sh
       make clean
       make all
 ```
