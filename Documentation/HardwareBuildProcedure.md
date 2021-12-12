@@ -1,12 +1,12 @@
 # ZTACHIP FPGA build procedure
 
-This document describes FPGA build procedure and board configuration targeting [DE10-NANO board](https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&CategoryNo=165&No=1046) running [Linux Xfce Desktop](https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&CategoryNo=165&No=1046&PartNo=4) or [Linux Console](https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&CategoryNo=165&No=1046&PartNo=4) as its Linux operating system.
+This document describes FPGA build procedure and board configuration targeting [DE10-NANO board](https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&CategoryNo=165&No=1046) running [Linux LXDE Desktop](https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&CategoryNo=165&No=1046&PartNo=4) or [Linux Console](https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&CategoryNo=165&No=1046&PartNo=4) as its Linux operating system.
 
 ## Flash Linux to DE10-NANO
 
 For a console only version of Linux. Install [Linux Console](https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&CategoryNo=165&No=1046&PartNo=4) version.
 
-For a GUI desktop version, install [Linux Xfce Desktop](https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&CategoryNo=165&No=1046&PartNo=4) version. The FPGA image associated with this version is slightly larger since it requires IP block for HDMI driver.
+For a GUI desktop version, install [Linux LXDE Desktop](https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&CategoryNo=165&No=1046&PartNo=4) version. The FPGA image associated with this version is slightly larger since it requires IP block for HDMI driver.
 
 ## Install ubuntu for your build environment.
 
@@ -29,7 +29,7 @@ Download and install [Quartus Prime Lite Edition version 17.0](https://fpgasoftw
 
 Launch Quartus Prime Lite Edition. Then...
 
-- Open [ZTACHIP]/hardware/examples/DE10_NANO_SoC_FB/DE10_NANO_SoC_FB.qpf if you use Linux Xfce Desktop version of Linux
+- Open [ZTACHIP]/hardware/examples/DE10_NANO_SoC_FB/DE10_NANO_SoC_FB.qpf if you use Linux LXDE Desktop version of Linux
 
 - Open [ZTACHIP]/hardware/examples/DE10_NANO_SoC_FB/DE10_NANO_SoC_GHRD.qpf if you use Linux Console version of Linux
 
@@ -143,6 +143,8 @@ Console used for build purposes must start with command below to set Embedded St
 ```
    ~/intelFPGA/17.0/embedded/embedded_command_shell.sh 
 ```
+
+** Note ** If you install Intel Embedded Studio under VirtulBox, skip any install steps involving USB devices such as USB Blaster. Otherwise installation will fail under VirtualBox
 
 ## Build and install preloader image.
 
