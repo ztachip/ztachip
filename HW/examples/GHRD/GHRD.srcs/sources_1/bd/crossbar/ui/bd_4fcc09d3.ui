@@ -1,0 +1,45 @@
+{
+   "ActiveEmotionalView":"Default View",
+   "Default View_ScaleFactor":"0.746809",
+   "Default View_TopLeft":"221,19",
+   "ExpandedHierarchyInLayout":"",
+   "guistr":"# # String gsaved with Nlview 7.0r6  2020-01-29 bk=1.5227 VDI=41 GEI=36 GUI=JA:10.0 non-TLS
+#  -string -flagsOSRD
+preplace port IBUS -pg 1 -lvl 0 -x 0 -y 260 -defaultsOSRD
+preplace port DBUS -pg 1 -lvl 0 -x 0 -y 280 -defaultsOSRD
+preplace port ZTA_DATA -pg 1 -lvl 0 -x 0 -y 340 -defaultsOSRD
+preplace port CAMERA_IN -pg 1 -lvl 0 -x 0 -y 80 -defaultsOSRD
+preplace port SDRAM -pg 1 -lvl 4 -x 920 -y 300 -defaultsOSRD
+preplace port ZTA_CONTROL -pg 1 -lvl 4 -x 920 -y 360 -defaultsOSRD
+preplace port VIDEO_OUT -pg 1 -lvl 4 -x 920 -y 110 -defaultsOSRD
+preplace port APB_0 -pg 1 -lvl 4 -x 920 -y 190 -defaultsOSRD
+preplace port CLOCK -pg 1 -lvl 0 -x 0 -y 100 -defaultsOSRD
+preplace port ARESETN -pg 1 -lvl 0 -x 0 -y 200 -defaultsOSRD
+preplace port VIDEO_CLOCK -pg 1 -lvl 0 -x 0 -y 140 -defaultsOSRD
+preplace port CAMERA_CLOCK_IN -pg 1 -lvl 0 -x 0 -y 180 -defaultsOSRD
+preplace port SDRAM_CLOCK -pg 1 -lvl 0 -x 0 -y 380 -defaultsOSRD
+preplace inst smartconnect_0 -pg 1 -lvl 2 -x 540 -y 330 -defaultsOSRD
+preplace inst axi_vdma_0 -pg 1 -lvl 1 -x 210 -y 130 -defaultsOSRD
+preplace inst axi_apb_bridge_0 -pg 1 -lvl 3 -x 790 -y 190 -defaultsOSRD
+preplace netloc CLOCK_1 1 0 3 30 350 390 190 NJ
+preplace netloc CAMERA_CLOCK_IN_1 1 0 1 NJ 180
+preplace netloc VIDEO_CLOCK_1 1 0 1 NJ 140
+preplace netloc ARESETN_1 1 0 3 20 390 400 200 670J
+preplace netloc SDRAM_CLOCK_1 1 0 2 NJ 380 NJ
+preplace netloc axi_vdma_0_M_AXI_S2MM 1 1 1 380 90n
+preplace netloc smartconnect_0_M02_AXI 1 0 3 40 460 NJ 460 670
+preplace netloc smartconnect_0_M01_AXI 1 2 1 680 170n
+preplace netloc CAMERA_IN_1 1 0 1 NJ 80
+preplace netloc axi_vdma_0_M_AXI_MM2S 1 1 1 410 70n
+preplace netloc ZTA_DATA_1 1 0 2 NJ 340 NJ
+preplace netloc axi_apb_bridge_0_APB_M 1 3 1 NJ 190
+preplace netloc smartconnect_0_M03_AXI 1 2 2 NJ 360 NJ
+preplace netloc axi_vdma_0_M_AXIS_MM2S 1 1 3 NJ 110 NJ 110 NJ
+preplace netloc DBUS_1 1 0 2 NJ 280 NJ
+preplace netloc IBUS_1 1 0 2 NJ 260 NJ
+preplace netloc smartconnect_0_M00_AXI 1 2 2 NJ 300 NJ
+levelinfo -pg 1 0 210 540 790 920
+pagesize -pg 1 -db -bbox -sgen -160 0 1050 470
+"
+}
+0
