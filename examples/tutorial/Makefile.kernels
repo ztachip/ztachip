@@ -1,9 +1,0 @@
-CURDIR=$(shell pwd)
-
-# List of user modules 
-USERLST=$(CURDIR)/kernels/ma_add:$(CURDIR)/kernels/ma_scale
-
-all:
-	make -C $(ZTA_HOME)/software/target/builds all -f Makefile.kernels USERLST=$(USERLST)
-clean:
-	make -C $(ZTA_HOME)/software/target/builds clean -f Makefile.kernels clean USERLST=$(USERLST)
