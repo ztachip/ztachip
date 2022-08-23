@@ -1,5 +1,7 @@
 # Introduction
 RISCV accelerator for vision and AI applications on low end FPGA devices.
+Sorry. This page is currently under construction.
+More information to follow...
 
 # Copyright and license 
 
