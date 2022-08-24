@@ -1,57 +1,13 @@
-# Ignore some simulation files
-hardware/simulation/work/*
-!hardware/simulation/work/_info
-hardware/simulation/.sim.tcl.swp
-hardware/simulation/transcript
-hardware/simulation/vsim.wlf
-
-# Ignore generated ztachip image
-*.hex
-software/target/builds/mcore.ld
-software/target/builds/temp
-software/target/builds/temp.p
-software/target/builds/ztachip.map
-
-# Ignore generate object files
 *.o
-!software/target/builds/crt0.o
-!software/target/builds/crtbegin.o
-!software/target/builds/crtend.o
-!software/target/builds/crti.o
-!software/target/builds/crtn.o
-
-# Ignore generated mcore preprocessor files
 *.m.c
-
-# Ignore generated bison files
-software/tools/compiler/Parser.tab.c
-software/tools/compiler/lex.yy.c
-
-# Ignore generated library files
-*.a
-!software/target/builds/mips-elf/lib/*.a
-
-# Ignore generated binary image
-examples/blur/blur
-examples/classifier/classifier
-examples/edge_detect/edge_detect
-examples/greyscale/greyscale
-examples/harris_corner/harris_corner
-examples/objdetect/objdetect
-examples/resize/resize
-examples/test/test
-examples/tutorial/tutorial
-software/tools/compiler/compiler
-
-# Igore Quartus generated files
-hardware/examples/DE10_NANO_SoC_FB/output_files/*
-!hardware/examples/DE10_NANO_SoC_FB/output_files/sof_to_rbf.bat
-hardware/examples/DE10_NANO_SoC_FB/soc_system/*
-hardware/examples/DE10_NANO_SoC_FB/.qsys_edit/*
-hardware/examples/DE10_NANO_SoC_FB/c5_pin_model_dump.txt
-hardware/examples/DE10_NANO_SoC_FB/db/*
-hardware/examples/DE10_NANO_SoC_FB/hps_isw_handoff/*
-hardware/examples/DE10_NANO_SoC_FB/hps_sdram_p0_summary.csv
-hardware/examples/DE10_NANO_SoC_FB/incremental_db/*
-hardware/examples/DE10_NANO_SoC_FB/soc_system.sopcinfo
-
+*.p.img
+HW/examples/GHRD/GHRD.cache
+HW/examples/GHRD/GHRD.gen
+HW/examples/GHRD/GHRD.hw
+HW/examples/GHRD/GHRD.ip_user_files
+HW/examples/GHRD/GHRD.runs
+HW/examples/GHRD/GHRD.sim
+SW/compiler/Parser.tab.c
+SW/compiler/compiler
+SW/compiler/lex.yy.c
+SW/build
