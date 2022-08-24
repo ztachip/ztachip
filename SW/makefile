@@ -1,4 +1,4 @@
-PROJ_NAME=hello_world
+PROJ_NAME=ztachip
 #DEBUG=yes
 DEBUG=no
 BENCH=no
