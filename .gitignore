@@ -1,6 +1,8 @@
 *.o
 *.m.c
 *.p.img
+HW/examples/GHRD/GHRD.runs/*
+HW/examples/GHRD/GHRD.cache/*
 SW/compiler/Parser.tab.c
 SW/compiler/compiler
 SW/compiler/lex.yy.c
