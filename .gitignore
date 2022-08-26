@@ -1,12 +1,6 @@
 *.o
 *.m.c
 *.p.img
-HW/examples/GHRD/GHRD.cache
-HW/examples/GHRD/GHRD.gen
-HW/examples/GHRD/GHRD.hw
-HW/examples/GHRD/GHRD.ip_user_files
-HW/examples/GHRD/GHRD.runs
-HW/examples/GHRD/GHRD.sim
 SW/compiler/Parser.tab.c
 SW/compiler/compiler
 SW/compiler/lex.yy.c

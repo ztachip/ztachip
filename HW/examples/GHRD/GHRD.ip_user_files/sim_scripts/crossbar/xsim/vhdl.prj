@@ -1,0 +1,8 @@
+vhdl xil_defaultlib  \
+"../../../bd/crossbar/ip/crossbar_smartconnect_0_0/bd_0/ip/ip_1/sim/bd_1779_psr0_0.vhd" \
+"../../../bd/crossbar/ip/crossbar_smartconnect_0_0/bd_0/ip/ip_2/sim/bd_1779_psr_aclk_0.vhd" \
+"../../../bd/crossbar/ip/crossbar_smartconnect_0_0/bd_0/ip/ip_3/sim/bd_1779_psr_aclk1_0.vhd" \
+"../../../bd/crossbar/ip/crossbar_axi_vdma_0_0/sim/crossbar_axi_vdma_0_0.vhd" \
+"../../../bd/crossbar/ip/crossbar_axi_apb_bridge_0_0/sim/crossbar_axi_apb_bridge_0_0.vhd" \
+
+nosort

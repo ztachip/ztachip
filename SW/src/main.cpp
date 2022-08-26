@@ -14,13 +14,13 @@ extern int vision_ai(void);
 //-----------------------------------------
 
 int main() {
-#if 0 
+#if 1 
    while(1){
       test();
    }
 #endif
 
-#if 1 
+#if 0 
    for(;;) {
       vision_ai();
    }
