@@ -85,13 +85,13 @@ full_out <= full_r;
 fifo_i:scfifo
 	generic map 
 	(
-		DATA_WIDTH=>dp_instruction_width_c,
-		FIFO_DEPTH=>dp_fifo_depth_c,
+        DATA_WIDTH=>dp_instruction_width_c,
+        FIFO_DEPTH=>dp_fifo_depth_c,
         LOOKAHEAD=>TRUE
 	)
 	port map 
 	(
-		clock_in=>clock_in,
+        clock_in=>clock_in,
         reset_in=>reset_in,
         data_in=>writedata_r,
         write_in=>wreq_normal_r,

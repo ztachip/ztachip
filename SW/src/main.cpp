@@ -18,9 +18,7 @@ int main() {
    while(1){
       test();
    }
-#endif
-
-#if 1 
+#else
    for(;;) {
       vision_ai();
    }

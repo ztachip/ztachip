@@ -21,7 +21,6 @@ SRCS = 	base/newlib.c \
 	apps/of/of.cpp \
 	apps/canny/kernels/canny.m.c \
 	apps/canny/canny.cpp \
-	apps/canny/fast-edge.c \
 	apps/harris/kernels/harris.m.c \
 	apps/harris/harris.cpp \
 	apps/resize/kernels/resize.m.c \

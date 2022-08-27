@@ -195,7 +195,7 @@ int buildLdFile(char *ldFileName,int numFiles,char **fileName)
    fprintf(fp,".text : {\n");
    fprintf(fp,"_ftext = . ;\n");
    fprintf(fp,"PROVIDE (eprol = .);\n");
-//VUONG
+
 #if 0
    if(numFiles > 0) {
       fprintf(fp,"*(EXCLUDE_FILE (\n");
@@ -224,7 +224,7 @@ int buildLdFile(char *ldFileName,int numFiles,char **fileName)
    fprintf(fp,"PROVIDE (__runtime_reloc_stop = .);\n");
    fprintf(fp,"}\n");
    fprintf(fp,"PROVIDE (zta_ox_begin = .);\n");
-// VUONG
+
 #if 0
    fprintf(fp,"OVERLAY : AT (0x%08X)\n",kMcoreCodeSpaceAddr+MCORE_OVERLAY_ADDRESS);
    fprintf(fp,"{\n");
@@ -240,13 +240,9 @@ int buildLdFile(char *ldFileName,int numFiles,char **fileName)
    fprintf(fp,"}\n");
 #endif
    for(j=0;j < numFiles;j++) {
-// VUONG
-//      fprintf(fp,"PROVIDE (zta_o%d_end = 0x%08X+SIZEOF(.text%d));\n",j,kMcoreCodeSpaceAddr,j);
       fprintf(fp,"PROVIDE (zta_o%d_end = 0x%08X);\n",j,kMcoreCodeSpaceAddr);
    }
    for(;j < kMcoreMaxOverlay;j++) {
-// VUONG
-//      fprintf(fp,"PROVIDE (zta_o%d_end = 0x%08X+SIZEOF(.text%d));\n",j,kMcoreCodeSpaceAddr,numFiles-1);
       fprintf(fp,"PROVIDE (zta_o%d_end = 0x%08X);\n",j,kMcoreCodeSpaceAddr);
    }
    fprintf(fp,"PROVIDE (etext = .);\n");

@@ -231,13 +231,13 @@ BEGIN
 read_data_fifo_i:scfifo
 	generic map 
 	(
-		DATA_WIDTH=>ddr_data_width_c,
-		FIFO_DEPTH=>ddr_max_read_pend_depth_c,
+        DATA_WIDTH=>ddr_data_width_c,
+        FIFO_DEPTH=>ddr_max_read_pend_depth_c,
         LOOKAHEAD=>TRUE
 	)
 	port map 
 	(
-		clock_in=>clock_in,
+        clock_in=>clock_in,
         reset_in=>reset_in,
         data_in=>ddr_rdata_in,
         write_in=>ddr_rvalid_in,
@@ -263,13 +263,13 @@ read_fifo_write_ena <= '1' when read_fifo_write.read='1' and read_fifo_write_ful
 ddr_rx_fifo_i:scfifo
 	generic map 
 	(
-		DATA_WIDTH=>ddr_read_cmd_length_c,
-		FIFO_DEPTH=>ddr_rx_fifo_depth,
+        DATA_WIDTH=>ddr_read_cmd_length_c,
+        FIFO_DEPTH=>ddr_rx_fifo_depth,
         LOOKAHEAD=>TRUE
 	)
 	port map 
 	(
-		clock_in=>clock_in,
+        clock_in=>clock_in,
         reset_in=>reset_in,
         data_in=>read_fifo_write_flat,
         write_in=>read_fifo_write_ena,
@@ -341,14 +341,14 @@ end process;
 read_record_fifo_i:scfifo
 	generic map 
 	(
-		DATA_WIDTH=>read_record_t'length,
-		FIFO_DEPTH=>read_record_fifo_depth_c,
+        DATA_WIDTH=>read_record_t'length,
+        FIFO_DEPTH=>read_record_fifo_depth_c,
         LOOKAHEAD=>TRUE,
         ALMOST_FULL=>read_record_fifo_size_c-ddr_max_burstlen_c-5
 	)
 	port map 
 	(
-		clock_in=>clock_in,
+        clock_in=>clock_in,
         reset_in=>reset_in,
         data_in=>read_record_write_r,
         write_in=>read_record_write_ena_r,

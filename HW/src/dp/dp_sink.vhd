@@ -212,13 +212,13 @@ wr_maxburstlen_out <= wr_maxburstlen_r;
 dp_sink_fifo_i:scfifo
 	generic map 
 	(
-		DATA_WIDTH=>fifo_width_c,
-		FIFO_DEPTH=>FIFO_DEPTH,
+        DATA_WIDTH=>fifo_width_c,
+        FIFO_DEPTH=>FIFO_DEPTH,
         LOOKAHEAD=>TRUE
 	)
 	port map 
 	(
-		clock_in=>clock_in,
+        clock_in=>clock_in,
         reset_in=>reset_in,
         data_in=>fifo_data,
         write_in=>wr_req,
@@ -234,13 +234,13 @@ dp_sink_fifo_i:scfifo
 dp_sink_fifo_i2:scfifo
 	generic map 
 	(
-		DATA_WIDTH=>ddr_data_width_c*FORK,
-		FIFO_DEPTH=>FIFO_DEPTH,
+        DATA_WIDTH=>ddr_data_width_c*FORK,
+        FIFO_DEPTH=>FIFO_DEPTH,
         LOOKAHEAD=>FALSE
 	)
 	port map 
 	(
-		clock_in=>clock_in,
+        clock_in=>clock_in,
         reset_in=>reset_in,
         data_in=>wr_data2,
         write_in=>wr_req2_all,

@@ -245,13 +245,13 @@ BEGIN
 write_data_fifo_i:scfifo
 	generic map 
 	(
-		DATA_WIDTH=>ddr_write_cmd_length_c+ddr_data_width_c,
-		FIFO_DEPTH=>write_data_fifo_depth_c,
+        DATA_WIDTH=>ddr_write_cmd_length_c+ddr_data_width_c,
+        FIFO_DEPTH=>write_data_fifo_depth_c,
         LOOKAHEAD=>TRUE
 	)
 	port map 
 	(
-		clock_in=>clock_in,
+        clock_in=>clock_in,
         reset_in=>reset_in,
         data_in=>wdata,
         write_in=>write_data_write_ena_r,

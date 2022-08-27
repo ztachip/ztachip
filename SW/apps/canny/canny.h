@@ -35,7 +35,6 @@ public:
    virtual ZtaStatus Prepare(int queue,bool stepMode);
    void SetThreshold(int _loThreshold,int _hiThreshold);
    void GetThreshold(int *_loThreshold,int *_hiThreshold);
-   void SetAcceleration(bool _enable) {m_acceleration=_enable;}
 private:
    void Cleanup();
 private:
@@ -50,7 +49,6 @@ private:
    ZTA_SHARED_MEM m_magnitude;
    ZTA_SHARED_MEM m_phase;
    ZTA_SHARED_MEM m_maxima;
-   bool m_acceleration;
 };
 
 #endif

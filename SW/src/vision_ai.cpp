@@ -70,7 +70,6 @@ typedef enum
   TestCaseImageClassifier=0,
   TestCaseObjectDetection,
   TestCaseEdgeDetection,
-  TestCaseEdgeDetectionSlow,
   TestCaseHarrisCorner,
   TestCaseOpticalFlow,
   TestCaseAll,
@@ -81,7 +80,6 @@ static const char *testcase_label[TestCaseMax]= {
    "ImgClassifier",
    "ObjectDetect",
    "EdgeDetect",
-   "EdgeDetect(WITHOUT ZTACHIP)",
    "PointOfInterest",
    "MotionDectect",
    "MultiTasking"
@@ -269,26 +267,6 @@ int vision_ai() {
        assert(rc==ZtaStatusOk);
        rc=nodeCanny.Create(&tensor[2],&tensor[3]);
        assert(rc==ZtaStatusOk);
-       nodeCanny.SetThreshold(81,100);
-       rc=nodeOutput.Create(&tensor[3],&tensorOutput,TensorSemanticMonochrome,TensorFormatInterleaved);
-       assert(rc==ZtaStatusOk);
-
-       graph.Add(&nodeInput);
-       graph.Add(&nodeConvert2Mono);
-       graph.Add(&nodeCanny);
-       graph.Add(&nodeOutput);
-       graph.Verify();
-    } else if(testcase==TestCaseEdgeDetectionSlow) {
-       // Graph for edge detection but without ztachip acceleration
-       // Instead edge detection processing is done by RISCV alone using
-       // an implementaton Fast-Edge from Benjamin Haynor
-       rc=nodeInput.Create(&tensorInput,&tensor[1],TensorSemanticRGB,TensorFormatSplit);
-       assert(rc==ZtaStatusOk);
-       rc=nodeConvert2Mono.Create(&tensor[1],&tensor[2],TensorSemanticMonochromeSingleChannel,TensorFormatSplit);
-       assert(rc==ZtaStatusOk);
-       rc=nodeCanny.Create(&tensor[2],&tensor[3]);
-       assert(rc==ZtaStatusOk);
-       nodeCanny.SetAcceleration(false); // Disable ztachip acceleration. Use RISCV implementation instead.
        nodeCanny.SetThreshold(81,100);
        rc=nodeOutput.Create(&tensor[3],&tensorOutput,TensorSemanticMonochrome,TensorFormatInterleaved);
        assert(rc==ZtaStatusOk);

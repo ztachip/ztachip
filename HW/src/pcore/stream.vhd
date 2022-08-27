@@ -116,12 +116,12 @@ lookup_i:SPRAM
 mul_i:multiplier
 	generic map
 	(
-		DATA_WIDTH=>register_width_c,
+        DATA_WIDTH=>register_width_c,
         REGISTER_OUTPUT=>FALSE
 	)
 	port map 
 	(
-		clock_in=>clock_in,
+        clock_in=>clock_in,
         reset_in=>reset_in,
         x_in=>readdata2_r,
         y_in=>remainder_rr,   

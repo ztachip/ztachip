@@ -75,12 +75,12 @@ shr <= '0' when (opcode_r=imu_opcode_shl_c) else '1';
 mult_i:multiplier
 	generic map
 	(
-		DATA_WIDTH=>iregister_width_c,
+        DATA_WIDTH=>iregister_width_c,
         REGISTER_OUTPUT=>TRUE
 	)
 	port map 
 	(
-		clock_in=>clock_in,
+        clock_in=>clock_in,
         reset_in=>reset_in,
         x_in=>mul_x1,
         y_in=>mul_x2,   

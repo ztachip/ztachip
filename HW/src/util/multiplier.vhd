@@ -26,12 +26,12 @@ use work.ztachip_pkg.all;
 entity multiplier is
 	generic 
 	(
-		DATA_WIDTH      : natural;
+        DATA_WIDTH      : natural;
         REGISTER_OUTPUT : BOOLEAN
 	);
 	port 
 	(
-		clock_in   : in std_logic;
+        clock_in   : in std_logic;
         reset_in   : in std_logic;
         x_in       : in std_logic_vector(DATA_WIDTH-1 downto 0);
         y_in       : in std_logic_vector(DATA_WIDTH-1 downto 0);       

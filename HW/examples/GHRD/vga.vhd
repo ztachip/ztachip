@@ -27,7 +27,7 @@ entity vga is
       signal tready_out  : out std_logic;  
       signal tvalid_in   : in  std_logic;
        
-	  signal VGA_HS_O    : out std_logic;
+      signal VGA_HS_O    : out std_logic;
       signal VGA_VS_O    : out std_logic;
       signal VGA_R       : out std_logic_vector(3 downto 0);
       signal VGA_B       : out std_logic_vector(3 downto 0);

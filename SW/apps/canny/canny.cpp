@@ -39,8 +39,7 @@ extern "C" void kernel_canny_exe(
    int _x_off,
    int _y_off,
    int _dst_w,
-   int _dst_h,
-   bool acceleration);
+   int _dst_h);
 
 // Graph node to do edge detection using Canny algorithm
 // Refer to https://en.wikipedia.org/wiki/Canny_edge_detector
@@ -49,14 +48,12 @@ GraphNodeCanny::GraphNodeCanny() {
    m_magnitude=0;
    m_phase=0;
    m_maxima=0;
-   m_acceleration=true;
 }
 
 GraphNodeCanny::GraphNodeCanny(TENSOR *input,TENSOR *output) : GraphNodeCanny() {
    m_magnitude=0;
    m_phase=0;
    m_maxima=0;
-   m_acceleration=true;
    Create(input,output);
 }
 
@@ -112,8 +109,7 @@ ZtaStatus GraphNodeCanny::Prepare(int queue,bool stepMode) {
       0,
       0,
       m_w,
-      m_h,
-      m_acceleration);
+      m_h);
    return ZtaStatusOk;
 }
 

@@ -82,17 +82,7 @@ set_property -dict {PACKAGE_PIN D2 IOSTANDARD LVCMOS33} [get_ports {CAMERA_D[2]}
 set_property -dict {PACKAGE_PIN H2 IOSTANDARD LVCMOS33} [get_ports {CAMERA_D[0]}]
 set_property -dict {PACKAGE_PIN G2 IOSTANDARD LVCMOS33} [get_ports CAMERA_PWDN]
 
-// Magic...
 set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets CAMERA_PCLK_IBUF]
-
-
-
-
-
-
-
-
-
 
 set_property C_CLK_INPUT_FREQ_HZ 300000000 [get_debug_cores dbg_hub]
 set_property C_ENABLE_CLK_DIVIDER false [get_debug_cores dbg_hub]

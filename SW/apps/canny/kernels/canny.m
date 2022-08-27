@@ -20,7 +20,6 @@
 #include "../../main/kernels/main.h"
 #include "canny.h"
 #include "canny.p.img"
-#include "../fast-edge.h"
 
 
 // Perform canny edge detection algorithm
@@ -332,13 +331,11 @@ void kernel_canny_exe(
    int _x_off,
    int _y_off,
    int _dst_w,
-   int _dst_h,
-   bool _acceleration
+   int _dst_h
 
 ) {
    Request req;
 
-   if(_acceleration) {
    KERNEL_INIT;
    req.input=_input;
    req.magnitude=_magnitude;
@@ -368,16 +365,5 @@ void kernel_canny_exe(
    canny_phase_2(&req,0);
    while(ztamTaskStatus(1))
       ztamTaskYield();
-   } else {
-   struct image in_img,out_img; 
-   in_img.width=_w;
-   in_img.height=_h;
-   in_img.pixel_data=(unsigned char *)_input;
-   out_img.width=_w;
-   out_img.height=_h;
-   out_img.pixel_data=(unsigned char *)_output;
-   canny_edge_detect(&in_img,&out_img);
-   }
-
    >CALLBACK(0,req_id);
 }

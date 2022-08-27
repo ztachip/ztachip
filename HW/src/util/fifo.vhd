@@ -26,23 +26,23 @@ use work.ztachip_pkg.all;
 entity scfifo is
 	generic 
 	(
-		DATA_WIDTH  : natural;
-		FIFO_DEPTH  : natural;
+        DATA_WIDTH  : natural;
+        FIFO_DEPTH  : natural;
         LOOKAHEAD   : boolean;
         ALMOST_FULL : natural := 1
 	);
 	port 
 	(
-		clock_in   : in std_logic;
-        reset_in   : in std_logic;
-        data_in    : in std_logic_vector(DATA_WIDTH-1 downto 0);
-        write_in   : in std_logic;
-        read_in    : in std_logic;
-        q_out      : out std_logic_vector(DATA_WIDTH-1 downto 0);
-        ravail_out : out std_logic_vector(FIFO_DEPTH-1 downto 0);
-        wused_out  : out std_logic_vector(FIFO_DEPTH-1 downto 0);
-        empty_out  : out std_logic;
-        full_out   : out std_logic;
+        clock_in        : in std_logic;
+        reset_in        : in std_logic;
+        data_in         : in std_logic_vector(DATA_WIDTH-1 downto 0);
+        write_in        : in std_logic;
+        read_in         : in std_logic;
+        q_out           : out std_logic_vector(DATA_WIDTH-1 downto 0);
+        ravail_out      : out std_logic_vector(FIFO_DEPTH-1 downto 0);
+        wused_out       : out std_logic_vector(FIFO_DEPTH-1 downto 0);
+        empty_out       : out std_logic;
+        full_out        : out std_logic;
         almost_full_out : out std_logic
 	);
 end scfifo;

@@ -120,13 +120,13 @@ waddr_fifo_read <= (not bus_writewait_in) and (bus_write);
 waddr_fifo_i : scfifo
 	generic map
 	(
-		DATA_WIDTH=>io_depth_c,
-		FIFO_DEPTH=>max_pending_write_depth_c,
+        DATA_WIDTH=>io_depth_c,
+        FIFO_DEPTH=>max_pending_write_depth_c,
         LOOKAHEAD=>true
 	)
 	port map 
 	(
-		clock_in=>clock_in,
+        clock_in=>clock_in,
         reset_in=>reset_in,
         data_in=>axilite_awaddr_in,
         write_in=>waddr_fifo_write,
@@ -148,13 +148,13 @@ wdata_fifo_read <= (not bus_writewait_in) and (bus_write);
 wdata_fifo_i : scfifo
 	generic map
 	(
-		DATA_WIDTH=>host_width_c,
-		FIFO_DEPTH=>max_pending_write_depth_c,
+        DATA_WIDTH=>host_width_c,
+        FIFO_DEPTH=>max_pending_write_depth_c,
         LOOKAHEAD=>true
 	)
 	port map 
 	(
-		clock_in=>clock_in,
+        clock_in=>clock_in,
         reset_in=>reset_in,
         data_in=>axilite_wdata_in,
         write_in=>wdata_fifo_write,

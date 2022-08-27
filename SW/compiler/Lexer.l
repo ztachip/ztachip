@@ -91,7 +91,7 @@ static int check_type(void);
 "unsigned"				{ return(UNSIGNED); }
 "void"					{ return(VOID); }
 "RESULT"				{ return(RESULT); }
-"POINTER"               { return(POINTER_SCOPE);}
+"POINTER"                               { return(POINTER_SCOPE);}
 "volatile"				{ return(VOLATILE); }
 "while"					{ return(WHILE); }
 "_Alignas"                              { return ALIGNAS; }
@@ -103,12 +103,12 @@ static int check_type(void);
 "_Imaginary"                            { return IMAGINARY; }
 "_Noreturn"                             { return NORETURN; }
 "_Static_assert"                        { return STATIC_ASSERT; }
-"_share"                         { return SHARE; }
-"_global"                         { return GLOBAL; }
+"_share"                                { return SHARE; }
+"_global"                               { return GLOBAL; }
 "__func__"                              { return FUNC_NAME; }
 
-{L}{A}*					            { return check_type(); }
-{L}{A}*::{L}{A}*					{ return IDENTIFIER; }
+{L}{A}*                                 { return check_type(); }
+{L}{A}*::{L}{A}*                        { return IDENTIFIER; }
 
 {HP}{H}+{IS}?				{ return I_CONSTANT; }
 {NZ}{D}*{IS}?				{ return I_CONSTANT; }
@@ -121,7 +121,7 @@ static int check_type(void);
 {HP}{H}+{P}{FS}?			{ return F_CONSTANT; }
 {HP}{H}*"."{H}+{P}{FS}?			{ return F_CONSTANT; }
 {HP}{H}+"."{P}{FS}?			{ return F_CONSTANT; }
-"FLOAT"{WS}*"("{WS}*{HP}{H}+{WS}*")"         { return F_CONSTANT; }
+"FLOAT"{WS}*"("{WS}*{HP}{H}+{WS}*")"    { return F_CONSTANT; }
 
 ({SP}?\"([^"\\\n]|{ES})*\"{WS}*)+	{ return STRING_LITERAL; }
 

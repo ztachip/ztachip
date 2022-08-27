@@ -152,12 +152,12 @@ module main(
    
    // VexRiscv IBUS axi signals
       
-   wire [31:0] 		  ibus_araddr;
-   wire [7:0] 		  ibus_arlen;
-   wire [2:0] 		  ibus_arsize;
-   wire [1:0] 		  ibus_arburst;
-   wire 		      ibus_arvalid;
-   wire 		      ibus_arready;
+   wire [31:0]        ibus_araddr;
+   wire [7:0]         ibus_arlen;
+   wire [2:0]         ibus_arsize;
+   wire [1:0]         ibus_arburst;
+   wire               ibus_arvalid;
+   wire               ibus_arready;
    wire [1:0]         ibus_arid;
    wire [0:0]         ibus_arlock;
    wire [3:0]         ibus_arcache;
@@ -173,31 +173,31 @@ module main(
    // VexRiscv DBUS axi signals
 
    wire [31:0]        dbus_awaddr;
-   wire [7:0] 		  dbus_awlen;
-   wire [2:0] 		  dbus_awsize;
+   wire [7:0]         dbus_awlen;
+   wire [2:0]         dbus_awsize;
    wire [1:0]         dbus_awburst;
    wire               dbus_awvalid;
-   wire 		      dbus_awready;
+   wire               dbus_awready;
    wire [1:0]         dbus_awid;
    wire [0:0]         dbus_awlock;
    wire [3:0]         dbus_awcache;
    wire [2:0]         dbus_awprot;
    wire [3:0]         dbus_awqos;
-   wire [31:0] 		  dbus_wdata;
-   wire [3:0] 		  dbus_wstrb;
-   wire 			  dbus_wlast;
-   wire 			  dbus_wvalid;
-   wire 		      dbus_wready;
-   wire 			  dbus_bready;
-   wire [1:0] 		  dbus_bresp;
-   wire 		      dbus_bvalid;
+   wire [31:0]        dbus_wdata;
+   wire [3:0]         dbus_wstrb;
+   wire               dbus_wlast;
+   wire               dbus_wvalid;
+   wire               dbus_wready;
+   wire               dbus_bready;
+   wire [1:0]         dbus_bresp;
+   wire               dbus_bvalid;
    wire [1:0]         dbus_bid;
-   wire [31:0] 		  dbus_araddr;
-   wire [7:0] 		  dbus_arlen;
-   wire [2:0] 		  dbus_arsize;
-   wire [1:0] 		  dbus_arburst;
-   wire 		      dbus_arvalid;
-   wire 		      dbus_arready;
+   wire [31:0]        dbus_araddr;
+   wire [7:0]         dbus_arlen;
+   wire [2:0]         dbus_arsize;
+   wire [1:0]         dbus_arburst;
+   wire               dbus_arvalid;
+   wire               dbus_arready;
    wire [1:0]         dbus_arid;
    wire [0:0]         dbus_arlock;
    wire [3:0]         dbus_arcache;

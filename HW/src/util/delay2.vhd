@@ -33,12 +33,12 @@ entity delay2 is
         DEPTH:integer
     );
     port(
-        SIGNAL clock_in:IN STD_LOGIC;
-        SIGNAL reset_in:IN STD_LOGIC;
-        SIGNAL in_in:IN STD_LOGIC;
-        SIGNAL out_out:OUT STD_LOGIC;
-        SIGNAL enable_in:IN STD_LOGIC;
-        SIGNAL clear_in:IN STD_LOGIC
+        SIGNAL clock_in  :IN STD_LOGIC;
+        SIGNAL reset_in  :IN STD_LOGIC;
+        SIGNAL in_in     :IN STD_LOGIC;
+        SIGNAL out_out   :OUT STD_LOGIC;
+        SIGNAL enable_in :IN STD_LOGIC;
+        SIGNAL clear_in  :IN STD_LOGIC
     );
 end delay2;
 

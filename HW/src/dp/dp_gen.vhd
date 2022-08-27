@@ -806,7 +806,7 @@ begin
 
         s_bufsize_r <= (others=>'0');
         s_bufsize_rr <= (others=>'0');
-		s_temp0_r <= (others=>'0');
+        s_temp0_r <= (others=>'0');
         s_temp1_r <= (others=>'0');
         s_temp2_r <= (others=>'0');
         s_temp3_r <= (others=>'0');
