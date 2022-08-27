@@ -123,7 +123,7 @@ object RiscvConfig{
 }
 
 
-case class Riscv(config : RiscvConfig) extends Component{
+case class MyVexRiscv(config : RiscvConfig) extends Component{
   import config._
 
   val io = new Bundle {
@@ -211,9 +211,9 @@ case class Riscv(config : RiscvConfig) extends Component{
   }
 }
 
-object Riscv{
+object MyVexRiscv{
   def main(args: Array[String]) {
-    SpinalVerilog(Riscv(RiscvConfig.default.copy()))
+    SpinalVerilog(MyVexRiscv(RiscvConfig.default.copy()))
   }
 }
 

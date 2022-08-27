@@ -359,7 +359,7 @@ module main(
    // CPU. RISCV based on VexRiscv
    // ------------------------------
                 
-   Riscv cpu_inst (
+   MyVexRiscv cpu_inst (
        .io_asyncReset(clk_reset),
        .io_mainClk(clk_main),
        .io_iBus_ar_valid(ibus_arvalid),

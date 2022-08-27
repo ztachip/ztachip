@@ -1,5 +1,5 @@
 // Generator : SpinalHDL v1.6.0    git head : 73c8d8e2b86b45646e9d0b2e729291f2b65e6be3
-// Component : Riscv
+// Component : MyVexRiscv
 
 
 `define BranchCtrlEnum_binary_sequential_type [1:0]
@@ -41,7 +41,7 @@
 `define Src1CtrlEnum_binary_sequential_URS1 2'b11
 
 
-module Riscv (
+module MyVexRiscv (
   input               io_asyncReset,
   input               io_mainClk,
   output              io_iBus_ar_valid,
@@ -169,9 +169,9 @@ module Riscv (
   wire       [3:0]    _zz_dbus_axi_arw_payload_len;
   reg                 resetCtrl_mainClkResetUnbuffered;
   reg        [5:0]    resetCtrl_systemClkResetCounter = 6'h0;
-  wire       [5:0]    _zz_when_Riscv_l150;
-  wire                when_Riscv_l150;
-  wire                when_Riscv_l154;
+  wire       [5:0]    _zz_when_MyVexRiscv_l150;
+  wire                when_MyVexRiscv_l150;
+  wire                when_MyVexRiscv_l154;
   reg                 resetCtrl_mainClkReset;
   reg                 resetCtrl_systemReset;
   wire                system_timerInterrupt;
@@ -368,14 +368,14 @@ module Riscv (
   );
   always @(*) begin
     resetCtrl_mainClkResetUnbuffered = 1'b0;
-    if(when_Riscv_l150) begin
+    if(when_MyVexRiscv_l150) begin
       resetCtrl_mainClkResetUnbuffered = 1'b1;
     end
   end
 
-  assign _zz_when_Riscv_l150[5 : 0] = 6'h3f;
-  assign when_Riscv_l150 = (resetCtrl_systemClkResetCounter != _zz_when_Riscv_l150);
-  assign when_Riscv_l154 = io_asyncReset_buffercc_io_dataOut;
+  assign _zz_when_MyVexRiscv_l150[5 : 0] = 6'h3f;
+  assign when_MyVexRiscv_l150 = (resetCtrl_systemClkResetCounter != _zz_when_MyVexRiscv_l150);
+  assign when_MyVexRiscv_l154 = io_asyncReset_buffercc_io_dataOut;
   assign system_timerInterrupt = 1'b0;
   assign system_externalInterrupt = 1'b0;
   assign system_cpu_iBus_rsp_payload_error = (! (io_iBus_r_payload_resp == 2'b00));
@@ -530,10 +530,10 @@ module Riscv (
   assign io_dBus_ar_payload_prot = dbus_axi_arw_payload_prot;
   assign io_dBus_r_ready = dbus_axi_r_ready;
   always @(posedge io_mainClk) begin
-    if(when_Riscv_l150) begin
+    if(when_MyVexRiscv_l150) begin
       resetCtrl_systemClkResetCounter <= (resetCtrl_systemClkResetCounter + 6'h01);
     end
-    if(when_Riscv_l154) begin
+    if(when_MyVexRiscv_l154) begin
       resetCtrl_systemClkResetCounter <= 6'h0;
     end
   end
