@@ -1,20 +1,27 @@
 # Introduction
 
-ztachip is a RISCV accelerator for vision and AI edge applications running on low-end FPGA devices.
+ztachip is a RISCV accelerator for vision and AI edge applications running on low-end FPGA devices
+or custom ASIC.
 
 Acceleration provided by ztachip can be up to 20-50x compared with a non-accelerated RISCV implementation
-on many vision/AI tasks.
+on many vision/AI tasks. ztachip performs also better when compared with a RISCV that is equipped with
+vector extension.
 
-An innovative new tensor processor is implemented to accelerate a wide range of different tasks from
+An innovative tensor processor hardware is implemented to accelerate a wide range of different tasks from
 many common vision tasks such as edge-detection, optical-flow, motion-detection, color-conversion
-to executing TensorFlowLite AI models.
+to executing TensorFlow AI models. This is one key difference of ztachip when compared with other accelerators
+that tend to accelerate only a narrow range of applications only (for example convolution neural network only).
+
+A new tensor programming paradigm is introduced to allow programmers to leverage the
+massive processing/data parallelism enabled by ztachip tensor processor.
 
 # Code structure
 
-- SW/compiler: compiler to generate instructions for the accelerator.
+- SW/compiler: compiler to generate instructions for the tensor processor.
 
-- SW/apps: vision and AI stack implementation. This folder is a good place to learn on how to
-program your own custom acceleration.
+- SW/apps: vision and AI stack implementation. Many prebuilt acceleration functions are provided to provide
+programmers with a fast path to leverage ztachip acceleration.
+This folder is also a good place to learn on how to program your own custom acceleration functions.
 
 - SW/base: SW framework library and some utilities
 
@@ -30,7 +37,7 @@ on different FPGA or ASIC. Choose the appropriate sub-folder that corresponds to
 A generic implementation is also provided for simulation environment. Any FPGA/ASIC can be supported
 with the appropriate implementation of this wrapper layer.
 
-- HW/src: ztachip HDL source codes.
+- HW/src: main ztachip HDL source codes.
 
 # Build procedure
 
@@ -67,18 +74,6 @@ make clean all -f makefile.kernels
 make clean all
 ```
 
-## Download and build openocd required for GDB debugger
-
-```
-git clone https://github.com/SpinalHDL/openocd_riscv
-cd openocd_riscv
-cp <ztachip installation folder>/examples/open_ocd/soc_init.cfg .
-cp <ztachip installation folder>/examples/open_ocd/usb_connect.cfg .
-cp <ztachip installation folder>/examples/open_ocd/xilinx-xc7.cfg .
-cp <ztachip installation folder>/examples/open_ocd/jtagspi.cfg .
-cp <ztachip installation folder>/examples/open_ocd/cpu0.yaml .
-```
-
 ## Build FPGA
 
 - Download Xilinx Vivado Webpack free edition.
@@ -94,9 +89,9 @@ cp <ztachip installation folder>/examples/open_ocd/cpu0.yaml .
 
 The following demos are demonstrated on the [ArtyA7-100T FPGA development board](https://digilent.com/shop/arty-a7-artix-7-fpga-development-board/).
 
-- Image classification with TensorFlowLite's Mobinet
+- Image classification with TensorFlow's Mobinet
 
-- Object detection with TensorFlowLite's SSD-Mobinet
+- Object detection with TensorFlow's SSD-Mobinet
 
 - Edge detection using Canny algorithm
 
@@ -121,8 +116,19 @@ Reference design example required the hardware components below...
 
 Attach the VGA and Camera modules to Arty-A7 board according to picture below 
 
+## Download and build OpenOCD package required for GDB debugger's JTAG connectivity
 
-## Launch OpenOCD for GDB debugger's JTAG connectivity
+```
+git clone https://github.com/SpinalHDL/openocd_riscv
+cd openocd_riscv
+cp <ztachip installation folder>/HW/examples/open_ocd/soc_init.cfg .
+cp <ztachip installation folder>/HW/examples/open_ocd/usb_connect.cfg .
+cp <ztachip installation folder>/HW/examples/open_ocd/xilinx-xc7.cfg .
+cp <ztachip installation folder>/HW/examples/open_ocd/jtagspi.cfg .
+cp <ztachip installation folder>/HW/examples/open_ocd/cpu0.yaml .
+```
+
+## Launch OpenOCD
 
 ```
 cd <openocd_riscv installation folder>
@@ -137,7 +143,7 @@ cd <ztachip installation folder>/SW/src
 riscv32-unknown-elf-gdb ../build/ztachip.elf
 ```
 
-## Load and run program using GDB debugger
+## Load program to DRAM memory using GDB debugger
 
 From GDB debugger prompt, issue the commands below
 
@@ -147,6 +153,13 @@ set remotetimeout 60
 set arch riscv:rv32
 monitor reset halt
 load
+```
+
+## Run the program
+
+After sucessfully loading the program, issue command below at GDB prompt
+
+```
 continue
 ```
 
