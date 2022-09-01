@@ -58,13 +58,13 @@ SIFIVE_GCC_PACK ?= yes
 
 ifeq ($(SIFIVE_GCC_PACK),yes)
 	RISCV_NAME ?= riscv32-unknown-elf
-	RISCV_PATH ?= /home/vuong/opt/riscv/
+	RISCV_PATH ?= /opt/riscv/
 else
 	RISCV_NAME ?= riscv32-unknown-elf
 	ifeq ($(MULDIV),yes)
-		RISCV_PATH ?= /home/vuong/opt/riscv32im/
+		RISCV_PATH ?= /opt/riscv32im/
 	else
-		RISCV_PATH ?= /home/vuong/opt/riscv32i/
+		RISCV_PATH ?= /opt/riscv32i/
 	endif
 endif
 

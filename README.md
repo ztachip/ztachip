@@ -44,12 +44,13 @@ with the appropriate implementation of this wrapper layer.
 ## Prerequisites (Ubuntu)
 
 ```
-sudo apt-get install autoconf automake autotools-dev curl python3 libmpc-dev libmpfr-dev libgmp-dev gawk build-essential bison flex texinfo gperf libtool patchutils bc zlib1g-dev libexpat-dev
-sudo apt-get install -y bison
-sudo apt install flex
+sudo apt-get install autoconf automake autotools-dev curl python3 libmpc-dev libmpfr-dev libgmp-dev gawk build-essential bison flex texinfo gperf libtool patchutils bc zlib1g-dev libexpat-dev python3-pip
+pip3 install numpy
 ```
 
 ## Download and build RISCV tool chain
+
+The build below is a pretty long.
 
 ```
 export PATH=/opt/riscv/bin:$PATH
@@ -69,7 +70,7 @@ cd SW/compiler
 make clean all
 cd ../fs
 python3 bin2c.py
-cd ../src
+cd ..
 make clean all -f makefile.kernels
 make clean all
 ```
