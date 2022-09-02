@@ -6,6 +6,7 @@
 HW/examples/GHRD/GHRD.runs/*
 HW/examples/GHRD/GHRD.cache/*
 SW/compiler/Parser.tab.c
+SW/compiler/Parser.tab.h
 SW/compiler/compiler
 SW/compiler/lex.yy.c
 SW/build

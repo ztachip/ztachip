@@ -119,17 +119,25 @@ Attach the VGA and Camera modules to Arty-A7 board according to picture below
 
 ## Download and build OpenOCD package required for GDB debugger's JTAG connectivity
 
+In this example, we will load the program using GDB debugger and JTAG
+
 ```
+sudo apt-get install libtool automake libusb-1.0.0-dev texinfo libusb-dev libyaml-dev pkg-config
 git clone https://github.com/SpinalHDL/openocd_riscv
 cd openocd_riscv
-cp <ztachip installation folder>/HW/examples/open_ocd/soc_init.cfg .
-cp <ztachip installation folder>/HW/examples/open_ocd/usb_connect.cfg .
-cp <ztachip installation folder>/HW/examples/open_ocd/xilinx-xc7.cfg .
-cp <ztachip installation folder>/HW/examples/open_ocd/jtagspi.cfg .
-cp <ztachip installation folder>/HW/examples/open_ocd/cpu0.yaml .
+./bootstrap
+./configure --enable-ftdi --enable-dummy
+make
+cp <ztachip installation folder>/tools/openocd/soc_init.cfg .
+cp <ztachip installation folder>/tools/openocd/usb_connect.cfg .
+cp <ztachip installation folder>/tools/openocd/xilinx-xc7.cfg .
+cp <ztachip installation folder>/tools/openocd/jtagspi.cfg .
+cp <ztachip installation folder>/tools/openocd/cpu0.yaml .
 ```
 
 ## Launch OpenOCD
+
+Launch OpenOCD to provide JTAG connectivity for GDB debugger
 
 ```
 cd <openocd_riscv installation folder>
@@ -137,6 +145,8 @@ sudo src/openocd -f usb_connect.cfg -c 'set MURAX_CPU0_YAML cpu0.yaml' -f soc_in
 ```
 
 ## Launch GDB debugger
+
+Open another terminal, then launch GDB debugger
 
 ```
 export PATH=/opt/riscv/bin:$PATH
@@ -163,6 +173,8 @@ After sucessfully loading the program, issue command below at GDB prompt
 ```
 continue
 ```
+
+Press button0 to switch between different AI/vision applications.
 
 # Other links
 
