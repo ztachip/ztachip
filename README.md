@@ -84,7 +84,7 @@ make clean all
 - The target board used in this example is the [ArtyA7-100T](https://digilent.com/shop/arty-a7-artix-7-fpga-development-board/)
 
 - Build FPGA image and program it to flash as described in
-[Arty Programming Guide](Documentation/Vivado.md)
+[Vivado User Guide](Documentation/Vivado.md)
 
 # Run reference design example
 

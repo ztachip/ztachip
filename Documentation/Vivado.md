@@ -2,7 +2,7 @@
 
 Vivado WebPack edition is free IDE for the Artix7 FPGA family.
 
-![Installing Vivado WebPack edition](https://www.xilinx.com/support/download.html)
+[Installing Vivado WebPack edition](https://www.xilinx.com/support/download.html)
 
 # Build and flash procedure. 
 
@@ -38,7 +38,7 @@ Then program the board as shown below.
 
 ![vivado step7](vivado_step7.bmp)
 
-That's it. Your board will be programmed with the new FPGA image automatically after power reboot.
+That's it. Your board's FPGA will be programmed with the new image automatically after power reboot.
 
 
 
