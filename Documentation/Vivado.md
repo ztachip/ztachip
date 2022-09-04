@@ -1,6 +1,10 @@
 # Installing Vivado Free WebPack Edition.
 
-# Xilinx Vivado FPGA build instructions
+Vivado WebPack edition is free IDE for the Artix7 FPGA family.
+
+![Installing Vivado WebPack edition](https://www.xilinx.com/support/download.html)
+
+# Build and flash procedure. 
 
 Open Vivado project file ztachip/HW/examples/GHRD/GHRD.xpr
 
@@ -20,7 +24,7 @@ After Bistream Generation step has been completed, Vivado will prompt you to Ope
 
 ![vivado step4](vivado_step4.bmp)
 
-Now make sure your board is connected to PC with provided USB cable by Arty Devlopment package.
+Make sure your board is connected to PC with provided USB cable by Arty Devlopment package.
 
 From Hardware Manager, connect to target as shown below 
 
@@ -32,7 +36,9 @@ In the Configuation Memory Device Properties panel, select the right flash chip 
 
 Then program the board as shown below.
 
-![vivado step7](vivado_step6.bmp)
+![vivado step7](vivado_step7.bmp)
+
+That's it. Your board will be programmed with the new FPGA image automatically after power reboot.
 
 
 
