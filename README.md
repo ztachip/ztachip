@@ -121,7 +121,7 @@ Attach the VGA and Camera modules to Arty-A7 board according to picture below
 
 Connect camera_module to Arty board according to picture below
 
-![camera_to_arty](Documentation/amera_and_arty_connect.bmp)
+![camera_to_arty](Documentation/camera_and_arty_connect.bmp)
 
 ## Download and build OpenOCD package required for GDB debugger's JTAG connectivity
 
