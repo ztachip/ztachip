@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 3.5.1.  */
+/* A Bison parser, made by GNU Bison 3.8.2.  */
 
 /* Bison interface for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2015, 2018-2020 Free Software Foundation,
+   Copyright (C) 1984, 1989-1990, 2000-2015, 2018-2021 Free Software Foundation,
    Inc.
 
    This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 /* As a special exception, you may create a larger work that contains
    part or all of the Bison parser skeleton and distribute that work
@@ -31,8 +31,9 @@
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
-/* Undocumented macros, especially those whose name start with YY_,
-   are private implementation details.  Do not rely on them.  */
+/* DO NOT RELY ON FEATURES THAT ARE NOT DOCUMENTED in the manual,
+   especially those whose name start with YY_ or yy_.  They are
+   private implementation details that can be changed or removed.  */
 
 #ifndef YY_YY_PARSER_TAB_H_INCLUDED
 # define YY_YY_PARSER_TAB_H_INCLUDED
@@ -44,99 +45,104 @@
 extern int yydebug;
 #endif
 
-/* Token type.  */
+/* Token kinds.  */
 #ifndef YYTOKENTYPE
 # define YYTOKENTYPE
   enum yytokentype
   {
-    IDENTIFIER = 258,
-    I_CONSTANT = 259,
-    F_CONSTANT = 260,
-    STRING_LITERAL = 261,
-    FUNC_NAME = 262,
-    SIZEOF = 263,
-    PTR_OP = 264,
-    INC_OP = 265,
-    DEC_OP = 266,
-    LEFT_OP = 267,
-    RIGHT_OP = 268,
-    LE_OP = 269,
-    GE_OP = 270,
-    EQ_OP = 271,
-    NE_OP = 272,
-    AND_OP = 273,
-    OR_OP = 274,
-    MUL_ASSIGN = 275,
-    DIV_ASSIGN = 276,
-    MOD_ASSIGN = 277,
-    ADD_ASSIGN = 278,
-    SUB_ASSIGN = 279,
-    LEFT_ASSIGN = 280,
-    RIGHT_ASSIGN = 281,
-    AND_ASSIGN = 282,
-    XOR_ASSIGN = 283,
-    OR_ASSIGN = 284,
-    TYPEDEF_NAME = 285,
-    ENUM_CONSTANT = 286,
-    TYPEDEF = 287,
-    EXTERN = 288,
-    STATIC = 289,
-    AUTO = 290,
-    REGISTER = 291,
-    INLINE = 292,
-    KERNEL = 293,
-    CLASS = 294,
-    NT1 = 295,
-    NT2 = 296,
-    NT4 = 297,
-    NT8 = 298,
-    NT16 = 299,
-    CONST = 300,
-    RESTRICT = 301,
-    VOLATILE = 302,
-    BOOL = 303,
-    CHAR = 304,
-    SHORT = 305,
-    INT = 306,
-    LONG = 307,
-    SIGNED = 308,
-    UNSIGNED = 309,
-    FLOAT = 310,
-    FLOAT2 = 311,
-    FLOAT4 = 312,
-    FLOAT8 = 313,
-    FLOAT16 = 314,
-    DOUBLE = 315,
-    VOID = 316,
-    RESULT = 317,
-    POINTER_SCOPE = 318,
-    COMPLEX = 319,
-    IMAGINARY = 320,
-    STRUCT = 321,
-    UNION = 322,
-    ENUM = 323,
-    ELLIPSIS = 324,
-    CASE = 325,
-    DEFAULT = 326,
-    IF = 327,
-    ELSE = 328,
-    SWITCH = 329,
-    WHILE = 330,
-    DO = 331,
-    FOR = 332,
-    GOTO = 333,
-    CONTINUE = 334,
-    BREAK = 335,
-    RETURN = 336,
-    ALIGNAS = 337,
-    ALIGNOF = 338,
-    ATOMIC = 339,
-    GENERIC = 340,
-    NORETURN = 341,
-    STATIC_ASSERT = 342,
-    SHARE = 343,
-    GLOBAL = 344
+    YYEMPTY = -2,
+    YYEOF = 0,                     /* "end of file"  */
+    YYerror = 256,                 /* error  */
+    YYUNDEF = 257,                 /* "invalid token"  */
+    IDENTIFIER = 258,              /* IDENTIFIER  */
+    I_CONSTANT = 259,              /* I_CONSTANT  */
+    F_CONSTANT = 260,              /* F_CONSTANT  */
+    STRING_LITERAL = 261,          /* STRING_LITERAL  */
+    FUNC_NAME = 262,               /* FUNC_NAME  */
+    SIZEOF = 263,                  /* SIZEOF  */
+    PTR_OP = 264,                  /* PTR_OP  */
+    INC_OP = 265,                  /* INC_OP  */
+    DEC_OP = 266,                  /* DEC_OP  */
+    LEFT_OP = 267,                 /* LEFT_OP  */
+    RIGHT_OP = 268,                /* RIGHT_OP  */
+    LE_OP = 269,                   /* LE_OP  */
+    GE_OP = 270,                   /* GE_OP  */
+    EQ_OP = 271,                   /* EQ_OP  */
+    NE_OP = 272,                   /* NE_OP  */
+    AND_OP = 273,                  /* AND_OP  */
+    OR_OP = 274,                   /* OR_OP  */
+    MUL_ASSIGN = 275,              /* MUL_ASSIGN  */
+    DIV_ASSIGN = 276,              /* DIV_ASSIGN  */
+    MOD_ASSIGN = 277,              /* MOD_ASSIGN  */
+    ADD_ASSIGN = 278,              /* ADD_ASSIGN  */
+    SUB_ASSIGN = 279,              /* SUB_ASSIGN  */
+    LEFT_ASSIGN = 280,             /* LEFT_ASSIGN  */
+    RIGHT_ASSIGN = 281,            /* RIGHT_ASSIGN  */
+    AND_ASSIGN = 282,              /* AND_ASSIGN  */
+    XOR_ASSIGN = 283,              /* XOR_ASSIGN  */
+    OR_ASSIGN = 284,               /* OR_ASSIGN  */
+    TYPEDEF_NAME = 285,            /* TYPEDEF_NAME  */
+    ENUM_CONSTANT = 286,           /* ENUM_CONSTANT  */
+    TYPEDEF = 287,                 /* TYPEDEF  */
+    EXTERN = 288,                  /* EXTERN  */
+    STATIC = 289,                  /* STATIC  */
+    AUTO = 290,                    /* AUTO  */
+    REGISTER = 291,                /* REGISTER  */
+    INLINE = 292,                  /* INLINE  */
+    KERNEL = 293,                  /* KERNEL  */
+    CLASS = 294,                   /* CLASS  */
+    NT1 = 295,                     /* NT1  */
+    NT2 = 296,                     /* NT2  */
+    NT4 = 297,                     /* NT4  */
+    NT8 = 298,                     /* NT8  */
+    NT16 = 299,                    /* NT16  */
+    CONST = 300,                   /* CONST  */
+    RESTRICT = 301,                /* RESTRICT  */
+    VOLATILE = 302,                /* VOLATILE  */
+    BOOL = 303,                    /* BOOL  */
+    CHAR = 304,                    /* CHAR  */
+    SHORT = 305,                   /* SHORT  */
+    INT = 306,                     /* INT  */
+    LONG = 307,                    /* LONG  */
+    SIGNED = 308,                  /* SIGNED  */
+    UNSIGNED = 309,                /* UNSIGNED  */
+    FLOAT = 310,                   /* FLOAT  */
+    FLOAT2 = 311,                  /* FLOAT2  */
+    FLOAT4 = 312,                  /* FLOAT4  */
+    FLOAT8 = 313,                  /* FLOAT8  */
+    FLOAT16 = 314,                 /* FLOAT16  */
+    DOUBLE = 315,                  /* DOUBLE  */
+    VOID = 316,                    /* VOID  */
+    RESULT = 317,                  /* RESULT  */
+    POINTER_SCOPE = 318,           /* POINTER_SCOPE  */
+    COMPLEX = 319,                 /* COMPLEX  */
+    IMAGINARY = 320,               /* IMAGINARY  */
+    STRUCT = 321,                  /* STRUCT  */
+    UNION = 322,                   /* UNION  */
+    ENUM = 323,                    /* ENUM  */
+    ELLIPSIS = 324,                /* ELLIPSIS  */
+    CASE = 325,                    /* CASE  */
+    DEFAULT = 326,                 /* DEFAULT  */
+    IF = 327,                      /* IF  */
+    ELSE = 328,                    /* ELSE  */
+    SWITCH = 329,                  /* SWITCH  */
+    WHILE = 330,                   /* WHILE  */
+    DO = 331,                      /* DO  */
+    FOR = 332,                     /* FOR  */
+    GOTO = 333,                    /* GOTO  */
+    CONTINUE = 334,                /* CONTINUE  */
+    BREAK = 335,                   /* BREAK  */
+    RETURN = 336,                  /* RETURN  */
+    ALIGNAS = 337,                 /* ALIGNAS  */
+    ALIGNOF = 338,                 /* ALIGNOF  */
+    ATOMIC = 339,                  /* ATOMIC  */
+    GENERIC = 340,                 /* GENERIC  */
+    NORETURN = 341,                /* NORETURN  */
+    STATIC_ASSERT = 342,           /* STATIC_ASSERT  */
+    SHARE = 343,                   /* SHARE  */
+    GLOBAL = 344                   /* GLOBAL  */
   };
+  typedef enum yytokentype yytoken_kind_t;
 #endif
 
 /* Value type.  */
@@ -147,7 +153,7 @@ union YYSTYPE
 
  void *a;
 
-#line 151 "Parser.tab.h"
+#line 157 "Parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -158,6 +164,8 @@ typedef union YYSTYPE YYSTYPE;
 
 extern YYSTYPE yylval;
 
+
 int yyparse (void);
+
 
 #endif /* !YY_YY_PARSER_TAB_H_INCLUDED  */

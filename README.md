@@ -117,6 +117,12 @@ Reference design example required the hardware components below...
 
 Attach the VGA and Camera modules to Arty-A7 board according to picture below 
 
+![arty_board](Documentation/arty_board.bmp)
+
+Connect camera_module to Arty board according to picture below
+
+![camera_to_arty](Documentation/amera_and_arty_connect.bmp)
+
 ## Download and build OpenOCD package required for GDB debugger's JTAG connectivity
 
 In this example, we will load the program using GDB debugger and JTAG
