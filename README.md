@@ -17,27 +17,27 @@ massive processing/data parallelism enabled by ztachip tensor processor.
 
 # Code structure
 
-- SW/compiler: compiler to generate instructions for the tensor processor.
+- [SW/compiler](SW/Compilter): compiler to generate instructions for the tensor processor.
 
-- SW/apps: vision and AI stack implementation. Many prebuilt acceleration functions are provided to provide
+- [SW/apps](SW/apps): vision and AI stack implementation. Many prebuilt acceleration functions are provided to provide
 programmers with a fast path to leverage ztachip acceleration.
 This folder is also a good place to learn on how to program your own custom acceleration functions.
 
-- SW/base: SW framework library and some utilities
+- [SW/base](SW/base): SW framework library and some utilities
 
-- SW/fs: read-only file system to be downloaded together with the build image.
+- [SW/fs](SW/fs): read-only file system to be downloaded together with the build image.
 
-- SW/src: codes for the reference design example. This is a good place to learn on how to use ztachip
+- [SW/src](SW/src): codes for the reference design example. This is a good place to learn on how to use ztachip
 prebuilt vision and AI stack.
 
-- HW/examples: HDL codes for the reference design.
+- [HW/examples](HW/examples): HDL codes for the reference design.
 
-- HW/platform: This is a thin wrapper layer to help ztachip to be synthesized efficiently
+- [HW/platform](HW/platform): This is a thin wrapper layer to help ztachip to be synthesized efficiently
 on different FPGA or ASIC. Choose the appropriate sub-folder that corresponds to your FPGA target.
 A generic implementation is also provided for simulation environment. Any FPGA/ASIC can be supported
 with the appropriate implementation of this wrapper layer.
 
-- HW/src: main ztachip HDL source codes.
+- [HW/src](HW/src): main ztachip HDL source codes.
 
 # Build procedure
 
