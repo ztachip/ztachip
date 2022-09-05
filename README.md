@@ -17,7 +17,7 @@ massive processing/data parallelism enabled by ztachip tensor processor.
 
 # Code structure
 
-- [SW/compiler](SW/Compilter): compiler to generate instructions for the tensor processor.
+- [SW/compiler](SW/compiler): compiler to generate instructions for the tensor processor.
 
 - [SW/apps](SW/apps): vision and AI stack implementation. Many prebuilt acceleration functions are provided to provide
 programmers with a fast path to leverage ztachip acceleration.
