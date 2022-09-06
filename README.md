@@ -35,7 +35,7 @@ prebuilt vision and AI stack.
 
 - [HW/examples](HW/examples): HDL codes for the reference design.
 
-- [HW/examples/MyVexRiscv.scala](HW/sxamples/GHRD/MyVexRiscv.scala): RISCV core used in this example is based on VexRiscv implementation. This file is used by [VexRiscv project](https://github.com/SpinalHDL/VexRiscv) to generate the Riscv core.
+- [HW/examples/GHRD/MyVexRiscv.scala](HW/examples/GHRD/MyVexRiscv.scala): RISCV core used in this example is based on VexRiscv implementation. This file is used by [VexRiscv project](https://github.com/SpinalHDL/VexRiscv) to generate the Riscv core.
 
 - [HW/platform](HW/platform): This is a thin wrapper layer to help ztachip to be synthesized efficiently
 on different FPGA or ASIC. Choose the appropriate sub-folder that corresponds to your FPGA target.
