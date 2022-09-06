@@ -187,10 +187,10 @@ Press button0 to switch between different AI/vision applications.
 
 # Other links
 
-Go to [Programmer's guide to writing tensor applications]() for information on how to write your
+Go to [Programmer's guide to writing tensor applications](Documentation/programmer_guide.md) for information on how to write your
 custom acceleration codes.
 
-Go to [Vision/AI stack users guide]() for information on how to use ztachip prebuilt vision/ai stack.
+Go to [Vision/AI stack users guide](Documentation/programmer_guide.md) for information on how to use ztachip prebuilt vision/ai stack.
 
 # Contact
 
