@@ -192,4 +192,7 @@ custom acceleration codes.
 
 Go to [Vision/AI stack users guide]() for information on how to use ztachip prebuilt vision/ai stack.
 
+# Contact
+
+This project is free to use. But for business consulting and support, please contact vuongdnguyen@hotmail.com
 
