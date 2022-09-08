@@ -198,3 +198,5 @@ Go to [Vision/AI stack users guide](Documentation/programmer_guide.md) for infor
 
 This project is free to use. But for business consulting and support, please contact vuongdnguyen@hotmail.com
 
+Follow ztachip on Twitter: https://twitter.com/ztachip 
+
