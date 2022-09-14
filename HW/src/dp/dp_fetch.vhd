@@ -942,7 +942,7 @@ avail <= ready_in and (not instruction_valid_r) and (not instruction_valid_rr);
 
 waitrequest <= '1' when bus_write_in='1' and 
                         (
-                        ((full='1' or load='1') and unsigned(bus_waddr_in(register_t'length-1 downto 0))=to_unsigned(register_dp_run_c,wregno'length))
+                        ((full='1' or load='1' or wreq='1') and unsigned(bus_waddr_in(register_t'length-1 downto 0))=to_unsigned(register_dp_run_c,wregno'length))
                         )
                    else '0';
 bus_writewait_out <= waitrequest;

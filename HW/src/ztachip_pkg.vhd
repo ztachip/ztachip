@@ -2843,6 +2843,25 @@ COMPONENT scfifo is
 	);
 end COMPONENT;
 
+COMPONENT scfifow is
+	generic 
+	(
+        DATA_WIDTH  : natural;
+        FIFO_DEPTH  : natural
+	);
+	port 
+	(
+        clock_in        : in std_logic;
+        reset_in        : in std_logic;
+        data_in         : in std_logic_vector(DATA_WIDTH-1 downto 0);
+        write_in        : in std_logic;
+        read_in         : in std_logic;
+        q_out           : out std_logic_vector(DATA_WIDTH-1 downto 0);
+        empty_out       : out std_logic;
+        wused_out       : out std_logic_vector(FIFO_DEPTH-1 downto 0)
+	);
+end COMPONENT;
+
 COMPONENT multiplier is
 	generic 
 	(

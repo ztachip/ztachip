@@ -82,12 +82,11 @@ fifo_avail_out <= fifo_avail_r;
 
 full_out <= full_r;
 
-fifo_i:scfifo
+fifo_i:scfifow
 	generic map 
 	(
         DATA_WIDTH=>dp_instruction_width_c,
-        FIFO_DEPTH=>dp_fifo_depth_c,
-        LOOKAHEAD=>TRUE
+        FIFO_DEPTH=>dp_fifo_depth_c
 	)
 	port map 
 	(
@@ -97,11 +96,8 @@ fifo_i:scfifo
         write_in=>wreq_normal_r,
         read_in=>rdreq_normal,
         q_out=>readdata_normal,
-        ravail_out=>open,
         wused_out=>wrusedw,
-        empty_out=>empty_normal,
-        full_out=>open,
-        almost_full_out=>open
+        empty_out=>empty_normal
 	);
 
 
@@ -224,7 +220,7 @@ begin
             writedata_r <= writedata_in;
             wreq_normal_r <= wreq_normal;
             fifo_avail_r <= (not wrusedw);
-            if(unsigned(not wrusedw) < to_unsigned(4,dp_fifo_depth_c)) then
+            if(unsigned(not wrusedw) < to_unsigned(16,dp_fifo_depth_c)) then
                full_r <= '1';
             else
                full_r <= '0';
