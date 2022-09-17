@@ -18,6 +18,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <malloc.h>
@@ -69,5 +70,22 @@ ZTA_SHARED_MEM ztahostBuildSpu(float (*func)(float,void *pparm,uint32_t parm),vo
       p[2*i+1]=v3;
    }
    return shm;
+}
+
+ZTA_SHARED_MEM ztahostBuildSpuBundle(int numSpuImg,...) {
+   ZTA_SHARED_MEM bundle,spu;
+   int16_t *pp;
+   int i;
+   va_list args;
+   va_start(args,numSpuImg);
+
+   bundle=ztahostAllocSharedMem(numSpuImg*SPU_SIZE*2*sizeof(int16_t));
+   pp=(int16_t *)ZTA_SHARED_MEM_P(bundle);
+   for(i=0;i < numSpuImg;i++,pp+=SPU_SIZE*2) {
+	  spu = va_arg(args,ZTA_SHARED_MEM);
+      memcpy(pp,ZTA_SHARED_MEM_P(spu),SPU_SIZE*2*sizeof(int16_t));
+   }
+   va_end(args);
+   return bundle;
 }
 
