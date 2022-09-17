@@ -48,7 +48,7 @@ NeuralNetLayerPoolAvg::~NeuralNetLayerPoolAvg() {
 }
 
 ZtaStatus NeuralNetLayerPoolAvg::Prepare() {
-   m_shmSpu=m_nn->BuildSpu(SpuAvgPool,this,0);
+   m_shmSpu=m_nn->BuildSpu(SpuAvgPool,this,0,0);
    return ZtaStatusOk;
 }
 
@@ -70,7 +70,7 @@ ZtaStatus NeuralNetLayerPoolAvg::Evaluate(int queue) {
    return ZtaStatusOk;
 }
 
-float NeuralNetLayerPoolAvg::SpuAvgPool(float _in,void *pparm,uint32_t parm)
+float NeuralNetLayerPoolAvg::SpuAvgPool(float _in,void *pparm,uint32_t parm,uint32_t parm2)
 {
    NeuralNetLayer *layer=static_cast<NeuralNetLayer *>(pparm);
    NeuralNetOperatorDef *op=layer?&((NeuralNetLayerPoolAvg *)layer)->m_def:0;

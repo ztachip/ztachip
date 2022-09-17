@@ -137,9 +137,9 @@ ZtaStatus NeuralNetLayerConv2D::Prepare() {
                            MAX_CONV_Y_DIM);
    }
    GenBias((int32_t *)op->u.conv.bias,topcnt,(int32_t)bias,&m_shmBiasHi,&m_shmBiasLo);
-   m_shmSpuActivationStream=m_nn->BuildSpu(SpuEvalActivation,this,0);
-   m_shmSpuInputStream=m_nn->BuildSpu(SpuEvalInput,this,0);
-   m_shmSpuFilterStream=m_nn->BuildSpu(SpuEvalFilter,this,0);
+   m_shmSpuActivationStream=m_nn->BuildSpu(SpuEvalActivation,this,0,0);
+   m_shmSpuInputStream=m_nn->BuildSpu(SpuEvalInput,this,0,0);
+   m_shmSpuFilterStream=m_nn->BuildSpu(SpuEvalFilter,this,0,0);
    m_shmSpu=m_nn->BufferAllocate(SPU_SIZE*2*sizeof(int16_t)*3);
    int16_t *shmp=(int16_t *)ZTA_SHARED_MEM_P(m_shmSpu);
    memcpy(shmp,ZTA_SHARED_MEM_P(m_shmSpuActivationStream),SPU_SIZE*2*sizeof(int16_t));
@@ -244,7 +244,7 @@ ZtaStatus NeuralNetLayerConv2D::Evaluate(int queue) {
    return ZtaStatusOk;
 }
 
-float NeuralNetLayerConv2D::SpuEvalActivation(float _in,void *pparm,uint32_t parm) {
+float NeuralNetLayerConv2D::SpuEvalActivation(float _in,void *pparm,uint32_t parm,uint32_t parm2) {
    NeuralNetLayer *layer=static_cast<NeuralNetLayer *>(pparm);
    static int SCALE=0;
    static int64_t N=0;
@@ -288,7 +288,7 @@ float NeuralNetLayerConv2D::SpuEvalActivation(float _in,void *pparm,uint32_t par
 
 // SPU evaluation function for input
 
-float NeuralNetLayerConv2D::SpuEvalInput(float _in,void *pparm,uint32_t parm) {
+float NeuralNetLayerConv2D::SpuEvalInput(float _in,void *pparm,uint32_t parm,uint32_t parm2) {
    NeuralNetLayer *layer=static_cast<NeuralNetLayer *>(pparm);
    static int32_t offset=0;
    NeuralNetOperatorDef *op=layer?&((NeuralNetLayerConv2D *)layer)->m_def:0;
@@ -299,7 +299,7 @@ float NeuralNetLayerConv2D::SpuEvalInput(float _in,void *pparm,uint32_t parm) {
 
 // SPU evaluation for filter
 
-float NeuralNetLayerConv2D::SpuEvalFilter(float _in,void *pparm,uint32_t parm) {
+float NeuralNetLayerConv2D::SpuEvalFilter(float _in,void *pparm,uint32_t parm,uint32_t parm2) {
    NeuralNetLayer *layer=static_cast<NeuralNetLayer *>(pparm);
    static int32_t offset=0;
    NeuralNetOperatorDef *op=layer?&((NeuralNetLayerConv2D *)layer)->m_def:0;

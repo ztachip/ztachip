@@ -66,7 +66,7 @@ ZtaStatus NeuralNetLayerConcat::Prepare() {
    // Generate spu lookup for input
    m_outerSize=outer_size;
    for(uint32_t i=0;i < op->u.concat.num_input;i++) {
-      m_shmSpu.push_back(m_nn->BuildSpu(SpuEval,this,i));
+      m_shmSpu.push_back(m_nn->BuildSpu(SpuEval,this,i,0));
       m_copySize.push_back((*op->input_shape[i])[op->u.concat.axis]*base_inner_size);
    }
    return ZtaStatusOk;
@@ -107,7 +107,7 @@ ZtaStatus NeuralNetLayerConcat::Evaluate(int queue) {
 
 // SPU evaluation function for output activation
 
-float NeuralNetLayerConcat::SpuEval(float _in,void *pparm,uint32_t index) {
+float NeuralNetLayerConcat::SpuEval(float _in,void *pparm,uint32_t index,uint32_t parm2) {
    NeuralNetLayer *layer=static_cast<NeuralNetLayer *>(pparm);
    static float scale;
    static float bias;

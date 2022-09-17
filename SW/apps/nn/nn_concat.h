@@ -37,7 +37,7 @@ public:
    ZtaStatus Evaluate(int queue);
    LayerIoType GetIoType() {return LayerIoTypeInInterleaveOutInterleave;}
 private:
-   static float SpuEval(float _in,void *pparm,uint32_t index);
+   static float SpuEval(float _in,void *pparm,uint32_t index,uint32_t parm2);
 public:
    uint32_t m_outerSize;
    std::vector<size_t> m_copySize;

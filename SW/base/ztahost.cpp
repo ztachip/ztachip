@@ -43,7 +43,7 @@ void ztahostFreeSharedMem(ZTA_SHARED_MEM p) {
 
 // Build ztachip lookup table
 
-static ZTA_SHARED_MEM buildSpu(SPU_FUNC func,void *pparm,uint32_t parm) {
+static ZTA_SHARED_MEM buildSpu(SPU_FUNC func,void *pparm,uint32_t parm,uint32_t parm2) {
    uint16_t v;
    float v2;
    int16_t v3,v4,slope;
@@ -57,13 +57,13 @@ static ZTA_SHARED_MEM buildSpu(SPU_FUNC func,void *pparm,uint32_t parm) {
       if(v & 0x800)
          v |= 0xF800;
       Util::Int2Float((int16_t *)&v,&v2,DATA_BIT_WIDTH-1,1);
-      v2=(*func)(v2,(i==0)?pparm:0,parm);
+      v2=(*func)(v2,(i==0)?pparm:0,parm,parm2);
       Util::Float2Int(&v2,&v3,DATA_BIT_WIDTH-1,1);
       v=((i*SPU_REMAINDER+(SPU_REMAINDER-1))&0xFFF);
       if(v & 0x800)
          v |= 0xF800;
       Util::Int2Float((int16_t *)&v,&v2,DATA_BIT_WIDTH-1,1);
-      v2=(*func)(v2,0,parm);
+      v2=(*func)(v2,0,parm,parm2);
       Util::Float2Int(&v2,&v4,DATA_BIT_WIDTH-1,1);
       slope=(int16_t)(((((int)v4-(int)v3)))*SPU_REMAINDER)/(SPU_REMAINDER-1);
       p[2*i]=slope;
@@ -91,7 +91,7 @@ ZTA_SHARED_MEM ztahostBuildSpuBundle(int numSpuImg,...) {
 	  pparm = va_arg(args,void *);
 	  parm = va_arg(args,uint32_t);
 	  parm2 = va_arg(args,uint32_t);
-	  spu=buildSpu(func,pparm,parm);
+	  spu=buildSpu(func,pparm,parm,parm2);
       memcpy(pp,ZTA_SHARED_MEM_P(spu),SPU_SIZE*2*sizeof(int16_t));
       ztahostFreeSharedMem(spu);
    }

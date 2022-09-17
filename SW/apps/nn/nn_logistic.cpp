@@ -48,8 +48,8 @@ NeuralNetLayerLogistic::~NeuralNetLayerLogistic() {
 ZtaStatus NeuralNetLayerLogistic::Prepare() {
    ZTA_SHARED_MEM shm,shm1,shm2;
    int16_t *shmp;
-   shm1=m_nn->BuildSpu(SpuEval,this,0);
-   shm2=m_nn->BuildSpu(SpuEvalScale,this,0);
+   shm1=m_nn->BuildSpu(SpuEval,this,0,0);
+   shm2=m_nn->BuildSpu(SpuEvalScale,this,0,0);
    shm=m_nn->BufferAllocate(SPU_SIZE*2*sizeof(int16_t)*2);
    shmp=(int16_t *)ZTA_SHARED_MEM_P(shm);
    memcpy(shmp,ZTA_SHARED_MEM_P(shm1),SPU_SIZE*2*sizeof(int16_t));
@@ -72,7 +72,7 @@ ZtaStatus NeuralNetLayerLogistic::Evaluate(int queue) {
    return ZtaStatusOk;
 }
 
-float NeuralNetLayerLogistic::SpuEval(float _in,void *pparm,uint32_t parm) {
+float NeuralNetLayerLogistic::SpuEval(float _in,void *pparm,uint32_t parm,uint32_t parm2) {
    NeuralNetLayer *layer=static_cast<NeuralNetLayer *>(pparm);
    static uint8_t lookup[256*kLogisticScale];
    NeuralNetOperatorDef *op=layer?&((NeuralNetLayerLogistic *)layer)->m_def:0;
@@ -102,7 +102,7 @@ float NeuralNetLayerLogistic::SpuEval(float _in,void *pparm,uint32_t parm) {
    return (float)lookup[index];
 }
 
-float NeuralNetLayerLogistic::SpuEvalScale(float _in,void *pparm,uint32_t index) {
+float NeuralNetLayerLogistic::SpuEvalScale(float _in,void *pparm,uint32_t index,uint32_t parm2) {
    return (float)_in*kLogisticScale;
 }
 
