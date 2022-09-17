@@ -124,18 +124,12 @@ ZtaStatus GraphNodeOpticalFlow::Verify() {
    std::vector<int> dim2={3,m_h,m_w};
    m_display->Create(TensorDataTypeUint8,TensorFormatSplit,TensorSemanticRGB,dim2);
 
-   ZTA_SHARED_MEM spu[4];
-   spu[0]=ztahostBuildSpu(SpuCallback,0,0);
-   spu[1]=ztahostBuildSpu(SpuDisplayLeftHorizontalCallback,0,0);
-   spu[2]=ztahostBuildSpu(SpuDisplayRightHorizontalCallback,0,0);
-   spu[3]=ztahostBuildSpu(SpuDisplayVerticalCallback,0,0);
-
-   m_spu=ztahostBuildSpuBundle(4,spu[0],spu[1],spu[2],spu[3]);
-
-   ztahostFreeSharedMem(spu[0]);
-   ztahostFreeSharedMem(spu[1]);
-   ztahostFreeSharedMem(spu[2]);
-   ztahostFreeSharedMem(spu[3]);
+   m_spu=ztahostBuildSpuBundle(4,
+                               SpuCallback,0,0,
+                               SpuDisplayLeftHorizontalCallback,0,0,
+                               SpuDisplayRightHorizontalCallback,0,0,
+                               SpuDisplayVerticalCallback,0,0
+                               );
 
    return ZtaStatusOk;
 }
