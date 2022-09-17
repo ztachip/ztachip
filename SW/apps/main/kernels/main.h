@@ -19,6 +19,6 @@
 #ifndef _APPS_MAIN_KERNEL_MAIN_H_
 #define _APPS_MAIN_KERNEL_MAIN_H_
 
-extern void ztaInitPcore(int c_p,int c_len,int pcore_p,int pcoreLen);
+extern void ztaInitPcore(int _image);
 extern void ztaInitStream(int _spu,int _spuCnt);
 #endif

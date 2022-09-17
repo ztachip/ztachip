@@ -244,7 +244,7 @@ void kernel_resize_exe(
 {
    RequestBoxResize req;
    
-   ztaInitPcore(IMG_C,sizeof(IMG_C),IMG_P,sizeof(IMG_P));
+   ztaInitPcore((int)zta_pcore_img);
    ztaInitStream(_spu,2);
         
    req.input=_input;

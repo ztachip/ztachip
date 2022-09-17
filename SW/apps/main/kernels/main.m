@@ -18,17 +18,30 @@
 
 #include "../../../base/ztam.h"
 
-static int last_pcore_p=0;
+static int last_image=0;
 
 // Load code/memory to pcore
 
-void ztaInitPcore(int c_p,int c_len,int pcore_p,int pcoreLen) {
-   ztamInit();
-   if(last_pcore_p==pcore_p)
+void ztaInitPcore(int _image) {
+   int c_p,pcore_p;
+   int c_len,pcoreLen;
+   
+   if(last_image==_image)
       return;
+   last_image=_image;
+   
+   ztamInit();
+   
+   pcore_p = _image;
+   pcoreLen= *((uint16_t *)pcore_p);
+   pcore_p += sizeof(uint16_t);
+   
+   c_p = pcore_p+pcoreLen;
+   c_len = *((uint16_t *)c_p);
+   c_p += sizeof(uint16_t);
+   
    c_len=c_len>>1;
    pcoreLen=pcoreLen>>2;
-   last_pcore_p=pcore_p;
   
    ZTAM_GREG(0,REG_DP_VM_TOGGLE,0)=0;
    ;ZTAM_GREG(0,5,0)=(0+(11<<3));

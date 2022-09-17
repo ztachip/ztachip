@@ -660,7 +660,7 @@ void kernel_add_exe(
 {
    RequestAdd req;
    
-   ztaInitPcore(IMG_C,sizeof(IMG_C),IMG_P,sizeof(IMG_P));
+   ztaInitPcore((int)zta_pcore_img);
    ztaInitStream(_stream,3);
    
    req.size=_size;
@@ -706,7 +706,7 @@ void kernel_convolution_exe(
    RequestConv req;
    int depth_fifo;
 
-   ztaInitPcore(IMG_C,sizeof(IMG_C),IMG_P,sizeof(IMG_P));
+   ztaInitPcore((int)zta_pcore_img);
    ztaInitStream(_stream,3);
    
    req.coef=_coef;
@@ -779,7 +779,7 @@ void kernel_convolution_depthwise_exe(
    RequestConv req;
    int depth_fifo;
    
-   ztaInitPcore(IMG_C,sizeof(IMG_C),IMG_P,sizeof(IMG_P));
+   ztaInitPcore((int)zta_pcore_img);
    ztaInitStream(_stream,3);
    
    req.coef=_coef;
