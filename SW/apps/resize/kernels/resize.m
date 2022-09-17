@@ -99,7 +99,7 @@ static void resize(void *_p,int pid) {
       int loopcnt;
       int *pixel;
       int v;
-      > SPU <= (int)MEM(req->spu,SPU_LOOKUP_SIZE)[:];
+      ztaInitStream(req->spu,1);
 
       switch(req->scale) {
          case 4: 
@@ -328,7 +328,7 @@ void box_resize_horizontal(void *_p,int pid) {
    dst_h=req->src_h;
 
    if(pid==0) {
-      > SPU(2) <= (int)MEM(req->spu,2*SPU_LOOKUP_SIZE)[:];
+      ztaInitStream(req->spu,2);
    }
 
    // Split the work between 2 processes...
@@ -474,7 +474,7 @@ void kernel_resize_exe(
 {
    RequestBoxResize req;
    
-   KERNEL_INIT;
+   ztaInitPcore(IMG_C,sizeof(IMG_C),IMG_P,sizeof(IMG_P));
    
    req.input=_input;
    req.output=_output;

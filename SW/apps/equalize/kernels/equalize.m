@@ -183,7 +183,7 @@ void kernel_equalize_exe(
    Request req;
    int i;
    
-   KERNEL_INIT;
+   ztaInitPcore(IMG_C,sizeof(IMG_C),IMG_P,sizeof(IMG_P));
    
    req.input=_input;
    req.output=_output;
@@ -193,7 +193,7 @@ void kernel_equalize_exe(
    req.w=_w;
    req.h=_h;
    if(req.equalize) {
-      > SPU(1) <= (int)MEM(req.equalize,SPU_LOOKUP_SIZE)[:];
+      ztaInitStream(req.equalize,1);
    }
    for(i=0;i < req.nchannels;i++) {
       req.ws.channel=i;

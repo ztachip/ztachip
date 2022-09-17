@@ -22,10 +22,12 @@ static int last_pcore_p=0;
 
 // Load code/memory to pcore
 
-void kernel_init(int c_p,int c_len,int pcore_p,int pcoreLen) {
+void ztaInitPcore(int c_p,int c_len,int pcore_p,int pcoreLen) {
    ztamInit();
    if(last_pcore_p==pcore_p)
       return;
+   c_len=c_len>>1;
+   pcoreLen=pcoreLen>>2;
    last_pcore_p=pcore_p;
   
    ZTAM_GREG(0,REG_DP_VM_TOGGLE,0)=0;
@@ -46,5 +48,10 @@ void kernel_init(int c_p,int c_len,int pcore_p,int pcoreLen) {
 
    // Set pcore code space
    > PROG((pcoreLen>>1)) <= (int)MEM(pcore_p,(pcoreLen>>1)<<2)[:];
+   > FLUSH;
+}
+
+void ztaInitStream(int _spu,int _spuCnt) {
+   > SPU <= (int)MEM(_spu,_spuCnt*SPU_LOOKUP_SIZE)[:];
    > FLUSH;
 }

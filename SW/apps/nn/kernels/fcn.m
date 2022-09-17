@@ -60,7 +60,7 @@ static void innerProduct(void *_p,int pid) {
    
    if(pid==0) {
       // Load stream processor code
-      > SPU <= (int)MEM(req->stream,SPU_LOOKUP_SIZE*3)[:];
+      ztaInitStream(req->stream,3);
    }
    nthread=req->num_thread;
    coeftopcnt=req->coeftopcnt*IP_CHUNK_SIZE;
@@ -119,7 +119,7 @@ static void pooling(void *_p,int pid) {
    int cnt,step,nt;
 
    if(pid==0) {
-      > SPU <= (int)MEM(req->stream,SPU_LOOKUP_SIZE*3)[:];
+      ztaInitStream(req->stream,3);
    }
    np=NUM_PCORE;
    cnt=req->topcnt;
@@ -173,7 +173,7 @@ void kernel_concatenate_exe(
    int len,remain;
    int fmt=DP_DATA_TYPE_UINT8;
 
-   KERNEL_INIT;
+   ztaInitPcore(IMG_C,sizeof(IMG_C),IMG_P,sizeof(IMG_P));
 
    cnt=_cnt;
    for(i=0;i < cnt;i++) {
@@ -183,7 +183,7 @@ void kernel_concatenate_exe(
       dest=_dest[i];
       if(spu) {
          // Load stream processor code
-         > SPU(1) <= (int)MEM(spu,SPU_LOOKUP_SIZE)[:];
+         ztaInitStream(spu,1);
          > FLUSH;
       }
       remain=copySize;
@@ -223,14 +223,14 @@ void kernel_logistic_exe(
    int len,remain;
    int fmt=DP_DATA_TYPE_UINT8;
 
-   KERNEL_INIT;
+   ztaInitPcore(IMG_C,sizeof(IMG_C),IMG_P,sizeof(IMG_P));
 
    copySize=_copySize;
    src=_src;
    dest=_dest;
    spu=_spu;
    // Load stream processor code
-   > SPU(2) <= (int)MEM(spu,2*SPU_LOOKUP_SIZE)[:];
+   ztaInitStream(spu,2);
    > FLUSH;
    remain=copySize;
    idx=0;
@@ -270,7 +270,7 @@ void kernel_innerProduct_exe(
 {
    RequestFcn req;
    
-   KERNEL_INIT;
+   ztaInitPcore(IMG_C,sizeof(IMG_C),IMG_P,sizeof(IMG_P));
 
    req.coef=_coef;
    req.biasHi=_biasHi;
@@ -311,7 +311,7 @@ void kernel_Pooling_exe(
 {
    RequestPool req;
    
-   KERNEL_INIT;
+   ztaInitPcore(IMG_C,sizeof(IMG_C),IMG_P,sizeof(IMG_P));
 
    req.bot=_bot;
    req.top=_top;

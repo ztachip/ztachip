@@ -19,8 +19,6 @@
 #ifndef _APPS_MAIN_KERNEL_MAIN_H_
 #define _APPS_MAIN_KERNEL_MAIN_H_
 
-#define KERNEL_INIT kernel_init((int)const_image,sizeof(const_image)>>1,(int)pcore_image,sizeof(pcore_image)>>2)
-
-extern void kernel_init(int c_p,int c_len,int pcore_p,int pcoreLen);
-
+extern void ztaInitPcore(int c_p,int c_len,int pcore_p,int pcoreLen);
+extern void ztaInitStream(int _spu,int _spuCnt);
 #endif

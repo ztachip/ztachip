@@ -336,7 +336,7 @@ void kernel_canny_exe(
 ) {
    Request req;
 
-   KERNEL_INIT;
+   ztaInitPcore(IMG_C,sizeof(IMG_C),IMG_P,sizeof(IMG_P));
    req.input=_input;
    req.magnitude=_magnitude;
    req.phase=_phase;
