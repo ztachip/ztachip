@@ -124,7 +124,9 @@ ZTA_SHARED_MEM GraphNodeEqualize::GenEqualizer() {
       m_histogram_sum[i]=count;
       count += m_histogram[i];
    }
-   m_spu=ztahostBuildSpu(SpuCallback,this,0,m_spu);
+   if(m_spu)
+      ztahostFreeSharedMem(m_spu);
+   m_spu=ztahostBuildSpu(SpuCallback,this,0);
    return m_spu;
 }
 

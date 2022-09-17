@@ -18,12 +18,12 @@
 
 #include "../../../base/ztam.h"
 
-static int last_image=0;
+static uint16_t *last_image=0;
 
 // Load code/memory to pcore
 
-void ztaInitPcore(int _image) {
-   int c_p,pcore_p;
+void ztaInitPcore(uint16_t *_image) {
+   uint16_t *c_p,*pcore_p;
    int c_len,pcoreLen;
    
    if(last_image==_image)
@@ -33,12 +33,12 @@ void ztaInitPcore(int _image) {
    ztamInit();
    
    pcore_p = _image;
-   pcoreLen= *((uint16_t *)pcore_p);
-   pcore_p += sizeof(uint16_t);
+   pcoreLen= pcore_p[0];
+   pcore_p++;
    
-   c_p = pcore_p+pcoreLen;
-   c_len = *((uint16_t *)c_p);
-   c_p += sizeof(uint16_t);
+   c_p = pcore_p+pcoreLen/sizeof(uint16_t);
+   c_len = c_p[0];
+   c_p++;
    
    c_len=c_len>>1;
    pcoreLen=pcoreLen>>2;
@@ -50,17 +50,17 @@ void ztaInitPcore(int _image) {
    // Set pcore process1's constant memory space
    // Set pcore process1's constant memory space
    if(c_len > 0) {
-      > PCORE[*].root.constant[0:c_len-1] <= MEM(c_p)[0:c_len-1];
+      > PCORE[*].root.constant[0:c_len-1] <= MEM((uint32_t)c_p)[0:c_len-1];
    }
    ZTAM_GREG(0,REG_DP_VM_TOGGLE,0)=0;
 
    // Set pcore process0's constant memory space.
    if(c_len > 0) {
-      > PCORE[*].root.constant[0:c_len-1] <= MEM(c_p)[0:c_len-1];
+      > PCORE[*].root.constant[0:c_len-1] <= MEM((uint32_t)c_p)[0:c_len-1];
    }
 
    // Set pcore code space
-   > PROG((pcoreLen>>1)) <= (int)MEM(pcore_p,(pcoreLen>>1)<<2)[:];
+   > PROG((pcoreLen>>1)) <= (int)MEM((uint32_t)pcore_p,(pcoreLen>>1)<<2)[:];
    > FLUSH;
 }
 

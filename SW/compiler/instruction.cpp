@@ -2826,7 +2826,7 @@ RETCODE cInstruction::Generate(FILE *fp,FILE *fp2)
 
    // Generate C-structure for the pcore image
 
-   fprintf(fp2,"static unsigned short zta_pcore_img[%d]={\n",(int)pcore_image.size()/2+(int)const_image.size()+2);
+   fprintf(fp2,"static uint16_t zta_pcore_img[%d]={\n",(int)pcore_image.size()/2+(int)const_image.size()+2);
    fprintf(fp2,"0x%02X,\n",(int)pcore_image.size());
    for(i=0;i < (int)pcore_image.size();i+=4)
    {

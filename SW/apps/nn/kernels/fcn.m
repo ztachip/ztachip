@@ -166,7 +166,7 @@ void kernel_concatenate_exe(
    int len,remain;
    int fmt=DP_DATA_TYPE_UINT8;
 
-   ztaInitPcore((int)zta_pcore_img);
+   ztaInitPcore(zta_pcore_img);
 
    cnt=_cnt;
    for(i=0;i < cnt;i++) {
@@ -215,7 +215,7 @@ void kernel_logistic_exe(
    int len,remain;
    int fmt=DP_DATA_TYPE_UINT8;
 
-   ztaInitPcore((int)zta_pcore_img);
+   ztaInitPcore(zta_pcore_img);
    ztaInitStream(_spu,2);
    
    copySize=_copySize;
@@ -261,7 +261,7 @@ void kernel_innerProduct_exe(
 {
    RequestFcn req;
    
-   ztaInitPcore((int)zta_pcore_img);
+   ztaInitPcore(zta_pcore_img);
    ztaInitStream(_stream,3);
 
    req.coef=_coef;
@@ -303,7 +303,7 @@ void kernel_Pooling_exe(
 {
    RequestPool req;
    
-   ztaInitPcore((int)zta_pcore_img);
+   ztaInitPcore(zta_pcore_img);
    ztaInitStream(_stream,3);
 
    req.bot=_bot;

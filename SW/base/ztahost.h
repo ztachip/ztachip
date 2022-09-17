@@ -35,7 +35,7 @@ typedef void * ZTA_SHARED_MEM;
 #define ZTA_SHARED_MEM_PHYSICAL(p)  ((uint32_t)p)
 
 // Build SPU lookup table
-extern ZTA_SHARED_MEM ztahostBuildSpu(float (*func)(float,void *pparm,uint32_t parm),void *pparm,uint32_t parm,ZTA_SHARED_MEM _shm=0);
+extern ZTA_SHARED_MEM ztahostBuildSpu(float (*func)(float,void *pparm,uint32_t parm),void *pparm,uint32_t parm);
 
 // Allocate a shared memory block
 extern ZTA_SHARED_MEM ztahostAllocSharedMem(int _size);

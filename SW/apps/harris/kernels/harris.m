@@ -343,7 +343,7 @@ void kernel_harris_exe(
 {
    Request req;
 
-   ztaInitPcore((int)zta_pcore_img);
+   ztaInitPcore(zta_pcore_img);
    
    req.input=_input;
    req.x_gradient=_x_gradient;

@@ -183,7 +183,7 @@ void kernel_equalize_exe(
    Request req;
    int i;
    
-   ztaInitPcore((int)zta_pcore_img);
+   ztaInitPcore(zta_pcore_img);
    ztaInitStream(_equalize,1);
       
    req.input=_input;

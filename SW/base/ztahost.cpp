@@ -42,18 +42,14 @@ void ztahostFreeSharedMem(ZTA_SHARED_MEM p) {
 
 // Build ztachip lookup table
 
-ZTA_SHARED_MEM ztahostBuildSpu(float (*func)(float,void *pparm,uint32_t parm),void *pparm,uint32_t parm,ZTA_SHARED_MEM _shm) {
+ZTA_SHARED_MEM ztahostBuildSpu(float (*func)(float,void *pparm,uint32_t parm),void *pparm,uint32_t parm) {
    uint16_t v;
    float v2;
    int16_t v3,v4,slope;
    int16_t *p;
    ZTA_SHARED_MEM shm;
 
-   if(_shm==0) {
-      shm = ztahostAllocSharedMem(SPU_SIZE*2*sizeof(int16_t));
-   } else {
-      shm = _shm;
-   }
+   shm = ztahostAllocSharedMem(SPU_SIZE*2*sizeof(int16_t));
    p=(int16_t *)ZTA_SHARED_MEM_P(shm);
    for(int i=0;i < SPU_SIZE;i++) {
       v=((i*SPU_REMAINDER)&0xFFF);

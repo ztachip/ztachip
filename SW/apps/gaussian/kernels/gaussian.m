@@ -152,7 +152,7 @@ void kernel_gaussian_exe(
 {
    Request req;
    
-   ztaInitPcore((int)zta_pcore_img);
+   ztaInitPcore(zta_pcore_img);
    
    req.input=_input;
    req.output=_output;
