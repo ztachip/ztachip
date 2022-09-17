@@ -28,7 +28,7 @@
 
 ZTA_SHARED_MEM NeuralNet::BuildSpu(float (*func)(float,void *pparm,uint32_t parm),void *pparm,uint32_t parm) {
    ZTA_SHARED_MEM shm;
-   shm=ztahostBuildSpu(func,pparm,parm);
+   shm=ztahostBuildSpuBundle(1,func,pparm,parm);
    m_bufUnboundLst.push_back(shm);
    return shm;
 }

@@ -43,7 +43,7 @@ void ztahostFreeSharedMem(ZTA_SHARED_MEM p) {
 
 // Build ztachip lookup table
 
-ZTA_SHARED_MEM ztahostBuildSpu(SPU_FUNC func,void *pparm,uint32_t parm) {
+static ZTA_SHARED_MEM buildSpu(SPU_FUNC func,void *pparm,uint32_t parm) {
    uint16_t v;
    float v2;
    int16_t v3,v4,slope;
@@ -90,7 +90,7 @@ ZTA_SHARED_MEM ztahostBuildSpuBundle(int numSpuImg,...) {
 	  func = va_arg(args,SPU_FUNC);
 	  pparm = va_arg(args,void *);
 	  parm = va_arg(args,uint32_t);
-	  spu=ztahostBuildSpu(func,pparm,parm);
+	  spu=buildSpu(func,pparm,parm);
       memcpy(pp,ZTA_SHARED_MEM_P(spu),SPU_SIZE*2*sizeof(int16_t));
       ztahostFreeSharedMem(spu);
    }

@@ -126,7 +126,7 @@ ZTA_SHARED_MEM GraphNodeEqualize::GenEqualizer() {
    }
    if(m_spu)
       ztahostFreeSharedMem(m_spu);
-   m_spu=ztahostBuildSpu(SpuCallback,this,0);
+   m_spu=ztahostBuildSpuBundle(1,SpuCallback,this,0);
    return m_spu;
 }
 

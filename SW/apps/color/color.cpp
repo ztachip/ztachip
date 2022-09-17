@@ -140,7 +140,7 @@ ZtaStatus GraphNodeColorAndReshape::Verify() {
       } 
       if(m_spu) 
          ztahostFreeSharedMem(m_spu);
-      m_spu=ztahostBuildSpu(SpuCallback,0,0);
+      m_spu=ztahostBuildSpuBundle(1,SpuCallback,0,0);
    } else if(m_srcColorSpace==TensorSemanticMonochromeSingleChannel) {
       // Monochrome with 1 channel
       if(m_nChannel != 1)

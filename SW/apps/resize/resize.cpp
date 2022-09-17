@@ -182,20 +182,9 @@ ZtaStatus GraphNodeResize::Verify() {
    // Build SPU lookup table.
    // This is used for arithmetic scaling of output pixel.
 
-   ZTA_SHARED_MEM spu;
-   int16_t *pp;
-
-   m_spu=ztahostAllocSharedMem(2*SPU_SIZE*2*sizeof(int16_t));
-   pp=(int16_t *)ZTA_SHARED_MEM_P(m_spu);
-
-   spu=ztahostBuildSpu(spuCallback,(float *)&scale[0],0);
-   memcpy(pp,ZTA_SHARED_MEM_P(spu),SPU_SIZE*2*sizeof(int16_t));
-   ztahostFreeSharedMem(spu);
-
-   spu=ztahostBuildSpu(spuCallback,(float *)&scale[1],0);
-   memcpy(pp+SPU_SIZE*2,ZTA_SHARED_MEM_P(spu),SPU_SIZE*2*sizeof(int16_t));
-   ztahostFreeSharedMem(spu);
-  
+   m_spu=ztahostBuildSpuBundle(2,
+                       spuCallback,(float *)&scale[0],0,
+                       spuCallback,(float *)&scale[1],0);
    return ZtaStatusOk;
 }
 
