@@ -184,7 +184,8 @@ void kernel_equalize_exe(
    int i;
    
    ztaInitPcore(IMG_C,sizeof(IMG_C),IMG_P,sizeof(IMG_P));
-   
+   ztaInitStream(_equalize,1);
+      
    req.input=_input;
    req.output=_output;
    req.output2=_output2;
@@ -192,9 +193,7 @@ void kernel_equalize_exe(
    req.equalize=_equalize;
    req.w=_w;
    req.h=_h;
-   if(req.equalize) {
-      ztaInitStream(req.equalize,1);
-   }
+   
    for(i=0;i < req.nchannels;i++) {
       req.ws.channel=i;
       ztamTaskSpawn(equalize,&req,1);

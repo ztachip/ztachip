@@ -84,10 +84,6 @@ static void convolution_3x3(void *_p,int pid) {
    int botfmt=DP_DATA_TYPE_UINT8;
    int biasfmt=DP_DATA_TYPE_INT16;
    int weightfmt=DP_DATA_TYPE_UINT8;
-
-   if(pid==0) {
-      ztaInitStream(req->stream,3);
-   }
       
    conv_dx=req->conv_dx;
    if(conv_dx <= (NUM_THREAD_PER_CORE/2))
@@ -229,9 +225,7 @@ static void convolution_1x1(void *_p,int pid) {
    int cnt;
    static uint32_t kfunc[8]={$convolution1x1::exe,$convolution1x1::exe2,$convolution1x1::exe3,$convolution1x1::exe4,
                              $convolution1x1::exe5,$convolution1x1::exe6,$convolution1x1::exe7,$convolution1x1::exe8};
-   if(pid==0) {
-      ztaInitStream(req->stream,3);
-   }
+
    topsz=req->topdim*req->topdim;
    botsz=req->botdim*req->botdim;
    np=NUM_PCORE;
@@ -464,9 +458,6 @@ static void convolution_depthwise(void *_p,int pid) {
    int batchcnt,maxgroupsz,mingroup;
    int threadSubBlock;
 
-   if(pid==0) {
-      ztaInitStream(req->stream,3);
-   }
    np=NUM_PCORE;
    kz=req->ksz*req->ksz;   
    botdim=req->botdim-2*req->pad;
@@ -638,9 +629,6 @@ static void do_add_process(void *_p,int pid)
    int fmt=DP_DATA_TYPE_UINT8;
    np=NUM_PCORE;
 
-   if(pid==0) {
-      ztaInitStream(req->stream,3);
-   }
    step=NUM_PCORE*NUM_THREAD_PER_CORE*VECTOR_WIDTH;
    step2=step;
    if(pid==0) {
@@ -673,6 +661,7 @@ void kernel_add_exe(
    RequestAdd req;
    
    ztaInitPcore(IMG_C,sizeof(IMG_C),IMG_P,sizeof(IMG_P));
+   ztaInitStream(_stream,3);
    
    req.size=_size;
    req.input[0]=_input_0;
@@ -718,6 +707,7 @@ void kernel_convolution_exe(
    int depth_fifo;
 
    ztaInitPcore(IMG_C,sizeof(IMG_C),IMG_P,sizeof(IMG_P));
+   ztaInitStream(_stream,3);
    
    req.coef=_coef;
    req.biasHi=_biasHi;
@@ -790,6 +780,7 @@ void kernel_convolution_depthwise_exe(
    int depth_fifo;
    
    ztaInitPcore(IMG_C,sizeof(IMG_C),IMG_P,sizeof(IMG_P));
+   ztaInitStream(_stream,3);
    
    req.coef=_coef;
    req.biasHi=_biasHi;

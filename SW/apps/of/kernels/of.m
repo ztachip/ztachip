@@ -186,9 +186,6 @@ static void of_phase_1(void *_p,int pid) {
    int w,h;
    int ksz=OF1_TILE_MAX_KZ;
 
-   if(pid==0) {
-      ztaInitStream(req->spu,4);
-   }
    pad=(ksz/2);
    w=req->w;
    h=req->h;
@@ -349,6 +346,7 @@ void kernel_of_exe(
    Request req;
 
    ztaInitPcore(IMG_C,sizeof(IMG_C),IMG_P,sizeof(IMG_P));
+   ztaInitStream(_spu,4);
 
    req.input[0]=_input[0];
    req.input[1]=_input[1];

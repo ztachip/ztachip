@@ -58,10 +58,6 @@ static void innerProduct(void *_p,int pid) {
    int biasfmt=DP_DATA_TYPE_INT16;
    int weightfmt=DP_DATA_TYPE_UINT8;
    
-   if(pid==0) {
-      // Load stream processor code
-      ztaInitStream(req->stream,3);
-   }
    nthread=req->num_thread;
    coeftopcnt=req->coeftopcnt*IP_CHUNK_SIZE;
    dx2=req->dx*IP_CHUNK_SIZE;
@@ -118,9 +114,6 @@ static void pooling(void *_p,int pid) {
    int botsz;
    int cnt,step,nt;
 
-   if(pid==0) {
-      ztaInitStream(req->stream,3);
-   }
    np=NUM_PCORE;
    cnt=req->topcnt;
    botsz=req->botdim*req->botdim;
@@ -184,7 +177,6 @@ void kernel_concatenate_exe(
       if(spu) {
          // Load stream processor code
          ztaInitStream(spu,1);
-         > FLUSH;
       }
       remain=copySize;
       idx=0;
@@ -224,14 +216,13 @@ void kernel_logistic_exe(
    int fmt=DP_DATA_TYPE_UINT8;
 
    ztaInitPcore(IMG_C,sizeof(IMG_C),IMG_P,sizeof(IMG_P));
-
+   ztaInitStream(_spu,2);
+   
    copySize=_copySize;
    src=_src;
    dest=_dest;
    spu=_spu;
-   // Load stream processor code
-   ztaInitStream(spu,2);
-   > FLUSH;
+
    remain=copySize;
    idx=0;
    while(remain > 0) {
@@ -271,6 +262,7 @@ void kernel_innerProduct_exe(
    RequestFcn req;
    
    ztaInitPcore(IMG_C,sizeof(IMG_C),IMG_P,sizeof(IMG_P));
+   ztaInitStream(_stream,3);
 
    req.coef=_coef;
    req.biasHi=_biasHi;
@@ -312,6 +304,7 @@ void kernel_Pooling_exe(
    RequestPool req;
    
    ztaInitPcore(IMG_C,sizeof(IMG_C),IMG_P,sizeof(IMG_P));
+   ztaInitStream(_stream,3);
 
    req.bot=_bot;
    req.top=_top;

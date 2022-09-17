@@ -83,9 +83,6 @@ static void yuyv2rgb(void *_p,int pid) {
    uint32_t output2;
    bool clip;
 
-   if(pid==0) {
-      ztaInitStream(req->spu,1);
-   }
    pixelBytePerChannel=(req->dst_channel_fmt==kChannelFmtInterleave)?RGB_PIXEL_SIZE:1;
    x_off=req->x_off;
    if(x_off&1)
@@ -220,9 +217,6 @@ static void copy(void *_p,int pid) {
    input=req->input;
    output=req->output;
 
-   if(pid==0 && req->equalize) {
-      ztaInitStream(req->equalize,1);
-   }
 
    if(req->src_w==req->w && req->src_h==req->h &&
       req->dst_w==req->w && req->dst_h==req->h) {
@@ -446,7 +440,8 @@ void kernel_copy_exe(
    RequestCopy req;
 
    ztaInitPcore(IMG_C,sizeof(IMG_C),IMG_P,sizeof(IMG_P));
-
+   ztaInitStream(_equalize,1);
+      
    req.input=_input;
    req.output=_output;
    req.w=_w;
@@ -494,7 +489,8 @@ void kernel_yuyv2rgb_exe(
    RequestColor req;
 
    ztaInitPcore(IMG_C,sizeof(IMG_C),IMG_P,sizeof(IMG_P));
-   
+   ztaInitStream(_spu,1);
+      
    req.input=_input;
    req.output=_output;
    req.spu=_spu;

@@ -52,6 +52,8 @@ void ztaInitPcore(int c_p,int c_len,int pcore_p,int pcoreLen) {
 }
 
 void ztaInitStream(int _spu,int _spuCnt) {
-   > SPU <= (int)MEM(_spu,_spuCnt*SPU_LOOKUP_SIZE)[:];
-   > FLUSH;
+   if(_spu && _spuCnt > 0) {
+      > SPU <= (int)MEM(_spu,_spuCnt*SPU_LOOKUP_SIZE)[:];
+      > FLUSH;
+   }
 }
