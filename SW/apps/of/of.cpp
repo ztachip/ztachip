@@ -125,10 +125,10 @@ ZtaStatus GraphNodeOpticalFlow::Verify() {
    m_display->Create(TensorDataTypeUint8,TensorFormatSplit,TensorSemanticRGB,dim2);
 
    m_spu=ztahostBuildSpuBundle(4,
-                               SpuCallback,0,0,
-                               SpuDisplayLeftHorizontalCallback,0,0,
-                               SpuDisplayRightHorizontalCallback,0,0,
-                               SpuDisplayVerticalCallback,0,0
+                               SpuCallback,0,0,0,
+                               SpuDisplayLeftHorizontalCallback,0,0,0,
+                               SpuDisplayRightHorizontalCallback,0,0,0,
+                               SpuDisplayVerticalCallback,0,0,0
                                );
 
    return ZtaStatusOk;

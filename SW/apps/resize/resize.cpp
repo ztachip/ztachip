@@ -183,8 +183,8 @@ ZtaStatus GraphNodeResize::Verify() {
    // This is used for arithmetic scaling of output pixel.
 
    m_spu=ztahostBuildSpuBundle(2,
-                       spuCallback,(float *)&scale[0],0,
-                       spuCallback,(float *)&scale[1],0);
+                       spuCallback,(float *)&scale[0],0,0,
+                       spuCallback,(float *)&scale[1],0,0);
    return ZtaStatusOk;
 }
 

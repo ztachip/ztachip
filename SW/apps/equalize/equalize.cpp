@@ -126,11 +126,11 @@ ZTA_SHARED_MEM GraphNodeEqualize::GenEqualizer() {
    }
    if(m_spu)
       ztahostFreeSharedMem(m_spu);
-   m_spu=ztahostBuildSpuBundle(1,SpuCallback,this,0);
+   m_spu=ztahostBuildSpuBundle(1,SpuCallback,this,0,0);
    return m_spu;
 }
 
-float GraphNodeEqualize::SpuCallback(float input,void *pparm,uint32_t parm) {
+float GraphNodeEqualize::SpuCallback(float input,void *pparm,uint32_t parm,uint32_t parm2) {
    static GraphNodeEqualize *instance=0;
    uint8_t v;
    int count,i;

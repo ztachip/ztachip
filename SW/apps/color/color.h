@@ -56,7 +56,7 @@ public:
    virtual ZtaStatus Verify();
    virtual ZtaStatus Prepare(int queue,bool stepMode);
 private:
-   static float SpuCallback(float input,void *pparm,uint32_t parm);
+   static float SpuCallback(float input,void *pparm,uint32_t parm,uint32_t parm2);
    void Cleanup();
 private:
    TENSOR *m_input;

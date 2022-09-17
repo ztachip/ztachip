@@ -77,7 +77,7 @@ ZTA_SHARED_MEM ztahostBuildSpuBundle(int numSpuImg,...) {
    ZTA_SHARED_MEM bundle,spu;
    SPU_FUNC func;
    void *pparm;
-   uint32_t parm;
+   uint32_t parm,parm2;
    int16_t *pp;
    int i;
    va_list args;
@@ -90,6 +90,7 @@ ZTA_SHARED_MEM ztahostBuildSpuBundle(int numSpuImg,...) {
 	  func = va_arg(args,SPU_FUNC);
 	  pparm = va_arg(args,void *);
 	  parm = va_arg(args,uint32_t);
+	  parm2 = va_arg(args,uint32_t);
 	  spu=buildSpu(func,pparm,parm);
       memcpy(pp,ZTA_SHARED_MEM_P(spu),SPU_SIZE*2*sizeof(int16_t));
       ztahostFreeSharedMem(spu);
