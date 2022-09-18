@@ -86,7 +86,7 @@ static void yuyv2rgb(void *_p,int pid) {
    pixelBytePerChannel=(req->dst_channel_fmt==kChannelFmtInterleave)?RGB_PIXEL_SIZE:1;
    x_off=req->x_off;
    if(x_off&1)
-      ztamAssert("Invalid resize offset");
+      _exit(0);
    x_off=x_off*YUYV_PIXEL_SIZE;
    y_off=req->y_off;
 
@@ -459,7 +459,7 @@ void kernel_copy_exe(
    req.dst_w=_dst_w;
    req.dst_h=_dst_h;
    req.equalize=_equalize;
-   ztamExecute(copy,&req);
+   ztamDualHartExecute(copy,&req);
   >CALLBACK(0,_req_id);
 }
 
@@ -504,7 +504,7 @@ void kernel_yuyv2rgb_exe(
    req.dst_w=_dst_w;
    req.dst_h=_dst_h;
    
-   ztamExecute(yuyv2rgb,&req);
+   ztamDualHartExecute(yuyv2rgb,&req);
       
   >CALLBACK(0,_req_id);
 }

@@ -353,11 +353,11 @@ void kernel_canny_exe(
    req.dst_w=_dst_w;
    req.dst_h=_dst_h;
 
-   ztamExecute(canny_phase_0,&req);
+   ztamDualHartExecute(canny_phase_0,&req);
       
-   ztamExecute(canny_phase_1,&req);
+   ztamDualHartExecute(canny_phase_1,&req);
 
-   ztamExecute(canny_phase_2,&req);
+   ztamDualHartExecute(canny_phase_2,&req);
    
    >CALLBACK(0,req_id);
 }

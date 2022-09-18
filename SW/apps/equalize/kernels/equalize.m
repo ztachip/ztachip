@@ -149,7 +149,7 @@ static void equalize_final(Request *req) {
    >PCORE(np)[0].equalize::histogram_hi[kHistogramBinSize*np:kHistogramBinSize*2*np-1][:] <= (int)SCRATCH(p,len)[0:len-1];
 
    if((2*np) > NUM_THREAD_PER_CORE)
-      ztamAssert("Histogram FAIL");
+      _exit(0);
 
    > equalize::done.count <= INT(2*np);
    > EXE_LOCKSTEP(equalize::done,1,kHistogramBinSize);
@@ -196,7 +196,7 @@ void kernel_equalize_exe(
    
    for(i=0;i < req.nchannels;i++) {
       req.ws.channel=i;
-      ztamExecute(equalize,&req);
+      ztamDualHartExecute(equalize,&req);
       equalize_final(&req);
    }
   >CALLBACK(0,_req_id);

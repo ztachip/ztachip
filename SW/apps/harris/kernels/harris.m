@@ -359,11 +359,11 @@ void kernel_harris_exe(
    req.dst_w=_dst_w;
    req.dst_h=_dst_h;
    
-   ztamExecute(harris_phase_0,&req);
+   ztamDualHartExecute(harris_phase_0,&req);
       
-   ztamExecute(harris_phase_1,&req);
+   ztamDualHartExecute(harris_phase_1,&req);
       
-   ztamExecute(harris_phase_2,&req);
+   ztamDualHartExecute(harris_phase_2,&req);
       
   >CALLBACK(0,_req_id);
 }

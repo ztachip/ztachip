@@ -52,7 +52,7 @@ void ztamInit() {
 
 
 // Start execution by spawning 2 threads
-void ztamExecute(void(*func)(void *,int),void *pparm) {
+void ztamDualHartExecute(void(*func)(void *,int),void *pparm) {
    // Launch a thread to execute on tensor processor's first HART
    taskStatus = true;
    _taskSpawn((uint32_t)taskEntry,(uint32_t)func,(uint32_t)pparm,1);
@@ -77,13 +77,6 @@ uint32_t ztamBuildKernelFunc(uint32_t _func,int num_pcore,int num_tid) {
    return DP_EXE_CMD(1,func,num_pcore-1,0,p0,p1,num_tid-1,dataModel);
 }
 
-// Fatal error.
-// Display error message and then hangs...
-
-void ztamAssert(char *msg) {
-   for(;;) {
-   }
-}
 
 
 

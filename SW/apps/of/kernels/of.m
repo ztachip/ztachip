@@ -366,9 +366,9 @@ void kernel_of_exe(
    req.dst_w=_dst_w;
    req.dst_h=_dst_h;
    
-   ztamExecute(of_phase_0,&req);
+   ztamDualHartExecute(of_phase_0,&req);
       
-   ztamExecute(of_phase_1,&req);
+   ztamDualHartExecute(of_phase_1,&req);
       
   >CALLBACK(0,req_id);
 }

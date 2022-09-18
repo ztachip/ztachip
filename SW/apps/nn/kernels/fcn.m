@@ -279,7 +279,7 @@ void kernel_innerProduct_exe(
    req.num_thread=_num_thread;
    req.dx=req.num_pcore*req.num_thread*VECTOR_WIDTH;
 
-   ztamExecute(innerProduct,&req);
+   ztamDualHartExecute(innerProduct,&req);
 
    >CALLBACK(0,_req_id);
 }
@@ -316,7 +316,7 @@ void kernel_Pooling_exe(
    req.stream=_stream;
    req.output_shift=_output_shift;
 
-   ztamExecute(pooling,&req);
+   ztamDualHartExecute(pooling,&req);
 
    >CALLBACK(0,_req_id);
 }

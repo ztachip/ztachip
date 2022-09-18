@@ -30,9 +30,11 @@
 /* Task function API */
 
 void ztamInit();
-void ztamExecute(void(*func)(void *,int),void *pparm);
+
+void ztamDualHartExecute(void(*func)(void *,int),void *pparm);
+
 uint32_t ztamBuildKernelFunc(uint32_t _func,int num_pcore,int num_tid);
+
 #define ztamTaskYield() {ZTAM_GREG(0,REG_DP_VM_TOGGLE,0)=0;_taskYield();}
-void ztamAssert(char *msg);
 
 #endif

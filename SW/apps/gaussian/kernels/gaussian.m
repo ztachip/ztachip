@@ -168,7 +168,7 @@ void kernel_gaussian_exe(
    req.dst_w=_dst_w;
    req.dst_h=_dst_h;
    
-   ztamExecute(iconv,&req);
+   ztamDualHartExecute(iconv,&req);
 
   >CALLBACK(0,_req_id);
 }
