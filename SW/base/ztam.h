@@ -19,46 +19,24 @@
 #ifndef _ZTAM_H_
 #define _ZTAM_H_
 
+#include <stdint.h>
+#include <stdbool.h>
 #include "zta.h"
 
-#ifndef uint32_t
-typedef unsigned int uint32_t;
-#endif
-#ifndef int32_t
-typedef int int32_t;
-#endif
-#ifndef uint8_t
-typedef unsigned char uint8_t;
-#endif
-#ifndef int8_t
-typedef signed char int8_t;
-#endif
-#ifndef uint16_t
-typedef unsigned short uint16_t;
-#endif
-#ifndef int16_t
-typedef short int16_t;
-#endif
-#ifndef bool
-typedef int bool;
-#endif
-#define true    1
-#define false   0
 typedef void (*CallbackFunc)(uint32_t);
 
 // Round up to multiple of b
 
 #define ROUND(a,b) ((((a)+(b)-1)/(b))*(b))
 
-/* Task function API */
-
 extern void _taskYield(void);
 extern void _taskSpawn(uint32_t,uint32_t,uint32_t,uint32_t);
+
+/* Task function API */
+
 void ztamInit();
 void ztamTaskInit();
 void ztamExecute(void(*func)(void *,int),void *pparm);
-void ztamTaskSpawn(void(*func)(void *,int), void *_p, uint32_t p2);
-bool ztamTaskStatus(int pid);
 uint32_t ztamBuildKernelFunc(uint32_t _func,int num_pcore,int num_tid);
 #define ztamTaskYield() {ZTAM_GREG(0,REG_DP_VM_TOGGLE,0)=0;_taskYield();}
 void ztamAssert(char *msg);

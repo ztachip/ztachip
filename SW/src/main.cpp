@@ -1,8 +1,10 @@
 #include <stdlib.h>
-
-extern "C" int main(void);
-
-extern "C" void irqCallback(void);
+extern "C"
+{
+#include "../base/ztam.h"
+extern int main(void);
+extern void irqCallback(void);
+}
 
 extern int test(void);
 
@@ -14,6 +16,7 @@ extern int vision_ai(void);
 //-----------------------------------------
 
 int main() {
+   ztamInit();
 #if 1 
    while(1){
       test();

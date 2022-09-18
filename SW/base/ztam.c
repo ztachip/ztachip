@@ -17,6 +17,7 @@
 //------------------------------------------------------------------------------
 
 #include <stdarg.h>
+#include <stdint.h>
 #include "../base/ztam.h"
 
 // This file contains supporting functions for codes running on mcore
@@ -44,21 +45,19 @@ void ztamInit() {
    _taskSpawn((uint32_t)taskEntry,0,0,0);
 }
 
-// Spawn a new task
-
-void ztamTaskSpawn(void(*func)(void *,int), void *_p, uint32_t p2) {
-   taskStatus = true;
-   _taskSpawn((uint32_t)taskEntry,(uint32_t)func,(uint32_t)_p,p2);
-   ZTAM_GREG(0,REG_DP_VM_TOGGLE,0)=0;
-   _taskYield();
-}
 
 // Start execution by spawning 2 threads
 void ztamExecute(void(*func)(void *,int),void *pparm) {
-   ztamTaskSpawn(func,pparm,1);
+   // Launch a thread to execute on tensor processor's first HART
+   taskStatus = true;
+   _taskSpawn((uint32_t)taskEntry,(uint32_t)func,(uint32_t)pparm,1);
+   ZTAM_GREG(0,REG_DP_VM_TOGGLE,0)=0;
+   _taskYield();
+
    (*func)(pparm,0);
+
    // Wait for both threads to be finished
-   while(ztamTaskStatus(1))
+   while(taskStatus)
       ztamTaskYield();
 }
 
@@ -71,15 +70,6 @@ uint32_t ztamBuildKernelFunc(uint32_t _func,int num_pcore,int num_tid) {
    p1=EXE_P1_FIELD(_func); // Second parameter
    dataModel=EXE_MODEL_FIELD(_func); // Kernel memory model (large/small)
    return DP_EXE_CMD(1,func,num_pcore-1,0,p0,p1,num_tid-1,dataModel);
-}
-
-// Return task status
-
-bool ztamTaskStatus(int pid) {
-   if(pid==0)
-      return true;
-   else
-      return taskStatus;
 }
 
 // Fatal error.
