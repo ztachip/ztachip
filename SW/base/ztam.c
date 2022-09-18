@@ -20,6 +20,11 @@
 #include <stdint.h>
 #include "../base/ztam.h"
 
+// Functions that are implemented in task.S
+
+extern void _taskYield(void);
+extern void _taskSpawn(uint32_t,uint32_t,uint32_t,uint32_t);
+
 // This file contains supporting functions for codes running on mcore
 
 static bool taskStatus=false;

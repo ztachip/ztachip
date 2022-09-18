@@ -2393,7 +2393,7 @@ char *cMcore::scan_notify(FILE *out, char *line)
    line = scan_specifier(&specifier, line);
    if (specifier.size() != 2)
       error(cMcore::M_currLine, "Invalid parameters");
-   fprintf(out, "ZTAM_GREG(0,%d,0)=((uint32_t)((CallbackFunc)(%s)));", REG_DP_INDICATION_PARM0, specifier[0].m_v.c_str());
+   fprintf(out, "ZTAM_GREG(0,%d,0)=((uint32_t)((%s)));", REG_DP_INDICATION_PARM0, specifier[0].m_v.c_str());
    fprintf(out, "ZTAM_GREG(0,%d,0)=(int)(%s);", REG_DP_INDICATION_PARM1, specifier[1].m_v.c_str());
    fprintf(out, "%s;ZTAM_GREG(0,%d,0)=(%d+(%d<<3));", s_ztamFifoReady, REG_DP_RUN,
       DP_OPCODE_INDICATION, DP_CONDITION_ALL_FLUSH);

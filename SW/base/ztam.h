@@ -23,19 +23,13 @@
 #include <stdbool.h>
 #include "zta.h"
 
-typedef void (*CallbackFunc)(uint32_t);
-
 // Round up to multiple of b
 
 #define ROUND(a,b) ((((a)+(b)-1)/(b))*(b))
 
-extern void _taskYield(void);
-extern void _taskSpawn(uint32_t,uint32_t,uint32_t,uint32_t);
-
 /* Task function API */
 
 void ztamInit();
-void ztamTaskInit();
 void ztamExecute(void(*func)(void *,int),void *pparm);
 uint32_t ztamBuildKernelFunc(uint32_t _func,int num_pcore,int num_tid);
 #define ztamTaskYield() {ZTAM_GREG(0,REG_DP_VM_TOGGLE,0)=0;_taskYield();}
