@@ -196,10 +196,7 @@ void kernel_equalize_exe(
    
    for(i=0;i < req.nchannels;i++) {
       req.ws.channel=i;
-      ztamTaskSpawn(equalize,&req,1);
-      equalize(&req,0);
-      while(ztamTaskStatus(1))
-         ztamTaskYield();
+      ztamExecute(equalize,&req);
       equalize_final(&req);
    }
   >CALLBACK(0,_req_id);

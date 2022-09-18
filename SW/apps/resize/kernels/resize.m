@@ -267,16 +267,11 @@ void kernel_resize_exe(
 
    // Resize horizontally 
 
-   ztamTaskSpawn(box_resize_horizontal,&req,1);
-   box_resize_horizontal(&req,0);
-   while(ztamTaskStatus(1))
-      ztamTaskYield();
+   ztamExecute(box_resize_horizontal,&req);
       
    // Then resize vertically
 
-   ztamTaskSpawn(box_resize_vertical,&req,1);
-   box_resize_vertical(&req,0);
-   while(ztamTaskStatus(1))
-      ztamTaskYield();     
+   ztamExecute(box_resize_vertical,&req);
+           
   >CALLBACK(0,_req_id);
 }

@@ -668,10 +668,9 @@ void kernel_add_exe(
    req.input[1]=_input_1;
    req.output=_output;
    req.stream=_stream;
-   ztamTaskSpawn(do_add_process,&req,1);
-   do_add_process(&req,0);
-   while(ztamTaskStatus(1))
-      ztamTaskYield();
+   
+   ztamExecute(do_add_process,&req);
+
    >CALLBACK(0,_req_id);
 }
 
@@ -734,16 +733,12 @@ void kernel_convolution_exe(
 
    if(req.ksz==1)
    {
-      ztamTaskSpawn(convolution_1x1,&req,1);
-      convolution_1x1(&req,0);
+      ztamExecute(convolution_1x1,&req);
    }
    else
    {
-      ztamTaskSpawn(convolution_3x3,&req,1);
-      convolution_3x3(&req,0);
+      ztamExecute(convolution_3x3,&req);
    }
-   while(ztamTaskStatus(1))
-      ztamTaskYield();
    >CALLBACK(0,_req_id);
 }
 
@@ -805,10 +800,8 @@ void kernel_convolution_depthwise_exe(
    req.in_interleave=_in_interleave;
    req.out_interleave=_out_interleave;
    
-   ztamTaskSpawn(convolution_depthwise,&req,1);
-   convolution_depthwise(&req,0);
-   while(ztamTaskStatus(1))
-      ztamTaskYield();
+   ztamExecute(convolution_depthwise,&req);
+
    >CALLBACK(0,_req_id);
 }
 

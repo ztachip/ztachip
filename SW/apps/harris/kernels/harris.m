@@ -358,18 +358,13 @@ void kernel_harris_exe(
    req.y_off=_y_off;
    req.dst_w=_dst_w;
    req.dst_h=_dst_h;
-   ztamTaskSpawn(harris_phase_0,&req,1);
-   harris_phase_0(&req,0);
-   while(ztamTaskStatus(1))
-      ztamTaskYield();
-   ztamTaskSpawn(harris_phase_1,&req,1);
-   harris_phase_1(&req,0);
-   while(ztamTaskStatus(1))
-      ztamTaskYield();
-   ztamTaskSpawn(harris_phase_2,&req,1);
-   harris_phase_2(&req,0);
-   while(ztamTaskStatus(1))
-      ztamTaskYield();
+   
+   ztamExecute(harris_phase_0,&req);
+      
+   ztamExecute(harris_phase_1,&req);
+      
+   ztamExecute(harris_phase_2,&req);
+      
   >CALLBACK(0,_req_id);
 }
 

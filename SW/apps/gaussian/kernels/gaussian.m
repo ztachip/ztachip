@@ -167,9 +167,8 @@ void kernel_gaussian_exe(
    req.y_off=_y_off;
    req.dst_w=_dst_w;
    req.dst_h=_dst_h;
-   ztamTaskSpawn(iconv,&req,1);
-   iconv(&req,0);
-   while(ztamTaskStatus(1))
-      ztamTaskYield();
+   
+   ztamExecute(iconv,&req);
+
   >CALLBACK(0,_req_id);
 }

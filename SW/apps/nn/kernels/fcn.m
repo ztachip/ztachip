@@ -278,10 +278,9 @@ void kernel_innerProduct_exe(
    req.num_pcore=_num_pcore;
    req.num_thread=_num_thread;
    req.dx=req.num_pcore*req.num_thread*VECTOR_WIDTH;
-   ztamTaskSpawn(innerProduct,&req,1);
-   innerProduct(&req,0);
-   while(ztamTaskStatus(1))
-      ztamTaskYield();
+
+   ztamExecute(innerProduct,&req);
+
    >CALLBACK(0,_req_id);
 }
 
@@ -316,10 +315,9 @@ void kernel_Pooling_exe(
    req.botdim=_botdim;
    req.stream=_stream;
    req.output_shift=_output_shift;
-   ztamTaskSpawn(pooling,&req,1);
-   pooling(&req,0);
-   while(ztamTaskStatus(1))
-      ztamTaskYield();
+
+   ztamExecute(pooling,&req);
+
    >CALLBACK(0,_req_id);
 }
 

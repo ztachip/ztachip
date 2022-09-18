@@ -365,13 +365,10 @@ void kernel_of_exe(
    req.y_off=_y_off;
    req.dst_w=_dst_w;
    req.dst_h=_dst_h;
-   ztamTaskSpawn(of_phase_0,&req,1);
-   of_phase_0(&req,0);
-   while(ztamTaskStatus(1))
-      ztamTaskYield();
-   ztamTaskSpawn(of_phase_1,&req,1);
-   of_phase_1(&req,0);
-   while(ztamTaskStatus(1))
-      ztamTaskYield();
+   
+   ztamExecute(of_phase_0,&req);
+      
+   ztamExecute(of_phase_1,&req);
+      
   >CALLBACK(0,req_id);
 }

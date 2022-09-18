@@ -459,10 +459,7 @@ void kernel_copy_exe(
    req.dst_w=_dst_w;
    req.dst_h=_dst_h;
    req.equalize=_equalize;
-   ztamTaskSpawn(copy,&req,1);
-   copy(&req,0);
-   while(ztamTaskStatus(1))
-      ztamTaskYield();
+   ztamExecute(copy,&req);
   >CALLBACK(0,_req_id);
 }
 
@@ -506,9 +503,8 @@ void kernel_yuyv2rgb_exe(
    req.dst_y=_dst_y;
    req.dst_w=_dst_w;
    req.dst_h=_dst_h;
-   ztamTaskSpawn(yuyv2rgb,&req,1);
-   yuyv2rgb(&req,0);
-   while(ztamTaskStatus(1))
-      ztamTaskYield();
+   
+   ztamExecute(yuyv2rgb,&req);
+      
   >CALLBACK(0,_req_id);
 }
