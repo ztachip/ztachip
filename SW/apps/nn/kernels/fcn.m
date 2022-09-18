@@ -176,7 +176,7 @@ void kernel_concatenate_exe(
       dest=_dest[i];
       if(spu) {
          // Load stream processor code
-         ztaInitStream(spu,1);
+         ztaInitStream(spu);
       }
       remain=copySize;
       idx=0;
@@ -216,7 +216,7 @@ void kernel_logistic_exe(
    int fmt=DP_DATA_TYPE_UINT8;
 
    ztaInitPcore(zta_pcore_img);
-   ztaInitStream(_spu,2);
+   ztaInitStream(_spu);
    
    copySize=_copySize;
    src=_src;
@@ -262,7 +262,7 @@ void kernel_innerProduct_exe(
    RequestFcn req;
    
    ztaInitPcore(zta_pcore_img);
-   ztaInitStream(_stream,3);
+   ztaInitStream(_stream);
 
    req.coef=_coef;
    req.biasHi=_biasHi;
@@ -304,7 +304,7 @@ void kernel_Pooling_exe(
    RequestPool req;
    
    ztaInitPcore(zta_pcore_img);
-   ztaInitStream(_stream,3);
+   ztaInitStream(_stream);
 
    req.bot=_bot;
    req.top=_top;

@@ -64,9 +64,12 @@ void ztaInitPcore(uint16_t *_image) {
    > FLUSH;
 }
 
-void ztaInitStream(int _spu,int _spuCnt) {
-   if(_spu && _spuCnt > 0) {
-      > SPU <= (int)MEM(_spu,_spuCnt*SPU_LOOKUP_SIZE)[:];
+void ztaInitStream(int _spu) {
+   int spuCnt;
+   if(_spu ) {
+      spuCnt=*((uint16_t *)_spu);
+      _spu += sizeof(uint16_t);
+      > SPU <= (int)MEM(_spu,spuCnt*SPU_LOOKUP_SIZE)[:];
       > FLUSH;
    }
 }

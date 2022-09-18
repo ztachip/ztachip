@@ -440,7 +440,7 @@ void kernel_copy_exe(
    RequestCopy req;
 
    ztaInitPcore(zta_pcore_img);
-   ztaInitStream(_equalize,1);
+   ztaInitStream(_equalize);
       
    req.input=_input;
    req.output=_output;
@@ -489,7 +489,7 @@ void kernel_yuyv2rgb_exe(
    RequestColor req;
 
    ztaInitPcore(zta_pcore_img);
-   ztaInitStream(_spu,1);
+   ztaInitStream(_spu);
       
    req.input=_input;
    req.output=_output;

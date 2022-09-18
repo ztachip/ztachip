@@ -346,7 +346,7 @@ void kernel_of_exe(
    Request req;
 
    ztaInitPcore(zta_pcore_img);
-   ztaInitStream(_spu,4);
+   ztaInitStream(_spu);
 
    req.input[0]=_input[0];
    req.input[1]=_input[1];

@@ -661,7 +661,7 @@ void kernel_add_exe(
    RequestAdd req;
    
    ztaInitPcore(zta_pcore_img);
-   ztaInitStream(_stream,3);
+   ztaInitStream(_stream);
    
    req.size=_size;
    req.input[0]=_input_0;
@@ -707,7 +707,7 @@ void kernel_convolution_exe(
    int depth_fifo;
 
    ztaInitPcore(zta_pcore_img);
-   ztaInitStream(_stream,3);
+   ztaInitStream(_stream);
    
    req.coef=_coef;
    req.biasHi=_biasHi;
@@ -780,7 +780,7 @@ void kernel_convolution_depthwise_exe(
    int depth_fifo;
    
    ztaInitPcore(zta_pcore_img);
-   ztaInitStream(_stream,3);
+   ztaInitStream(_stream);
    
    req.coef=_coef;
    req.biasHi=_biasHi;
