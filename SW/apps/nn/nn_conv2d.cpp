@@ -137,16 +137,13 @@ ZtaStatus NeuralNetLayerConv2D::Prepare() {
                            MAX_CONV_Y_DIM);
    }
    GenBias((int32_t *)op->u.conv.bias,topcnt,(int32_t)bias,&m_shmBiasHi,&m_shmBiasLo);
-   m_shmSpuActivationStream=m_nn->BuildSpu(SpuEvalActivation,this,0,0);
-   m_shmSpuInputStream=m_nn->BuildSpu(SpuEvalInput,this,0,0);
-   m_shmSpuFilterStream=m_nn->BuildSpu(SpuEvalFilter,this,0,0);
-   m_shmSpu=m_nn->BufferAllocate(SPU_SIZE*2*sizeof(int16_t)*3);
-   int16_t *shmp=(int16_t *)ZTA_SHARED_MEM_P(m_shmSpu);
-   memcpy(shmp,ZTA_SHARED_MEM_P(m_shmSpuActivationStream),SPU_SIZE*2*sizeof(int16_t));
-   shmp+=2*SPU_SIZE;
-   memcpy(shmp,ZTA_SHARED_MEM_P(m_shmSpuInputStream),SPU_SIZE*2*sizeof(int16_t));
-   shmp+=2*SPU_SIZE;
-   memcpy(shmp,ZTA_SHARED_MEM_P(m_shmSpuFilterStream),SPU_SIZE*2*sizeof(int16_t));
+
+   m_shmSpu=ztahostBuildSpuBundle(3,
+                              SpuEvalActivation,this,0,0,
+                              SpuEvalInput,this,0,0,
+                              SpuEvalFilter,this,0,0);
+
+   m_nn->BufferAllocateExternal(m_shmSpu);
    return ZtaStatusOk;
 }
 

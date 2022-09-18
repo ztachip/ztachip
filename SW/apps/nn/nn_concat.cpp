@@ -66,7 +66,10 @@ ZtaStatus NeuralNetLayerConcat::Prepare() {
    // Generate spu lookup for input
    m_outerSize=outer_size;
    for(uint32_t i=0;i < op->u.concat.num_input;i++) {
-      m_shmSpu.push_back(m_nn->BuildSpu(SpuEval,this,i,0));
+      ZTA_SHARED_MEM spu;
+      spu=ztahostBuildSpuBundle(1,SpuEval,this,i,0);
+      m_nn->BufferAllocateExternal(spu);
+      m_shmSpu.push_back(spu);
       m_copySize.push_back((*op->input_shape[i])[op->u.concat.axis]*base_inner_size);
    }
    return ZtaStatusOk;

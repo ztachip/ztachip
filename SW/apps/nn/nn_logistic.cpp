@@ -46,17 +46,10 @@ NeuralNetLayerLogistic::~NeuralNetLayerLogistic() {
 }
 
 ZtaStatus NeuralNetLayerLogistic::Prepare() {
-   ZTA_SHARED_MEM shm,shm1,shm2;
-   int16_t *shmp;
-   shm1=m_nn->BuildSpu(SpuEval,this,0,0);
-   shm2=m_nn->BuildSpu(SpuEvalScale,this,0,0);
-   shm=m_nn->BufferAllocate(SPU_SIZE*2*sizeof(int16_t)*2);
-   shmp=(int16_t *)ZTA_SHARED_MEM_P(shm);
-   memcpy(shmp,ZTA_SHARED_MEM_P(shm1),SPU_SIZE*2*sizeof(int16_t));
-   shmp+=2*SPU_SIZE;
-   memcpy(shmp,ZTA_SHARED_MEM_P(shm2),SPU_SIZE*2*sizeof(int16_t));
-   shmp+=2*SPU_SIZE;
-   m_shmSpu=shm;
+   m_shmSpu=ztahostBuildSpuBundle(2,
+                              SpuEval,this,0,0,
+                              SpuEvalScale,this,0,0);
+   m_nn->BufferAllocateExternal(m_shmSpu);
    return ZtaStatusOk;
 }
 

@@ -240,7 +240,6 @@ public:
    bool BufferIsInit(int bufid);
    void BufferFreeAll();
    void BufferSetAsExternal(int bufid,bool flatFmt,bool interleaveFmt);
-   ZTA_SHARED_MEM BuildSpu(SPU_FUNC func,void *pparm,uint32_t parm,uint32_t parm2);
 private:
    ZtaStatus AssignInputTensor(bool firstTime);
    ZtaStatus AssignOutputTensors(bool firstTime);

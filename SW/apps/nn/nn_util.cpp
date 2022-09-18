@@ -27,13 +27,6 @@
 #include "../../base/tensor.h"
 #include "nn.h"
 
-ZTA_SHARED_MEM NeuralNet::BuildSpu(SPU_FUNC func,void *pparm,uint32_t parm,uint32_t parm2) {
-   ZTA_SHARED_MEM shm;
-   shm=ztahostBuildSpuBundle(1,func,pparm,parm,parm2);
-   m_bufUnboundLst.push_back(shm);
-   return shm;
-}
-
 bool NeuralNet::BufferIsInit(int bufid) {
    if(bufid >= (int)m_bufLst.size())
       return false;

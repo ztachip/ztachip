@@ -56,9 +56,6 @@ public:
    ZTA_SHARED_MEM m_shmFilter;
    ZTA_SHARED_MEM m_shmBiasHi;
    ZTA_SHARED_MEM m_shmBiasLo;
-   ZTA_SHARED_MEM m_shmSpuInputStream;
-   ZTA_SHARED_MEM m_shmSpuActivationStream;
-   ZTA_SHARED_MEM m_shmSpuFilterStream;
    ZTA_SHARED_MEM m_shmSpu;
    union {
       struct {

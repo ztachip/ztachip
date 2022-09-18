@@ -48,7 +48,8 @@ NeuralNetLayerPoolAvg::~NeuralNetLayerPoolAvg() {
 }
 
 ZtaStatus NeuralNetLayerPoolAvg::Prepare() {
-   m_shmSpu=m_nn->BuildSpu(SpuAvgPool,this,0,0);
+   m_shmSpu=ztahostBuildSpuBundle(1,SpuAvgPool,this,0,0);
+   m_nn->BufferAllocateExternal(m_shmSpu);
    return ZtaStatusOk;
 }
 
