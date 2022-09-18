@@ -17,6 +17,7 @@
 //------------------------------------------------------------------------------
 
 #include <stdio.h>
+#include <stdarg.h>
 #include <string.h>
 #include <assert.h>
 #include <vector>
@@ -68,6 +69,11 @@ ZTA_SHARED_MEM NeuralNet::BufferAllocate(size_t sz) {
   // This buffer is not associated with an id
    m_bufUnboundLst.push_back(shm);
    return shm;
+}
+
+// Register a already allocated buffer that to be freed later
+void NeuralNet::BufferAllocateExternal(ZTA_SHARED_MEM shm) {
+   m_bufUnboundLst.push_back(shm);
 }
 
 ZtaStatus NeuralNet::BufferAllocate(int bufid,NeuralNetTensorType type,size_t sz,bool flatFmt,bool interleaveFmt) {

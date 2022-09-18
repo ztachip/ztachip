@@ -232,6 +232,7 @@ public:
    const char *LabelGet(int _idx);
 public:
    ZTA_SHARED_MEM BufferAllocate(size_t sz);
+   void BufferAllocateExternal(ZTA_SHARED_MEM shm);
    ZtaStatus BufferAllocate(int bufid,NeuralNetTensorType type,size_t sz,bool flatFmt,bool interleaveFmt);
    ZtaStatus BufferAllocate(int bufid,TENSOR *_tensor);
    ZTA_SHARED_MEM BufferGetFlat(int bufid);

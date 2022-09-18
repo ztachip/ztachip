@@ -80,18 +80,14 @@ ZtaStatus NeuralNetLayerAdd::Prepare() {
    if(bits < 10)
       shift=std::min(10-bits,shift);
    // Let intermediate values be a bit bigger to gain more resolution
-   ZTA_SHARED_MEM shmInputStream[2];
-   ZTA_SHARED_MEM shmActivationStream;
-   shmInputStream[0]=m_nn->BuildSpu(SpuInputEval,this,0,op->u.add.output.shift-shift);
-   shmInputStream[1]=m_nn->BuildSpu(SpuInputEval,this,1,op->u.add.output.shift-shift);
-   shmActivationStream=m_nn->BuildSpu(SpuOutputEval,this,0,shift);
-   m_shmSpu=m_nn->BufferAllocate(SPU_SIZE*2*sizeof(int16_t)*3);
-   int16_t *shmp=(int16_t *)ZTA_SHARED_MEM_P(m_shmSpu);
-   memcpy(shmp,ZTA_SHARED_MEM_P(shmActivationStream),SPU_SIZE*2*sizeof(int16_t));
-   shmp+=2*SPU_SIZE;
-   memcpy(shmp,ZTA_SHARED_MEM_P(shmInputStream[0]),SPU_SIZE*2*sizeof(int16_t));
-   shmp+=2*SPU_SIZE;
-   memcpy(shmp,ZTA_SHARED_MEM_P(shmInputStream[1]),SPU_SIZE*2*sizeof(int16_t));
+
+   m_shmSpu=ztahostBuildSpuBundle(3,
+                                  SpuOutputEval,this,0,shift,
+                                  SpuInputEval,this,0,op->u.add.output.shift-shift,
+                                  SpuInputEval,this,1,op->u.add.output.shift-shift);
+
+   m_nn->BufferAllocateExternal(m_shmSpu);
+
    op->u.add.output.shift=shift;
    return ZtaStatusOk;
 }
