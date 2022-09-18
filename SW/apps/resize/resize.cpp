@@ -20,32 +20,14 @@
 #include "../../base/types.h"
 #include "../../base/tensor.h"
 #include "../../base/graph.h"
+extern "C"
+{
 #include "kernels/resize.h"
+}
 #include "resize.h"
 
 // Graph node to do image resize
 // Resize using boxing method
-
-extern "C" void kernel_resize_exe(
-   unsigned int _req_id,
-   unsigned int _input,
-   unsigned int _output,
-   unsigned int _temp,
-   unsigned int _filter_0,
-   unsigned int _filter_1,
-   unsigned int _filteri_0,
-   unsigned int _filteri_1,
-   int _filterLen_0,
-   int _filterLen_1,
-   unsigned int _spu,
-   int _nchannel,
-   int _src_w,
-   int _src_h,
-   int _dst_w,
-   int _dst_h,
-   int _scale_x,
-   int _scale_y
-);
 
 GraphNodeResize::GraphNodeResize() : GraphNode() {
    m_temp=0;

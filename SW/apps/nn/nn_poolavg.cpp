@@ -23,21 +23,11 @@
 #include "../../base/types.h"
 #include "../../base/util.h"
 #include "../../base/ztahost.h"
+extern "C"
+{
+#include "kernels/fcn.h"
+}
 #include "nn_poolavg.h"
-
-extern "C" void kernel_Pooling_exe(
-   unsigned int _req_id,
-   unsigned int _bot,
-   unsigned int _top,
-   int _ksz,
-   int _stride,
-   int _topcnt,
-   int _topdim,
-   int _botcnt,
-   int _botdim,
-   unsigned int _stream,
-   int _output_shift
-);
 
 // Do pool average layer
 

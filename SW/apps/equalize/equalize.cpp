@@ -20,19 +20,12 @@
 #include "../../base/types.h"
 #include "../../base/tensor.h"
 #include "../../base/graph.h"
+extern "C"
+{
 #include "kernels/equalize.h"
+}
 #include "equalize.h"
 
-extern "C" void kernel_equalize_exe(
-   unsigned int _req_id,
-   unsigned int _input,
-   unsigned int _output,
-   unsigned int _output2,
-   int _nchannels,
-   unsigned int _equalize,
-   int _w,
-   int _h
-   );
 
 // Graph node to do image equalization (improve image contrast)
 // Calculate pixel value histogram and then apply image

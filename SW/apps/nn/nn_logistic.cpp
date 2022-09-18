@@ -25,15 +25,11 @@
 #include "../../base/types.h"
 #include "../../base/util.h"
 #include "../../base/ztahost.h"
+extern "C"
+{
+#include "kernels/fcn.h"
+}
 #include "nn_logistic.h"
-
-extern "C" void kernel_logistic_exe(
-   unsigned int _req_id,
-   int _copySize,
-   unsigned int _src,
-   unsigned int _dest,
-   unsigned int _spu
-);
 
 // Do logistic layer
 

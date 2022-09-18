@@ -20,28 +20,15 @@
 #include "../../base/types.h"
 #include "../../base/tensor.h"
 #include "../../base/graph.h"
+extern "C"
+{
 #include "kernels/gaussian.h"
+}
 #include "gaussian.h"
 
 #define SIGMA 0.84089642
 #define PI 3.14159265
 
-extern "C" void kernel_gaussian_exe(
-   unsigned int _req_id,
-   unsigned int _input,
-   unsigned int _output,
-   unsigned int _kernel,
-   int _nchannel,
-   int _ksz,
-   int _w,
-   int _h,
-   int _src_w,
-   int _src_h,
-   int _x_off,
-   int _y_off,
-   int _dst_w,
-   int _dst_h
-);
 
 // Graph node to do gaussian convolution on an image
 // The effect is image blurring

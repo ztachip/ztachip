@@ -64,7 +64,7 @@ void ztaInitPcore(uint16_t *_image) {
    > FLUSH;
 }
 
-void ztaInitStream(int _spu) {
+void ztaInitStream(uint32_t _spu) {
    int spuCnt;
    if(_spu ) {
       spuCnt=*((uint16_t *)_spu);

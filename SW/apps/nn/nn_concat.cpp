@@ -25,16 +25,11 @@
 #include "../../base/types.h"
 #include "../../base/util.h"
 #include "../../base/ztahost.h"
+extern "C"
+{
+#include "kernels/fcn.h"
+}
 #include "nn_concat.h"
-
-extern "C" void kernel_concatenate_exe(
-   unsigned int _req_id,
-   int _cnt,
-   unsigned int *_src,
-   int *_copySize,
-   unsigned int *_spu,
-   unsigned int *_dest
-);
 
 #define MAX_CONCATENATE  8
 

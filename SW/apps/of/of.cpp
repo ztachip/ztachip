@@ -20,30 +20,14 @@
 #include "../../base/types.h"
 #include "../../base/tensor.h"
 #include "../../base/graph.h"
+extern "C"
+{
 #include "kernels/of.h"
+}
 #include "of.h"
 
 // Graph node to do optical flow using Lucas-Kanade algorithm
 // https://en.wikipedia.org/wiki/Lucas%E2%80%93Kanade_method
-
-extern "C" void kernel_of_exe(
-   unsigned int req_id,
-   unsigned int _input[2],
-   unsigned int _x_gradient,
-   unsigned int _y_gradient,
-   unsigned int _t_gradient,
-   unsigned int _x_vect,
-   unsigned int _y_vect,
-   unsigned int _display,
-   unsigned int _spu,
-   int _w,
-   int _h,
-   int _src_w,
-   int _src_h,
-   int _x_off,
-   int _y_off,
-   int _dst_w,
-   int _dst_h);
 
 GraphNodeOpticalFlow::GraphNodeOpticalFlow() {
    m_input1=0;

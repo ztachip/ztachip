@@ -896,6 +896,7 @@ void cIdentifier::scan(cAstNode *_func,cAstNode *owner,cAstNode *parent,bool _gl
          node3=(cAstNode *)node2->getChildList();
          while(node3)
          {
+            id=0;
             if(node3->getID()==eTOKEN_init_declarator)
             {
                node5=node3->getChildList();
@@ -918,6 +919,11 @@ void cIdentifier::scan(cAstNode *_func,cAstNode *owner,cAstNode *parent,bool _gl
                }
                else
                   error(node->m_lineNo,"Only float are supported for global variables");
+            }
+            else if(node->getChild(2,eTOKEN_declaration_specifiers,eTOKEN_EXTERN))
+            {
+               // Ignore this. Nothing to do
+               id=0;
             }
             else if(node->getChild(2,eTOKEN_declaration_specifiers,eTOKEN_STATIC))
             {
@@ -968,9 +974,11 @@ void cIdentifier::scan(cAstNode *_func,cAstNode *owner,cAstNode *parent,bool _gl
                }
             }
             else
-               error(node->m_lineNo,"Unsupported variable type");
-            assert(id!=0);
-            id->setInitializer(init,0,levelIndex);
+            {
+                error(node->m_lineNo,"Unsupported variable type 1");
+            }
+            if(id)
+               id->setInitializer(init,0,levelIndex);
             node3=(cAstNode *)node3->getNext();
          }
       }
@@ -1085,7 +1093,7 @@ void cIdentifier::scanParm(
                error(node->m_lineNo,"Invalid specifier");
          }
          else
-            error(node->m_lineNo,"Unsupported variable type");
+            error(node->m_lineNo,"Unsupported variable type 2");
          pos++;
       }
       node=(cAstNode *)node->getNext();

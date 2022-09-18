@@ -19,6 +19,45 @@
 #ifndef _COLOR_H_
 #define _COLOR_H_
 
+extern void kernel_copy_exe(
+   unsigned int _req_id,
+   unsigned int _input,
+   unsigned int _output,
+   int _w,
+   int _h,
+   int _src_channel_fmt,
+   int _src_channel_color,
+   int _dst_channel_fmt,
+   int _dst_channel_color,
+   int _src_w,
+   int _src_h,
+   int _x_off,
+   int _y_off,
+   int _dst_x,
+   int _dst_y,
+   int _dst_w,
+   int _dst_h,
+   unsigned int _equalize);
+
+extern void kernel_yuyv2rgb_exe(
+   unsigned int _req_id,
+   unsigned int _input,
+   unsigned int _output,
+   unsigned int _spu,
+   int _w,
+   int _h,
+   int _dst_channel_fmt,
+   int _dst_channel_color,
+   int _src_w,
+   int _src_h,
+   int _x_off,
+   int _y_off,
+   int _dst_x,
+   int _dst_y,
+   int _dst_w,
+   int _dst_h
+);
+
 // Image data format
 #define kChannelFmtInterleave 0 // Color but color are interleaved
 #define kChannelFmtSplit      1 // Color but color space are split

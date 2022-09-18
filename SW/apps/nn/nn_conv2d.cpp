@@ -25,77 +25,12 @@
 #include "../../base/util.h"
 #include "../../base/ztahost.h"
 #include "nn_conv2d.h"
+extern "C"
+{
+#include "kernels/fcn.h"
 #include "kernels/nn.h"
 #include "kernels/conv.h"
-
-extern "C" void kernel_convolution_depthwise_exe(
-   unsigned int _req_id,
-   unsigned int _coef,
-   unsigned int _biasHi,
-   unsigned int _biasLo,
-   unsigned int _bot,
-   unsigned int _top,
-   unsigned int _top_interleave,
-   int _ksz,
-   int _topcnt,
-   int _topdim,
-   int _botcnt,
-   int _botdim,
-   int _input_offset,
-   int _activation_scale,
-   unsigned int _stream,
-   int _group,
-   int _stride,
-   int _pad,
-   int _conv_dx,
-   int _dycnt,
-   int _groupsz,
-   int _in_interleave,
-   int _out_interleave
-);
-
-extern "C" void kernel_convolution_exe(
-   unsigned int _req_id,
-   unsigned int _coef,
-   unsigned int _biasHi,
-   unsigned int _biasLo,
-   unsigned int _bot,
-   unsigned int _top,
-   unsigned int _top_interleave,
-   int _ksz,
-   int _topcnt,
-   int _topdim,
-   int _botcnt,
-   int _botdim,
-   int _input_offset,
-   int _activation_scale,
-   unsigned int _stream,
-   int _group,
-   int _stride,
-   int _pad,
-   int _conv_dx,
-   int _dycnt,
-   int _groupsz,
-   int _in_interleave,
-   int _out_interleave
-);
-
-extern "C" void kernel_innerProduct_exe(
-   unsigned int _req_id,
-   unsigned int _coef,
-   unsigned int _biasHi,
-   unsigned int _biasLo,
-   unsigned int _bot,
-   unsigned int _top,
-   int _topcnt,
-   int _botcnt,
-   int _coeftopcnt,
-   int _coefbotcnt,
-   unsigned int _stream,
-   int _top_scale,
-   int _num_pcore,
-   int _num_thread
-);
+}
 
 // Do convolution layer
 

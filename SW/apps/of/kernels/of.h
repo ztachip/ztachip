@@ -19,6 +19,25 @@
 #ifndef _APPS_OF_KERNELS_OF_H_
 #define _APPS_OF_KERNELS_OF_H_
 
+extern void kernel_of_exe(
+   unsigned int req_id,
+   unsigned int _input[2],
+   unsigned int _x_gradient,
+   unsigned int _y_gradient,
+   unsigned int _t_gradient,
+   unsigned int _x_vect,
+   unsigned int _y_vect,
+   unsigned int _display,
+   unsigned int _spu,
+   int _w,
+   int _h,
+   int _src_w,
+   int _src_h,
+   int _x_off,
+   int _y_off,
+   int _dst_w,
+   int _dst_h);
+
 // Parameter for doing convolution
 
 #define TILE_DX_DIM        4  // Tile dimension 

@@ -19,6 +19,23 @@
 #ifndef _GAUSSIAN_H_
 #define _GAUSSIAN_H_
 
+extern void kernel_gaussian_exe(
+   unsigned int _req_id,
+   unsigned int _input,
+   unsigned int _output,
+   unsigned int _kernel,
+   int _nchannel,
+   int _ksz,
+   int _w,
+   int _h,
+   int _src_w,
+   int _src_h,
+   int _x_off,
+   int _y_off,
+   int _dst_w,
+   int _dst_h
+);
+
 #define TILE_DX_DIM   8  // Tile dimension 
 #define TILE_DY_DIM   4  // Tile dimension 
 #define TILE_MAX_PAD  3  // Overlap region between tiles

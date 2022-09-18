@@ -25,16 +25,11 @@
 #include "../../base/types.h"
 #include "../../base/util.h"
 #include "../../base/ztahost.h"
+extern "C"
+{
+#include "kernels/conv.h"
+}
 #include "nn_add.h"
-
-extern "C" void kernel_add_exe(
-   unsigned int _req_id,
-   int _size,
-   unsigned int _input_0,
-   unsigned int _input_1,
-   unsigned int _output,
-   unsigned int _stream
-);
 
 // Do Add layer
 

@@ -19,6 +19,24 @@
 #ifndef _CANNY_H_
 #define _CANNY_H_
 
+extern void kernel_canny_exe(
+   unsigned int req_id,
+   unsigned int _input,
+   unsigned int _magnitude,
+   unsigned int _phase,
+   unsigned int _maxima,
+   unsigned int _output,
+   int _threshold_lo,
+   int _threshold_hi,
+   int _w,
+   int _h,
+   int _src_w,
+   int _src_h,
+   int _x_off,
+   int _y_off,
+   int _dst_w,
+   int _dst_h);
+
 #define TILE_DX_DIM     4  // Tile dimension 
 #define TILE_DY_DIM     4  // Tile dimension 
 #define TILE_MAX_PAD    1  // Overlap region between tiles

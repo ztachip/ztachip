@@ -20,5 +20,5 @@
 #define _APPS_MAIN_KERNEL_MAIN_H_
 
 extern void ztaInitPcore(uint16_t *_image);
-extern void ztaInitStream(int _spu);
+extern void ztaInitStream(uint32_t _spu);
 #endif

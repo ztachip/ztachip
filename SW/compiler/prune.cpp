@@ -287,6 +287,7 @@ static void prune3(cAstNode *node)
    }
 }
 
+
 // Pruning AST tree by collapsing composite node of the same type
 static cAstNode *prune2(cAstNode *node)
 {

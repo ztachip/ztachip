@@ -375,6 +375,7 @@ int main(int argc,char *argv[])
    char pfileOutput2[100];
    char pfileConstant[100];
    char pfileHeader[100];
+   int lvlFlag[64];
 
    // Perform some static initialization...
    cConstant::Init();
