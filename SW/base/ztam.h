@@ -56,6 +56,7 @@ extern void _taskYield(void);
 extern void _taskSpawn(uint32_t,uint32_t,uint32_t,uint32_t);
 void ztamInit();
 void ztamTaskInit();
+void ztamExecute(void(*func)(void *,int),void *pparm);
 void ztamTaskSpawn(void(*func)(void *,int), void *_p, uint32_t p2);
 bool ztamTaskStatus(int pid);
 uint32_t ztamBuildKernelFunc(uint32_t _func,int num_pcore,int num_tid);

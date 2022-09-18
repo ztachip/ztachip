@@ -53,6 +53,15 @@ void ztamTaskSpawn(void(*func)(void *,int), void *_p, uint32_t p2) {
    _taskYield();
 }
 
+// Start execution by spawning 2 threads
+void ztamExecute(void(*func)(void *,int),void *pparm) {
+   ztamTaskSpawn(func,pparm,1);
+   (*func)(pparm,0);
+   // Wait for both threads to be finished
+   while(ztamTaskStatus(1))
+      ztamTaskYield();
+}
+
 // All information to launch a kernel is packed into 32 bit word
 
 uint32_t ztamBuildKernelFunc(uint32_t _func,int num_pcore,int num_tid) {
@@ -80,4 +89,6 @@ void ztamAssert(char *msg) {
    for(;;) {
    }
 }
+
+
 

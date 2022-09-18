@@ -64,6 +64,9 @@ void ztaInitPcore(uint16_t *_image) {
    > FLUSH;
 }
 
+// Download code to stream processor
+// Code for stream processor is a table lookup to map between input and output
+
 void ztaInitStream(uint32_t _spu) {
    int spuCnt;
    if(_spu ) {
