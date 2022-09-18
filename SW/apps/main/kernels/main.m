@@ -30,8 +30,6 @@ void ztaInitPcore(uint16_t *_image) {
       return;
    last_image=_image;
    
-   ztamInit();
-   
    pcore_p = _image;
    pcoreLen= pcore_p[0];
    pcore_p++;
