@@ -53,8 +53,8 @@ ZtaStatus NeuralNetLayerAdd::Prepare() {
    op->u.add.output.shift=-op->u.add.output.shift;
    op->u.add.input[0].shift=-op->u.add.input[0].shift;
    op->u.add.input[1].shift=-op->u.add.input[1].shift;
-   min[0]=(int32_t)SpuInputEval((float)0,this,0,0);
-   max[0]=(int32_t)SpuInputEval((float)255,this,0,0);
+   min[0]=(int32_t)SpuInputEval((float)0,this,0,op->u.add.output.shift);
+   max[0]=(int32_t)SpuInputEval((float)255,this,0,op->u.add.output.shift);
    range=std::abs(min[0]);
    if(range<std::abs(max[0]))
       range=std::abs(max[0]);
@@ -67,8 +67,8 @@ ZtaStatus NeuralNetLayerAdd::Prepare() {
       shift=10-bits;
    else
       shift=0;
-   min[1]=(int32_t)SpuInputEval((float)0,this,1,0);
-   max[1]=(int32_t)SpuInputEval((float)255,this,1,0);
+   min[1]=(int32_t)SpuInputEval((float)0,this,1,op->u.add.output.shift);
+   max[1]=(int32_t)SpuInputEval((float)255,this,1,op->u.add.output.shift);
    range=std::abs(min[1]);
    if(range<std::abs(max[1]))
       range=std::abs(max[1]);
@@ -80,13 +80,11 @@ ZtaStatus NeuralNetLayerAdd::Prepare() {
    if(bits < 10)
       shift=std::min(10-bits,shift);
    // Let intermediate values be a bit bigger to gain more resolution
-   op->u.add.output.shift-=shift;
    ZTA_SHARED_MEM shmInputStream[2];
    ZTA_SHARED_MEM shmActivationStream;
-   shmInputStream[0]=m_nn->BuildSpu(SpuInputEval,this,0,0);
-   shmInputStream[1]=m_nn->BuildSpu(SpuInputEval,this,1,0);
-   op->u.add.output.shift=shift;   
-   shmActivationStream=m_nn->BuildSpu(SpuOutputEval,this,0,0);
+   shmInputStream[0]=m_nn->BuildSpu(SpuInputEval,this,0,op->u.add.output.shift-shift);
+   shmInputStream[1]=m_nn->BuildSpu(SpuInputEval,this,1,op->u.add.output.shift-shift);
+   shmActivationStream=m_nn->BuildSpu(SpuOutputEval,this,0,shift);
    m_shmSpu=m_nn->BufferAllocate(SPU_SIZE*2*sizeof(int16_t)*3);
    int16_t *shmp=(int16_t *)ZTA_SHARED_MEM_P(m_shmSpu);
    memcpy(shmp,ZTA_SHARED_MEM_P(shmActivationStream),SPU_SIZE*2*sizeof(int16_t));
@@ -94,6 +92,7 @@ ZtaStatus NeuralNetLayerAdd::Prepare() {
    memcpy(shmp,ZTA_SHARED_MEM_P(shmInputStream[0]),SPU_SIZE*2*sizeof(int16_t));
    shmp+=2*SPU_SIZE;
    memcpy(shmp,ZTA_SHARED_MEM_P(shmInputStream[1]),SPU_SIZE*2*sizeof(int16_t));
+   op->u.add.output.shift=shift;
    return ZtaStatusOk;
 }
 
@@ -116,6 +115,7 @@ float NeuralNetLayerAdd::SpuInputEval(float _in,void *pparm,uint32_t parm,uint32
    NeuralNetOperatorDef *op_=(layer)?&((NeuralNetLayerAdd *)layer)->m_def:0;
    static NeuralNetOperatorDef *op=0;
    uint8_t input;
+   int output_shift=parm2;
    if(op_)
       op=op_;
    input = (uint8_t)_in;
@@ -127,8 +127,8 @@ float NeuralNetLayerAdd::SpuInputEval(float _in,void *pparm,uint32_t parm,uint32
    }
    int32_t raw_sum = scaled_input_val;
    int32_t raw_output=(((int64_t)raw_sum*(int64_t)op->u.add.output.multiplier+(1 << 30)) >> (31));
-   if (op->u.add.output.shift >= 1) {
-      raw_output = (raw_output+(1 << (op->u.add.output.shift - 1))) >> op->u.add.output.shift;
+   if (output_shift >= 1) {
+      raw_output = (raw_output+(1 << (output_shift - 1))) >> output_shift;
    }
    return (float)raw_output;
 }
@@ -141,7 +141,7 @@ float NeuralNetLayerAdd::SpuOutputEval(float _in,void *pparm,uint32_t parm,uint3
    int32_t raw_output,shift;
    if(op_)
       op=op_;
-   shift=op->u.add.output.shift;
+   shift=parm2;
    raw_output=(int32_t)_in;
    if(shift>=1)
       raw_output += (1<<(shift-1));
