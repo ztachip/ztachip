@@ -94,9 +94,7 @@ int16_t NeuralNetLayerPoolAvg::SpuAvgPool(int16_t _in,void *pparm,uint32_t parm,
    } else if(_in2 < activation_min) {
       return static_cast<int16_t>(activation_min);
    } else {
-      int16_t out;
-      Util::Float2Int(&_in2,&out,DATA_BIT_WIDTH-1,1);
-      return out;
+      return FLOAT2INT(_in2);
    }
 }  
 

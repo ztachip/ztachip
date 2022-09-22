@@ -211,7 +211,6 @@ int16_t NeuralNetLayerConv2D::SpuEvalActivation(int16_t _in,void *pparm,uint32_t
    }
    float x;
    float _in2;
-   int16_t out;
    _in2 = (float)_in*((float)(1<<SCALE));
    _in2 = _in2+X_min;
    x=(_in2*N+D/2)/D+OFFSET;
@@ -219,8 +218,7 @@ int16_t NeuralNetLayerConv2D::SpuEvalActivation(int16_t _in,void *pparm,uint32_t
       x=(float)x_min;
    else if(x > x_max)
       x=(float)x_max;
-   Util::Float2Int(&x,&out,DATA_BIT_WIDTH-1,1);
-   return out;
+   return FLOAT2INT(x);
 }
 
 // SPU evaluation function for input

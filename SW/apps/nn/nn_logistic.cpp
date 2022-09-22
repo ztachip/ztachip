@@ -93,10 +93,8 @@ int16_t NeuralNetLayerLogistic::SpuEval(int16_t _in,void *pparm,uint32_t parm,ui
 
 int16_t NeuralNetLayerLogistic::SpuEvalScale(int16_t _in,void *pparm,uint32_t index,uint32_t parm2) {
    float out;
-   int16_t out2;
    out=(float)_in*kLogisticScale;
-   Util::Float2Int(&out,&out2,DATA_BIT_WIDTH-1,1);
-   return out2;
+   return FLOAT2INT(out);
 }
 
 

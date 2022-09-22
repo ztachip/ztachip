@@ -31,7 +31,6 @@
 
 class Util {
 public:
-   static void Int2Float(int16_t *in,float *out,int pos,int len);
    static float pow(float x,int power);
    static size_t GetTensorSize(std::vector<int>& shape);
 };

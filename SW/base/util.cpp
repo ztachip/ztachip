@@ -107,24 +107,6 @@ int16_t FLOAT2INT(float in) {
    return (result>>4);
 }
 
-// Convert from int12 format to float
-// pos is the position of decimal place.
-
-void Util::Int2Float(int16_t *in,float *out,int pos,int len) {
-   int v;
-   for(int i=0;i < len;i++) {
-      v=(int)in[i];
-      if(v==0) {
-         out[i]=0.0;
-      } else {
-         if(((DATA_BIT_WIDTH-1)-pos) >= 0)
-            out[i]=(float)v/Util::pow((float)2.0,(DATA_BIT_WIDTH-1)-pos);
-         else
-            out[i]=(float)v*Util::pow((float)2.0,pos-(DATA_BIT_WIDTH-1));
-      }
-   }
-}
-
 // Return total tensor array size
 
 size_t Util::GetTensorSize(std::vector<int>& shape) {
