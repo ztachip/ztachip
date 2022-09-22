@@ -123,7 +123,7 @@ ZTA_SHARED_MEM GraphNodeEqualize::GenEqualizer() {
    return m_spu;
 }
 
-float GraphNodeEqualize::SpuCallback(float input,void *pparm,uint32_t parm,uint32_t parm2) {
+int16_t GraphNodeEqualize::SpuCallback(int16_t input,void *pparm,uint32_t parm,uint32_t parm2) {
    static GraphNodeEqualize *instance=0;
    uint8_t v;
    int count,i;
@@ -131,7 +131,7 @@ float GraphNodeEqualize::SpuCallback(float input,void *pparm,uint32_t parm,uint3
       instance=(GraphNodeEqualize *)pparm;
    if(input < 0)
       v=0;
-   else if(input > 255.0)
+   else if(input > 255)
       v=255;
    else
       v=input;
@@ -141,7 +141,7 @@ float GraphNodeEqualize::SpuCallback(float input,void *pparm,uint32_t parm,uint3
    count = (255*count)/(instance->m_nChannel*instance->m_w*instance->m_h);
    if (count > 255)   
       count = 255;
-   return (float)count;
+   return (int16_t)count;
 }
 
 void GraphNodeEqualize::Cleanup() {

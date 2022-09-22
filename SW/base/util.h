@@ -31,12 +31,12 @@
 
 class Util {
 public:
-   static void Float2Int(float *in,int16_t *out,int pos,int len);
    static void Int2Float(int16_t *in,float *out,int pos,int len);
    static float pow(float x,int power);
    static size_t GetTensorSize(std::vector<int>& shape);
 };
 
+int16_t FLOAT2INT(float in);
 ZtaStatus BitmapRead(const char *bmpFile,TENSOR *outputTensor,TensorFormat fmt=TensorFormatSplit);
 
 #endif

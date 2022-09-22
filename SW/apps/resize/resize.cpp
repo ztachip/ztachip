@@ -223,13 +223,13 @@ void GraphNodeResize::Cleanup() {
 // Callback to build SPU lookup table
 // The table lookup is for output pixel value scaling 
 
-float GraphNodeResize::spuCallback(float input,void *pparm,uint32_t parm) {
+int16_t GraphNodeResize::spuCallback(int16_t input,void *pparm,uint32_t parm) {
    static float scale=0;
    int v;
    if(pparm)
       scale=*((float *)pparm);
-   v=(int)(input*scale+0.5);
+   v=(int)((float)input*scale+0.5);
    if(v>255)
       v=255;
-   return (float)v;
+   return (int16_t)v;
 }

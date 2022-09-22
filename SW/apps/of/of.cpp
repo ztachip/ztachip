@@ -154,13 +154,20 @@ void GraphNodeOpticalFlow::Cleanup() {
    } 
 }
 
-float GraphNodeOpticalFlow::SpuCallback(float _in,void *pparm,uint32_t parm) {
+int16_t GraphNodeOpticalFlow::SpuCallback(int16_t _in,void *pparm,uint32_t parm) {
+   int32_t v;
    if(_in==0)
       _in=1;
-   return (float)round((int32_t)(((1048576/32))/_in));
+   v=(int32_t)round((int32_t)(((1048576/32))/(float)_in));
+   if(v > 2047)
+      return 2047;
+   else if(v < -2048)
+      return -2048;
+   else
+      return (int16_t)v;
 }
 
-float GraphNodeOpticalFlow::SpuDisplayLeftHorizontalCallback(float _in,void *pparm,uint32_t parm) {
+int16_t GraphNodeOpticalFlow::SpuDisplayLeftHorizontalCallback(int16_t _in,void *pparm,uint32_t parm) {
    if(_in<=0)
       _in=0;
    if(_in>=255)
@@ -169,7 +176,7 @@ float GraphNodeOpticalFlow::SpuDisplayLeftHorizontalCallback(float _in,void *ppa
 }
 
 
-float GraphNodeOpticalFlow::SpuDisplayRightHorizontalCallback(float _in,void *pparm,uint32_t parm) {
+int16_t GraphNodeOpticalFlow::SpuDisplayRightHorizontalCallback(int16_t _in,void *pparm,uint32_t parm) {
    if(_in>=0)
       _in=0;
    else
@@ -180,7 +187,7 @@ float GraphNodeOpticalFlow::SpuDisplayRightHorizontalCallback(float _in,void *pp
 }
 
 
-float GraphNodeOpticalFlow::SpuDisplayVerticalCallback(float _in,void *pparm,uint32_t parm) {
+int16_t GraphNodeOpticalFlow::SpuDisplayVerticalCallback(int16_t _in,void *pparm,uint32_t parm) {
    if(_in < 0)
       _in=-_in;
    if(_in >= 255)

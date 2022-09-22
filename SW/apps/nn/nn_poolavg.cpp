@@ -61,7 +61,7 @@ ZtaStatus NeuralNetLayerPoolAvg::Evaluate(int queue) {
    return ZtaStatusOk;
 }
 
-float NeuralNetLayerPoolAvg::SpuAvgPool(float _in,void *pparm,uint32_t parm,uint32_t parm2)
+int16_t NeuralNetLayerPoolAvg::SpuAvgPool(int16_t _in,void *pparm,uint32_t parm,uint32_t parm2)
 {
    NeuralNetLayer *layer=static_cast<NeuralNetLayer *>(pparm);
    NeuralNetOperatorDef *op=layer?&((NeuralNetLayerPoolAvg *)layer)->m_def:0;
@@ -87,13 +87,16 @@ float NeuralNetLayerPoolAvg::SpuAvgPool(float _in,void *pparm,uint32_t parm,uint
       activation_min=op->u.pool_avg.activation_min;
       ((NeuralNetLayerPoolAvg *)layer)->m_outputShift=bit;
    }
-   _in=static_cast<float>(((_in*(float)N)/(float)D)+0.5);
-   if(_in > activation_max) {
-      return static_cast<float>(activation_max);
-   } else if(_in < activation_min) {
-      return static_cast<float>(activation_min);
+   float _in2;
+   _in2=static_cast<float>((((float)_in*(float)N)/(float)D)+0.5);
+   if(_in2 > activation_max) {
+      return static_cast<int16_t>(activation_max);
+   } else if(_in2 < activation_min) {
+      return static_cast<int16_t>(activation_min);
    } else {
-      return _in;
+      int16_t out;
+      Util::Float2Int(&_in2,&out,DATA_BIT_WIDTH-1,1);
+      return out;
    }
 }  
 

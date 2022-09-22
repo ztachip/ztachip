@@ -34,10 +34,12 @@ typedef void * ZTA_SHARED_MEM;
 #define ZTA_SHARED_MEM_P(p)         ((void *)(p))
 #define ZTA_SHARED_MEM_PHYSICAL(p)  ((uint32_t)p)
 
+#define DELIMIT(a)   (((a)>2047)?2047:(((a)<(-2048))?(-2048):(a)))
 
-typedef float (*SPU_FUNC)(float,void *pparm,uint32_t parm,uint32_t parm2);
+typedef int16_t (*SPU_FUNC)(int16_t,void *pparm,uint32_t parm,uint32_t parm2);
 
 // Build SPU lookup table
+
 extern ZTA_SHARED_MEM ztahostBuildSpu(SPU_FUNC func,void *pparm,uint32_t parm);
 extern ZTA_SHARED_MEM ztahostBuildSpuBundle(int numSpuImg,...);
 

@@ -35,7 +35,7 @@ public:
    virtual ZtaStatus Prepare(int queue,bool stepMode);
 private:
    void Cleanup();
-   static float spuCallback(float input,void *pparm,uint32_t parm);
+   static int16_t spuCallback(int16_t input,void *pparm,uint32_t parm);
 private:
    uint32_t m_func;
    int m_src_w;

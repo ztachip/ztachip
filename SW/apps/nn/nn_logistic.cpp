@@ -61,7 +61,7 @@ ZtaStatus NeuralNetLayerLogistic::Evaluate(int queue) {
    return ZtaStatusOk;
 }
 
-float NeuralNetLayerLogistic::SpuEval(float _in,void *pparm,uint32_t parm,uint32_t parm2) {
+int16_t NeuralNetLayerLogistic::SpuEval(int16_t _in,void *pparm,uint32_t parm,uint32_t parm2) {
    NeuralNetLayer *layer=static_cast<NeuralNetLayer *>(pparm);
    static uint8_t lookup[256*kLogisticScale];
    NeuralNetOperatorDef *op=layer?&((NeuralNetLayerLogistic *)layer)->m_def:0;
@@ -88,11 +88,15 @@ float NeuralNetLayerLogistic::SpuEval(float _in,void *pparm,uint32_t parm,uint32
       index=0;
    else if(index > (256*kLogisticScale-1))
       index=256*kLogisticScale-1;
-   return (float)lookup[index];
+   return (int16_t)lookup[index];
 }
 
-float NeuralNetLayerLogistic::SpuEvalScale(float _in,void *pparm,uint32_t index,uint32_t parm2) {
-   return (float)_in*kLogisticScale;
+int16_t NeuralNetLayerLogistic::SpuEvalScale(int16_t _in,void *pparm,uint32_t index,uint32_t parm2) {
+   float out;
+   int16_t out2;
+   out=(float)_in*kLogisticScale;
+   Util::Float2Int(&out,&out2,DATA_BIT_WIDTH-1,1);
+   return out2;
 }
 
 

@@ -224,11 +224,11 @@ ZtaStatus GraphNodeColorAndReshape::Prepare(int queue,bool stepMode) {
    return ZtaStatusOk;
 }
 
-float GraphNodeColorAndReshape::SpuCallback(float input,void *pparm,uint32_t parm,uint32_t parm2)
+int16_t GraphNodeColorAndReshape::SpuCallback(int16_t input,void *pparm,uint32_t parm,uint32_t parm2)
 {
    if(input < 0)
       return 0;
-   else if(input > 255.0)
+   else if(input > 255)
       return 255;
    else
       return input;

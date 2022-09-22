@@ -45,7 +45,7 @@ public:
    ZTA_SHARED_MEM m_spu;
 private:
    void Cleanup();
-   static float SpuCallback(float input,void *pparm,uint32_t parm,uint32_t parm2);
+   static int16_t SpuCallback(int16_t input,void *pparm,uint32_t parm,uint32_t parm2);
 private:
    TENSOR *m_input;
    TENSOR *m_output;

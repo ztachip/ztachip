@@ -37,7 +37,7 @@ public:
    ZtaStatus Evaluate(int queue);
    LayerIoType GetIoType() {return LayerIoTypeInFlatOutFlat;}
 private:
-   static float SpuAvgPool(float _in,void *pparm,uint32_t parm,uint32_t parm2);
+   static int16_t SpuAvgPool(int16_t _in,void *pparm,uint32_t parm,uint32_t parm2);
 public:
    ZTA_SHARED_MEM m_shmSpu;
    int32_t m_outputShift;

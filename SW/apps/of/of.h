@@ -47,10 +47,10 @@ public:
    virtual ZtaStatus Prepare(int queue,bool stepMode);
 private:
    void Cleanup();
-   static float SpuCallback(float _in,void *pparm,uint32_t parm);
-   static float SpuDisplayLeftHorizontalCallback(float _in,void *pparm,uint32_t parm);
-   static float SpuDisplayRightHorizontalCallback(float _in,void *pparm,uint32_t parm);
-   static float SpuDisplayVerticalCallback(float _in,void *pparm,uint32_t parm);
+   static int16_t SpuCallback(int16_t _in,void *pparm,uint32_t parm);
+   static int16_t SpuDisplayLeftHorizontalCallback(int16_t _in,void *pparm,uint32_t parm);
+   static int16_t SpuDisplayRightHorizontalCallback(int16_t _in,void *pparm,uint32_t parm);
+   static int16_t SpuDisplayVerticalCallback(int16_t _in,void *pparm,uint32_t parm);
 private:
    TENSOR *m_input1;
    TENSOR *m_x_gradient;

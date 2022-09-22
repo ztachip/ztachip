@@ -37,8 +37,8 @@ public:
    ZtaStatus Evaluate(int queue);
    LayerIoType GetIoType() {return LayerIoTypeInFlatOutFlat;}
 private:
-   static float SpuInputEval(float _in,void *pparm,uint32_t parm,uint32_t parm2);
-   static float SpuOutputEval(float _in,void *pparm,uint32_t parm,uint32_t parm2);
+   static int16_t SpuInputEval(int16_t _in,void *pparm,uint32_t parm,uint32_t parm2);
+   static int16_t SpuOutputEval(int16_t _in,void *pparm,uint32_t parm,uint32_t parm2);
 public:
    ZTA_SHARED_MEM m_shmSpu;
 private:

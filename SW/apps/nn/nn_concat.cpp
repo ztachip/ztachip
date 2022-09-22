@@ -105,7 +105,7 @@ ZtaStatus NeuralNetLayerConcat::Evaluate(int queue) {
 
 // SPU evaluation function for output activation
 
-float NeuralNetLayerConcat::SpuEval(float _in,void *pparm,uint32_t index,uint32_t parm2) {
+int16_t NeuralNetLayerConcat::SpuEval(int16_t _in,void *pparm,uint32_t index,uint32_t parm2) {
    NeuralNetLayer *layer=static_cast<NeuralNetLayer *>(pparm);
    static float scale;
    static float bias;
@@ -117,12 +117,11 @@ float NeuralNetLayerConcat::SpuEval(float _in,void *pparm,uint32_t index,uint32_
       bias = -op->u.concat.input[index].zero_point*scale;
       zero=op->u.concat.output.zero_point;
    }
-   int32_t value = static_cast<int32_t>(round(_in*scale+bias))+zero;
+   int32_t value = static_cast<int32_t>(round((float)_in*scale+bias))+zero;
    if(value > 255)
       value=255;
    else if(value < 0)
       value=0;
-   return static_cast<float>(value);
+   return static_cast<int16_t>(value);
 };
-
 

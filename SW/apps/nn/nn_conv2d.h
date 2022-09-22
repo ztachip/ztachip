@@ -42,9 +42,9 @@ public:
    ZtaStatus Evaluate(int queue);
    LayerIoType GetIoType() {return (m_type==ConvolutionTypeDepthWise)?LayerIoTypeInInterleaveOutInterleaveAndOrFlat:LayerIoTypeInFlatOutInterleaveAndOrFlat;}
 private:
-   static float SpuEvalActivation(float _in,void *pparm,uint32_t parm,uint32_t parm2);
-   static float SpuEvalInput(float _in,void *pparm,uint32_t parm,uint32_t parm2);
-   static float SpuEvalFilter(float _in,void *pparm,uint32_t parm,uint32_t parm2);
+   static int16_t SpuEvalActivation(int16_t _in,void *pparm,uint32_t parm,uint32_t parm2);
+   static int16_t SpuEvalInput(int16_t _in,void *pparm,uint32_t parm,uint32_t parm2);
+   static int16_t SpuEvalFilter(int16_t _in,void *pparm,uint32_t parm,uint32_t parm2);
    ZtaStatus ConvolutionStrategy(int topcnt, int topdim, int botcnt, int botdim,int ksz,int stride,int num_pcore,
                                  int *conv_dx,int *conv_dycnt,int *conv_groupsz,
                                  int max_conv_dx,int max_conv_dy,int max_dycnt);

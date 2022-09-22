@@ -100,7 +100,7 @@ ZtaStatus NeuralNetLayerAdd::Evaluate(int queue) {
    return ZtaStatusOk;
 }
 
-float NeuralNetLayerAdd::SpuInputEval(float _in,void *pparm,uint32_t parm,uint32_t parm2)
+int16_t NeuralNetLayerAdd::SpuInputEval(int16_t _in,void *pparm,uint32_t parm,uint32_t parm2)
 {  
    NeuralNetLayer *layer=static_cast<NeuralNetLayer *>(pparm);
    NeuralNetOperatorDef *op_=(layer)?&((NeuralNetLayerAdd *)layer)->m_def:0;
@@ -121,10 +121,10 @@ float NeuralNetLayerAdd::SpuInputEval(float _in,void *pparm,uint32_t parm,uint32
    if (output_shift >= 1) {
       raw_output = (raw_output+(1 << (output_shift - 1))) >> output_shift;
    }
-   return (float)raw_output;
+   return (int16_t)raw_output;
 }
 
-float NeuralNetLayerAdd::SpuOutputEval(float _in,void *pparm,uint32_t parm,uint32_t parm2)
+int16_t NeuralNetLayerAdd::SpuOutputEval(int16_t _in,void *pparm,uint32_t parm,uint32_t parm2)
 {
    NeuralNetLayer *layer=static_cast<NeuralNetLayer *>(pparm);
    NeuralNetOperatorDef *op_=(layer)?&((NeuralNetLayerAdd *)layer)->m_def:0;
@@ -146,5 +146,5 @@ float NeuralNetLayerAdd::SpuOutputEval(float _in,void *pparm,uint32_t parm,uint3
    } else {
       clamped_output=raw_output;
    }
-   return static_cast<float>(clamped_output);
+   return static_cast<int16_t>(clamped_output);
 }

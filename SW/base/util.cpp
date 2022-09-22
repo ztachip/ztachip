@@ -65,46 +65,46 @@ float Util::pow(float x,int power) {
 // Convert from float to int12 format
 // pos is position of decimal point
 
-void Util::Float2Int(float *in,int16_t *out,int pos,int len) {
+int16_t FLOAT2INT(float in) {
    bool flag;
    unsigned int v;
    int v2;
    int e, e2;
    short result;
-   for (int i = 0; i < len; i++) {
-      v = *((unsigned int *)&in[i]);
-      if (v == 0) {
-         result=0;
+   int pos=DATA_BIT_WIDTH-1;
+
+   v = *((unsigned int *)&in);
+   if (v == 0) {
+      result=0;
+   } else {
+      flag = false;
+      e = (v >> 23) & 0xff;
+      e2 = e-127;
+      v2 = (v & 0x007FFFFF);
+      v2 |= 0x00800000;
+      if (pos >= (e2 + 1)) {
+         v2 = v2 >> (pos - e2 - 1);
       } else {
-         flag = false;
-         e = (v >> 23) & 0xff;
-         e2 = e-127;
-         v2 = (v & 0x007FFFFF);
-         v2 |= 0x00800000;
-         if (pos >= (e2 + 1)) {
-            v2 = v2 >> (pos - e2 - 1);
+         v2 = 0x00FFFFFF;
+         flag=true;
+      }
+      result = (v2 >> 9)&(0x7fff);
+      if (v2 & 0x100) {
+         if (result < 0x7FFF) {
+            result++;
          } else {
-            v2 = 0x00FFFFFF;
-            flag=true;
-         }
-         result = (v2 >> 9)&(0x7fff);
-         if (v2 & 0x100) {
-            if (result < 0x7FFF) {
-               result++;
-            } else {
-               flag = true;
-            }
-         }
-         if (v & 0x80000000)
-            result = -result;
-         if (flag) {
-            if (result < 0) {
-               result=(short)(0x8000);
-            }
+            flag = true;
          }
       }
-      out[i]=(result>>4);
+      if (v & 0x80000000)
+         result = -result;
+      if (flag) {
+         if (result < 0) {
+            result=(short)(0x8000);
+         }
+      }
    }
+   return (result>>4);
 }
 
 // Convert from int12 format to float
