@@ -210,10 +210,9 @@ int16_t NeuralNetLayerConv2D::SpuEvalActivation(int16_t _in,void *pparm,uint32_t
       op->u.conv.output_scale=SCALE;
    }
    float x;
-   float _in2;
-   _in2 = (float)_in*((float)(1<<SCALE));
-   _in2 = _in2+X_min;
-   x=(_in2*N+D/2)/D+OFFSET;
+   x = (float)_in*((float)(1<<SCALE));
+   x = x+X_min;
+   x=(x*N+D/2)/D+OFFSET;
    if(x < x_min)
       x=(float)x_min;
    else if(x > x_max)
@@ -224,27 +223,23 @@ int16_t NeuralNetLayerConv2D::SpuEvalActivation(int16_t _in,void *pparm,uint32_t
 // SPU evaluation function for input
 
 int16_t NeuralNetLayerConv2D::SpuEvalInput(int16_t _in,void *pparm,uint32_t parm,uint32_t parm2) {
-   int16_t out;
    NeuralNetLayer *layer=static_cast<NeuralNetLayer *>(pparm);
    static int32_t offset=0;
    NeuralNetOperatorDef *op=layer?&((NeuralNetLayerConv2D *)layer)->m_def:0;
    if(op)
       offset=op->u.conv.input_offset;
-   out=(int16_t)(_in+offset);
-   return out;
+   return (int16_t)(_in+offset);
 }
 
 // SPU evaluation for filter
 
 int16_t NeuralNetLayerConv2D::SpuEvalFilter(int16_t _in,void *pparm,uint32_t parm,uint32_t parm2) {
    NeuralNetLayer *layer=static_cast<NeuralNetLayer *>(pparm);
-   int16_t out;
    static int32_t offset=0;
    NeuralNetOperatorDef *op=layer?&((NeuralNetLayerConv2D *)layer)->m_def:0;
    if(op)
       offset=op->u.conv.weights_offset;
-   out=(int16_t)(_in+offset);
-   return out;
+   return (int16_t)(_in+offset);
 }
 // Find a good strategy to do this convolution
 
