@@ -45,14 +45,14 @@ static void taskEntry(int thisFunc, void(*func)(int, int), int p1, int p2) {
 
 // Perform initialization for code running on mcore
 
-void ztamInit() {
+void ztaInit() {
    taskStatus = false;
    _taskSpawn((uint32_t)taskEntry,0,0,0);
 }
 
 
 // Start execution by spawning 2 threads
-void ztamDualHartExecute(void(*func)(void *,int),void *pparm) {
+void ztaDualHartExecute(void(*func)(void *,int),void *pparm) {
    // Launch a thread to execute on tensor processor's first HART
    taskStatus = true;
    _taskSpawn((uint32_t)taskEntry,(uint32_t)func,(uint32_t)pparm,1);
@@ -63,12 +63,12 @@ void ztamDualHartExecute(void(*func)(void *,int),void *pparm) {
 
    // Wait for both threads to be finished
    while(taskStatus)
-      ztamTaskYield();
+      ztaTaskYield();
 }
 
 // All information to launch a kernel is packed into 32 bit word
 
-uint32_t ztamBuildKernelFunc(uint32_t _func,int num_pcore,int num_tid) {
+uint32_t ztaBuildKernelFunc(uint32_t _func,int num_pcore,int num_tid) {
    uint32_t func,p0,p1,dataModel;
    func=EXE_FUNC_FIELD(_func); // First instruction address to kernel functions
    p0=EXE_P0_FIELD(_func); // Firt parameter

@@ -105,10 +105,10 @@ ZtaStatus GraphNodeResize::Verify() {
    std::vector<int> dim={m_nChannel,m_dst_h,m_dst_w};
    m_output->Create(TensorDataTypeUint8,TensorFormatSplit,m_input->GetSemantic(),dim);
 
-   m_temp=ztahostAllocSharedMem(2*(m_src_w*m_src_h*3+64));
+   m_temp=ztaAllocSharedMem(2*(m_src_w*m_src_h*3+64));
    for(int i=0;i < 2;i++) {
-      m_filter[i]=ztahostAllocSharedMem(sizeof(int16_t)*BOX_RESIZE_MAX_FILTER*NUM_THREAD_PER_CORE);
-      m_filteri[i]=ztahostAllocSharedMem(NUM_THREAD_PER_CORE);
+      m_filter[i]=ztaAllocSharedMem(sizeof(int16_t)*BOX_RESIZE_MAX_FILTER*NUM_THREAD_PER_CORE);
+      m_filteri[i]=ztaAllocSharedMem(NUM_THREAD_PER_CORE);
    }
    m_scale_denomitor[0]=(BOX_RESIZE_MAX_OUTBUF*m_src_w)/m_dst_w;
    m_scale_denomitor[1]=(BOX_RESIZE_MAX_OUTBUF*m_src_h)/m_dst_h;
@@ -132,8 +132,8 @@ ZtaStatus GraphNodeResize::Verify() {
    // in order to create a new scaled down pixel
 
    for(int i=0;i < 2;i++) {
-      filter_p=(int16_t *)ZTA_SHARED_MEM_P(m_filter[i]);
-      filteri_p=(uint8_t *)ZTA_SHARED_MEM_P(m_filteri[i]);
+      filter_p=(int16_t *)ZTA_SHARED_MEM_VIRTUAL(m_filter[i]);
+      filteri_p=(uint8_t *)ZTA_SHARED_MEM_VIRTUAL(m_filteri[i]);
       for(x=0;x < 16;x++,filter_p+=BOX_RESIZE_MAX_FILTER) {
          int j;
          memset(filter_p,0,BOX_RESIZE_MAX_FILTER*sizeof(int16_t));
@@ -164,7 +164,7 @@ ZtaStatus GraphNodeResize::Verify() {
    // Build SPU lookup table.
    // This is used for arithmetic scaling of output pixel.
 
-   m_spu=ztahostBuildSpuBundle(2,
+   m_spu=ztaBuildSpuBundle(2,
                        spuCallback,(float *)&scale[0],0,0,
                        spuCallback,(float *)&scale[1],0,0);
    return ZtaStatusOk;
@@ -178,14 +178,14 @@ ZtaStatus GraphNodeResize::Prepare(int queue,bool stepMode) {
       (unsigned int)GetNextRequestId(queue),
 	  (unsigned int)m_input->GetBuf(),
 	  (unsigned int)m_output->GetBuf(),
-	  (unsigned int)ZTA_SHARED_MEM_P(m_temp),
-	  (unsigned int)ZTA_SHARED_MEM_P(m_filter[0]),
-	  (unsigned int)ZTA_SHARED_MEM_P(m_filter[1]),
-	  (unsigned int)ZTA_SHARED_MEM_P(m_filteri[0]),
-	  (unsigned int)ZTA_SHARED_MEM_P(m_filteri[1]),
+	  (unsigned int)ZTA_SHARED_MEM_VIRTUAL(m_temp),
+	  (unsigned int)ZTA_SHARED_MEM_VIRTUAL(m_filter[0]),
+	  (unsigned int)ZTA_SHARED_MEM_VIRTUAL(m_filter[1]),
+	  (unsigned int)ZTA_SHARED_MEM_VIRTUAL(m_filteri[0]),
+	  (unsigned int)ZTA_SHARED_MEM_VIRTUAL(m_filteri[1]),
       m_filterLen[0],
       m_filterLen[1],
-	  (unsigned int)ZTA_SHARED_MEM_P(m_spu),
+	  (unsigned int)ZTA_SHARED_MEM_VIRTUAL(m_spu),
       m_nChannel,
       m_src_w,
       m_src_h,
@@ -200,21 +200,21 @@ ZtaStatus GraphNodeResize::Prepare(int queue,bool stepMode) {
 
 void GraphNodeResize::Cleanup() {
    if(m_temp) {
-      ztahostFreeSharedMem(m_temp);
+      ztaFreeSharedMem(m_temp);
       m_temp=0;
    }
    for(int i=0;i < 2;i++) {
       if(m_filter[i]) {
-         ztahostFreeSharedMem(m_filter[i]);
+         ztaFreeSharedMem(m_filter[i]);
          m_filter[i]=0;
       }
       if(m_filteri[i]) {
-         ztahostFreeSharedMem(m_filteri[i]);
+         ztaFreeSharedMem(m_filteri[i]);
          m_filteri[i]=0;
       }
    }
    if(m_spu) {
-      ztahostFreeSharedMem(m_spu);
+      ztaFreeSharedMem(m_spu);
       m_spu=0;
    }
 

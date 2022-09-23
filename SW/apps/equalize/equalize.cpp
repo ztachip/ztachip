@@ -118,8 +118,8 @@ ZTA_SHARED_MEM GraphNodeEqualize::GenEqualizer() {
       count += m_histogram[i];
    }
    if(m_spu)
-      ztahostFreeSharedMem(m_spu);
-   m_spu=ztahostBuildSpuBundle(1,SpuCallback,this,0,0);
+      ztaFreeSharedMem(m_spu);
+   m_spu=ztaBuildSpuBundle(1,SpuCallback,this,0,0);
    return m_spu;
 }
 
@@ -146,7 +146,7 @@ int16_t GraphNodeEqualize::SpuCallback(int16_t input,void *pparm,uint32_t parm,u
 
 void GraphNodeEqualize::Cleanup() {
    if(m_spu) {
-      ztahostFreeSharedMem(m_spu);
+      ztaFreeSharedMem(m_spu);
       m_spu=0;
    }
 }

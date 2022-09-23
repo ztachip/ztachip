@@ -67,9 +67,9 @@ ZtaStatus GraphNodeCanny::Verify() {
       return ZtaStatusFail;
 
    sz=(m_w+2*TILE_MAX_KZ)*(m_h+2*TILE_MAX_KZ);
-   m_magnitude=ztahostAllocSharedMem(sz*sizeof(int16_t));
-   m_phase=ztahostAllocSharedMem(sz*sizeof(uint8_t));
-   m_maxima=ztahostAllocSharedMem(sz*sizeof(int16_t));
+   m_magnitude=ztaAllocSharedMem(sz*sizeof(int16_t));
+   m_phase=ztaAllocSharedMem(sz*sizeof(uint8_t));
+   m_maxima=ztaAllocSharedMem(sz*sizeof(int16_t));
    m_thresholdLo=81;
    m_thresholdHi=163;
 //   m_thresholdHi=100;
@@ -82,9 +82,9 @@ ZtaStatus GraphNodeCanny::Prepare(int queue,bool stepMode) {
    kernel_canny_exe(
       (unsigned int)GetNextRequestId(queue),
       (unsigned int)m_input->GetBuf(),
-      (unsigned int)ZTA_SHARED_MEM_P(m_magnitude),
-	  (unsigned int)ZTA_SHARED_MEM_P(m_phase),
-	  (unsigned int)ZTA_SHARED_MEM_P(m_maxima),
+      (unsigned int)ZTA_SHARED_MEM_VIRTUAL(m_magnitude),
+	  (unsigned int)ZTA_SHARED_MEM_VIRTUAL(m_phase),
+	  (unsigned int)ZTA_SHARED_MEM_VIRTUAL(m_maxima),
 	  (unsigned int)m_output->GetBuf(),
       m_thresholdLo,
       m_thresholdHi,
@@ -101,15 +101,15 @@ ZtaStatus GraphNodeCanny::Prepare(int queue,bool stepMode) {
 
 void GraphNodeCanny::Cleanup() {
    if(m_magnitude) {
-      ztahostFreeSharedMem(m_magnitude);
+      ztaFreeSharedMem(m_magnitude);
       m_magnitude=0;
    }
    if(m_phase) {
-      ztahostFreeSharedMem(m_phase);
+      ztaFreeSharedMem(m_phase);
       m_phase=0;
    }
    if(m_maxima) {
-      ztahostFreeSharedMem(m_maxima);
+      ztaFreeSharedMem(m_maxima);
       m_maxima=0;
    }
 }

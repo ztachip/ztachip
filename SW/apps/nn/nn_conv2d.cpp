@@ -74,7 +74,7 @@ ZtaStatus NeuralNetLayerConv2D::Prepare() {
    }
    GenBias((int32_t *)op->u.conv.bias,topcnt,(int32_t)bias,&m_shmBiasHi,&m_shmBiasLo);
 
-   m_shmSpu=ztahostBuildSpuBundle(3,
+   m_shmSpu=ztaBuildSpuBundle(3,
                               SpuEvalActivation,this,0,0,
                               SpuEvalInput,this,0,0,
                               SpuEvalFilter,this,0,0);
@@ -327,7 +327,7 @@ ZTA_SHARED_MEM NeuralNetLayerConv2D::GenConvolutionWeight(uint8_t *_coef,std::ve
    memset(t,0,h*w*VECTOR_WIDTH);
    memset(t2,0,VECTOR_WIDTH*kzz);
    shm = m_nn->BufferAllocate(h*w*VECTOR_WIDTH);
-   out = (uint8_t *)ZTA_SHARED_MEM_P(shm);
+   out = (uint8_t *)ZTA_SHARED_MEM_VIRTUAL(shm);
    for (int r = 0; r < topcnt/VECTOR_WIDTH; r++) {
       for (int c=0;c < botcnt;c++) {
          for (int c1=c*kzz,index=0; c1 < c*kzz+kzz;c1++) {
@@ -366,8 +366,8 @@ void NeuralNetLayerConv2D::GenBias(int32_t *bias,int biasLen,int32_t activationB
    int range=(1<<(DATA_BIT_WIDTH-2));
    biasHi_p = m_nn->BufferAllocate(biasLen*sizeof(int16_t));
    biasLo_p = m_nn->BufferAllocate(biasLen*sizeof(int16_t));
-   biasLo = (int16_t *)ZTA_SHARED_MEM_P(biasLo_p);
-   biasHi = (int16_t *)ZTA_SHARED_MEM_P(biasHi_p);
+   biasLo = (int16_t *)ZTA_SHARED_MEM_VIRTUAL(biasLo_p);
+   biasHi = (int16_t *)ZTA_SHARED_MEM_VIRTUAL(biasHi_p);
    for(int i=0;i<biasLen;i++) {
       v=bias[i]-activationBias;
       hi=(int16_t)(v/range);
@@ -408,7 +408,7 @@ ZTA_SHARED_MEM NeuralNetLayerConv2D::GenFcWeight(uint8_t *_coef,int _topcnt,int 
    botcnt2=((_botcnt+IP_CHUNK_SIZE-1)/IP_CHUNK_SIZE)*IP_CHUNK_SIZE;
    size=topcnt2*botcnt2;
    out_p=m_nn->BufferAllocate(size);
-   _gen_coef = (int8_t *)ZTA_SHARED_MEM_P(out_p);
+   _gen_coef = (int8_t *)ZTA_SHARED_MEM_VIRTUAL(out_p);
    for(int i = 0; i < _topcnt; i++) {
       for(int j = 0; j < _botcnt; j++) {
          _gen_coef[j + i*botcnt2] = _coef[j + i*(_botcnt)];

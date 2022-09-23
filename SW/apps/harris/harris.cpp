@@ -62,9 +62,9 @@ ZtaStatus GraphNodeHarris::Verify() {
    if(m_input->GetSemantic() != TensorSemanticMonochromeSingleChannel)
       return ZtaStatusFail;
    
-   m_x_gradient=ztahostAllocSharedMem(m_w*m_h*sizeof(int16_t));
-   m_y_gradient=ztahostAllocSharedMem(m_w*m_h*sizeof(int16_t));
-   m_score=ztahostAllocSharedMem(m_w*m_h*sizeof(int16_t));
+   m_x_gradient=ztaAllocSharedMem(m_w*m_h*sizeof(int16_t));
+   m_y_gradient=ztaAllocSharedMem(m_w*m_h*sizeof(int16_t));
+   m_score=ztaAllocSharedMem(m_w*m_h*sizeof(int16_t));
    std::vector<int> dim={m_h,m_w};
    m_output->Create(TensorDataTypeInt16,TensorFormatSplit,TensorSemanticUnknown,dim);
    return ZtaStatusOk;
@@ -74,9 +74,9 @@ ZtaStatus GraphNodeHarris::Prepare(int queue,bool stepMode) {
    kernel_harris_exe(
       (unsigned int)GetNextRequestId(queue),
 	  (unsigned int)m_input->GetBuf(),
-	  (unsigned int)ZTA_SHARED_MEM_P(m_x_gradient),
-	  (unsigned int)ZTA_SHARED_MEM_P(m_y_gradient),
-	  (unsigned int)ZTA_SHARED_MEM_P(m_score),
+	  (unsigned int)ZTA_SHARED_MEM_VIRTUAL(m_x_gradient),
+	  (unsigned int)ZTA_SHARED_MEM_VIRTUAL(m_y_gradient),
+	  (unsigned int)ZTA_SHARED_MEM_VIRTUAL(m_score),
 	  (unsigned int)m_output->GetBuf(),
       m_w,
       m_h,
@@ -92,15 +92,15 @@ ZtaStatus GraphNodeHarris::Prepare(int queue,bool stepMode) {
 
 void GraphNodeHarris::Cleanup() {
    if(m_x_gradient) {
-      ztahostFreeSharedMem(m_x_gradient);
+      ztaFreeSharedMem(m_x_gradient);
       m_x_gradient=0;
    }
    if(m_y_gradient) {
-      ztahostFreeSharedMem(m_y_gradient);
+      ztaFreeSharedMem(m_y_gradient);
       m_y_gradient=0;
    }
    if(m_score) {
-      ztahostFreeSharedMem(m_score);
+      ztaFreeSharedMem(m_score);
       m_score=0;
    }
 }

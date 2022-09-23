@@ -42,7 +42,7 @@ NeuralNetLayerLogistic::~NeuralNetLayerLogistic() {
 }
 
 ZtaStatus NeuralNetLayerLogistic::Prepare() {
-   m_shmSpu=ztahostBuildSpuBundle(2,
+   m_shmSpu=ztaBuildSpuBundle(2,
                               SpuEval,this,0,0,
                               SpuEvalScale,this,0,0);
    m_nn->BufferAllocateExternal(m_shmSpu);

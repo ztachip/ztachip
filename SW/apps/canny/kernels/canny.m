@@ -79,7 +79,7 @@ static void canny_phase_0(void *_p,int pid) {
    }
    // Load the convolution kernel...
    > EXE_LOCKSTEP(canny::init,NUM_PCORE);
-   ztamTaskYield();
+   ztaTaskYield();
    inputLen=req->src_w*req->src_h;
    input=req->input;
    inputLen-=y_off*req->src_w;
@@ -125,7 +125,7 @@ static void canny_phase_0(void *_p,int pid) {
 
          > EXE_LOCKSTEP(canny::calc_gradient,NUM_PCORE);
 
-         ztamTaskYield();
+         ztaTaskYield();
 
          // Copy result tiles back to memory
          >(int)MEM(magnitude,req->dst_h,req->dst_w)[y*dy:y*dy+TILE_DY_DIM*VECTOR_WIDTH-1][x*dx:x*dx+dx2-1] <=
@@ -172,7 +172,7 @@ static void canny_phase_1(void *_p,int pid) {
 
    // Load the convolution kernel...
    > EXE_LOCKSTEP(canny1::init,NUM_PCORE);
-   ztamTaskYield();
+   ztaTaskYield();
 
    magnitudeLen=w*h*sizeof(int16_t);
    magnitude=req->magnitude;
@@ -217,7 +217,7 @@ static void canny_phase_1(void *_p,int pid) {
 
          > EXE_LOCKSTEP(canny1::calc_maxima,NUM_PCORE);
 
-         ztamTaskYield();
+         ztaTaskYield();
 
          // Copy result tiles back to memory
          >(int)MEM(req->maxima,h,w)[y*dy:y*dy+TILE_DY_DIM*VECTOR_WIDTH-1][x*dx:x*dx+dx2-1] <=
@@ -264,7 +264,7 @@ static void canny_phase_2(void *_p,int pid) {
 
    // Load the convolution kernel...
    > EXE_LOCKSTEP(canny2::init,NUM_PCORE);
-   ztamTaskYield();
+   ztaTaskYield();
 
    maximaLen=w*h*sizeof(int16_t);
    maxima=req->maxima;
@@ -306,7 +306,7 @@ static void canny_phase_2(void *_p,int pid) {
 
          > EXE_LOCKSTEP(canny2::threshold_hysteris,NUM_PCORE);
 
-         ztamTaskYield();
+         ztaTaskYield();
 
          // Copy result tiles back to memory
          >(ushort)MEM(req->output,h,w)[y*dy:y*dy+TILE_DY_DIM*VECTOR_WIDTH-1][x*dx:x*dx+dx2-1] <=
@@ -353,11 +353,11 @@ void kernel_canny_exe(
    req.dst_w=_dst_w;
    req.dst_h=_dst_h;
 
-   ztamDualHartExecute(canny_phase_0,&req);
+   ztaDualHartExecute(canny_phase_0,&req);
       
-   ztamDualHartExecute(canny_phase_1,&req);
+   ztaDualHartExecute(canny_phase_1,&req);
 
-   ztamDualHartExecute(canny_phase_2,&req);
+   ztaDualHartExecute(canny_phase_2,&req);
    
    >CALLBACK(0,req_id);
 }

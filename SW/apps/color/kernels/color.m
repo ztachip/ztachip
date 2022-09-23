@@ -170,7 +170,7 @@ static void yuyv2rgb(void *_p,int pid) {
                > EXE_LOCKSTEP(yuyv2rgb::final_rgb_split,NUM_PCORE);
             }
          }
-         ztamTaskYield();
+         ztaTaskYield();
          if(req->dst_channel_fmt==kChannelFmtInterleave) {
             if(clip) {
                > (ushort)MEM(output,dy2,dx2)[y2:y2+step2_y-1][x2:x2+step2_x-1] <= PROC(0) <= (ushort) SCATTER(0) FOR(X=0:PCORE_DY-1) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].yuyv2rgb::rgb(RGB_BUF_SIZE/8,8,8)[:][:][L];
@@ -351,7 +351,7 @@ static void copy(void *_p,int pid) {
    } else {
       > EXE_LOCKSTEP(copy::out_split_init,NUM_PCORE);
    }
-   ztamTaskYield();
+   ztaTaskYield();
    
    output2=output+w*h;
    output3=output+2*w*h;
@@ -386,7 +386,7 @@ static void copy(void *_p,int pid) {
 
          > EXE_LOCKSTEP(f,NUM_PCORE);
 
-         ztamTaskYield();
+         ztaTaskYield();
 
          if(dst_channel_fmt==kChannelFmtInterleave) {
             if(clip) {
@@ -459,7 +459,7 @@ void kernel_copy_exe(
    req.dst_w=_dst_w;
    req.dst_h=_dst_h;
    req.equalize=_equalize;
-   ztamDualHartExecute(copy,&req);
+   ztaDualHartExecute(copy,&req);
   >CALLBACK(0,_req_id);
 }
 
@@ -504,7 +504,7 @@ void kernel_yuyv2rgb_exe(
    req.dst_w=_dst_w;
    req.dst_h=_dst_h;
    
-   ztamDualHartExecute(yuyv2rgb,&req);
+   ztaDualHartExecute(yuyv2rgb,&req);
       
   >CALLBACK(0,_req_id);
 }

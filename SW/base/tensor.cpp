@@ -65,7 +65,7 @@ TENSOR::TENSOR(TensorDataType _dataType,TensorFormat _fmt,TensorSemantic _semant
 ZtaStatus TENSOR::Create(TensorDataType _dataType,TensorFormat _fmt,TensorSemantic _semantic,std::vector<int> &dim,
                         ZTA_SHARED_MEM _shm) {
    if(m_shm && !m_isAlias) {
-      ztahostFreeSharedMem(m_shm);
+      ztaFreeSharedMem(m_shm);
    }
    m_shm=0;
    m_isAlias=false;
@@ -86,7 +86,7 @@ ZtaStatus TENSOR::Clone(TENSOR *other) {
 
 TENSOR::~TENSOR() {
    if(m_shm && !m_isAlias)
-      ztahostFreeSharedMem(m_shm);
+      ztaFreeSharedMem(m_shm);
 }
 
 ZtaStatus TENSOR::setDataType(TensorDataType _dataType) {
@@ -129,14 +129,14 @@ ZtaStatus TENSOR::setDimension(std::vector<int> &_dim) {
 ZtaStatus TENSOR::allocate(ZTA_SHARED_MEM shm) {
    assert(m_size < (1<<(DP_ADDR_WIDTH-1))); // Tensor must be less than half tensor address dynamic range
    if(m_shm && !m_isAlias)
-      ztahostFreeSharedMem(m_shm);
+      ztaFreeSharedMem(m_shm);
    m_isAlias=false;
    if(shm) {
       m_shm=shm;
    } else {
-      m_shm=ztahostAllocSharedMem(m_size);
+      m_shm=ztaAllocSharedMem(m_size);
    }
-   m_buf=ZTA_SHARED_MEM_P(m_shm);
+   m_buf=ZTA_SHARED_MEM_VIRTUAL(m_shm);
    return ZtaStatusOk;
 }
 
@@ -144,20 +144,20 @@ ZtaStatus TENSOR::allocate(ZTA_SHARED_MEM shm) {
 
 ZtaStatus TENSOR::Alias(TENSOR *other) {
    if(m_shm && !m_isAlias)
-      ztahostFreeSharedMem(m_shm);
+      ztaFreeSharedMem(m_shm);
    m_shm=other->GetShm();
    m_isAlias=true;
-   m_buf=ZTA_SHARED_MEM_P(m_shm);   
+   m_buf=ZTA_SHARED_MEM_VIRTUAL(m_shm);
    assert(other->m_size==m_size);
    return ZtaStatusOk;
 }
 
 ZtaStatus TENSOR::Alias(ZTA_SHARED_MEM _shm) {
    if(m_shm && !m_isAlias)
-      ztahostFreeSharedMem(m_shm);
+      ztaFreeSharedMem(m_shm);
    m_shm=_shm;
    m_isAlias=true;
-   m_buf=ZTA_SHARED_MEM_P(m_shm);
+   m_buf=ZTA_SHARED_MEM_VIRTUAL(m_shm);
    return ZtaStatusOk;
 }
 

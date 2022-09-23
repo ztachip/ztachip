@@ -76,7 +76,7 @@ ZtaStatus NeuralNetLayerAdd::Prepare() {
       shift=std::min(10-bits,shift);
    // Let intermediate values be a bit bigger to gain more resolution
 
-   m_shmSpu=ztahostBuildSpuBundle(3,
+   m_shmSpu=ztaBuildSpuBundle(3,
                                   SpuOutputEval,this,0,shift,
                                   SpuInputEval,this,0,op->u.add.output.shift-shift,
                                   SpuInputEval,this,1,op->u.add.output.shift-shift);

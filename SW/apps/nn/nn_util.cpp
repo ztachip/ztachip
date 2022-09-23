@@ -58,7 +58,7 @@ void NeuralNet::BufferSetAsExternal(int bufid,bool flatFmt,bool interleaveFmt) {
 
 ZTA_SHARED_MEM NeuralNet::BufferAllocate(size_t sz) {
    ZTA_SHARED_MEM shm;
-   shm=ztahostAllocSharedMem(sz);
+   shm=ztaAllocSharedMem(sz);
   // This buffer is not associated with an id
    m_bufUnboundLst.push_back(shm);
    return shm;
@@ -88,14 +88,14 @@ ZtaStatus NeuralNet::BufferAllocate(int bufid,NeuralNetTensorType type,size_t sz
    if(bufid < (int)m_bufLst.size()) {
       if(flatFmt) {
          if(!m_bufLst[bufid].shmFlat) {
-            m_bufLst[bufid].shmFlat=ztahostAllocSharedMem(sz);
+            m_bufLst[bufid].shmFlat=ztaAllocSharedMem(sz);
          } else {
 //            assert(ZTA_SHARED_MEM_LEN(m_bufLst[bufid].shmFlat)==sz);
          }
       }
       if(interleaveFmt) {
          if(!m_bufLst[bufid].shmInterleave) {
-            m_bufLst[bufid].shmInterleave=ztahostAllocSharedMem(sz);
+            m_bufLst[bufid].shmInterleave=ztaAllocSharedMem(sz);
          } else {
 //            assert(ZTA_SHARED_MEM_LEN(m_bufLst[bufid].shmInterleave)==sz);
          }
@@ -112,9 +112,9 @@ ZtaStatus NeuralNet::BufferAllocate(int bufid,NeuralNetTensorType type,size_t sz
       }
       NeuralNetBuffer def;
       def.sz=sz;
-      def.shmFlat=flatFmt?ztahostAllocSharedMem(sz):0;
+      def.shmFlat=flatFmt?ztaAllocSharedMem(sz):0;
       def.shmFlatIsRef=false;
-      def.shmInterleave=interleaveFmt?ztahostAllocSharedMem(sz):0;
+      def.shmInterleave=interleaveFmt?ztaAllocSharedMem(sz):0;
       def.shmInterleaveIsRef=false;
       m_bufLst[bufid]=def;
    }
@@ -132,7 +132,7 @@ ZtaStatus NeuralNet::BufferAllocate(int bufid,TENSOR *_tensor) {
             m_bufLst[bufid].shmFlatIsRef=true;
          } else {
             if(!m_bufLst[bufid].shmFlatIsRef)
-               ztahostFreeSharedMem(m_bufLst[bufid].shmFlat);
+               ztaFreeSharedMem(m_bufLst[bufid].shmFlat);
             m_bufLst[bufid].shmFlat=_tensor->GetBufShm();
             m_bufLst[bufid].shmFlatIsRef=true;                   
          }
@@ -143,7 +143,7 @@ ZtaStatus NeuralNet::BufferAllocate(int bufid,TENSOR *_tensor) {
             m_bufLst[bufid].shmInterleaveIsRef=true;
          } else {
             if(!m_bufLst[bufid].shmInterleaveIsRef)
-               ztahostFreeSharedMem(m_bufLst[bufid].shmInterleave);
+               ztaFreeSharedMem(m_bufLst[bufid].shmInterleave);
             m_bufLst[bufid].shmInterleave=_tensor->GetBufShm();
             m_bufLst[bufid].shmInterleaveIsRef=true;          
          }
@@ -173,16 +173,16 @@ void NeuralNet::BufferFreeAll() {
    for(int i=0;i < (int)m_bufLst.size();i++) {
       if(m_bufLst[i].shmFlat) {
          if(!m_bufLst[i].shmFlatIsRef)
-            ztahostFreeSharedMem(m_bufLst[i].shmFlat);
+            ztaFreeSharedMem(m_bufLst[i].shmFlat);
       }
       if(m_bufLst[i].shmInterleave) {
          if(!m_bufLst[i].shmInterleaveIsRef)
-            ztahostFreeSharedMem(m_bufLst[i].shmInterleave);
+            ztaFreeSharedMem(m_bufLst[i].shmInterleave);
       }
    }
    for(int i=0;i < (int)m_bufUnboundLst.size();i++) {
       if(m_bufUnboundLst[i])
-         ztahostFreeSharedMem(m_bufUnboundLst[i]);
+         ztaFreeSharedMem(m_bufUnboundLst[i]);
    }
    m_bufLst.clear();
    m_bufUnboundLst.clear();

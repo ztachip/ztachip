@@ -76,7 +76,7 @@ ZtaStatus GraphNodeColorAndReshape::Create(TENSOR *input,TENSOR *output,
 
 void GraphNodeColorAndReshape::Cleanup() {
    if(m_spu) {
-      ztahostFreeSharedMem(m_spu);
+      ztaFreeSharedMem(m_spu);
       m_spu=0;
    }
 }
@@ -105,8 +105,8 @@ ZtaStatus GraphNodeColorAndReshape::Verify() {
          return ZtaStatusFail;
       } 
       if(m_spu) 
-         ztahostFreeSharedMem(m_spu);
-      m_spu=ztahostBuildSpuBundle(1,SpuCallback,0,0,0);
+         ztaFreeSharedMem(m_spu);
+      m_spu=ztaBuildSpuBundle(1,SpuCallback,0,0,0);
    } else if(m_srcColorSpace==TensorSemanticMonochromeSingleChannel) {
       // Monochrome with 1 channel
       if(m_nChannel != 1)
@@ -187,7 +187,7 @@ ZtaStatus GraphNodeColorAndReshape::Prepare(int queue,bool stepMode) {
          GetNextRequestId(queue),
          (unsigned int)m_input->GetBuf(),
          (unsigned int)m_output->GetBuf(),
-		 (unsigned int)ZTA_SHARED_MEM_P(m_spu),
+		 (unsigned int)ZTA_SHARED_MEM_VIRTUAL(m_spu),
          m_clip_w,
          m_clip_h,
          m_dstfmt,

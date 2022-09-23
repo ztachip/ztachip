@@ -123,8 +123,8 @@ ZtaStatus NeuralNetLayerObjDetect::Evaluate(int queue) {
    boxes_shape=(op->input_shape)[0];
    classes_shape=(op->input_shape)[1];
    // Copy to cachable memory before processing the data
-   memcpy(m_boxes,ZTA_SHARED_MEM_P(m_nn->BufferGetInterleave(op->input[0])),m_boxesSize);
-   memcpy(m_classes,ZTA_SHARED_MEM_P(m_nn->BufferGetInterleave(op->input[1])),m_classesSize);
+   memcpy(m_boxes,ZTA_SHARED_MEM_VIRTUAL(m_nn->BufferGetInterleave(op->input[0])),m_boxesSize);
+   memcpy(m_classes,ZTA_SHARED_MEM_VIRTUAL(m_nn->BufferGetInterleave(op->input[1])),m_classesSize);
 
    numBoxes=(*boxes_shape)[1];
    int max_score=0;
@@ -208,10 +208,10 @@ ZtaStatus NeuralNetLayerObjDetect::Evaluate(int queue) {
    }
    m_numDetects=numDetects;
    // Save results in format to be compatible with tflite
-   float *box_p=(float *)ZTA_SHARED_MEM_P(m_nn->BufferGetInterleave(m_def.output[0]));
-   float *classes_p=(float *)ZTA_SHARED_MEM_P(m_nn->BufferGetInterleave(m_def.output[1]));
-   float *probabilty_p=(float *)ZTA_SHARED_MEM_P(m_nn->BufferGetInterleave(m_def.output[2]));
-   float *numDetect_p=(float *)ZTA_SHARED_MEM_P(m_nn->BufferGetInterleave(m_def.output[3]));
+   float *box_p=(float *)ZTA_SHARED_MEM_VIRTUAL(m_nn->BufferGetInterleave(m_def.output[0]));
+   float *classes_p=(float *)ZTA_SHARED_MEM_VIRTUAL(m_nn->BufferGetInterleave(m_def.output[1]));
+   float *probabilty_p=(float *)ZTA_SHARED_MEM_VIRTUAL(m_nn->BufferGetInterleave(m_def.output[2]));
+   float *numDetect_p=(float *)ZTA_SHARED_MEM_VIRTUAL(m_nn->BufferGetInterleave(m_def.output[3]));
    for(int i=0;i < m_numDetects;i++) {
       box_p[4*i+1]=m_detects[i].xmin;
       box_p[4*i+0]=m_detects[i].ymin;

@@ -62,7 +62,7 @@ ZtaStatus GraphNodeGaussian::Verify() {
    if(m_input->GetFormat() != TensorFormatSplit && m_nChannel > 1)
       return ZtaStatusFail;
    m_ksz=7;
-   m_kernel=ztahostAllocSharedMem(m_ksz*m_ksz*sizeof(int16_t));
+   m_kernel=ztaAllocSharedMem(m_ksz*m_ksz*sizeof(int16_t));
    m_sigma=SIGMA;
    BuildKernel();
    std::vector<int> dim={m_nChannel,m_h,m_w};
@@ -75,7 +75,7 @@ ZtaStatus GraphNodeGaussian::Prepare(int queue,bool stepMode) {
       (unsigned int)GetNextRequestId(queue),
 	  (unsigned int)m_input->GetBuf(),
 	  (unsigned int)m_output->GetBuf(),
-	  (unsigned int)ZTA_SHARED_MEM_P(m_kernel),
+	  (unsigned int)ZTA_SHARED_MEM_VIRTUAL(m_kernel),
       m_nChannel,
       m_ksz,
       m_w,
@@ -95,7 +95,7 @@ float GraphNodeGaussian::gaussian(int x,int y,float sigma) {
 
 void GraphNodeGaussian::BuildKernel() {
    int16_t *kernel;
-   kernel=(int16_t *)ZTA_SHARED_MEM_P(m_kernel);
+   kernel=(int16_t *)ZTA_SHARED_MEM_VIRTUAL(m_kernel);
    for(int y=0;y < m_ksz;y++) {
       for(int x=0;x < m_ksz;x++) {
          kernel[x+y*m_ksz]=(int)(gaussian(x-m_ksz/2,y-m_ksz/2,m_sigma)*1024);
@@ -114,7 +114,7 @@ float GraphNodeGaussian::GetSigma() {
 
 void GraphNodeGaussian::Cleanup() {
    if(m_kernel) {
-      ztahostFreeSharedMem(m_kernel);
+      ztaFreeSharedMem(m_kernel);
       m_kernel=0;
    }
 }

@@ -29,12 +29,12 @@
 
 /* Task function API */
 
-void ztamInit();
+void ztaInit();
 
-void ztamDualHartExecute(void(*func)(void *,int),void *pparm);
+void ztaDualHartExecute(void(*func)(void *,int),void *pparm);
 
-uint32_t ztamBuildKernelFunc(uint32_t _func,int num_pcore,int num_tid);
+uint32_t ztaBuildKernelFunc(uint32_t _func,int num_pcore,int num_tid);
 
-#define ztamTaskYield() {ZTAM_GREG(0,REG_DP_VM_TOGGLE,0)=0;_taskYield();}
+#define ztaTaskYield() {ZTAM_GREG(0,REG_DP_VM_TOGGLE,0)=0;_taskYield();}
 
 #endif

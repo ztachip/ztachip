@@ -99,10 +99,10 @@ int test_color()
    TensorFormat destFormat;
    Graph graph;
 
-   input_share=ztahostAllocSharedMem(4*MAX_PICT_DIM*MAX_PICT_DIM);
-   output_share=ztahostAllocSharedMem(4*MAX_PICT_DIM*MAX_PICT_DIM);
-   input=(uint8_t *)ZTA_SHARED_MEM_P(input_share);
-   output=(uint8_t *)ZTA_SHARED_MEM_P(output_share);
+   input_share=ztaAllocSharedMem(4*MAX_PICT_DIM*MAX_PICT_DIM);
+   output_share=ztaAllocSharedMem(4*MAX_PICT_DIM*MAX_PICT_DIM);
+   input=(uint8_t *)ZTA_SHARED_MEM_VIRTUAL(input_share);
+   output=(uint8_t *)ZTA_SHARED_MEM_VIRTUAL(output_share);
    split_result=(uint8_t *)malloc(MAX_PICT_DIM*MAX_PICT_DIM*3);
    interleave_result=(uint8_t *)malloc(MAX_PICT_DIM*MAX_PICT_DIM*3);
 
@@ -373,8 +373,8 @@ int test_color()
    }
    free(interleave_result);
    free(split_result);
-   ztahostFreeSharedMem(input_share);
-   ztahostFreeSharedMem(output_share);
+   ztaFreeSharedMem(input_share);
+   ztaFreeSharedMem(output_share);
    return 0;
 }
 
@@ -1097,8 +1097,8 @@ void test_mobinet_ssd()
    uint8_t *p;
    FILE *fp;
    size_t size;
-   uint8_t *boxes=(uint8_t *)ZTA_SHARED_MEM_P(TF1.BufferGetInterleave(TF1.m_operators[TF1.m_operators.size()-1]->m_def.input[0]));
-   uint8_t *classes=(uint8_t *)ZTA_SHARED_MEM_P(TF1.BufferGetInterleave(TF1.m_operators[TF1.m_operators.size()-1]->m_def.input[1]));
+   uint8_t *boxes=(uint8_t *)ZTA_SHARED_MEM_VIRTUAL(TF1.BufferGetInterleave(TF1.m_operators[TF1.m_operators.size()-1]->m_def.input[0]));
+   uint8_t *classes=(uint8_t *)ZTA_SHARED_MEM_VIRTUAL(TF1.BufferGetInterleave(TF1.m_operators[TF1.m_operators.size()-1]->m_def.input[1]));
 
    fp=fopen("detect_boxes.bin","rb");
    fseek(fp, 0L, SEEK_END);

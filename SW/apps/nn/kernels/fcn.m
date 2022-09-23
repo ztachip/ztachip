@@ -64,7 +64,7 @@ static void innerProduct(void *_p,int pid) {
 
    > PCORE(NUM_PCORE)[*][0:nthread-1].inner_product::init._out_scale <= INT(req->top_scale);
    > EXE_LOCKSTEP(inner_product::init,NUM_PCORE,nthread);
-   ztamTaskYield();
+   ztaTaskYield();
    for(i=(pid==0)?0:req->dx;i < req->topcnt;i += 2*req->dx) {
       index2=i*IP_CHUNK_SIZE;
       npcore=req->num_pcore;
@@ -72,7 +72,7 @@ static void innerProduct(void *_p,int pid) {
       > (biasfmt)PCORE(npcore)[:][0:nthread-1].inner_product::biasHi[:] <= (biasfmt)MEM(req->biasHi,req->topcnt)[i:i+req->dx-1];
       > (biasfmt)PCORE(npcore)[:][0:nthread-1].inner_product::biasLo[:] <= (biasfmt)MEM(req->biasLo,req->topcnt)[i:i+req->dx-1];
       > EXE_LOCKSTEP(inner_product::start,npcore,nthread);
-      ztamTaskYield();
+      ztaTaskYield();
    
       // Do innerproduct. This is a memory bound operation
          
@@ -85,7 +85,7 @@ static void innerProduct(void *_p,int pid) {
             > EXE_LOCKSTEP(inner_product::activate_none,npcore,nthread);
             > (topfmt)MEM(req->top,req->topcnt)[i:i+req->dx-1] <=  PROC(0) <= (topfmt)PCORE(req->num_pcore)[:][0:nthread-1].inner_product::top[:];
          }
-         ztamTaskYield();
+         ztaTaskYield();
       }
    }
 }
@@ -128,7 +128,7 @@ static void pooling(void *_p,int pid) {
    }
    > PCORE(np)[*][:].max_pool::init._out_scale <= INT(req->output_shift);
    > EXE_LOCKSTEP(max_pool::init,np);
-   ztamTaskYield();
+   ztaTaskYield();
  
    for(i=from;i < to;i+=step) {
       nt=NUM_THREAD_PER_CORE;
@@ -137,10 +137,10 @@ static void pooling(void *_p,int pid) {
          >(fmt) SCATTER(0) FOR(I=0:np-1) FOR(J=0:nt-1) FOR(K=0:VECTOR_WIDTH-1) PCORE(np)[I].THREAD[J].max_pool::bot[:][K] <= 
          >(fmt) MEM(req->bot,cnt,botsz)[i:i+VECTOR_WIDTH*np*nt-1][j:j+POOL_BOT_SIZE-1];
          >EXE_LOCKSTEP(max_pool::exe,np);
-         ztamTaskYield();       
+         ztaTaskYield();       
       }
       >EXE_LOCKSTEP(max_pool::finish,np);
-      ztamTaskYield();
+      ztaTaskYield();
       
       // Output results...
         
@@ -279,7 +279,7 @@ void kernel_innerProduct_exe(
    req.num_thread=_num_thread;
    req.dx=req.num_pcore*req.num_thread*VECTOR_WIDTH;
 
-   ztamDualHartExecute(innerProduct,&req);
+   ztaDualHartExecute(innerProduct,&req);
 
    >CALLBACK(0,_req_id);
 }
@@ -316,7 +316,7 @@ void kernel_Pooling_exe(
    req.stream=_stream;
    req.output_shift=_output_shift;
 
-   ztamDualHartExecute(pooling,&req);
+   ztaDualHartExecute(pooling,&req);
 
    >CALLBACK(0,_req_id);
 }

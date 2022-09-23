@@ -78,7 +78,7 @@ static void iconv(void *_p,int pid) {
    >(int)PCORE(NUM_PCORE)[*][:].iconv::init._ksz <= INT(req->ksz);
 
    > EXE_LOCKSTEP(iconv::init,NUM_PCORE);
-   ztamTaskYield();
+   ztaTaskYield();
 
    >(int)PCORE(NUM_PCORE)[*].iconv::k[0:req->ksz-1][0:req->ksz-1] <= (int)MEM(req->kernel)[0:req->ksz*req->ksz-1];
 
@@ -121,7 +121,7 @@ static void iconv(void *_p,int pid) {
             }
             > EXE_LOCKSTEP(iconv::exe_7x7,NUM_PCORE);
 
-            ztamTaskYield();
+            ztaTaskYield();
 
             // Copy result tiles back to memory
             >(ushort)MEM(output,req->dst_h,req->dst_w)[y*dy:y*dy+TILE_DY_DIM*VECTOR_WIDTH-1][x*dx:x*dx+dx2-1] <=
@@ -168,7 +168,7 @@ void kernel_gaussian_exe(
    req.dst_w=_dst_w;
    req.dst_h=_dst_h;
    
-   ztamDualHartExecute(iconv,&req);
+   ztaDualHartExecute(iconv,&req);
 
   >CALLBACK(0,_req_id);
 }

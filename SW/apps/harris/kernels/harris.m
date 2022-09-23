@@ -78,7 +78,7 @@ static void harris_phase_0(void *_p,int pid) {
 
    // Load the convolution kernel...
    > EXE_LOCKSTEP(harris::init,NUM_PCORE);
-   ztamTaskYield();
+   ztaTaskYield();
 
    inputLen=req->src_w*req->src_h;
    input=req->input;
@@ -122,7 +122,7 @@ static void harris_phase_0(void *_p,int pid) {
 
          > EXE_LOCKSTEP(harris::calc_gradient,NUM_PCORE);
 
-         ztamTaskYield();
+         ztaTaskYield();
 
          // Copy result tiles back to memory
          >(int)MEM(x_gradient,req->dst_h,req->dst_w)[y*dy:y*dy+TILE_DY_DIM*VECTOR_WIDTH-1][x*dx:x*dx+dx2-1] <=
@@ -171,7 +171,7 @@ static void harris_phase_1(void *_p,int pid) {
 
    // Load the convolution kernel...
    > EXE_LOCKSTEP(harris1::init,NUM_PCORE);
-   ztamTaskYield();
+   ztaTaskYield();
 
    x_gradientLen=w*h*sizeof(int16_t);
    x_gradient=req->x_gradient;
@@ -231,7 +231,7 @@ static void harris_phase_1(void *_p,int pid) {
 
          > EXE_LOCKSTEP(harris1::calc,NUM_PCORE);
 
-         ztamTaskYield();
+         ztaTaskYield();
 
          // Copy result tiles back to memory
          >(int)MEM(req->score,h,w)[y*dy:y*dy+TILE_DY_DIM*VECTOR_WIDTH-1][x*dx:x*dx+dx2-1] <=
@@ -275,7 +275,7 @@ static void harris_phase_2(void *_p,int pid) {
 
    // Load the convolution kernel...
    > EXE_LOCKSTEP(harris2::init,NUM_PCORE);
-   ztamTaskYield();
+   ztaTaskYield();
 
    scoreLen=w*h*sizeof(int16_t);
    score=req->score;
@@ -315,7 +315,7 @@ static void harris_phase_2(void *_p,int pid) {
 
          > EXE_LOCKSTEP(harris2::calc,NUM_PCORE);
 
-         ztamTaskYield();
+         ztaTaskYield();
 
          // Copy result tiles back to memory
          >(int)MEM(req->output,h,w)[y*dy:y*dy+TILE_DY_DIM*VECTOR_WIDTH-1][x*dx:x*dx+dx2-1] <=
@@ -359,11 +359,11 @@ void kernel_harris_exe(
    req.dst_w=_dst_w;
    req.dst_h=_dst_h;
    
-   ztamDualHartExecute(harris_phase_0,&req);
+   ztaDualHartExecute(harris_phase_0,&req);
       
-   ztamDualHartExecute(harris_phase_1,&req);
+   ztaDualHartExecute(harris_phase_1,&req);
       
-   ztamDualHartExecute(harris_phase_2,&req);
+   ztaDualHartExecute(harris_phase_2,&req);
       
   >CALLBACK(0,_req_id);
 }

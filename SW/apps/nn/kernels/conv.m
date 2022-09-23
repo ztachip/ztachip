@@ -129,7 +129,7 @@ static void convolution_3x3(void *_p,int pid) {
       > (int)PCORE(np)[i][:].convolution::init.mypid <= INT(index);
    }
    > EXE_LOCKSTEP(convolution::init,np);
-   ztamTaskYield();
+   ztaTaskYield();
    if(pid==0) {
       from=0;
       to=ROUND(req->topcnt/2,step);
@@ -151,7 +151,7 @@ static void convolution_3x3(void *_p,int pid) {
             > convolution::start.count <= INT(dycnt);
             > EXE_LOCKSTEP(convolution::start,np);
             for(jj=0;jj < botcnt2;jj++) {
-               ztamTaskYield(); 
+               ztaTaskYield(); 
                j=jj+ii;
                > $bot_pcore <= PROC(1) <= $bot_ddr[j];
                > $coef_pcore <= PROC(2) <= $coef_ddr[jj];
@@ -170,7 +170,7 @@ static void convolution_3x3(void *_p,int pid) {
             > convolution::activate.idx <= INT(jj);
             > EXE_LOCKSTEP(convolution::activate,np);
             }
-            ztamTaskYield();
+            ztaTaskYield();
             if(req->out_interleave==kTensorFormatInterleaved || req->out_interleave==kTensorFormatFlatAndInterleaved) {
                if(conv_dx2==NUM_THREAD_PER_CORE) {
                   > (topfmt)MEM(req->top_interleave,req->topdim,req->topdim,req->topcnt)[r:r+conv_dy-1][c:c+conv_dx2-1][i:i+step-1] <= PROC(0) <= (topfmt)  FOR(M=0:dycnt-1) FOR(L=0:groupsz-1) FOR(K=0:NUM_THREAD_PER_CORE-1) FOR(J=0:group-1) FOR(I=0:VECTOR_WIDTH-1) PCORE(group,groupsz)[J][L].THREAD[K].convolution::top[M][I];
@@ -311,7 +311,7 @@ static void convolution_1x1(void *_p,int pid) {
          > (int)PCORE(np)[i][:].convolution1x1::init.mypid <= INT(index);
       }
       > EXE_LOCKSTEP(convolution1x1::init,np);
-      ztamTaskYield();
+      ztaTaskYield();
       if(pid==0) {
          from=0;
          to=ROUND((topcnt+1)/2,VECTOR_WIDTH);
@@ -322,7 +322,7 @@ static void convolution_1x1(void *_p,int pid) {
       from+=topoffset;
       to+=topoffset;
 
-      f_activate=ztamBuildKernelFunc($convolution1x1::activate,np,conv_dx);
+      f_activate=ztaBuildKernelFunc($convolution1x1::activate,np,conv_dx);
 
       > $coef_pcore := (weightfmt)FOR(I=0:dzcnt-1) PCORE(group,groupsz)[:][*].convolution1x1::coef[I][:];
 
@@ -349,7 +349,7 @@ static void convolution_1x1(void *_p,int pid) {
                dycnt2-=extra;
                dycntLast+=extra;
             }
-            f=ztamBuildKernelFunc(kfunc[dycnt2-1],NUM_PCORE,conv_dx);
+            f=ztaBuildKernelFunc(kfunc[dycnt2-1],NUM_PCORE,conv_dx);
             xy2=conv_dx*groupsz*dycnt2;
             xy3=ROUND(xy2,VECTOR_WIDTH);
             xy4=xy3*dzcnt;
@@ -365,7 +365,7 @@ static void convolution_1x1(void *_p,int pid) {
             if(dzcnt > 1) {
                cnt=botcnt2/dzcnt;
                for(jj=0;jj < cnt;jj++) {
-                  ztamTaskYield(); 
+                  ztaTaskYield(); 
                   > $bot_pcore <= PROC(1) <= $bot_ddr[jj];
                   > $coef_pcore <= PROC(2) <= $coef_ddr[jj];
                   > convolution1x1::exe2.idx <= INT(0);
@@ -379,13 +379,13 @@ static void convolution_1x1(void *_p,int pid) {
                > convolution1x1::exe2.idx <= INT(0);
                > convolution1x1::exe2.idx2 <= INT(0);
                for(jj=0;jj < botcnt2;jj+=dzcnt) {
-                  ztamTaskYield(); 
+                  ztaTaskYield(); 
                   > $bot_pcore <= PROC(1) <= $bot_ddr[jj];
                   > $coef_pcore <= PROC(2) <= $coef_ddr[jj];
                   > EXE_LOCKSTEP(f);
                }
             }
-            ztamTaskYield();	
+            ztaTaskYield();	
             
             // Do activation step... 
             
@@ -395,7 +395,7 @@ static void convolution_1x1(void *_p,int pid) {
                > convolution1x1::activate.idx2 <= INT(jj*conv_dx);
                > EXE_LOCKSTEP(f_activate);
             }
-            ztamTaskYield();
+            ztaTaskYield();
             
             // Output results...
             
@@ -549,7 +549,7 @@ static void convolution_depthwise(void *_p,int pid) {
       } else {    
          > EXE_LOCKSTEP(convolution_depthwise::init2,np);
       }
-      ztamTaskYield();
+      ztaTaskYield();
 
       if(pid==0) {
          from=0;
@@ -561,7 +561,7 @@ static void convolution_depthwise(void *_p,int pid) {
       from+=topoffset;
       to+=topoffset;
 
-      f=ztamBuildKernelFunc($convolution_depthwise::exe3x3,np,(dxcnt==1)?conv_dx:NUM_THREAD_PER_CORE/2+conv_dx);
+      f=ztaBuildKernelFunc($convolution_depthwise::exe3x3,np,(dxcnt==1)?conv_dx:NUM_THREAD_PER_CORE/2+conv_dx);
 
       > $coef_pcore := (weightfmt)PCORE(group,groupsz)[:][*].convolution_depthwise::coef[0:kz-1][:];
 
@@ -602,7 +602,7 @@ static void convolution_depthwise(void *_p,int pid) {
                   > convolution_depthwise::exe3x3.offset <= INT(offset);
                   > EXE_LOCKSTEP(f);
                }
-               ztamTaskYield();
+               ztaTaskYield();
 
                // Output results...
 
@@ -642,7 +642,7 @@ static void do_add_process(void *_p,int pid)
       > (fmt)PCORE(np)[:].THREAD[:].add::exe.x1 <= PROC(1) <= (fmt)MEM(req->input[0],req->size(req->size))[i:i+step2-1];
       > (fmt)PCORE(np)[:].THREAD[:].add::exe.x2 <= PROC(2) <= (fmt)MEM(req->input[1],req->size(req->size))[i:i+step2-1];
       > EXE_LOCKSTEP(add::exe,np);
-      ztamTaskYield();
+      ztaTaskYield();
       > (fmt)MEM(req->output,req->size(req->size))[i:i+step2-1] <= PROC(0) <= (fmt)PCORE(np)[:].THREAD[:].add::exe.y;
    }
 }
@@ -669,7 +669,7 @@ void kernel_add_exe(
    req.output=_output;
    req.stream=_stream;
    
-   ztamDualHartExecute(do_add_process,&req);
+   ztaDualHartExecute(do_add_process,&req);
 
    >CALLBACK(0,_req_id);
 }
@@ -733,11 +733,11 @@ void kernel_convolution_exe(
 
    if(req.ksz==1)
    {
-      ztamDualHartExecute(convolution_1x1,&req);
+      ztaDualHartExecute(convolution_1x1,&req);
    }
    else
    {
-      ztamDualHartExecute(convolution_3x3,&req);
+      ztaDualHartExecute(convolution_3x3,&req);
    }
    >CALLBACK(0,_req_id);
 }
@@ -800,7 +800,7 @@ void kernel_convolution_depthwise_exe(
    req.in_interleave=_in_interleave;
    req.out_interleave=_out_interleave;
    
-   ztamDualHartExecute(convolution_depthwise,&req);
+   ztaDualHartExecute(convolution_depthwise,&req);
 
    >CALLBACK(0,_req_id);
 }

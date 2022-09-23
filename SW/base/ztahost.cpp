@@ -31,13 +31,13 @@
 
 // Allocate shared memory from non-cached data region
 
-ZTA_SHARED_MEM ztahostAllocSharedMem(int _size) {
+ZTA_SHARED_MEM ztaAllocSharedMem(int _size) {
 	return (ZTA_SHARED_MEM)malloc(_size);
 }
 
 // Free a previously allocated shared memory
 
-void ztahostFreeSharedMem(ZTA_SHARED_MEM p) {
+void ztaFreeSharedMem(ZTA_SHARED_MEM p) {
 	free((void *)p);
 }
 
@@ -49,8 +49,8 @@ static ZTA_SHARED_MEM buildSpu(SPU_FUNC func,void *pparm,uint32_t parm,uint32_t 
    int16_t *p;
    ZTA_SHARED_MEM shm;
 
-   shm=ztahostAllocSharedMem(SPU_SIZE*2*sizeof(int16_t));
-   p=(int16_t *)ZTA_SHARED_MEM_P(shm);
+   shm=ztaAllocSharedMem(SPU_SIZE*2*sizeof(int16_t));
+   p=(int16_t *)ZTA_SHARED_MEM_VIRTUAL(shm);
    for(int i=0;i < SPU_SIZE;i++) {
       v=((i*SPU_REMAINDER)&0xFFF);
       if(v & 0x800)
@@ -68,7 +68,7 @@ static ZTA_SHARED_MEM buildSpu(SPU_FUNC func,void *pparm,uint32_t parm,uint32_t 
 }
 
 
-ZTA_SHARED_MEM ztahostBuildSpuBundle(int numSpuImg,...) {
+ZTA_SHARED_MEM ztaBuildSpuBundle(int numSpuImg,...) {
    ZTA_SHARED_MEM bundle,spu;
    SPU_FUNC func;
    void *pparm;
@@ -79,8 +79,8 @@ ZTA_SHARED_MEM ztahostBuildSpuBundle(int numSpuImg,...) {
 
    va_start(args,numSpuImg);
 
-   bundle=ztahostAllocSharedMem((numSpuImg*SPU_SIZE*2+1)*sizeof(int16_t));
-   pp=(int16_t *)ZTA_SHARED_MEM_P(bundle);
+   bundle=ztaAllocSharedMem((numSpuImg*SPU_SIZE*2+1)*sizeof(int16_t));
+   pp=(int16_t *)ZTA_SHARED_MEM_VIRTUAL(bundle);
    pp[0]=numSpuImg;
    pp++;
    for(i=0;i < numSpuImg;i++,pp+=SPU_SIZE*2) {
@@ -89,8 +89,8 @@ ZTA_SHARED_MEM ztahostBuildSpuBundle(int numSpuImg,...) {
 	  parm = va_arg(args,uint32_t);
 	  parm2 = va_arg(args,uint32_t);
 	  spu=buildSpu(func,pparm,parm,parm2);
-      memcpy(pp,ZTA_SHARED_MEM_P(spu),SPU_SIZE*2*sizeof(int16_t));
-      ztahostFreeSharedMem(spu);
+      memcpy(pp,ZTA_SHARED_MEM_VIRTUAL(spu),SPU_SIZE*2*sizeof(int16_t));
+      ztaFreeSharedMem(spu);
    }
    va_end(args);
    return bundle;

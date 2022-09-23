@@ -85,7 +85,7 @@ static void equalize(void *_p,int pid) {
    i=0;
    j=0;
    > EXE_LOCKSTEP(equalize::init,np,nt);
-   ztamTaskYield();
+   ztaTaskYield();
 
    for(y=0;y < dy;y+=step_y) {
       for(x=0;x < dx;x += step_x) {
@@ -99,13 +99,13 @@ static void equalize(void *_p,int pid) {
 
          > EXE_LOCKSTEP(equalize::exe,np,nt);
 
-         ztamTaskYield();
+         ztaTaskYield();
 
          i++;
          j+=(step_x*step_y);
          if(i >= count) {
             > EXE_LOCKSTEP(equalize::accumulate,np,nt);
-            ztamTaskYield();
+            ztaTaskYield();
             i=0;
          }
       }
@@ -113,13 +113,13 @@ static void equalize(void *_p,int pid) {
 
    > EXE_LOCKSTEP(equalize::accumulate,np,nt);
 
-   ztamTaskYield();
+   ztaTaskYield();
 
    > equalize::done.count <= INT(nt);
 
    // Summarize results among the threads...
    > EXE_LOCKSTEP(equalize::done,np,kHistogramBinSize);
-   ztamTaskYield();
+   ztaTaskYield();
 
    // Save results to SCRATCH...
    len=np*kHistogramBinSize*VECTOR_WIDTH;
@@ -196,7 +196,7 @@ void kernel_equalize_exe(
    
    for(i=0;i < req.nchannels;i++) {
       req.ws.channel=i;
-      ztamDualHartExecute(equalize,&req);
+      ztaDualHartExecute(equalize,&req);
       equalize_final(&req);
    }
   >CALLBACK(0,_req_id);

@@ -83,7 +83,7 @@ static void of_phase_0(void *_p,int pid) {
 
    // Load the convolution kernel...
    > EXE_LOCKSTEP(of::init,NUM_PCORE);
-   ztamTaskYield();
+   ztaTaskYield();
 
    inputLen=req->src_w*req->src_h;
    input[0]=req->input[0];
@@ -153,7 +153,7 @@ static void of_phase_0(void *_p,int pid) {
 
          > EXE_LOCKSTEP(of::calc_gradient,NUM_PCORE);
 
-         ztamTaskYield();
+         ztaTaskYield();
 
          // Copy result tiles back to memory
          >(int)MEM(x_gradient,req->dst_h,req->dst_w)[y*dy:y*dy+TILE_DY_DIM*VECTOR_WIDTH-1][x*dx:x*dx+dx2-1] <=
@@ -206,7 +206,7 @@ static void of_phase_1(void *_p,int pid) {
    }
    // Load the convolution kernel...
    > EXE_LOCKSTEP(of1::init,NUM_PCORE);
-   ztamTaskYield();
+   ztaTaskYield();
 
    x_gradientLen=w*h*sizeof(int16_t);
    x_gradient=req->x_gradient;
@@ -288,14 +288,14 @@ static void of_phase_1(void *_p,int pid) {
          }
          > EXE_LOCKSTEP(of1::calc_lucus_kanade,NUM_PCORE);
 
-         ztamTaskYield();
+         ztaTaskYield();
 
          >(int)PCORE(NUM_PCORE)[:].of1::t_gradient(OF1_TILE_DY_DIM,OF1_TILE_DX_IN_DIM,VECTOR_WIDTH)[:][OF1_TILE_DX_DIM:OF1_TILE_DX_DIM+OF1_TILE_DX_DIM-1][:] <= PROC(0) <= 
          >(int)PCORE(NUM_PCORE)[:].of1::t_gradient(OF1_TILE_DY_DIM,OF1_TILE_DX_IN_DIM,VECTOR_WIDTH)[:][OF1_TILE_DX_DIM:OF1_TILE_DX_DIM+OF1_TILE_DX_DIM-1][:];
 
          > EXE_LOCKSTEP(of1::calc_lucus_kanade_final,NUM_PCORE);
 
-         ztamTaskYield();
+         ztaTaskYield();
 
          // Copy result tiles back to memory
          >(int)MEM(req->x_vect,h,w)[y*dy:y*dy+OF1_TILE_DY_DIM*VECTOR_WIDTH-1][x*dx:x*dx+dx2-1] <= 
@@ -366,9 +366,9 @@ void kernel_of_exe(
    req.dst_w=_dst_w;
    req.dst_h=_dst_h;
    
-   ztamDualHartExecute(of_phase_0,&req);
+   ztaDualHartExecute(of_phase_0,&req);
       
-   ztamDualHartExecute(of_phase_1,&req);
+   ztaDualHartExecute(of_phase_1,&req);
       
   >CALLBACK(0,req_id);
 }

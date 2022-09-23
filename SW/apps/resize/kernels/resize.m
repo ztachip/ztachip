@@ -120,7 +120,7 @@ void box_resize_horizontal(void *_p,int pid) {
 
    >EXE_LOCKSTEP(resize_box::init,np);
 
-   ztamTaskYield();
+   ztaTaskYield();
 
    // Resize horizontally first
 
@@ -135,7 +135,7 @@ void box_resize_horizontal(void *_p,int pid) {
 
             > EXE_LOCKSTEP(kfunc[req->filterLen[0]-1],np);
 
-            ztamTaskYield();
+            ztaTaskYield();
 
             // Copy results back to DDR
 
@@ -194,7 +194,7 @@ void box_resize_vertical(void *_p,int pid) {
 
    >EXE_LOCKSTEP(resize_box::init,np);
 
-   ztamTaskYield();
+   ztaTaskYield();
 
    // Resize horizontally first
    for(ch=0;ch < req->nchannel;ch++) {
@@ -209,7 +209,7 @@ void box_resize_vertical(void *_p,int pid) {
             
             > EXE_LOCKSTEP(kfunc[req->filterLen[1]-1],np);
 
-            ztamTaskYield();
+            ztaTaskYield();
 
             // Copy results back to DDR
 
@@ -267,11 +267,11 @@ void kernel_resize_exe(
 
    // Resize horizontally 
 
-   ztamDualHartExecute(box_resize_horizontal,&req);
+   ztaDualHartExecute(box_resize_horizontal,&req);
       
    // Then resize vertically
 
-   ztamDualHartExecute(box_resize_vertical,&req);
+   ztaDualHartExecute(box_resize_vertical,&req);
            
   >CALLBACK(0,_req_id);
 }
