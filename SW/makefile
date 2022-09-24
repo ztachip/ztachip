@@ -7,7 +7,7 @@ MULDIV=yes
 SRCS = 	base/newlib.c \
 	base/ztalib.c \
 	base/tensor.cpp \
-	base/util.cpp \
+	base/util.c \
 	base/graph.cpp \
 	base/crt.S \
 	base/task.S \

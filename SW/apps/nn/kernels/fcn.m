@@ -17,6 +17,7 @@
 //------------------------------------------------------------------------------
 
 #include <stdbool.h>
+#include "../../../base/util.h"
 #include "../../../base/ztalib.h"
 #include "../../main/kernels/main.h"
 #include "fcn.h"

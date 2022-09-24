@@ -19,6 +19,7 @@
 #include <stdint.h>
 #include <vector>
 #include <stdarg.h>
+#include <malloc.h>
 #include "types.h"
 #include "ztalib.h"
 #include "util.h"
@@ -82,6 +83,55 @@ ZtaStatus TENSOR::Create(TensorDataType _dataType,TensorFormat _fmt,TensorSemant
 
 ZtaStatus TENSOR::Clone(TENSOR *other) {
    return Create(other->GetDataType(),other->GetFormat(),other->GetSemantic(),other->m_dim);
+}
+
+ZtaStatus TENSOR::CreateWithBitmap(const char *bmpFile,TensorFormat fmt)
+{
+   uint8_t *pict;
+   int bmp_w,bmp_h;
+   int bmpActualWidth;
+   int r,c;
+   int w,h;
+   int dx,dy;
+   uint8_t *output;
+
+   pict = bmpRead(bmpFile,&bmp_h,&bmp_w);
+   if(!pict) {
+      return ZtaStatusFail;
+   }
+   if(fmt==TensorFormatSplit) {
+      std::vector<int> dim={3,bmp_h,bmp_w};
+      Create(TensorDataTypeUint8,TensorFormatSplit,TensorSemanticRGB,dim);
+   } else {
+      std::vector<int> dim={bmp_h,3*bmp_w};
+      Create(TensorDataTypeUint8,TensorFormatSplit,TensorSemanticRGB,dim);
+   }
+   output=(uint8_t *)GetBuf();
+
+   w=bmp_w;
+   h=bmp_h;
+   dx=0;
+   dy=0;
+   bmpActualWidth=((bmp_w*3+3)/4)*4;
+   uint8_t red, blue, green;
+   for (r = 0; r < h; r++) {
+      for (c = 0; c < w; c++) {
+         blue = (pict[((bmp_h-1)-(r+dy))*bmpActualWidth+3*(c+dx)+0]);
+         green = (pict[((bmp_h-1)-(r+dy))*bmpActualWidth+3*(c+dx)+1]);
+         red = (pict[((bmp_h-1)-(r+dy))*bmpActualWidth+3*(c+dx)+2]);
+         if(fmt==TensorFormatSplit) {
+            output[0*w*h+r*w+c] = red;
+            output[1*w*h+r*w+c] = green;
+            output[2*w*h+r*w+c] = blue;
+         } else {
+             output[3*(r*w+c)] = red;
+             output[3*(r*w+c)+1] = green;
+             output[3*(r*w+c)+2] = blue;
+         }
+      }
+   }
+   free(pict);
+   return ZtaStatusOk;
 }
 
 TENSOR::~TENSOR() {

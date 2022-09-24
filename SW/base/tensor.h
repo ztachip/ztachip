@@ -62,6 +62,7 @@ public:
    ZtaStatus Clone(TENSOR *other);
    ZtaStatus Alias(TENSOR *other);
    ZtaStatus Alias(ZTA_SHARED_MEM _shm);
+   ZtaStatus CreateWithBitmap(const char *bmpFile,TensorFormat fmt=TensorFormatSplit);
    ~TENSOR();
    TensorDataType GetDataType() {return m_dataType;}
    TensorFormat GetFormat() {return m_fmt;}

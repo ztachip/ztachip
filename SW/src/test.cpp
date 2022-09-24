@@ -837,7 +837,7 @@ static void resize(const char *fname_in,int w,int h,const char *fname_out,int ds
    std::vector<int> dim={3,h,w};
    ZtaStatus rc;
 
-   BitmapRead(fname_in,&input);
+   input.CreateWithBitmap(fname_in);
 
    rc=graph.Create(&input,&output,dst_w,dst_h);
    assert(rc==ZtaStatusOk);
@@ -854,7 +854,7 @@ static void resize(const char *fname_in,int w,int h,const char *fname_out,int ds
    uint8_t *vector=(uint8_t *)malloc(dst_w*dst_h*3);
    memset(vector,0,dst_w*dst_h*3);
    sprintf(fname,"%s",fname_out);
-   BitmapRead(fname,&outputRef);
+   outputRef.CreateWithBitmap(fname);
    if(memcmp(outputRef.GetBuf(),output.GetBuf(),dst_w*dst_h*3) != 0)
    {
       exit(0);
@@ -1037,7 +1037,7 @@ void test_mobinet()
    ZtaStatus rc;
    TfliteNn TF2;
 
-   rc=BitmapRead("classifier_input.bmp",&input);
+   rc=input.CreateWithBitmap("classifier_input.bmp");
    assert(rc==ZtaStatusOk);
    TF2.Create("mobilenet_v2_1_0_224_quant.tflite",&input,1,&output);
    graph.Add(&TF2);
@@ -1081,7 +1081,7 @@ void test_mobinet_ssd()
    Graph graph;
    TfliteNn TF1;
 
-   BitmapRead("ssd_input.bmp",&input);
+   input.CreateWithBitmap("ssd_input.bmp");
    TF1.Create("detect.tflite",&input,4,&output[0],&output[1],&output[2],&output[3]);
    TF1.LabelLoad("labelmap.txt");
    graph.Add(&TF1);

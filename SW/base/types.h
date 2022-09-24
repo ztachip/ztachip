@@ -30,7 +30,4 @@ typedef enum {
    ZtaStatusPending=2
 } ZtaStatus;
 
-#define ROUND(a,b)  ((((a)+(b)-1)/(b))*(b))
-#define ABS(a)      (((a)>=0)?(a):(-(a)))
-
 #endif

@@ -19,16 +19,28 @@
 #ifndef _ZTA_UTIL_H_
 #define _ZTA_UTIL_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdio.h>
-#include <string.h>
-#include <assert.h>
 #include <stdint.h>
 #include "types.h"
-#include "tensor.h"
+
+// Some common macros
+
+#define ROUND(a,b)  ((((a)+(b)-1)/(b))*(b))
+
+#define ABS(a)  (((a)>=0)?(a):(-(a)))
+
 
 // Some general utility functions...
 
 int16_t FLOAT2INT(float in);
-ZtaStatus BitmapRead(const char *bmpFile,TENSOR *outputTensor,TensorFormat fmt=TensorFormatSplit);
 
+uint8_t *bmpRead(const char *filename,int *h,int *w);
+
+#ifdef __cplusplus
+}
+#endif
 #endif

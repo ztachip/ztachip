@@ -109,7 +109,7 @@ int drawText(uint8_t *screen,char *str,int r,int c) {
    if(!alpha) {
       // Font is defined in bitmap
       alpha=new TENSOR();
-      BitmapRead("alphabet2.bmp",alpha,TensorFormatInterleaved);
+      alpha->CreateWithBitmap("alphabet2.bmp",TensorFormatInterleaved);
    }
    for(j=0;j < len;j++) {
       ch=(int)(*str++);
