@@ -37,6 +37,16 @@ extern "C" {
 
 #define DIM(a)  (sizeof(a)/sizeof((a)[0]))
 
+// Convert between network oder and byte order
+
+#define H2N(h,n)  {(n)[0]=(((h)>>24)&0xff);(n)[1]=(((h)>>16)&0xff);(n)[2]=(((h)>>8)&0xff);(n)[3]=((h)&0xff);}
+
+#define N2H(n,h)  {(h)=(((uint32_t)((n)[0]))<<24)+(((uint32_t)((n)[1]))<<16)+(((uint32_t)((n)[2]))<<8)+(((uint32_t)((n)[3]))<<0);}
+
+#define H2N16(h,n)  {(n)[0]=(((h)>>8)&0xff);(n)[1]=((h)&0xff);}
+
+#define N2H16(n,h)  {(h)= (((uint16_t)((n)[0]))<<8) + (((uint16_t)((n)[1]))<<0);}
+
 // Some general utility functions...
 
 int16_t FLOAT2INT(float in);

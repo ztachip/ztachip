@@ -20,7 +20,7 @@
 #define _UTIL_H_
 
 #include <string>
-#include "common.h"
+#include "../base/util.h"
 
 #define bool int
 #define true 1
@@ -28,6 +28,8 @@
 #define RETCODE int
 #define OK 0
 #define FAIL -1
+
+#define MAX_STRING_LEN  256      // Maximum string size
 
 class cList;
 class cListItem;
