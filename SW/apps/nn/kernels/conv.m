@@ -19,7 +19,6 @@
 #include <stdbool.h>
 #include "../../../base/util.h"
 #include "../../../base/ztalib.h"
-#include "../../main/kernels/main.h"
 #include "nn.h"
 #include "conv.h"
 #include "conv.p.img"

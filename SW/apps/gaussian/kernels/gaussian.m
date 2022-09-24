@@ -17,7 +17,6 @@
 //------------------------------------------------------------------------------
 
 #include "../../../base/ztalib.h"
-#include "../../main/kernels/main.h"
 #include "gaussian.h"
 #include "gaussian.p.img"
 #include "gaussian.h"

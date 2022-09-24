@@ -32,7 +32,23 @@ extern "C" {
 #include "types.h"
 #include "zta.h"
 
-/* Task function API */
+//-------------------------------------------------------------------
+// Memory blocks to be shared between ztachip and host
+
+typedef void * ZTA_SHARED_MEM;
+
+#define ZTA_SHARED_MEM_VIRTUAL(p)   ((void *)(p))
+
+#define ZTA_SHARED_MEM_PHYSICAL(p)  ((uint32_t)p)
+
+//-------------------------------------------------------------------
+// Function call back for SPU function generator
+
+typedef int16_t (*SPU_FUNC)(int16_t,void *pparm,uint32_t parm,uint32_t parm2);
+
+
+//-------------------------------------------------------------------
+// Task function API
 
 void ztaInit();
 
@@ -42,26 +58,25 @@ uint32_t ztaBuildKernelFunc(uint32_t _func,int num_pcore,int num_tid);
 
 #define ztaTaskYield() {ZTAM_GREG(0,REG_DP_VM_TOGGLE,0)=0;_taskYield();}
 
-
-typedef void * ZTA_SHARED_MEM;
-
-#define ZTA_SHARED_MEM_VIRTUAL(p)   ((void *)(p))
-
-#define ZTA_SHARED_MEM_PHYSICAL(p)  ((uint32_t)p)
-
-// Allocate a shared memory block
+//-------------------------------------------------------------------
+// Shared memory allocation API
 
 extern ZTA_SHARED_MEM ztaAllocSharedMem(int _size);
 
-// Free a previously allocated shared memory block
-
 extern void ztaFreeSharedMem(ZTA_SHARED_MEM);
 
-typedef int16_t (*SPU_FUNC)(int16_t,void *pparm,uint32_t parm,uint32_t parm2);
-
-// Build SPU lookup table
+//-------------------------------------------------------------------
+// SPU builder
 
 extern ZTA_SHARED_MEM ztaBuildSpuBundle(int numSpuImg,...);
+
+
+//-------------------------------------------------------------------
+// Software download for pcore and streamer
+
+extern void ztaInitPcore(uint16_t *_image);
+
+extern void ztaInitStream(uint32_t _spu);
 
 
 #ifdef __cplusplus

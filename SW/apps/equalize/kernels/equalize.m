@@ -17,7 +17,6 @@
 //------------------------------------------------------------------------------
 
 #include "../../../base/ztalib.h"
-#include "../../main/kernels/main.h"
 #include "equalize.h"
 #include "equalize.h"
 #include "equalize.p.img"

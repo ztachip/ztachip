@@ -18,7 +18,6 @@
 
 #include <stdbool.h>
 #include "../../../base/ztalib.h"
-#include "../../main/kernels/main.h"
 #include "harris.h"
 #include "harris.p.img"
 

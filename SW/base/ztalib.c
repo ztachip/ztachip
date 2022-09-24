@@ -33,6 +33,7 @@
 // Functions that are implemented in task.S
 
 extern void _taskYield(void);
+
 extern void _taskSpawn(uint32_t,uint32_t,uint32_t,uint32_t);
 
 // This file contains supporting functions for codes running on mcore
@@ -124,7 +125,6 @@ static ZTA_SHARED_MEM buildSpu(SPU_FUNC func,void *pparm,uint32_t parm,uint32_t 
    }
    return shm;
 }
-
 
 ZTA_SHARED_MEM ztaBuildSpuBundle(int numSpuImg,...) {
    ZTA_SHARED_MEM bundle,spu;
