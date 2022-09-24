@@ -22,6 +22,7 @@
 #include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <malloc.h>
 #include "types.h"
 #include "ztalib.h"
 #include "util.h"

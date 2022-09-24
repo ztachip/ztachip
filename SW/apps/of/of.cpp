@@ -20,10 +20,7 @@
 #include "../../base/types.h"
 #include "../../base/tensor.h"
 #include "../../base/graph.h"
-extern "C"
-{
 #include "kernels/of.h"
-}
 #include "of.h"
 
 // Graph node to do optical flow using Lucas-Kanade algorithm

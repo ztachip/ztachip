@@ -18,6 +18,9 @@
 
 #ifndef _CONV_H_
 #define _CONV_H_
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 extern void kernel_convolution_depthwise_exe(
    unsigned int _req_id,
@@ -95,6 +98,7 @@ extern void kernel_add_exe(
 #define STRIDE  4
 
 #define POOL_DIM_DX  8
+
 #define POOL_DIM_DY  2
 
 #define MAX_POOL_KERNEL 3
@@ -114,17 +118,27 @@ extern void kernel_add_exe(
 // Convolution depthwise
 
 #define MAX_DEPTHWISE_KERNEL_SIZE 9
+
 #define CONV_DEPTHWISE_Y_DIM  3
+
 #define CONV_DEPTHWISE_BOT_DY 10
+
 #define CONV_DEPTHWISE_BOT_DX 16
+
 #define CONV_DEPTHWISE_BOTSZ 160
 
 // Convolution 1x1
 //#define CONV_1X1_BOTSZ 512
+
 #define CONV_1X1_BOTSZ 840
+
 #define CONV_1X1_Y_DIM 8
 
 // Concatenation kernel
+
 #define CONCATENATE_BUFSZ 1600
 
+#ifdef __cplusplus
+}
+#endif
 #endif

@@ -210,7 +210,7 @@ void kernel_logistic_exe(
    unsigned int _spu
 ) {
    int i,cnt,idx;
-   uint32_t spu,src,dest;
+   uint32_t src,dest;
    int copySize;
    int len,remain;
    int fmt=DP_DATA_TYPE_UINT8;
@@ -221,7 +221,6 @@ void kernel_logistic_exe(
    copySize=_copySize;
    src=_src;
    dest=_dest;
-   spu=_spu;
 
    remain=copySize;
    idx=0;

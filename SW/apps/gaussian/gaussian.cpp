@@ -20,10 +20,7 @@
 #include "../../base/types.h"
 #include "../../base/tensor.h"
 #include "../../base/graph.h"
-extern "C"
-{
 #include "kernels/gaussian.h"
-}
 #include "gaussian.h"
 
 #define SIGMA 0.84089642

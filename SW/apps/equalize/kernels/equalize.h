@@ -18,6 +18,9 @@
 
 #ifndef APPS_EQUALIZE_KERNELS_EQUALIZE_H_
 #define APPS_EQUALIZE_KERNELS_EQUALIZE_H_
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 extern void kernel_equalize_exe(
    unsigned int _req_id,
@@ -36,4 +39,7 @@ extern void kernel_equalize_exe(
 
 #define HISTOGRAM_HI_FACTOR 1000 // Multiplication factor for histogram hi value 
 
+#ifdef __cplusplus
+}
+#endif
 #endif

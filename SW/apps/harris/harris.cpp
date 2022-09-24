@@ -20,10 +20,7 @@
 #include "../../base/types.h"
 #include "../../base/tensor.h"
 #include "../../base/graph.h"
-extern "C"
-{
 #include "kernels/harris.h"
-}
 #include "harris.h"
 
 // Graph node to do harris-corder detection

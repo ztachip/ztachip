@@ -25,10 +25,7 @@
 #include "../../base/types.h"
 #include "../../base/util.h"
 #include "../../base/ztalib.h"
-extern "C"
-{
 #include "kernels/conv.h"
-}
 #include "nn_add.h"
 
 // Do Add layer

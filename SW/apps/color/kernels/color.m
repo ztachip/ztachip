@@ -85,7 +85,7 @@ static void yuyv2rgb(void *_p,int pid) {
    pixelBytePerChannel=(req->dst_channel_fmt==kChannelFmtInterleave)?RGB_PIXEL_SIZE:1;
    x_off=req->x_off;
    if(x_off&1)
-      _exit(0);
+      ztaAbort(0);
    x_off=x_off*YUYV_PIXEL_SIZE;
    y_off=req->y_off;
 

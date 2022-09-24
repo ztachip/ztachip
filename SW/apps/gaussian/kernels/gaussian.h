@@ -18,6 +18,9 @@
 
 #ifndef _GAUSSIAN_H_
 #define _GAUSSIAN_H_
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 extern void kernel_gaussian_exe(
    unsigned int _req_id,
@@ -47,4 +50,7 @@ extern void kernel_gaussian_exe(
 
 #define SCALE_FACTOR    10
 
+#ifdef __cplusplus
+}
+#endif
 #endif

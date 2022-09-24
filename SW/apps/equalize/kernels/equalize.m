@@ -148,7 +148,7 @@ static void equalize_final(Request *req) {
    >PCORE(np)[0].equalize::histogram_hi[kHistogramBinSize*np:kHistogramBinSize*2*np-1][:] <= (int)SCRATCH(p,len)[0:len-1];
 
    if((2*np) > NUM_THREAD_PER_CORE)
-      _exit(0);
+      ztaAbort(0);
 
    > equalize::done.count <= INT(2*np);
    > EXE_LOCKSTEP(equalize::done,1,kHistogramBinSize);

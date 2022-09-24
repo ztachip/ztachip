@@ -29,9 +29,6 @@
 
 // Do the SSD box detection pruning
 
-#define MAX(a,b) (((a)>(b))?(a):(b))
-#define MIN(a,b) (((a)<(b))?(a):(b))
-
 NeuralNetLayerObjDetect::NeuralNetLayerObjDetect(NeuralNet *nn,NeuralNetOperatorDef* def) : NeuralNetLayer(nn,def) {
    m_detects=0;
    m_numDetects=0;

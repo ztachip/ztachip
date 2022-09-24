@@ -18,6 +18,9 @@
 
 #ifndef _HARRIS_H_
 #define _HARRIS_H_
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 extern void kernel_harris_exe(
    unsigned int _req_id,
@@ -44,5 +47,7 @@ extern void kernel_harris_exe(
 #define HARRIS_MAX_OUTBUF    16  // TILE_DX_DIM*TILE_DY_DIM
 #define HARRIS_MAX_KERNEL    9  // (TILE_MAX_PAD*2+1)**2
 
-
+#ifdef __cplusplus
+}
+#endif
 #endif

@@ -1,7 +1,7 @@
 #include <stdlib.h>
+#include "../base/ztalib.h"
 extern "C"
 {
-#include "../base/ztalib.h"
 extern int main(void);
 extern void irqCallback(void);
 }
@@ -17,7 +17,7 @@ extern int vision_ai(void);
 
 int main() {
    ztaInit();
-#if 1 
+#if 0 
    while(1){
       test();
    }

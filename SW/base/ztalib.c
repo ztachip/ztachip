@@ -30,12 +30,6 @@
 #include "ztalib.h"
 
 
-// Functions that are implemented in task.S
-
-extern void _taskYield(void);
-
-extern void _taskSpawn(uint32_t,uint32_t,uint32_t,uint32_t);
-
 // This file contains supporting functions for codes running on mcore
 
 static bool taskStatus=false;
@@ -152,5 +146,12 @@ ZTA_SHARED_MEM ztaBuildSpuBundle(int numSpuImg,...) {
    }
    va_end(args);
    return bundle;
+}
+
+// Abort all excution
+
+void ztaAbort(int _errorCode) {
+	extern void _exit(int);
+   _exit(_errorCode);
 }
 

@@ -17,13 +17,11 @@
 //------------------------------------------------------------------------------
 
 #include <math.h>
+#include <assert.h>
 #include "../../base/types.h"
 #include "../../base/tensor.h"
 #include "../../base/graph.h"
-extern "C"
-{
 #include "kernels/color.h"
-}
 #include "color.h"
 
 

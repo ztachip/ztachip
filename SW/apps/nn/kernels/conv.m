@@ -115,9 +115,9 @@ static void convolution_3x3(void *_p,int pid) {
    coef=req->coef;
 
    kfunc=$convolution::exe3x3;
-   if(x > CONV_SMALL_BOT_DX) _exit(0);
-   if(y > CONV_SMALL_BOT_DY) _exit(0);
-   if(req->group > 2) _exit(0);
+   if(x > CONV_SMALL_BOT_DX) ztaAbort(0);
+   if(y > CONV_SMALL_BOT_DY) ztaAbort(0);
+   if(req->group > 2) ztaAbort(0);
 
    > (int)PCORE(np)[*][:].convolution::init.stride <= INT(req->stride);
    > PCORE(np)[*][:].convolution::init._out_scale <= INT(req->activation_scale);
@@ -296,7 +296,7 @@ static void convolution_1x1(void *_p,int pid) {
       } else {
          dzcnt=1;
       }
-      if(req->group > 2) _exit(0);
+      if(req->group > 2) ztaAbort(0);
 
       // Initialize convolution module...
 
@@ -467,6 +467,7 @@ static void convolution_depthwise(void *_p,int pid) {
    coefsz=((ROUND(req->topcnt,VECTOR_WIDTH)>>VECTOR_DEPTH)*kz)*VECTOR_WIDTH; 
 
    conv_dx=1;
+   minCount=0;
    for(dx=1;dx <= NUM_THREAD_PER_CORE;dx++) {
       if((dx*req->stride+req->ksz-req->stride)>CONV_DEPTHWISE_BOT_DX)
          break;
@@ -530,8 +531,8 @@ static void convolution_depthwise(void *_p,int pid) {
       stride_dy=conv_dy*req->stride;
       stride_dx=conv_dx*req->stride;
       threadSubBlock=(conv_dx2==NUM_THREAD_PER_CORE)?2:dxcnt;
-      if(x > CONV_DEPTHWISE_BOT_DX) _exit(0);
-      if(y > CONV_DEPTHWISE_BOT_DY) _exit(0);
+      if(x > CONV_DEPTHWISE_BOT_DX) ztaAbort(0);
+      if(y > CONV_DEPTHWISE_BOT_DY) ztaAbort(0);
 
       // Initialize module...
 

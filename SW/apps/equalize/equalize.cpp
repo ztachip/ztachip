@@ -20,10 +20,7 @@
 #include "../../base/types.h"
 #include "../../base/tensor.h"
 #include "../../base/graph.h"
-extern "C"
-{
 #include "kernels/equalize.h"
-}
 #include "equalize.h"
 
 

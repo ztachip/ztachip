@@ -18,6 +18,9 @@
 
 #ifndef _COLOR_H_
 #define _COLOR_H_
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 extern void kernel_copy_exe(
    unsigned int _req_id,
@@ -86,4 +89,7 @@ extern void kernel_yuyv2rgb_exe(
 #define RGB2RGB_BUF_SIZE (RGB_PIXEL_SIZE*NUM_THREAD_PER_CORE)
 
 
+#ifdef __cplusplus
+}
+#endif
 #endif

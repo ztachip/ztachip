@@ -25,10 +25,7 @@
 #include "../../base/types.h"
 #include "../../base/util.h"
 #include "../../base/ztalib.h"
-extern "C"
-{
 #include "kernels/fcn.h"
-}
 #include "nn_concat.h"
 
 #define MAX_CONCATENATE  8

@@ -26,12 +26,9 @@
 #include "../../base/util.h"
 #include "../../base/ztalib.h"
 #include "nn_conv2d.h"
-extern "C"
-{
 #include "kernels/fcn.h"
 #include "kernels/nn.h"
 #include "kernels/conv.h"
-}
 
 // Do convolution layer
 

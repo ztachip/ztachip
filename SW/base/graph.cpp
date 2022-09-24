@@ -19,6 +19,7 @@
 #include <time.h>
 #include <stdarg.h>
 #include <unistd.h>
+#include <assert.h>
 #include "ztalib.h"
 #include "tensor.h"
 #include "graph.h"

@@ -42,10 +42,6 @@
 
 #define MAX_PICT_DIM 1024
 
-#define MAX(a,b) (((a)>(b))?(a):(b))
-
-#define MIN(a,b) (((a)<(b))?(a):(b))
-
 #define ARRAY_ELE(p,dx,dy,x,y,elesize,offset)  ((p)[(y)*(dx)*(elesize)+(x)*(elesize)+(offset)])
 
 

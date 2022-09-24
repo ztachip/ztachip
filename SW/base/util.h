@@ -18,11 +18,9 @@
 
 #ifndef _ZTA_UTIL_H_
 #define _ZTA_UTIL_H_
-
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 #include <stdio.h>
 #include <stdint.h>
 #include "types.h"
@@ -33,12 +31,18 @@ extern "C" {
 
 #define ABS(a)  (((a)>=0)?(a):(-(a)))
 
+#define MAX(a,b)  (((a)>(b))?(a):(b))
+
+#define MIN(a,b)  (((a)<(b))?(a):(b))
+
+#define DIM(a)  (sizeof(a)/sizeof((a)[0]))
 
 // Some general utility functions...
 
 int16_t FLOAT2INT(float in);
 
 uint8_t *bmpRead(const char *filename,int *h,int *w);
+
 
 #ifdef __cplusplus
 }

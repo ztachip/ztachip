@@ -17,13 +17,12 @@
 //------------------------------------------------------------------------------
 
 #include <math.h>
+#include <string.h>
+#include <assert.h>
 #include "../../base/types.h"
 #include "../../base/tensor.h"
 #include "../../base/graph.h"
-extern "C"
-{
 #include "kernels/resize.h"
-}
 #include "resize.h"
 
 // Graph node to do image resize

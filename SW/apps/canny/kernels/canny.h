@@ -18,6 +18,9 @@
 
 #ifndef _CANNY_H_
 #define _CANNY_H_
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 extern void kernel_canny_exe(
    unsigned int req_id,
@@ -53,4 +56,7 @@ extern void kernel_canny_exe(
 #define DIRECTION_NE_SW 2
 #define DIRECTION_NW_SE 3
 
+#ifdef __cplusplus
+}
+#endif
 #endif

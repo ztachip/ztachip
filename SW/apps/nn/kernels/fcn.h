@@ -18,6 +18,9 @@
 
 #ifndef _APPS_NN_KERNELS_FCN_H_
 #define _APPS_NN_KERNELS_FCN_H_
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 extern void kernel_innerProduct_exe(
    unsigned int _req_id,
@@ -73,4 +76,7 @@ extern void kernel_Pooling_exe(
 
 #define CONCATENATE_BUFSZ 1600
 
+#ifdef __cplusplus
+}
+#endif
 #endif

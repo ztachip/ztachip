@@ -17,6 +17,7 @@
 //------------------------------------------------------------------------------
 
 #include <stdint.h>
+#include <assert.h>
 #include <vector>
 #include <stdarg.h>
 #include <malloc.h>
