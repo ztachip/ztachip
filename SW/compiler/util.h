@@ -16,20 +16,25 @@
 // limitations under the License.
 //------------------------------------------------------------------------------
 
-#ifndef _UTIL_H_
-#define _UTIL_H_
+#ifndef _COMPILER_UTIL_H_
+#define _COMPILER_UTIL_H_
 
 #include <string>
 #include "../base/util.h"
 
 #define bool int
+
 #define true 1
+
 #define false 0
+
 #define RETCODE int
+
 #define OK 0
+
 #define FAIL -1
 
-#define MAX_STRING_LEN  256      // Maximum string size
+#define MAX_STRING_LEN  256
 
 class cList;
 class cListItem;

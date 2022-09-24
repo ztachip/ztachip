@@ -793,7 +793,7 @@ cInstruction *cInstruction::getBranch()
           return 0;
       default:
          assert(0);
-         return false;
+         return 0;
    }
 }
 

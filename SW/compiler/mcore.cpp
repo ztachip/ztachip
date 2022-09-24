@@ -162,7 +162,7 @@ static int STR_DPREG_STRIDE_MIN[MAX_DP_STRIDE] = { DPREG_STRIDE0_MIN,DPREG_STRID
 
 int cMcore::M_currLine = 0;
 int cMcore::M_currDepth = 0;
-int cMcore::M_beginBlock = true;
+bool cMcore::M_beginBlock = true;
 cMcoreVariable cMcore::M_vars[DP_TEMPLATE_MAX];
 std::vector<std::string> cMcore::M_export;
 

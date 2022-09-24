@@ -115,7 +115,7 @@ public:
    int GenSramDDRTensor(FILE *out, int _parm, cMcoreRange *_parmRange);
    int Gen(FILE *out,int _parm,cMcoreRange *_parmRange);
    int Validate();
-   int getStrideRegisterIndex(int index,int dimSize,int scatter);
+   int getStrideRegisterIndex(int index,int dimSize,bool scatter);
    void GEN(FILE *fp, int p1, int p2, int p3, char *s);
    std::string m_name;
    std::vector<cMcoreSpecifier> m_scatter;
