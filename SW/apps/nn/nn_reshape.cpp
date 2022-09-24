@@ -22,7 +22,7 @@
 #include <vector>
 #include "../../base/types.h"
 #include "../../base/util.h"
-#include "../../base/ztahost.h"
+#include "../../base/ztalib.h"
 #include "nn_reshape.h"
 
 // Reshape layer. Nothing to do

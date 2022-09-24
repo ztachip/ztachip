@@ -22,7 +22,7 @@
 #include <stdint.h>
 #include <vector>
 #include "types.h"
-#include "ztahost.h"
+#include "ztalib.h"
 
 // Tensor data types
 
@@ -72,6 +72,7 @@ public:
    void *GetBuf() {return m_buf;}
    ZTA_SHARED_MEM GetShm() {return m_shm;}
    int GetBufLen() {return m_size;}
+   static size_t GetTensorSize(std::vector<int>& shape);
 public:
    std::vector<int> m_dim;
 private:

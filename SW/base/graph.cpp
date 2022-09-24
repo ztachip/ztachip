@@ -19,7 +19,7 @@
 #include <time.h>
 #include <stdarg.h>
 #include <unistd.h>
-#include "ztahost.h"
+#include "ztalib.h"
 #include "tensor.h"
 #include "graph.h"
 

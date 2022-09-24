@@ -17,7 +17,7 @@
 //------------------------------------------------------------------------------
 
 #include <stdbool.h>
-#include "../../../base/ztam.h"
+#include "../../../base/ztalib.h"
 #include "../../main/kernels/main.h"
 #include "color.h"
 #include "color.p.img"

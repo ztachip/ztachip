@@ -22,7 +22,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
-#include <vector>
 
 typedef enum {
    ZtaStatusOk=0,

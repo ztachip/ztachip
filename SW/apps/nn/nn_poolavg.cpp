@@ -22,7 +22,7 @@
 #include <vector>
 #include "../../base/types.h"
 #include "../../base/util.h"
-#include "../../base/ztahost.h"
+#include "../../base/ztalib.h"
 extern "C"
 {
 #include "kernels/fcn.h"

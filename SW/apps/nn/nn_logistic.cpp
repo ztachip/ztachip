@@ -24,7 +24,7 @@
 #include <algorithm>
 #include "../../base/types.h"
 #include "../../base/util.h"
-#include "../../base/ztahost.h"
+#include "../../base/ztalib.h"
 extern "C"
 {
 #include "kernels/fcn.h"
@@ -54,7 +54,7 @@ ZtaStatus NeuralNetLayerLogistic::Evaluate(int queue) {
    bool isInterleave=(m_nn->BufferGetInterleave(op->output[0])!=0);
    kernel_logistic_exe(
       (unsigned int)GetNextRequestId(queue),
-      Util::GetTensorSize(*op->input_shape[0]),
+      TENSOR::GetTensorSize(*op->input_shape[0]),
       (unsigned int)(isInterleave?m_nn->BufferGetInterleave(op->input[0]):m_nn->BufferGetFlat(op->input[0])),
 	  (unsigned int)(isInterleave?m_nn->BufferGetInterleave(op->output[0]):m_nn->BufferGetFlat(op->output[0])),
 	  (unsigned int)m_shmSpu);

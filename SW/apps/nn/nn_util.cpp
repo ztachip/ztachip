@@ -23,7 +23,7 @@
 #include <vector>
 #include "../../base/types.h"
 #include "../../base/util.h"
-#include "../../base/ztahost.h"
+#include "../../base/ztalib.h"
 #include "../../base/tensor.h"
 #include "nn.h"
 

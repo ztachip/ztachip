@@ -24,7 +24,7 @@
 #include "flatbuffer/schema_generated.h"
 #include "../../base/types.h"
 #include "../../base/util.h"
-#include "../../base/ztahost.h"
+#include "../../base/ztalib.h"
 #include "tf.h"
 
 // Graph node to execute TFLITE model
@@ -337,7 +337,7 @@ ZtaStatus TfliteNn::Verify() {
                def.input_type.push_back(input2.type);
                def.output_shape.push_back(&output.m_shape);
                def.output_type.push_back(output.type);
-               def.u.add.size=Util::GetTensorSize(output.m_shape);
+               def.u.add.size=TENSOR::GetTensorSize(output.m_shape);
                def.u.add.input[0].offset=-input1.quantization.m_zeroPoint[0];
                def.u.add.input[1].offset=-input2.quantization.m_zeroPoint[0];
                def.u.add.output.offset=output.quantization.m_zeroPoint[0];

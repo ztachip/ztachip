@@ -16,7 +16,7 @@
 // limitations under the License.
 //------------------------------------------------------------------------------
 
-#include "../../../base/ztam.h"
+#include "../../../base/ztalib.h"
 
 static uint16_t *last_image=0;
 

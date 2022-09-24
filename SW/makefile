@@ -5,8 +5,7 @@ BENCH=no
 MULDIV=yes
 
 SRCS = 	base/newlib.c \
-	base/ztahost.cpp \
-	base/ztam.c \
+	base/ztalib.c \
 	base/tensor.cpp \
 	base/util.cpp \
 	base/graph.cpp \

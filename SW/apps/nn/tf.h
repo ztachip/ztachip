@@ -26,7 +26,7 @@
 #include "flatbuffer/schema_generated.h"
 #include "../../base/types.h"
 #include "../../base/util.h"
-#include "../../base/ztahost.h"
+#include "../../base/ztalib.h"
 #include "../../base/graph.h"
 #include "../../base/tensor.h"
 #include "nn.h"

@@ -21,7 +21,7 @@
 #include <string.h>
 #include <math.h>
 #include "types.h"
-#include "ztahost.h"
+#include "ztalib.h"
 #include "util.h"
 
 // Some general utility functions...
@@ -52,15 +52,6 @@ typedef struct tagBITMAPINFOHEADER
     uint32_t biClrImportant;  //number of colors that are important
 }BITMAPINFOHEADER;
 #pragma pack(pop)
-
-// Raise to power
-
-float Util::pow(float x,int power) {
-   float y=1.0;
-   for(int i=0;i < power;i++)
-      y=y*x;
-   return y;
-}
 
 // Convert from float to int12 format
 // pos is position of decimal point
@@ -105,16 +96,6 @@ int16_t FLOAT2INT(float in) {
       }
    }
    return (result>>4);
-}
-
-// Return total tensor array size
-
-size_t Util::GetTensorSize(std::vector<int>& shape) {
-   size_t sz=1;
-   for(int i=0;i < (int)shape.size();i++) {
-      sz*=shape[i];
-   }
-   return sz;
 }
 
 // Read 24bit BMP image file

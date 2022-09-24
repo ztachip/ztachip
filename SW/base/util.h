@@ -23,17 +23,10 @@
 #include <string.h>
 #include <assert.h>
 #include <stdint.h>
-#include <vector>
 #include "types.h"
 #include "tensor.h"
 
 // Some general utility functions...
-
-class Util {
-public:
-   static float pow(float x,int power);
-   static size_t GetTensorSize(std::vector<int>& shape);
-};
 
 int16_t FLOAT2INT(float in);
 ZtaStatus BitmapRead(const char *bmpFile,TENSOR *outputTensor,TensorFormat fmt=TensorFormatSplit);

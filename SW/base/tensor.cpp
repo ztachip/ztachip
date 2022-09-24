@@ -20,7 +20,7 @@
 #include <vector>
 #include <stdarg.h>
 #include "types.h"
-#include "ztahost.h"
+#include "ztalib.h"
 #include "util.h"
 #include "tensor.h"
 
@@ -53,7 +53,7 @@ TENSOR::TENSOR(TensorDataType _dataType,TensorFormat _fmt,TensorSemantic _semant
       v=va_arg(args,int);
       m_dim.push_back(v);
    }
-   m_size=Util::GetTensorSize(m_dim)*m_dataElementLen;
+   m_size=TENSOR::GetTensorSize(m_dim)*m_dataElementLen;
    allocate();
    va_end(args);
 }
@@ -122,7 +122,7 @@ ZtaStatus TENSOR::setFormat(TensorFormat fmt) {
 ZtaStatus TENSOR::setDimension(std::vector<int> &_dim) {
    m_dim.clear();
    m_dim=_dim;
-   m_size = Util::GetTensorSize(m_dim)*m_dataElementLen;
+   m_size = TENSOR::GetTensorSize(m_dim)*m_dataElementLen;
    return ZtaStatusOk;
 }
 
@@ -159,5 +159,15 @@ ZtaStatus TENSOR::Alias(ZTA_SHARED_MEM _shm) {
    m_isAlias=true;
    m_buf=ZTA_SHARED_MEM_VIRTUAL(m_shm);
    return ZtaStatusOk;
+}
+
+// Return total tensor array size
+
+size_t TENSOR::GetTensorSize(std::vector<int>& shape) {
+   size_t sz=1;
+   for(int i=0;i < (int)shape.size();i++) {
+      sz*=shape[i];
+   }
+   return sz;
 }
 

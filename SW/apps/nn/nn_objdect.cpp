@@ -24,7 +24,7 @@
 #include <algorithm>
 #include "../../base/types.h"
 #include "../../base/util.h"
-#include "../../base/ztahost.h"
+#include "../../base/ztalib.h"
 #include "nn_objdetect.h"
 
 // Do the SSD box detection pruning
@@ -90,8 +90,8 @@ ZtaStatus NeuralNetLayerObjDetect::Prepare() {
    // Number of detects
    m_def.output_shape[3]->clear();
    m_def.output_shape[3]->push_back(1);
-   m_boxesSize=Util::GetTensorSize(*(op->input_shape[0]));
-   m_classesSize=Util::GetTensorSize(*(op->input_shape[1]));
+   m_boxesSize=TENSOR::GetTensorSize(*(op->input_shape[0]));
+   m_classesSize=TENSOR::GetTensorSize(*(op->input_shape[1]));
    m_boxes=(uint8_t *)malloc(m_boxesSize);
    m_classes=(uint8_t *)malloc(m_classesSize);
    uint8_t *anchors=op->u.detection.anchors;

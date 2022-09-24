@@ -22,7 +22,7 @@
 #include <vector>
 #include "../../base/types.h"
 #include "../../base/util.h"
-#include "../../base/ztahost.h"
+#include "../../base/ztalib.h"
 #include "flatbuffer/schema_generated.h"
 #include "nn.h" 
 #include "nn_add.h"
@@ -126,7 +126,7 @@ ZtaStatus NeuralNet::LoadEnd() {
             for(int j=0;j < (int)m_operators[i]->m_def.input.size();j++) {
                if(!BufferGetInterleave(m_operators[i]->m_def.input[j])) {
                   BufferAllocate(m_operators[i]->m_def.input[j],m_operators[i]->m_def.input_type[j],
-                                 Util::GetTensorSize(*m_operators[i]->m_def.input_shape[j]),false,true);
+                                 TENSOR::GetTensorSize(*m_operators[i]->m_def.input_shape[j]),false,true);
                   cont=true;
                }
             }
@@ -134,7 +134,7 @@ ZtaStatus NeuralNet::LoadEnd() {
             for(int j=0;j < (int)m_operators[i]->m_def.output.size();j++) {
                if(!BufferGetInterleave(m_operators[i]->m_def.output[j])) {
                   BufferAllocate(m_operators[i]->m_def.output[j],m_operators[i]->m_def.output_type[j],
-                                 Util::GetTensorSize(*m_operators[i]->m_def.output_shape[j]),false,true);
+                		  TENSOR::GetTensorSize(*m_operators[i]->m_def.output_shape[j]),false,true);
                   cont=true;
                }
             }
@@ -147,7 +147,7 @@ ZtaStatus NeuralNet::LoadEnd() {
                   bool interleaveFmt=(BufferGetInterleave(m_operators[i]->m_def.input[0])!=0);
                   bool flatFmt=(BufferGetFlat(m_operators[i]->m_def.input[0])!=0);
                   BufferAllocate(m_operators[i]->m_def.output[0],m_operators[i]->m_def.output_type[0],
-                                 Util::GetTensorSize(*m_operators[i]->m_def.output_shape[0]),flatFmt,interleaveFmt);
+                		  TENSOR::GetTensorSize(*m_operators[i]->m_def.output_shape[0]),flatFmt,interleaveFmt);
                   cont=true;
                }
             }
@@ -156,7 +156,7 @@ ZtaStatus NeuralNet::LoadEnd() {
                   bool interleaveFmt=(BufferGetInterleave(m_operators[i]->m_def.output[0])!=0);
                   bool flatFmt=(BufferGetFlat(m_operators[i]->m_def.output[0])!=0);
                   BufferAllocate(m_operators[i]->m_def.input[0],m_operators[i]->m_def.input_type[0],
-                                 Util::GetTensorSize(*m_operators[i]->m_def.input_shape[0]),flatFmt,interleaveFmt);
+                		  TENSOR::GetTensorSize(*m_operators[i]->m_def.input_shape[0]),flatFmt,interleaveFmt);
                   cont=true;
                }
             }
@@ -166,7 +166,7 @@ ZtaStatus NeuralNet::LoadEnd() {
             // Input must be flat format
             if(!BufferGetFlat(m_operators[i]->m_def.input[0])) {
                BufferAllocate(m_operators[i]->m_def.input[0],m_operators[i]->m_def.input_type[0],
-                              Util::GetTensorSize(*m_operators[i]->m_def.input_shape[0]),true,false);
+            		   TENSOR::GetTensorSize(*m_operators[i]->m_def.input_shape[0]),true,false);
                cont=true;
             }            
             break;
@@ -175,7 +175,7 @@ ZtaStatus NeuralNet::LoadEnd() {
             // Input must be interleaved   
             if(!BufferGetInterleave(m_operators[i]->m_def.input[0])) {
                BufferAllocate(m_operators[i]->m_def.input[0],m_operators[i]->m_def.input_type[0],
-                              Util::GetTensorSize(*m_operators[i]->m_def.input_shape[0]),false,true);
+            		   TENSOR::GetTensorSize(*m_operators[i]->m_def.input_shape[0]),false,true);
                cont=true;
             }
             break;
@@ -185,14 +185,14 @@ ZtaStatus NeuralNet::LoadEnd() {
             for(int j=0;j < static_cast<int>(m_operators[i]->m_def.input.size());j++) {
                if(!BufferGetFlat(m_operators[i]->m_def.input[j])) {
                   BufferAllocate(m_operators[i]->m_def.input[j],m_operators[i]->m_def.input_type[j],
-                                 Util::GetTensorSize(*m_operators[i]->m_def.input_shape[j]),true,false);
+                		  TENSOR::GetTensorSize(*m_operators[i]->m_def.input_shape[j]),true,false);
                   cont=true;
                }
             }
             for(int j=0;j < static_cast<int>(m_operators[i]->m_def.output.size());j++) {
                if(!BufferGetFlat(m_operators[i]->m_def.output[j])) {
                   BufferAllocate(m_operators[i]->m_def.output[j],m_operators[i]->m_def.output_type[j],
-                                 Util::GetTensorSize(*m_operators[i]->m_def.output_shape[j]),true,false);
+                		  TENSOR::GetTensorSize(*m_operators[i]->m_def.output_shape[j]),true,false);
                   cont=true;
                }
             }
@@ -214,7 +214,7 @@ ZtaStatus NeuralNet::LoadEnd() {
          if(!BufferGetFlat(m_operators[i]->m_def.output[j]) && !BufferGetInterleave(m_operators[i]->m_def.output[j])) { 
             // If no allocation yet then default to flat format
             BufferAllocate(m_operators[i]->m_def.output[j],m_operators[i]->m_def.output_type[j],
-                           Util::GetTensorSize(*m_operators[i]->m_def.output_shape[j]),true,false);
+            		TENSOR::GetTensorSize(*m_operators[i]->m_def.output_shape[j]),true,false);
          }
       }
    }
@@ -239,7 +239,7 @@ ZtaStatus NeuralNet::Unload() {
 
 ZtaStatus NeuralNet::AssignInputTensor(bool firstTime) {
    // Check input image is correct dimension,type and format
-   if(Util::GetTensorSize(*m_operators[0]->m_def.input_shape[0])==Util::GetTensorSize(m_input->m_dim) &&
+   if(TENSOR::GetTensorSize(*m_operators[0]->m_def.input_shape[0])==TENSOR::GetTensorSize(m_input->m_dim) &&
       (m_input->GetFormat()==TensorFormatSplit) &&
       ((m_operators[0]->m_def.input_type[0]==NeuralNetTensorType_UINT8 && m_input->GetDataType()==TensorDataTypeUint8) || 
       (m_operators[0]->m_def.input_type[0]==NeuralNetTensorType_INT8 && m_input->GetDataType()==TensorDataTypeInt8) || 

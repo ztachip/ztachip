@@ -1,7 +1,7 @@
 #include <stdlib.h>
 extern "C"
 {
-#include "../base/ztam.h"
+#include "../base/ztalib.h"
 extern int main(void);
 extern void irqCallback(void);
 }
