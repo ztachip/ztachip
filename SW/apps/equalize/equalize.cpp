@@ -63,12 +63,12 @@ ZtaStatus GraphNodeEqualize::Verify() {
    return ZtaStatusOk;
 }
 
-ZtaStatus GraphNodeEqualize::Prepare(int queue,bool stepMode) {
+ZtaStatus GraphNodeEqualize::Execute(int queue,bool stepMode) {
    if(m_histogramAvail) {
       GenEqualizer();
    }
    kernel_equalize_exe(
-      (unsigned int)GetNextRequestId(queue),
+      (unsigned int)GetJobId(queue),
 	  (unsigned int)m_input->GetBuf(),
 	  (unsigned int)m_result.GetBuf(),
 	  (unsigned int)m_output->GetBuf(),

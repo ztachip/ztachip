@@ -273,5 +273,5 @@ void kernel_resize_exe(
 
    ztaDualHartExecute(box_resize_vertical,&req);
            
-  >CALLBACK(0,_req_id);
+   ztaJobDone(_req_id);
 }

@@ -78,7 +78,7 @@ ZtaStatus NeuralNetLayerAdd::Prepare() {
                                   SpuInputEval,this,0,op->u.add.output.shift-shift,
                                   SpuInputEval,this,1,op->u.add.output.shift-shift);
 
-   m_nn->BufferAllocateExternal(m_shmSpu);
+   m_nn->BufferAllocate(m_shmSpu);
 
    op->u.add.output.shift=shift;
    return ZtaStatusOk;
@@ -88,7 +88,7 @@ ZtaStatus NeuralNetLayerAdd::Evaluate(int queue) {
    NeuralNetOperatorDef *op=&m_def;
    bool interleave=(m_nn->BufferGetInterleave(op->input[0])!=0);
    kernel_add_exe(
-      (unsigned int)GetNextRequestId(queue),
+      (unsigned int)GetJobId(queue),
       op->u.add.size,
 	  (unsigned int)((interleave)?m_nn->BufferGetInterleave(op->input[0]):m_nn->BufferGetFlat(op->input[0])),
 	  (unsigned int)((interleave)?m_nn->BufferGetInterleave(op->input[1]):m_nn->BufferGetFlat(op->input[1])),

@@ -369,5 +369,5 @@ void kernel_of_exe(
       
    ztaDualHartExecute(of_phase_1,&req);
       
-  >CALLBACK(0,req_id);
+   ztaJobDone(req_id);
 }

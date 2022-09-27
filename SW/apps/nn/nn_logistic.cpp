@@ -42,7 +42,7 @@ ZtaStatus NeuralNetLayerLogistic::Prepare() {
    m_shmSpu=ztaBuildSpuBundle(2,
                               SpuEval,this,0,0,
                               SpuEvalScale,this,0,0);
-   m_nn->BufferAllocateExternal(m_shmSpu);
+   m_nn->BufferAllocate(m_shmSpu);
    return ZtaStatusOk;
 }
 
@@ -50,7 +50,7 @@ ZtaStatus NeuralNetLayerLogistic::Evaluate(int queue) {
    NeuralNetOperatorDef *op=&m_def;
    bool isInterleave=(m_nn->BufferGetInterleave(op->output[0])!=0);
    kernel_logistic_exe(
-      (unsigned int)GetNextRequestId(queue),
+      (unsigned int)GetJobId(queue),
       TENSOR::GetTensorSize(*op->input_shape[0]),
       (unsigned int)(isInterleave?m_nn->BufferGetInterleave(op->input[0]):m_nn->BufferGetFlat(op->input[0])),
 	  (unsigned int)(isInterleave?m_nn->BufferGetInterleave(op->output[0]):m_nn->BufferGetFlat(op->output[0])),

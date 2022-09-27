@@ -169,5 +169,5 @@ void kernel_gaussian_exe(
    
    ztaDualHartExecute(iconv,&req);
 
-  >CALLBACK(0,_req_id);
+   ztaJobDone(_req_id);
 }

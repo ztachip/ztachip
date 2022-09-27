@@ -436,7 +436,8 @@ cTerm *cGEN::genTermAssignmentExpression(cInstructions *instructions,cAstNode *_
 
    cAstNode *y_node,*assignment;
    cInstruction *instruction;
-   bool isMU;
+   bo
+   ol isMU;
    y_node=(cAstNode *)node->getChildList();
    if(!y_node)
       error(node->m_lineNo,"\n Invalid parameter\n");

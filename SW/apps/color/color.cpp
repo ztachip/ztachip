@@ -179,10 +179,10 @@ ZtaStatus GraphNodeColorAndReshape::Verify() {
 
 // Implement schedule function required by GraphNode base class
 
-ZtaStatus GraphNodeColorAndReshape::Prepare(int queue,bool stepMode) {
+ZtaStatus GraphNodeColorAndReshape::Execute(int queue,bool stepMode) {
    if(m_srcColorSpace==TensorSemanticYUYV) {
       kernel_yuyv2rgb_exe(
-         GetNextRequestId(queue),
+         GetJobId(queue),
          (unsigned int)m_input->GetBuf(),
          (unsigned int)m_output->GetBuf(),
 		 (unsigned int)ZTA_SHARED_MEM_VIRTUAL(m_spu),
@@ -200,7 +200,7 @@ ZtaStatus GraphNodeColorAndReshape::Prepare(int queue,bool stepMode) {
          m_dst_h);
    } else {
       kernel_copy_exe(
-          GetNextRequestId(queue),
+          GetJobId(queue),
     	  (unsigned int)m_input->GetBuf(),
     	  (unsigned int)m_output->GetBuf(),
     	  m_clip_w,

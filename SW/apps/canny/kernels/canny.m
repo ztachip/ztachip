@@ -358,5 +358,5 @@ void kernel_canny_exe(
 
    ztaDualHartExecute(canny_phase_2,&req);
    
-   >CALLBACK(0,req_id);
+   ztaJobDone(req_id);
 }

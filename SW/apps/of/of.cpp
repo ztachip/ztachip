@@ -115,7 +115,7 @@ ZtaStatus GraphNodeOpticalFlow::Verify() {
    return ZtaStatusOk;
 }
 
-ZtaStatus GraphNodeOpticalFlow::Prepare(int queue,bool stepMode) {
+ZtaStatus GraphNodeOpticalFlow::Execute(int queue,bool stepMode) {
    unsigned int input[2];
    int curr=m_bufferHead;
    m_bufferHead=(m_bufferHead+1)%2;
@@ -123,7 +123,7 @@ ZtaStatus GraphNodeOpticalFlow::Prepare(int queue,bool stepMode) {
    input[0]=(unsigned int)m_buffer[curr].GetBuf();
    input[1]=(unsigned int)m_buffer[m_bufferHead].GetBuf();
    kernel_of_exe(
-      (unsigned int)GetNextRequestId(queue),
+      (unsigned int)GetJobId(queue),
       input,
       (unsigned int)m_x_gradient->GetBuf(),
       (unsigned int)m_y_gradient->GetBuf(),

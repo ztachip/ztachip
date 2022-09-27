@@ -67,9 +67,9 @@ ZtaStatus GraphNodeHarris::Verify() {
    return ZtaStatusOk;
 }
 
-ZtaStatus GraphNodeHarris::Prepare(int queue,bool stepMode) {
+ZtaStatus GraphNodeHarris::Execute(int queue,bool stepMode) {
    kernel_harris_exe(
-      (unsigned int)GetNextRequestId(queue),
+      (unsigned int)GetJobId(queue),
 	  (unsigned int)m_input->GetBuf(),
 	  (unsigned int)ZTA_SHARED_MEM_VIRTUAL(m_x_gradient),
 	  (unsigned int)ZTA_SHARED_MEM_VIRTUAL(m_y_gradient),

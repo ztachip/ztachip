@@ -67,9 +67,9 @@ ZtaStatus GraphNodeGaussian::Verify() {
    return ZtaStatusOk;
 }
 
-ZtaStatus GraphNodeGaussian::Prepare(int queue,bool stepMode) {
+ZtaStatus GraphNodeGaussian::Execute(int queue,bool stepMode) {
    kernel_gaussian_exe(
-      (unsigned int)GetNextRequestId(queue),
+      (unsigned int)GetJobId(queue),
 	  (unsigned int)m_input->GetBuf(),
 	  (unsigned int)m_output->GetBuf(),
 	  (unsigned int)ZTA_SHARED_MEM_VIRTUAL(m_kernel),

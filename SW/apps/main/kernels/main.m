@@ -74,3 +74,9 @@ void ztaInitStream(uint32_t _spu) {
       > FLUSH;
    }
 }
+
+// A job is finished
+
+void ztaJobDone(unsigned int job_id) {
+   >CALLBACK(0,job_id);
+}

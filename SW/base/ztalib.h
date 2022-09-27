@@ -74,6 +74,8 @@ extern void ztaInitPcore(uint16_t *_image);
 
 extern void ztaInitStream(uint32_t _spu);
 
+extern void ztaJobDone(unsigned int job_id);
+
 // Abort execution
 
 extern void ztaAbort(int _errorCode);

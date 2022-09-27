@@ -60,7 +60,7 @@ ZtaStatus NeuralNetLayerConcat::Prepare() {
    for(uint32_t i=0;i < op->u.concat.num_input;i++) {
       ZTA_SHARED_MEM spu;
       spu=ztaBuildSpuBundle(1,SpuEval,this,i,0);
-      m_nn->BufferAllocateExternal(spu);
+      m_nn->BufferAllocate(spu);
       m_shmSpu.push_back(spu);
       m_copySize.push_back((*op->input_shape[i])[op->u.concat.axis]*base_inner_size);
    }
@@ -91,7 +91,7 @@ ZtaStatus NeuralNetLayerConcat::Evaluate(int queue) {
       }
    }
    kernel_concatenate_exe(
-      GetNextRequestId(queue),
+      GetJobId(queue),
       cnt,
 	  src,
 	  copySize,

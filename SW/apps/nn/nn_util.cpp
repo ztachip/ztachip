@@ -65,7 +65,7 @@ ZTA_SHARED_MEM NeuralNet::BufferAllocate(size_t sz) {
 }
 
 // Register a already allocated buffer that to be freed later
-void NeuralNet::BufferAllocateExternal(ZTA_SHARED_MEM shm) {
+void NeuralNet::BufferAllocate(ZTA_SHARED_MEM shm) {
    m_bufUnboundLst.push_back(shm);
 }
 

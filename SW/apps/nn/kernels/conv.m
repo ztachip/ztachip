@@ -672,7 +672,7 @@ void kernel_add_exe(
    
    ztaDualHartExecute(do_add_process,&req);
 
-   >CALLBACK(0,_req_id);
+   ztaJobDone(_req_id);
 }
 
 // Process convolution request
@@ -740,7 +740,7 @@ void kernel_convolution_exe(
    {
       ztaDualHartExecute(convolution_3x3,&req);
    }
-   >CALLBACK(0,_req_id);
+   ztaJobDone(_req_id);
 }
 
 
@@ -803,6 +803,6 @@ void kernel_convolution_depthwise_exe(
    
    ztaDualHartExecute(convolution_depthwise,&req);
 
-   >CALLBACK(0,_req_id);
+   ztaJobDone(_req_id);
 }
 

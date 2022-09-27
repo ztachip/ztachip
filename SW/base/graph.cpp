@@ -28,7 +28,12 @@
 
 static Graph *M_graphLst[GRAPH_MAX_INSTANCE]={0,0};
 
-Graph::Graph(int queue) {
+Graph::Graph() {
+   int queue;
+   for(queue=0;queue < GRAPH_MAX_INSTANCE;queue++) {
+      if(!M_graphLst[queue])
+         break;
+   }
    assert(queue < GRAPH_MAX_INSTANCE);
    assert(!M_graphLst[queue]);
    M_graphLst[queue]=this;
@@ -87,12 +92,12 @@ ZtaStatus Graph::Prepare() {
 
 // Execute graph
 
-ZtaStatus Graph::Run(int timeout) {
+ZtaStatus Graph::run(int timeout) {
    ZtaStatus rc;
    if(m_nextNodeToSchedule < 0)
       return ZtaStatusOk;
    while(m_nextNodeToSchedule < (int)m_nodes.size()) {
-      rc=m_nodes[m_nextNodeToSchedule]->Prepare(m_queue,(timeout>=0)?true:false);
+      rc=m_nodes[m_nextNodeToSchedule]->Execute(m_queue,(timeout>=0)?true:false);
       if(rc==ZtaStatusPending)
          break;
       if(rc!=ZtaStatusOk)
@@ -144,7 +149,7 @@ ZtaStatus GraphNode::CheckResponse() {
 
 // Allocate and return the next request id
 
-uint32_t GraphNode::GetNextRequestId(int queue) {
+uint32_t GraphNode::GetJobId(int queue) {
    Graph *g=M_graphLst[queue];
    g->m_lastRequestId++;
    if((g->m_lastRequestId & 0xFF000000) != 0)

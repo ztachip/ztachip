@@ -204,7 +204,7 @@ public:
    virtual ZtaStatus Evaluate(int queue)=0;
    virtual LayerIoType GetIoType()=0;
    virtual bool RunAtHost() {return false;}
-   uint32_t GetNextRequestId(int queue);
+   uint32_t GetJobId(int queue);
 public:
    NeuralNet *m_nn;
    NeuralNetOperatorDef m_def;
@@ -221,7 +221,7 @@ public:
    // Verify virtual functions required by based class GraphNode
 
    virtual ZtaStatus Verify();
-   virtual ZtaStatus Prepare(int queue,bool stepMode);
+   virtual ZtaStatus Execute(int queue,bool stepMode);
 
    bool IsRunning() {return (m_runningStep >= 0);}
    NeuralNetLayer *CreateLayer(int layerId,NeuralNetOperatorDef* op_);
@@ -232,7 +232,7 @@ public:
    const char *LabelGet(int _idx);
 public:
    ZTA_SHARED_MEM BufferAllocate(size_t sz);
-   void BufferAllocateExternal(ZTA_SHARED_MEM shm);
+   void BufferAllocate(ZTA_SHARED_MEM shm);
    ZtaStatus BufferAllocate(int bufid,NeuralNetTensorType type,size_t sz,bool flatFmt,bool interleaveFmt);
    ZtaStatus BufferAllocate(int bufid,TENSOR *_tensor);
    ZTA_SHARED_MEM BufferGetFlat(int bufid);

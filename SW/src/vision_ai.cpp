@@ -206,8 +206,8 @@ int vision_ai() {
    int i,j;
    unsigned int vv;
    int r;
-   Graph graph(0);
-   Graph graphNN(1);
+   Graph graph;
+   Graph graphNN;
    GraphNodeColorAndReshape nodeInput;
    GraphNodeColorAndReshape nodeOutput;
    GraphNodeColorAndReshape nodeOutputs[MAX_OUTPUT];
@@ -531,7 +531,7 @@ int vision_ai() {
                  // Execute just the first step of AI graph so that NN graph
                  // no longer need input image and NN graph can now run
                  // independently from main vision graph
-                 graphNN.Run(0);
+                 graphNN.RunSingleStep();
         	  }
               // Update display with image classifier results if available
               if(top5_valid) {
@@ -549,7 +549,7 @@ int vision_ai() {
                  // Execute just the first step of AI graph so that NN graph
                  // no longer need input image and NN graph can now run
                  // independently from main vision graph
-                 graphNN.Run(0);
+                 graphNN.RunSingleStep();
         	  }
               // Update display with object detection boxes if available
               if(ssd_valid) {
@@ -584,7 +584,7 @@ int vision_ai() {
            // for AI processing.
            read_consecutive=0;
            if(testcase==TestCaseImageClassifier) {
-              graphNN.Run(0);
+              graphNN.RunSingleStep();
         	  if(!graphNN.IsRunning()) {
                  // Got new result from image classifier. Save it to display later
                  FLUSH_DATA_CACHE();
@@ -597,7 +597,7 @@ int vision_ai() {
               }
            } else if(testcase==TestCaseObjectDetection || testcase==TestCaseAll) {
               for(j=0;j < ((testcase==TestCaseAll)?8:1);j++) {
-              graphNN.Run(0);
+              graphNN.RunSingleStep();
         	  if(!graphNN.IsRunning())
               {
                  // Got new result from object detection. Save it to display later

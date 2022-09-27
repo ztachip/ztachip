@@ -335,7 +335,7 @@ ZtaStatus NeuralNet::Verify() {
 
 // Implement Prepare virtual function required by based class GraphNode
 
-ZtaStatus NeuralNet::Prepare(int queue,bool stepMode)
+ZtaStatus NeuralNet::Execute(int queue,bool stepMode)
 {
    ZtaStatus rc;
    if(m_runningStep < 0) {
@@ -373,6 +373,6 @@ NeuralNetLayer::NeuralNetLayer(NeuralNet *nn,NeuralNetOperatorDef* def) {
 NeuralNetLayer::~NeuralNetLayer() {
 };
 
-uint32_t NeuralNetLayer::GetNextRequestId(int queue) {
-   return m_nn->GetNextRequestId(queue);
+uint32_t NeuralNetLayer::GetJobId(int queue) {
+   return m_nn->GetJobId(queue);
 }

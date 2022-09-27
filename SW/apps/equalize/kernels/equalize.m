@@ -198,6 +198,6 @@ void kernel_equalize_exe(
       ztaDualHartExecute(equalize,&req);
       equalize_final(&req);
    }
-  >CALLBACK(0,_req_id);
+   ztaJobDone(_req_id);
 }
 

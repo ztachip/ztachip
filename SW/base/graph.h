@@ -42,12 +42,12 @@ public:
    GraphNode();
    virtual ~GraphNode(); 
    virtual ZtaStatus Verify()=0; // Verify input/output/parameter
-   virtual ZtaStatus Prepare(int queue,bool stepMode)=0; // Schedule for execution.
+   virtual ZtaStatus Execute(int queue,bool stepMode)=0; // Schedule for execution.
    virtual GraphNodeType GetType();
 public:
    static ZtaStatus CheckResponse();
    bool AllRequestAreCompleted(int queue);
-   uint32_t GetNextRequestId(int queue);
+   uint32_t GetJobId(int queue);
 };
 
 // Graph is a container of GraphNode
@@ -55,17 +55,17 @@ public:
 
 class Graph {
 public:
-   Graph(int queue=0);
+   Graph();
    ~Graph();
    ZtaStatus Clear();
    ZtaStatus Add(GraphNode *node);
    ZtaStatus Verify();
    ZtaStatus Prepare();
-   ZtaStatus Run(int timeout);
+   inline ZtaStatus RunSingleStep() {return run(0);}
    inline ZtaStatus RunUntilCompletion() {
       ZtaStatus rc;
 	  for(;;) {
-         rc=Run(-1);
+         rc=run(-1);
          if(rc==ZtaStatusOk)
             return rc;
          if(rc != ZtaStatusPending)
@@ -78,6 +78,8 @@ public:
    int GetOutputDimension(int _idx,int _dimIdx);
    TENSOR *GetOutputTensor(int _idx);
    uint32_t GetElapsedTime() {return m_timeElapsed;}
+private:
+   ZtaStatus run(int timeout);
 private:
    std::vector<GraphNode *> m_nodes;
    int m_nextNodeToSchedule;

@@ -459,7 +459,7 @@ void kernel_copy_exe(
    req.dst_h=_dst_h;
    req.equalize=_equalize;
    ztaDualHartExecute(copy,&req);
-  >CALLBACK(0,_req_id);
+   ztaJobDone(_req_id);
 }
 
 // Process request from host to do YUYV to RGB color conversion
@@ -505,5 +505,5 @@ void kernel_yuyv2rgb_exe(
    
    ztaDualHartExecute(yuyv2rgb,&req);
       
-  >CALLBACK(0,_req_id);
+   ztaJobDone(_req_id);
 }

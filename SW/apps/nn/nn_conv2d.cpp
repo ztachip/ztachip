@@ -76,7 +76,7 @@ ZtaStatus NeuralNetLayerConv2D::Prepare() {
                               SpuEvalInput,this,0,0,
                               SpuEvalFilter,this,0,0);
 
-   m_nn->BufferAllocateExternal(m_shmSpu);
+   m_nn->BufferAllocate(m_shmSpu);
    return ZtaStatusOk;
 }
 
@@ -103,7 +103,7 @@ ZtaStatus NeuralNetLayerConv2D::Evaluate(int queue) {
          // Do inner product
          bool outInterleave=(m_nn->BufferGetInterleave(op->output[0])!=0);
          kernel_innerProduct_exe(
-            (unsigned int)GetNextRequestId(queue),
+            (unsigned int)GetJobId(queue),
 			(unsigned int)m_shmFilter,
 			(unsigned int)m_shmBiasHi,
 			(unsigned int)m_shmBiasLo,
@@ -120,7 +120,7 @@ ZtaStatus NeuralNetLayerConv2D::Evaluate(int queue) {
       } else {
          // Conv
           kernel_convolution_exe(
-             (unsigned int)GetNextRequestId(queue),
+             (unsigned int)GetJobId(queue),
     		 (unsigned int)m_shmFilter,
     		 (unsigned int)m_shmBiasHi,
     		 (unsigned int)m_shmBiasLo,
@@ -147,7 +147,7 @@ ZtaStatus NeuralNetLayerConv2D::Evaluate(int queue) {
    } else {
       // ConvDepth
       kernel_convolution_depthwise_exe(
-         (unsigned int)GetNextRequestId(queue),
+         (unsigned int)GetJobId(queue),
 		 (unsigned int)m_shmFilter,
 		 (unsigned int)m_shmBiasHi,
 		 (unsigned int)m_shmBiasLo,

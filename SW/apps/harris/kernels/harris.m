@@ -364,6 +364,6 @@ void kernel_harris_exe(
       
    ztaDualHartExecute(harris_phase_2,&req);
       
-  >CALLBACK(0,_req_id);
+   ztaJobDone(_req_id);
 }
 

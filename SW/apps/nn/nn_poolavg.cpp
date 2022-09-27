@@ -36,7 +36,7 @@ NeuralNetLayerPoolAvg::~NeuralNetLayerPoolAvg() {
 
 ZtaStatus NeuralNetLayerPoolAvg::Prepare() {
    m_shmSpu=ztaBuildSpuBundle(1,SpuAvgPool,this,0,0);
-   m_nn->BufferAllocateExternal(m_shmSpu);
+   m_nn->BufferAllocate(m_shmSpu);
    return ZtaStatusOk;
 }
 
@@ -44,7 +44,7 @@ ZtaStatus NeuralNetLayerPoolAvg::Evaluate(int queue) {
    NeuralNetOperatorDef *op=&m_def;
    bool interleave=(m_nn->BufferGetInterleave(op->output[0])!=0);
    kernel_Pooling_exe(
-      (unsigned int)GetNextRequestId(queue),
+      (unsigned int)GetJobId(queue),
       (unsigned int)(interleave?m_nn->BufferGetInterleave(op->input[0]):m_nn->BufferGetFlat(op->input[0])),
 	  (unsigned int)(interleave?m_nn->BufferGetInterleave(op->output[0]):m_nn->BufferGetFlat(op->output[0])),
       op->u.pool_avg.filter_w,

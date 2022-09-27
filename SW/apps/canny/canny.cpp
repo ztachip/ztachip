@@ -75,9 +75,9 @@ ZtaStatus GraphNodeCanny::Verify() {
    return ZtaStatusOk;
 }
 
-ZtaStatus GraphNodeCanny::Prepare(int queue,bool stepMode) {
+ZtaStatus GraphNodeCanny::Execute(int queue,bool stepMode) {
    kernel_canny_exe(
-      (unsigned int)GetNextRequestId(queue),
+      (unsigned int)GetJobId(queue),
       (unsigned int)m_input->GetBuf(),
       (unsigned int)ZTA_SHARED_MEM_VIRTUAL(m_magnitude),
 	  (unsigned int)ZTA_SHARED_MEM_VIRTUAL(m_phase),

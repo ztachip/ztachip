@@ -197,7 +197,7 @@ void kernel_concatenate_exe(
          remain -= len;
       }
    }
-   >CALLBACK(0,_req_id);
+   ztaJobDone(_req_id);
 }
 
 // Do logistic layer
@@ -236,7 +236,7 @@ void kernel_logistic_exe(
       idx += len;
       remain -= len;
    }
-   >CALLBACK(0,_req_id);
+   ztaJobDone(_req_id);
 }
 
 // Process fully-connected layer request from host
@@ -280,7 +280,7 @@ void kernel_innerProduct_exe(
 
    ztaDualHartExecute(innerProduct,&req);
 
-   >CALLBACK(0,_req_id);
+   ztaJobDone(_req_id);
 }
 
 // Process pooling layer request from host
@@ -317,6 +317,6 @@ void kernel_Pooling_exe(
 
    ztaDualHartExecute(pooling,&req);
 
-   >CALLBACK(0,_req_id);
+   ztaJobDone(_req_id);
 }
 

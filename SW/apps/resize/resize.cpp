@@ -171,10 +171,10 @@ ZtaStatus GraphNodeResize::Verify() {
 
 // Send the resize request to ztachip...
 
-ZtaStatus GraphNodeResize::Prepare(int queue,bool stepMode) {
+ZtaStatus GraphNodeResize::Execute(int queue,bool stepMode) {
 
    kernel_resize_exe(
-      (unsigned int)GetNextRequestId(queue),
+      (unsigned int)GetJobId(queue),
 	  (unsigned int)m_input->GetBuf(),
 	  (unsigned int)m_output->GetBuf(),
 	  (unsigned int)ZTA_SHARED_MEM_VIRTUAL(m_temp),

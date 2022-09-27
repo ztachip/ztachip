@@ -37,7 +37,7 @@ public:
    virtual ~GraphNodeEqualize();
    ZtaStatus Create(TENSOR *input,TENSOR *output);
    virtual ZtaStatus Verify();
-   virtual ZtaStatus Prepare(int queue,bool stepMode);
+   virtual ZtaStatus Execute(int queue,bool stepMode);
    ZTA_SHARED_MEM GenEqualizer();
    float GetContrast() {return m_contrast;}
    void SetContrast(float _contrast);
