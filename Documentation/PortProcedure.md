@@ -4,7 +4,7 @@
 Porting HDL codes
 
 
-- Depending on your FPGA/ASIC capacity, update pid_gen_max_c [here](HW/src/config.vhd) to be 8 for large version or 4 for small version
+- Depending on your FPGA/ASIC capacity, update pid_gen_max_c [here](../HW/src/config.vhd) to be 8 for large version or 4 for small version
 
 
 - Compile all files under [here](HW/src). They are generic VHDL codes without any special primitives so it is ready to be ported to any FPGA/ASIC
