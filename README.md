@@ -189,12 +189,43 @@ continue
 
 Press button0 to switch between different AI/vision applications.
 
-# Other links
 
-Go to [Programmer's guide to writing tensor applications](Documentation/programmer_guide.md) for information on how to write your
-custom acceleration codes.
 
-Go to [Vision/AI stack users guide](Documentation/programmer_guide.md) for information on how to use ztachip prebuilt vision/ai stack.
+# How to port to other FPGA or ASIC
+
+
+Porting HDL codes
+
+
+- Depending on your FPGA/ASIC capacity, update pid_gen_max_c [here](HW/src/config.vhd) to be 8 for large version or 4 for small version
+
+
+- Compile all files under [here](HW/src). They are generic VHDL codes without any special primitives so it is ready to be ported to any FPGA/ASIC
+
+
+- Have a version of [wrapper library](HW/platform) for your FPGA/ASIC. There are 4 components that you need to map to your FPGA/ASIC library. They are just some basic memory block primitives so any FPGA/ASIC toolchain would have them. There is also a [wrapper version for simulation](HW/platform/simulation) that you can reference for expected behaviour.
+
+
+- ztachip is simply connected to your SOC as an AXI peripheral. Reference [here](HW/examples/GHRD/main.v) as example on how to integrate ztachip to your design.
+
+
+Porting Software stack
+
+
+- Update NUM_PCORE [here](SW/base/zta.h) to be 8 for large version and 4 for small version. This must be the same value as pid_gen_max_c configured above
+
+
+- Update MEM_MAP [here](SW/base/zta.h) to be the memory map address that you map ztachip to on your AXI bus.
+
+
+- Your SOC may have different peripherals with new drivers to be implemented. All peripheral interfaces to be implemented are [here](SW/src/soc.cpp)
+
+
+- Recompile everything including compiler
+ 
+
+That's it, you should be able to run all the examples provided on your new FPGA/ASIC
+
 
 # Contact
 
