@@ -75,8 +75,6 @@
 
 #define FP_FIRST    (STDERR_FILENO+1)
 #define FP_MAX_NUM  16
-#define RAM_SIZE    0x10000000
-#define HEAP_START  0x4000000
 
 extern void _heap_start();
 extern void _heap_end();

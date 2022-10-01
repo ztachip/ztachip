@@ -218,13 +218,21 @@ Porting Software stack
 - Update MEM_MAP [here](SW/base/zta.h) to be the memory map address that you map ztachip to on your AXI bus.
 
 
+- Update linker file [linker.ld](SW/linker.ld) to match your SOC DDR memory size. The important parameters are RAM,_heap_size,_stack_size
+
+
+- Update [boot loader](SW/base/crt.S) if your SOC has any special bootloading method. In the provided example, the boot loader is simple since it expected code/data to be loaded via JTAG already.
+
+
+- Update [FLUSH_DATA_CACHE macro](SW/src/soc.h) if you were to use other Riscv implementation besides [VexRiscv](https://github.com/SpinalHDL/VexRiscv). This macro is required occassionally to keep ztachip memory coherent with riscv. Unfortunately cache flushing is not well defined in riscv specs and different riscv implementation
+may have different method.
+
+
 - Your SOC may have different peripherals with new drivers to be implemented. All peripheral interfaces to be implemented are [here](SW/src/soc.cpp)
 
 
 - Recompile everything including compiler
  
-
-That's it, you should be able to run all the examples provided on your new FPGA/ASIC
 
 
 # Contact
