@@ -716,7 +716,11 @@ module main(
    
    ztachip ztachip_inst( 
        .clock_in(clk_main),
-       .reset_in(1),
+       .reset_in(1), -- For FPGA, we dont need reset since all register reset values
+                     -- are initialized by signal declaration.
+                     -- With FPGA, the initial register values are set during image
+                     -- download, so reset signal is not really required.
+                     -- However, with ASIC, we should have a reset (active low)
        .axi_araddr_out(ZTA_DATA_araddr),
        .axi_arlen_out(ZTA_DATA_arlen),
        .axi_arvalid_out(ZTA_DATA_arvalid),
