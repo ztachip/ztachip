@@ -94,26 +94,26 @@ static void harris_phase_0(void *_p,int pid) {
 
          // Copy the left-pad from left most tiles edges from memory.
          if(x>0) {
-            >(ushort)PCORE(NUM_PCORE)[0].harris::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= 
-            >(ushort)PCORE(NUM_PCORE)[cnt-1].harris::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM-pad:TILE_DX_DIM+pad-pad-1][:];
+            >CAST(ushort)PCORE(NUM_PCORE)[0].harris::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= 
+            >CAST(ushort)PCORE(NUM_PCORE)[cnt-1].harris::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM-pad:TILE_DX_DIM+pad-pad-1][:];
          } else {
             // There is nothing at the left. So set it to zero...
-            >(ushort)PCORE(NUM_PCORE)[0].harris::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= SHORT(0);
+            >CAST(ushort)PCORE(NUM_PCORE)[0].harris::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= SHORT(0);
          }
 
          // Copy input to PCORE array...
          >SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM+2*pad-1) FOR(II=0:NUM_PCORE-1) FOR(J=pad:pad+TILE_DX_DIM-1) PCORE(NUM_PCORE)[II].harris::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[I][J][K] <= 
-         >(ushort)MEM(input,inputLen(h,TILE_DY_DIM+,req->src_w))[y*VECTOR_WIDTH:y*VECTOR_WIDTH+VECTOR_WIDTH-1][0:TILE_DY_DIM+2*pad-1][x*dx+x_off:x*dx+dx2+x_off-1];
+         >CAST(ushort)MEM(input,inputLen(h,TILE_DY_DIM+,req->src_w))[y*VECTOR_WIDTH:y*VECTOR_WIDTH+VECTOR_WIDTH-1][0:TILE_DY_DIM+2*pad-1][x*dx+x_off:x*dx+dx2+x_off-1];
 
          // Copy the gap from adjacent tile.
 
          // Copy left margin from right tiles to the immediate left tiles...
-         >(ushort)PCORE(NUM_PCORE)[0:cnt-2].harris::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM+pad:TILE_DX_DIM+2*pad-1][:] <=
-         >(ushort)SYNC PCORE(NUM_PCORE)[1:cnt-1].harris::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][pad:2*pad-1][:];
+         >CAST(ushort)PCORE(NUM_PCORE)[0:cnt-2].harris::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM+pad:TILE_DX_DIM+2*pad-1][:] <=
+         >CAST(ushort)SYNC PCORE(NUM_PCORE)[1:cnt-1].harris::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][pad:2*pad-1][:];
 
          // Copy right margin from left tiles to the immediate right tiles...
-         >(ushort)PCORE(NUM_PCORE)[1:cnt-1].harris::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <=
-         >(ushort)PCORE(NUM_PCORE)[0:cnt-2].harris::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM:TILE_DX_DIM+pad-1][:];
+         >CAST(ushort)PCORE(NUM_PCORE)[1:cnt-1].harris::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <=
+         >CAST(ushort)PCORE(NUM_PCORE)[0:cnt-2].harris::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM:TILE_DX_DIM+pad-1][:];
 
          if(y==0) {
             >PCORE(NUM_PCORE)[*].harris::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[0:pad-1][:][0] <= SHORT(0);
@@ -124,11 +124,11 @@ static void harris_phase_0(void *_p,int pid) {
          ztaTaskYield();
 
          // Copy result tiles back to memory
-         >(int)MEM(x_gradient,req->dst_h,req->dst_w)[y*dy:y*dy+TILE_DY_DIM*VECTOR_WIDTH-1][x*dx:x*dx+dx2-1] <=
-         >SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM-1) FOR(II=0:NUM_PCORE-1) FOR(J=0:TILE_DX_DIM-1) (int)PCORE(NUM_PCORE)[II].harris::x_gradient(TILE_DY_DIM,TILE_DX_DIM,VECTOR_WIDTH)[I][J][K];
+         >CAST(int)MEM(x_gradient,req->dst_h,req->dst_w)[y*dy:y*dy+TILE_DY_DIM*VECTOR_WIDTH-1][x*dx:x*dx+dx2-1] <=
+         >SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM-1) FOR(II=0:NUM_PCORE-1) FOR(J=0:TILE_DX_DIM-1) CAST(int)PCORE(NUM_PCORE)[II].harris::x_gradient(TILE_DY_DIM,TILE_DX_DIM,VECTOR_WIDTH)[I][J][K];
 
-         >(int)MEM(y_gradient,req->dst_h,req->dst_w)[y*dy:y*dy+TILE_DY_DIM*VECTOR_WIDTH-1][x*dx:x*dx+dx2-1] <=
-         >SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM-1) FOR(II=0:NUM_PCORE-1) FOR(J=0:TILE_DX_DIM-1) (int)PCORE(NUM_PCORE)[II].harris::y_gradient(TILE_DY_DIM,TILE_DX_DIM,VECTOR_WIDTH)[I][J][K];
+         >CAST(int)MEM(y_gradient,req->dst_h,req->dst_w)[y*dy:y*dy+TILE_DY_DIM*VECTOR_WIDTH-1][x*dx:x*dx+dx2-1] <=
+         >SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM-1) FOR(II=0:NUM_PCORE-1) FOR(J=0:TILE_DX_DIM-1) CAST(int)PCORE(NUM_PCORE)[II].harris::y_gradient(TILE_DY_DIM,TILE_DX_DIM,VECTOR_WIDTH)[I][J][K];
 	  }
    }
 }
@@ -188,44 +188,44 @@ static void harris_phase_1(void *_p,int pid) {
 
          // Copy the left-pad from left most tiles edges from memory.
          if(x>0) {
-            >(int)PCORE(NUM_PCORE)[0].harris1::x_gradient(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= 
-            >(int)PCORE(NUM_PCORE)[cnt-1].harris1::x_gradient(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM-pad:TILE_DX_DIM+pad-pad-1][:];
-            >(int)PCORE(NUM_PCORE)[0].harris1::y_gradient(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= 
-            >(int)PCORE(NUM_PCORE)[cnt-1].harris1::y_gradient(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM-pad:TILE_DX_DIM+pad-pad-1][:];
+            >CAST(int)PCORE(NUM_PCORE)[0].harris1::x_gradient(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= 
+            >CAST(int)PCORE(NUM_PCORE)[cnt-1].harris1::x_gradient(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM-pad:TILE_DX_DIM+pad-pad-1][:];
+            >CAST(int)PCORE(NUM_PCORE)[0].harris1::y_gradient(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= 
+            >CAST(int)PCORE(NUM_PCORE)[cnt-1].harris1::y_gradient(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM-pad:TILE_DX_DIM+pad-pad-1][:];
          } else {
             // There is nothing at the left. So set it to zero...
-            >(int)PCORE(NUM_PCORE)[0].harris1::x_gradient(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= INT(0);
-            >(int)PCORE(NUM_PCORE)[0].harris1::y_gradient(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= INT(0);
+            >CAST(int)PCORE(NUM_PCORE)[0].harris1::x_gradient(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= INT(0);
+            >CAST(int)PCORE(NUM_PCORE)[0].harris1::y_gradient(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= INT(0);
          }
 
          // Copy input to PCORE array...
-         >SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM+2*pad-1) FOR(II=0:NUM_PCORE-1) FOR(J=pad:pad+TILE_DX_DIM-1) (int) PCORE(NUM_PCORE)[II].harris1::x_gradient(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[I][J][K] <= 
-         >(int)MEM(x_gradient,x_gradientLen(h2,TILE_DY_DIM+,w))[y*VECTOR_WIDTH:y*VECTOR_WIDTH+VECTOR_WIDTH-1][0:TILE_DY_DIM+2*pad-1][x*dx:x*dx+dx2-1];
+         >SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM+2*pad-1) FOR(II=0:NUM_PCORE-1) FOR(J=pad:pad+TILE_DX_DIM-1) CAST(int) PCORE(NUM_PCORE)[II].harris1::x_gradient(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[I][J][K] <= 
+         >CAST(int)MEM(x_gradient,x_gradientLen(h2,TILE_DY_DIM+,w))[y*VECTOR_WIDTH:y*VECTOR_WIDTH+VECTOR_WIDTH-1][0:TILE_DY_DIM+2*pad-1][x*dx:x*dx+dx2-1];
 
-         >SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM+2*pad-1) FOR(II=0:NUM_PCORE-1) FOR(J=pad:pad+TILE_DX_DIM-1) (int) PCORE(NUM_PCORE)[II].harris1::y_gradient(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[I][J][K] <= 
-         >(int)MEM(y_gradient,y_gradientLen(h2,TILE_DY_DIM+,w))[y*VECTOR_WIDTH:y*VECTOR_WIDTH+VECTOR_WIDTH-1][0:TILE_DY_DIM+2*pad-1][x*dx:x*dx+dx2-1];
+         >SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM+2*pad-1) FOR(II=0:NUM_PCORE-1) FOR(J=pad:pad+TILE_DX_DIM-1) CAST(int) PCORE(NUM_PCORE)[II].harris1::y_gradient(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[I][J][K] <= 
+         >CAST(int)MEM(y_gradient,y_gradientLen(h2,TILE_DY_DIM+,w))[y*VECTOR_WIDTH:y*VECTOR_WIDTH+VECTOR_WIDTH-1][0:TILE_DY_DIM+2*pad-1][x*dx:x*dx+dx2-1];
 
          // Copy the gap from adjacent tile.
 
          // Copy left margin from right tiles to the immediate left tiles...
-         >(int)PCORE(NUM_PCORE)[0:cnt-2].harris1::x_gradient(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM+pad:TILE_DX_DIM+2*pad-1][:] <=
-         >(int)SYNC PCORE(NUM_PCORE)[1:cnt-1].harris1::x_gradient(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][pad:2*pad-1][:];
+         >CAST(int)PCORE(NUM_PCORE)[0:cnt-2].harris1::x_gradient(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM+pad:TILE_DX_DIM+2*pad-1][:] <=
+         >CAST(int)SYNC PCORE(NUM_PCORE)[1:cnt-1].harris1::x_gradient(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][pad:2*pad-1][:];
 
          // Copy right margin from left tiles to the immediate right tiles...
-         >(int)PCORE(NUM_PCORE)[1:cnt-1].harris1::x_gradient(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <=
-         >(int)PCORE(NUM_PCORE)[0:cnt-2].harris1::x_gradient(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM:TILE_DX_DIM+pad-1][:];
+         >CAST(int)PCORE(NUM_PCORE)[1:cnt-1].harris1::x_gradient(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <=
+         >CAST(int)PCORE(NUM_PCORE)[0:cnt-2].harris1::x_gradient(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM:TILE_DX_DIM+pad-1][:];
 
          // Copy left margin from right tiles to the immediate left tiles...
-         >(int)PCORE(NUM_PCORE)[0:cnt-2].harris1::y_gradient(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM+pad:TILE_DX_DIM+2*pad-1][:] <=
-         >(int)PCORE(NUM_PCORE)[1:cnt-1].harris1::y_gradient(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][pad:2*pad-1][:];
+         >CAST(int)PCORE(NUM_PCORE)[0:cnt-2].harris1::y_gradient(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM+pad:TILE_DX_DIM+2*pad-1][:] <=
+         >CAST(int)PCORE(NUM_PCORE)[1:cnt-1].harris1::y_gradient(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][pad:2*pad-1][:];
 
          // Copy right margin from left tiles to the immediate right tiles...
-         >(int)PCORE(NUM_PCORE)[1:cnt-1].harris1::y_gradient(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <=
-         >(int)PCORE(NUM_PCORE)[0:cnt-2].harris1::y_gradient(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM:TILE_DX_DIM+pad-1][:];
+         >CAST(int)PCORE(NUM_PCORE)[1:cnt-1].harris1::y_gradient(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <=
+         >CAST(int)PCORE(NUM_PCORE)[0:cnt-2].harris1::y_gradient(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM:TILE_DX_DIM+pad-1][:];
 
          if(y==0) {
-            >(int)PCORE(NUM_PCORE)[*].harris1::x_gradient(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[0:pad-1][:][0] <= INT(0);
-            >(int)PCORE(NUM_PCORE)[*].harris1::y_gradient(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[0:pad-1][:][0] <= INT(0);
+            >CAST(int)PCORE(NUM_PCORE)[*].harris1::x_gradient(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[0:pad-1][:][0] <= INT(0);
+            >CAST(int)PCORE(NUM_PCORE)[*].harris1::y_gradient(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[0:pad-1][:][0] <= INT(0);
          }
 
          > EXE_LOCKSTEP(harris1::calc,NUM_PCORE);
@@ -233,8 +233,8 @@ static void harris_phase_1(void *_p,int pid) {
          ztaTaskYield();
 
          // Copy result tiles back to memory
-         >(int)MEM(req->score,h,w)[y*dy:y*dy+TILE_DY_DIM*VECTOR_WIDTH-1][x*dx:x*dx+dx2-1] <=
-         >SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM-1) FOR(II=0:NUM_PCORE-1) FOR(J=0:TILE_DX_DIM-1) (int)PCORE(NUM_PCORE)[II].harris1::score(TILE_DY_DIM,TILE_DX_DIM,VECTOR_WIDTH)[I][J][K];
+         >CAST(int)MEM(req->score,h,w)[y*dy:y*dy+TILE_DY_DIM*VECTOR_WIDTH-1][x*dx:x*dx+dx2-1] <=
+         >SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM-1) FOR(II=0:NUM_PCORE-1) FOR(J=0:TILE_DX_DIM-1) CAST(int)PCORE(NUM_PCORE)[II].harris1::score(TILE_DY_DIM,TILE_DX_DIM,VECTOR_WIDTH)[I][J][K];
       }
    }
 }
@@ -287,29 +287,29 @@ static void harris_phase_2(void *_p,int pid) {
 
          // Copy the left-pad from left most tiles edges from memory.
          if(x>0) {
-            >(int)PCORE(NUM_PCORE)[0].harris2::score(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= 
-            >(int)PCORE(NUM_PCORE)[cnt-1].harris2::score(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM-pad:TILE_DX_DIM+pad-pad-1][:];
+            >CAST(int)PCORE(NUM_PCORE)[0].harris2::score(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= 
+            >CAST(int)PCORE(NUM_PCORE)[cnt-1].harris2::score(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM-pad:TILE_DX_DIM+pad-pad-1][:];
          } else {
             // There is nothing at the left. So set it to zero...
-            >(int)PCORE(NUM_PCORE)[0].harris2::score(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= INT(0);
+            >CAST(int)PCORE(NUM_PCORE)[0].harris2::score(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= INT(0);
          }
 
          // Copy input to PCORE array...
-         >SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM+2*pad-1) FOR(II=0:NUM_PCORE-1) FOR(J=pad:pad+TILE_DX_DIM-1) (int) PCORE(NUM_PCORE)[II].harris2::score(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[I][J][K] <= 
-         >(int)MEM(score,scoreLen(h2,TILE_DY_DIM+,w))[y*VECTOR_WIDTH:y*VECTOR_WIDTH+VECTOR_WIDTH-1][0:TILE_DY_DIM+2*pad-1][x*dx:x*dx+dx2-1];
+         >SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM+2*pad-1) FOR(II=0:NUM_PCORE-1) FOR(J=pad:pad+TILE_DX_DIM-1) CAST(int) PCORE(NUM_PCORE)[II].harris2::score(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[I][J][K] <= 
+         >CAST(int)MEM(score,scoreLen(h2,TILE_DY_DIM+,w))[y*VECTOR_WIDTH:y*VECTOR_WIDTH+VECTOR_WIDTH-1][0:TILE_DY_DIM+2*pad-1][x*dx:x*dx+dx2-1];
 
          // Copy the gap from adjacent tile.
 
          // Copy left margin from right tiles to the immediate left tiles...
-         >(int)PCORE(NUM_PCORE)[0:cnt-2].harris2::score(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM+pad:TILE_DX_DIM+2*pad-1][:] <=
-         >(int)SYNC PCORE(NUM_PCORE)[1:cnt-1].harris2::score(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][pad:2*pad-1][:];
+         >CAST(int)PCORE(NUM_PCORE)[0:cnt-2].harris2::score(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM+pad:TILE_DX_DIM+2*pad-1][:] <=
+         >CAST(int)SYNC PCORE(NUM_PCORE)[1:cnt-1].harris2::score(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][pad:2*pad-1][:];
 
          // Copy right margin from left tiles to the immediate right tiles...
-         >(int)PCORE(NUM_PCORE)[1:cnt-1].harris2::score(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <=
-         >(int)PCORE(NUM_PCORE)[0:cnt-2].harris2::score(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM:TILE_DX_DIM+pad-1][:];
+         >CAST(int)PCORE(NUM_PCORE)[1:cnt-1].harris2::score(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <=
+         >CAST(int)PCORE(NUM_PCORE)[0:cnt-2].harris2::score(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM:TILE_DX_DIM+pad-1][:];
 
          if(y==0) {
-            >(int)PCORE(NUM_PCORE)[*].harris2::score(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[0:pad-1][:][0] <= INT(0);
+            >CAST(int)PCORE(NUM_PCORE)[*].harris2::score(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[0:pad-1][:][0] <= INT(0);
          }
 
          > EXE_LOCKSTEP(harris2::calc,NUM_PCORE);
@@ -317,8 +317,8 @@ static void harris_phase_2(void *_p,int pid) {
          ztaTaskYield();
 
          // Copy result tiles back to memory
-         >(int)MEM(req->output,h,w)[y*dy:y*dy+TILE_DY_DIM*VECTOR_WIDTH-1][x*dx:x*dx+dx2-1] <=
-         >SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM-1) FOR(II=0:NUM_PCORE-1) FOR(J=0:TILE_DX_DIM-1) (int)PCORE(NUM_PCORE)[II].harris2::output(TILE_DY_DIM,TILE_DX_DIM,VECTOR_WIDTH)[I][J][K];
+         >CAST(int)MEM(req->output,h,w)[y*dy:y*dy+TILE_DY_DIM*VECTOR_WIDTH-1][x*dx:x*dx+dx2-1] <=
+         >SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM-1) FOR(II=0:NUM_PCORE-1) FOR(J=0:TILE_DX_DIM-1) CAST(int)PCORE(NUM_PCORE)[II].harris2::output(TILE_DY_DIM,TILE_DX_DIM,VECTOR_WIDTH)[I][J][K];
       }
    }
 }

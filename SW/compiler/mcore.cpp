@@ -92,6 +92,7 @@
 #define TOKEN_PCORE_PROG      "PROG"
 #define TOKEN_EXPORT          "EXPORT"
 #define TOKEN_VAR             "VAR"
+#define TOKEN_CAST            "CAST"
 
 // Datatypes
 
@@ -2542,7 +2543,6 @@ char *cMcore::scan_term(char *line, cMcoreTerm *term)
    // Seach for memory space name
 
    cast[0] = 0;
-   line = scan_cast(line, cast);
    line = scan_scoped_name(line, token);
 
    if (strstr(token, "."))
@@ -2553,62 +2553,7 @@ char *cMcore::scan_term(char *line, cMcoreTerm *term)
       line = skipWS(line);
       return line;
    }
-
-   term->m_repeat = false;
-   term->m_stream = false;
-
-   for (;;)
-   {
-      if (strcasecmp(token, TOKEN_REPEAT) == 0)
-      {
-         if (term->m_repeat)
-            error(cMcore::M_currLine, "Multiple REPEAT");
-         term->m_repeat = true;
-         line = scan_cast(line, cast);
-         line = scan_name(line, token);
-      }
-      else if (strcasecmp(token, TOKEN_PAD) == 0)
-      {
-         line = skipWS(line);
-         if (*line == '(')
-            line = scan_specifier(&term->m_pad, line);
-         else
-            error(cMcore::M_currLine, "Invalid SCATTER specifier");
-         line = scan_cast(line, cast);
-         line = scan_name(line, token);
-      }
-      else if (strcasecmp(token, TOKEN_SYNC) == 0)
-      {
-         term->m_sync = true;
-         line = scan_cast(line, cast);
-         line = scan_name(line, token);
-      }
-      else if (strcasecmp(token, TOKEN_SCATTER) == 0)
-      {
-         if (term->m_scatter.size() > 0)
-            error(cMcore::M_currLine, "Multiple SCATTER");
-         line = skipWS(line);
-         if (*line == '(')
-            line = scan_specifier(&term->m_scatter, line);
-         else
-            error(cMcore::M_currLine, "Invalid SCATTER specifier");
-         line = scan_cast(line, cast);
-         line = scan_name(line, token);
-      }
-      else
-         break;
-   }
-
-   while (strcasecmp(token, TOKEN_FOR) == 0)
-   {
-      line = skipWS(line);
-      line = scan_for(line, &term->m_forVariable, &term->m_forRange);
-      line = scan_cast(line, cast);
-      line = scan_name(line, token);
-   }
-   if (!line)
-      error(cMcore::M_currLine, "Syntax error");
-   if (strcasecmp(token, TOKEN_ALL_HALF) == 0)
+   else if (strcasecmp(token, TOKEN_ALL_HALF) == 0)
    {
       term->m_name = TOKEN_ALL_HALF;
       line = skipWS(line);
@@ -2635,12 +2580,71 @@ char *cMcore::scan_term(char *line, cMcoreTerm *term)
          error(cMcore::M_currLine, "syntax error");
       return line;
    }
+
+   term->m_repeat = false;
+   term->m_stream = false;
+
+   for (;;)
+   {
+      if (strcasecmp(token, TOKEN_REPEAT) == 0)
+      {
+         if (term->m_repeat)
+            error(cMcore::M_currLine, "Multiple REPEAT");
+         term->m_repeat = true;
+         line = scan_name(line, token);
+      }
+      else if (strcasecmp(token, TOKEN_PAD) == 0)
+      {
+         line = skipWS(line);
+         if (*line == '(')
+            line = scan_specifier(&term->m_pad, line);
+         else
+            error(cMcore::M_currLine, "Invalid SCATTER specifier");
+         line = scan_name(line, token);
+      }
+      else if (strcasecmp(token, TOKEN_SYNC) == 0)
+      {
+         term->m_sync = true;
+         line = scan_name(line, token);
+      }
+      else if (strcasecmp(token, TOKEN_SCATTER) == 0)
+      {
+         if (term->m_scatter.size() > 0)
+            error(cMcore::M_currLine, "Multiple SCATTER");
+         line = skipWS(line);
+         if (*line == '(')
+            line = scan_specifier(&term->m_scatter, line);
+         else
+            error(cMcore::M_currLine, "Invalid SCATTER specifier");
+         line = scan_name(line, token);
+      }
+      else if (strcasecmp(token, TOKEN_FOR) == 0)
+      {
+         line = skipWS(line);
+         line = scan_for(line, &term->m_forVariable, &term->m_forRange);
+         line = scan_name(line, token);
+      }
+      else if (strcasecmp(token, TOKEN_CAST) == 0)
+      {
+         line = skipWS(line);
+         line = scan_cast(line, cast);
+         line = scan_name(line, token);
+      }
+      else
+         break;
+   }
+
+   if (!line)
+      error(cMcore::M_currLine, "Syntax error");
+
    term->m_name = token;
    term->m_cast = cast;
    line = skipWS(line);
    line = scan_specifier(&term->m_specifier, line);
    line = skipWS(line);
+
    // Scan memory indexing
+
    for (;;)
    {
       p = scan_array(line, &term->m_index, &term->m_forVariable, &term->m_forRange);
@@ -2651,6 +2655,7 @@ char *cMcore::scan_term(char *line, cMcoreTerm *term)
    line = skipWS(line);
 
    // Scan for thread section if it's there
+
    if (*line == '.' && memcmp(&line[1], TOKEN_THREAD, strlen(TOKEN_THREAD)) == 0)
    {
       line += 1 + strlen(TOKEN_THREAD);

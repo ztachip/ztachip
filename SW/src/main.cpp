@@ -6,6 +6,14 @@ extern int main(void);
 extern void irqCallback(void);
 }
 
+// __dso_handle is function pointer to do any cleanup of global object when 
+// program exit.
+// But this is a baremetal embedded system so we never have a program exit
+// except when doing a reboot
+// Set __dso_handle to zero
+
+void *__dso_handle=0;
+
 extern int test(void);
 
 extern int vision_ai(void);
@@ -17,7 +25,7 @@ extern int vision_ai(void);
 
 int main() {
    ztaInit();
-#if 0 
+#if 1 
    while(1){
       test();
    }

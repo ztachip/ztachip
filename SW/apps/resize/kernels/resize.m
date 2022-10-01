@@ -115,8 +115,8 @@ void box_resize_horizontal(void *_p,int pid) {
       dst_start=(from/src_dy)*dst_dy;
    }
 
-   >(int)PCORE(np)[*].THREAD[:].resize_box::filter <= (int)MEM(req->filter[0])[0:BOX_RESIZE_MAX_FILTER*NUM_THREAD_PER_CORE-1];
-   >(ushort)PCORE(np)[*].THREAD[:].resize_box::init.filteri <= (ushort)MEM(req->filteri[0])[0:NUM_THREAD_PER_CORE-1];
+   >CAST(int)PCORE(np)[*].THREAD[:].resize_box::filter <= CAST(int)MEM(req->filter[0])[0:BOX_RESIZE_MAX_FILTER*NUM_THREAD_PER_CORE-1];
+   >CAST(ushort)PCORE(np)[*].THREAD[:].resize_box::init.filteri <= CAST(ushort)MEM(req->filteri[0])[0:NUM_THREAD_PER_CORE-1];
 
    >EXE_LOCKSTEP(resize_box::init,np);
 
@@ -131,7 +131,7 @@ void box_resize_horizontal(void *_p,int pid) {
             
             // Copy input image to pcore memory space...
 
-            > (fmt) SCATTER(0) FOR(I=0:np-1) FOR(J=0:VECTOR_WIDTH-1) PCORE(np)[I].resize_box::inbuf(BOX_RESIZE_MAX_INBUF/8,8,VECTOR_WIDTH)[0:src_dx2/8-1][:][J] <= (fmt)MEM(req->input,req->nchannel,src_h,src_w)[ch][src_y:src_y+src_dy-1][src_x:src_x+src_dx2-1];
+            > CAST(fmt) SCATTER(0) FOR(I=0:np-1) FOR(J=0:VECTOR_WIDTH-1) PCORE(np)[I].resize_box::inbuf(BOX_RESIZE_MAX_INBUF/8,8,VECTOR_WIDTH)[0:src_dx2/8-1][:][J] <= CAST(fmt)MEM(req->input,req->nchannel,src_h,src_w)[ch][src_y:src_y+src_dy-1][src_x:src_x+src_dx2-1];
 
             > EXE_LOCKSTEP(kfunc[req->filterLen[0]-1],np);
 
@@ -139,7 +139,7 @@ void box_resize_horizontal(void *_p,int pid) {
 
             // Copy results back to DDR
 
-            > (fmt) MEM(req->temp,req->nchannel,dst_h,dst_w)[ch][dst_y:dst_y+dst_dy-1][dst_x:dst_x+dst_dx-1] <= PROC(0) <= (fmt) SCATTER(0) FOR(I=0:np-1) FOR(J=0:VECTOR_WIDTH-1) PCORE(np)[I].resize_box::outbuf(BOX_RESIZE_MAX_OUTBUF/8,8,VECTOR_WIDTH)[0:dst_dx/8-1][:][J];         
+            > CAST(fmt) MEM(req->temp,req->nchannel,dst_h,dst_w)[ch][dst_y:dst_y+dst_dy-1][dst_x:dst_x+dst_dx-1] <= PROC(0) <= CAST(fmt) SCATTER(0) FOR(I=0:np-1) FOR(J=0:VECTOR_WIDTH-1) PCORE(np)[I].resize_box::outbuf(BOX_RESIZE_MAX_OUTBUF/8,8,VECTOR_WIDTH)[0:dst_dx/8-1][:][J];         
          }
       }
    }
@@ -189,8 +189,8 @@ void box_resize_vertical(void *_p,int pid) {
       dst_start=(from/src_dx)*dst_dx;
    }
    
-   >(int)PCORE(np)[*].THREAD[:].resize_box::filter <= (int)MEM(req->filter[1])[0:BOX_RESIZE_MAX_FILTER*NUM_THREAD_PER_CORE-1];
-   >(ushort)PCORE(np)[*].THREAD[:].resize_box::init.filteri <= (ushort)MEM(req->filteri[1])[0:NUM_THREAD_PER_CORE-1];
+   >CAST(int)PCORE(np)[*].THREAD[:].resize_box::filter <= CAST(int)MEM(req->filter[1])[0:BOX_RESIZE_MAX_FILTER*NUM_THREAD_PER_CORE-1];
+   >CAST(ushort)PCORE(np)[*].THREAD[:].resize_box::init.filteri <= CAST(ushort)MEM(req->filteri[1])[0:NUM_THREAD_PER_CORE-1];
 
    >EXE_LOCKSTEP(resize_box::init,np);
 
@@ -205,7 +205,7 @@ void box_resize_vertical(void *_p,int pid) {
             
             // Copy input image to pcore memory space...
 
-            > (fmt) FOR(K=0:src_dy2-1) FOR(I=0:np-1) FOR(J=0:VECTOR_WIDTH-1) PCORE(np)[I].resize_box::inbuf[K][J] <= (fmt) MEM(req->temp,req->nchannel,src_h,src_w)[ch][src_y:src_y+src_dy2-1][src_x:src_x+src_dx-1];
+            > CAST(fmt) FOR(K=0:src_dy2-1) FOR(I=0:np-1) FOR(J=0:VECTOR_WIDTH-1) PCORE(np)[I].resize_box::inbuf[K][J] <= CAST(fmt) MEM(req->temp,req->nchannel,src_h,src_w)[ch][src_y:src_y+src_dy2-1][src_x:src_x+src_dx-1];
             
             > EXE_LOCKSTEP(kfunc[req->filterLen[1]-1],np);
 
@@ -213,7 +213,7 @@ void box_resize_vertical(void *_p,int pid) {
 
             // Copy results back to DDR
 
-            > (fmt)MEM(req->output,req->nchannel,dst_h,dst_w)[ch][dst_y:dst_y+dst_dy2-1][dst_x:dst_x+dst_dx-1] <= PROC(1) <= (fmt) FOR(K=0:dst_dy2-1) FOR(I=0:np-1) FOR(J=0:VECTOR_WIDTH-1) PCORE(np)[I].resize_box::outbuf[K][J];
+            > CAST(fmt)MEM(req->output,req->nchannel,dst_h,dst_w)[ch][dst_y:dst_y+dst_dy2-1][dst_x:dst_x+dst_dx-1] <= PROC(1) <= CAST(fmt) FOR(K=0:dst_dy2-1) FOR(I=0:np-1) FOR(J=0:VECTOR_WIDTH-1) PCORE(np)[I].resize_box::outbuf[K][J];
          }
       }
    }

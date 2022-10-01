@@ -69,8 +69,8 @@ static void innerProduct(void *_p,int pid) {
       index2=i*IP_CHUNK_SIZE;
       npcore=req->num_pcore;
 
-      > (biasfmt)PCORE(npcore)[:][0:nthread-1].inner_product::biasHi[:] <= (biasfmt)MEM(req->biasHi,req->topcnt)[i:i+req->dx-1];
-      > (biasfmt)PCORE(npcore)[:][0:nthread-1].inner_product::biasLo[:] <= (biasfmt)MEM(req->biasLo,req->topcnt)[i:i+req->dx-1];
+      > CAST(biasfmt)PCORE(npcore)[:][0:nthread-1].inner_product::biasHi[:] <= CAST(biasfmt)MEM(req->biasHi,req->topcnt)[i:i+req->dx-1];
+      > CAST(biasfmt)PCORE(npcore)[:][0:nthread-1].inner_product::biasLo[:] <= CAST(biasfmt)MEM(req->biasLo,req->topcnt)[i:i+req->dx-1];
       > EXE_LOCKSTEP(inner_product::start,npcore,nthread);
       ztaTaskYield();
    
@@ -78,12 +78,12 @@ static void innerProduct(void *_p,int pid) {
          
       for(j=0,index=0;j < req->botcnt;j+=IP_CHUNK_SIZE,index++) {
          > FOR(I=0:req->num_pcore-1) FOR(J=0:nthread-1) FOR(K=0:IP_CHUNK_SIZE-1) FOR(L=0:VECTOR_WIDTH-1)    
-         > (weightfmt)PCORE[I][J].inner_product::coef[K][L] <= PROC(2) <= (weightfmt)MEM(req->coef,req->coefbotcnt,coeftopcnt)[index][index2:index2+dx2-1];
-         > (botfmt) PCORE(npcore)[*].inner_product::bot[:] <= PROC(1) <= (botfmt)MEM(req->bot,req->botcnt)[j:j+IP_CHUNK_SIZE-1];
+         > CAST(weightfmt)PCORE[I][J].inner_product::coef[K][L] <= PROC(2) <= CAST(weightfmt)MEM(req->coef,req->coefbotcnt,coeftopcnt)[index][index2:index2+dx2-1];
+         > CAST(botfmt) PCORE(npcore)[*].inner_product::bot[:] <= PROC(1) <= CAST(botfmt)MEM(req->bot,req->botcnt)[j:j+IP_CHUNK_SIZE-1];
          > EXE_LOCKSTEP(inner_product::exe,npcore,nthread);
          if((j+IP_CHUNK_SIZE) >= req->botcnt) {
             > EXE_LOCKSTEP(inner_product::activate_none,npcore,nthread);
-            > (topfmt)MEM(req->top,req->topcnt)[i:i+req->dx-1] <=  PROC(0) <= (topfmt)PCORE(req->num_pcore)[:][0:nthread-1].inner_product::top[:];
+            > CAST(topfmt)MEM(req->top,req->topcnt)[i:i+req->dx-1] <=  PROC(0) <= CAST(topfmt)PCORE(req->num_pcore)[:][0:nthread-1].inner_product::top[:];
          }
          ztaTaskYield();
       }
@@ -134,8 +134,8 @@ static void pooling(void *_p,int pid) {
       nt=NUM_THREAD_PER_CORE;
 
       for(j=0;j < botsz;j += POOL_BOT_SIZE) {
-         >(fmt) SCATTER(0) FOR(I=0:np-1) FOR(J=0:nt-1) FOR(K=0:VECTOR_WIDTH-1) PCORE(np)[I].THREAD[J].max_pool::bot[:][K] <= 
-         >(fmt) MEM(req->bot,cnt,botsz)[i:i+VECTOR_WIDTH*np*nt-1][j:j+POOL_BOT_SIZE-1];
+         >CAST(fmt) SCATTER(0) FOR(I=0:np-1) FOR(J=0:nt-1) FOR(K=0:VECTOR_WIDTH-1) PCORE(np)[I].THREAD[J].max_pool::bot[:][K] <= 
+         >CAST(fmt) MEM(req->bot,cnt,botsz)[i:i+VECTOR_WIDTH*np*nt-1][j:j+POOL_BOT_SIZE-1];
          >EXE_LOCKSTEP(max_pool::exe,np);
          ztaTaskYield();       
       }
@@ -144,7 +144,7 @@ static void pooling(void *_p,int pid) {
       
       // Output results...
         
-      >(fmt) MEM(req->top,cnt)[i:i+VECTOR_WIDTH*np*nt-1] <= PROC(0) <= (fmt) FOR(I=0:np-1) FOR(J=0:nt-1) PCORE(np)[I].THREAD[J].max_pool::top[:];
+      >CAST(fmt) MEM(req->top,cnt)[i:i+VECTOR_WIDTH*np*nt-1] <= PROC(0) <= CAST(fmt) FOR(I=0:np-1) FOR(J=0:nt-1) PCORE(np)[I].THREAD[J].max_pool::top[:];
    }
 }
 
@@ -185,12 +185,12 @@ void kernel_concatenate_exe(
          len=ROUND(len,VECTOR_WIDTH);
          if(len > CONCATENATE_BUFSZ)
             len=CONCATENATE_BUFSZ;
-         >(fmt)PCORE(NUM_PCORE)[0].concatenate::buf[0:len-1] <= (fmt)MEM(src)[idx:idx+len-1];
+         >CAST(fmt)PCORE(NUM_PCORE)[0].concatenate::buf[0:len-1] <= CAST(fmt)MEM(src)[idx:idx+len-1];
          >FLUSH;
          if(spu) {
-            >(fmt)MEM(dest,copySize)[idx:idx+len-1] <= PROC(0) <= (fmt)PCORE(NUM_PCORE)[0].concatenate::buf[0:len-1];
+            >CAST(fmt)MEM(dest,copySize)[idx:idx+len-1] <= PROC(0) <= CAST(fmt)PCORE(NUM_PCORE)[0].concatenate::buf[0:len-1];
          } else {
-            >(fmt)MEM(dest,copySize)[idx:idx+len-1] <= (fmt)PCORE(NUM_PCORE)[0].concatenate::buf[0:len-1];
+            >CAST(fmt)MEM(dest,copySize)[idx:idx+len-1] <= CAST(fmt)PCORE(NUM_PCORE)[0].concatenate::buf[0:len-1];
          }
          >FLUSH;
          idx += len;
@@ -229,9 +229,9 @@ void kernel_logistic_exe(
       len=ROUND(len,VECTOR_WIDTH);
       if(len > CONCATENATE_BUFSZ)
          len=CONCATENATE_BUFSZ;
-      >(fmt)PCORE(NUM_PCORE)[0].concatenate::buf[0:len-1] <= PROC(1) <= (fmt)MEM(src)[idx:idx+len-1];
+      >CAST(fmt)PCORE(NUM_PCORE)[0].concatenate::buf[0:len-1] <= PROC(1) <= CAST(fmt)MEM(src)[idx:idx+len-1];
       >FLUSH;
-      >(fmt)MEM(dest,copySize)[idx:idx+len-1] <= PROC(0) <= (fmt)PCORE(NUM_PCORE)[0].concatenate::buf[0:len-1];
+      >CAST(fmt)MEM(dest,copySize)[idx:idx+len-1] <= PROC(0) <= CAST(fmt)PCORE(NUM_PCORE)[0].concatenate::buf[0:len-1];
       >FLUSH;
       idx += len;
       remain -= len;
