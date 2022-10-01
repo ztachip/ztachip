@@ -2,7 +2,7 @@
 
 The example provided with this repo is meant to be reference design and it is implemented on the Arty-A7 development kit from Digilent and based on Xilinx Artix-7 FPGA. However ztachip, both SW and HW stack, can be ported to any FPGA/ASIC and SOC platform based on the procedure described below. 
 
-Porting HDL codes
+## Porting HDL codes
 
 
 - Depending on your FPGA/ASIC capacity, update pid_gen_max_c [here](../HW/src/config.vhd) to be 8 for large version or 4 for small version
@@ -17,7 +17,7 @@ Porting HDL codes
 - ztachip is simply connected to your SOC as an AXI peripheral. Reference [here](../HW/examples/GHRD/main.v) as example on how to integrate ztachip to your design.
 
 
-Porting Software stack
+## Porting Software stack
 
 
 - Update NUM_PCORE [here](../SW/base/zta.h) to be 8 for large version and 4 for small version. This must be the same value as pid_gen_max_c configured above
