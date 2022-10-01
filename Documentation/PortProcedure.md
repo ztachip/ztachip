@@ -1,5 +1,6 @@
-# How to port to other FPGA or ASIC
+# How to port to other FPGA,ASIC and SOC
 
+The example provided with this repo is meant to be reference design and it is implemented on the Arty-A7 development kit from Digilent and based on Xilinx Artix-7 FPGA. However ztachip, both SW and HW stack, can be ported to any FPGA/ASIC and SOC platform based on the procedure described below. 
 
 Porting HDL codes
 
