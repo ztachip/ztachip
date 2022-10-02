@@ -86,7 +86,6 @@ public:
    eMcoreTermTypePCORE, // Reference PCORE
    eMcoreTermTypeSRAM,  // Reference SRAM
    eMcoreTermTypeDDR,   // Reference DDR
-   eMcoreTermTypeALLFloat, // Reference constants
    eMcoreTermTypeALLInt, // Reference constants
    eMcoreTermTypeVar, // Saved variable
    eMcoreTermTypeGlobalRef, // Reference global variable

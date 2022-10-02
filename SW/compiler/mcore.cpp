@@ -94,11 +94,6 @@
 #define TOKEN_VAR             "VAR"
 #define TOKEN_CAST            "CAST"
 
-// Datatypes
-
-#define TOKEN_DATATYPE_INT    "INT"
-#define TOKEN_DATATYPE_FLOAT  "FLOAT"
-
 // PCORE layout
 
 #define TOKEN_PCORE_LAYOUT_N    "N"
@@ -541,15 +536,6 @@ int cMcoreTerm::Validate()
       {
          m_datatype = "UINT8";
       }
-      else if (strcasecmp(m_cast.c_str(), "uhalf") == 0)
-      {
-         m_datatype = "UFLOAT8";
-      }
-      else if (strcasecmp(m_cast.c_str(), "half") == 0)
-      {
-         // Float8
-         m_datatype = "FLOAT8";
-      }
       else if (m_cast.length() > 0)
       {
          // This is a dynamic type
@@ -559,7 +545,7 @@ int cMcoreTerm::Validate()
       }
       else
       {
-         m_datatype = "FLOAT8";
+         m_datatype = "INT8";
       }
       if (m_specifier.size() <= SPECIFIER_PCORE_DIM)
       {
@@ -653,16 +639,6 @@ int cMcoreTerm::Validate()
          }
       }
    }
-   else if (strcasecmp(m_name.c_str(), TOKEN_ALL_HALF) == 0)
-   {
-      // Constants
-      m_id = cMcoreTerm::eMcoreTermTypeALLFloat;
-      m_datatype = "FLOAT8";
-      if (m_specifier.size() != 1)
-         error(cMcore::M_currLine, "Invalid ALL syntax");
-      if (m_scatter.size() > 0)
-         error(cMcore::M_currLine, "SCATTER is only for PCORE");
-   }
    else if (strcasecmp(m_name.c_str(), TOKEN_ALL_INT) == 0)
    {
       // Constants
@@ -728,17 +704,9 @@ int cMcoreTerm::Validate()
       {
          m_datatype = "INT8";
       }
-      else if (strcasecmp(m_cast.c_str(), "uhalf") == 0)
-      {
-         m_datatype = "UFLOAT8";
-      }
       else if (strcasecmp(m_cast.c_str(), "UINT8") == 0)
       {
          m_datatype = "UINT8";
-      }
-      else if (strcasecmp(m_cast.c_str(), "half") == 0)
-      {
-         m_datatype = "FLOAT8";
       }
       else if (m_cast.length() > 0)
       {
@@ -805,17 +773,9 @@ int cMcoreTerm::Validate()
       {
          m_datatype = "INT8";
       }
-      else if (strcasecmp(m_cast.c_str(), "uhalf") == 0)
-      {
-         m_datatype = "UFLOAT8";
-      }
       else if (strcasecmp(m_cast.c_str(), "UINT8") == 0)
       {
          m_datatype = "UINT8";
-      }
-      else if (strcasecmp(m_cast.c_str(), "half") == 0)
-      {
-         m_datatype = "FLOAT8";
       }
       else if (m_cast.length() > 0)
       {
@@ -1548,7 +1508,6 @@ int cMcoreTerm::Gen(FILE *out, int _parm, cMcoreRange *_parmRange)
    case cMcoreTerm::eMcoreTermTypeVar:
       GenVariableTensor(out, _parm, _parmRange);
       return 0;
-   case cMcoreTerm::eMcoreTermTypeALLFloat:
    case cMcoreTerm::eMcoreTermTypeALLInt:
       mode = GenConstantTensor(out, _parm, _parmRange);
       break;
@@ -1576,11 +1535,7 @@ int cMcoreTerm::Gen(FILE *out, int _parm, cMcoreRange *_parmRange)
          sprintf(temp, "(%s)", m_pad[0].m_v.c_str());
          GEN(out, DPREG_DATA, REG_DP_TEMPLATE, 0, temp);
       }
-      if (m_id == cMcoreTerm::eMcoreTermTypeALLFloat) {
-         sprintf(temp, "((int)(%s))", m_specifier[SPECIFIER_ALL_VAL].m_v.c_str());
-         GEN(out, DPREG_DATA, REG_DP_TEMPLATE, 0, temp);
-      }
-      else if (m_id == cMcoreTerm::eMcoreTermTypeALLInt) {
+      if (m_id == cMcoreTerm::eMcoreTermTypeALLInt) {
          sprintf(temp, "(%s)", m_specifier[SPECIFIER_ALL_VAL].m_v.c_str());
          GEN(out, DPREG_DATA, REG_DP_TEMPLATE, 0, temp);
       }

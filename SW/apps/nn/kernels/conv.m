@@ -121,7 +121,7 @@ static void convolution_3x3(void *_p,int pid) {
 
    > CAST(INT16)PCORE(np)[*][:].convolution::init.stride <= INT16(req->stride);
    > PCORE(np)[*][:].convolution::init._out_scale <= INT16(req->activation_scale);
-   > PCORE(np)[*][:].convolution::init._in_scale <= HALF(req->bias_scale);
+   > PCORE(np)[*][:].convolution::init._in_scale <= INT16(req->bias_scale);
    > CAST(INT16)PCORE(np)[*][:].convolution::init.conv_dx_log <= INT16(conv_dx_log);
    > CAST(INT16)PCORE(np)[*][:].convolution::init._dx <= INT16(x);
    for(i=0;i < np;i++) {
@@ -538,7 +538,7 @@ static void convolution_depthwise(void *_p,int pid) {
 
       > CAST(INT16)PCORE(np)[*][:].convolution_depthwise::init.stride <= INT16(req->stride);
       > PCORE(np)[*][:].convolution_depthwise::init._out_scale <= INT16(req->activation_scale);
-      > PCORE(np)[*][:].convolution_depthwise::init._in_scale <= HALF(req->bias_scale);
+      > PCORE(np)[*][:].convolution_depthwise::init._in_scale <= INT16(req->bias_scale);
       > CAST(INT16)PCORE(np)[*][:].convolution_depthwise::init._dx <= INT16(x);
 
       for(i=0;i < np;i++) {
