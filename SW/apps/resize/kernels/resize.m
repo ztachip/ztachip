@@ -81,7 +81,7 @@ void box_resize_horizontal(void *_p,int pid) {
    int from,to;
    int src_x,src_y,dst_x,dst_y;
    int src_dx,src_dy,dst_dx,dst_dy;
-   int fmt=DP_DATA_TYPE_UINT8;
+   int fmt=UINT8;
    int src_dx2;
    int src_w,src_h,dst_w,dst_h;
    uint32_t dst_start;
@@ -115,8 +115,8 @@ void box_resize_horizontal(void *_p,int pid) {
       dst_start=(from/src_dy)*dst_dy;
    }
 
-   >CAST(int)PCORE(np)[*].THREAD[:].resize_box::filter <= CAST(int)MEM(req->filter[0])[0:BOX_RESIZE_MAX_FILTER*NUM_THREAD_PER_CORE-1];
-   >CAST(ushort)PCORE(np)[*].THREAD[:].resize_box::init.filteri <= CAST(ushort)MEM(req->filteri[0])[0:NUM_THREAD_PER_CORE-1];
+   >CAST(INT16)PCORE(np)[*].THREAD[:].resize_box::filter <= CAST(INT16)MEM(req->filter[0])[0:BOX_RESIZE_MAX_FILTER*NUM_THREAD_PER_CORE-1];
+   >CAST(UINT8)PCORE(np)[*].THREAD[:].resize_box::init.filteri <= CAST(UINT8)MEM(req->filteri[0])[0:NUM_THREAD_PER_CORE-1];
 
    >EXE_LOCKSTEP(resize_box::init,np);
 
@@ -154,7 +154,7 @@ void box_resize_vertical(void *_p,int pid) {
    int from,to;
    int src_x,src_y,dst_x,dst_y;
    int src_dx,src_dy,dst_dx,dst_dy;
-   int fmt=DP_DATA_TYPE_UINT8;
+   int fmt=UINT8;
    int src_dy2,dst_dy2;
    int src_w,src_h,dst_w,dst_h;
    uint32_t dst_start;
@@ -189,8 +189,8 @@ void box_resize_vertical(void *_p,int pid) {
       dst_start=(from/src_dx)*dst_dx;
    }
    
-   >CAST(int)PCORE(np)[*].THREAD[:].resize_box::filter <= CAST(int)MEM(req->filter[1])[0:BOX_RESIZE_MAX_FILTER*NUM_THREAD_PER_CORE-1];
-   >CAST(ushort)PCORE(np)[*].THREAD[:].resize_box::init.filteri <= CAST(ushort)MEM(req->filteri[1])[0:NUM_THREAD_PER_CORE-1];
+   >CAST(INT16)PCORE(np)[*].THREAD[:].resize_box::filter <= CAST(INT16)MEM(req->filter[1])[0:BOX_RESIZE_MAX_FILTER*NUM_THREAD_PER_CORE-1];
+   >CAST(UINT8)PCORE(np)[*].THREAD[:].resize_box::init.filteri <= CAST(UINT8)MEM(req->filteri[1])[0:NUM_THREAD_PER_CORE-1];
 
    >EXE_LOCKSTEP(resize_box::init,np);
 

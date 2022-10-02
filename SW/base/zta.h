@@ -420,15 +420,15 @@
 
 // Data type
 
-#define DP_DATA_TYPE_INT16  3   // 16bit data type to encode 12-bit integer
+#define INT16  3   // 16bit data type to encode 12-bit integer
 
-#define DP_DATA_TYPE_FLOAT8  0   // 8bit float
+#define FLOAT8  0   // 8bit float
 
-#define DP_DATA_TYPE_INT8  2   // int8, sign extension for MSB
+#define INT8  2   // int8, sign extension for MSB
 
-#define DP_DATA_TYPE_UINT8  4   // uint8, zero padded for MSB
+#define UINT8  4   // uint8, zero padded for MSB
 
-#define DP_DATA_TYPE_UFLOAT8  6   // int8, sign extension for MSB
+#define UFLOAT8  6   // int8, sign extension for MSB
 
 // DP template ID
 

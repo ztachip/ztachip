@@ -88,12 +88,12 @@ static void equalize(void *_p,int pid) {
 
    for(y=0;y < dy;y+=step_y) {
       for(x=0;x < dx;x += step_x) {
-         >CAST(ushort)PCORE(np)[:].equalize::in[0:kHistogramInSize*nt-1] <= CAST(ushort)MEM(input,src_w)[x:x+step_x-1];
+         >CAST(UINT8)PCORE(np)[:].equalize::in[0:kHistogramInSize*nt-1] <= CAST(UINT8)MEM(input,src_w)[x:x+step_x-1];
 
          if(req->equalize) {
-            >CAST(ushort)MEM(output2,src_w)[x:x+step_x-1] <= PROC(0) <= CAST(ushort)SYNC PCORE(np)[:].equalize::in[0:kHistogramInSize*nt-1];
+            >CAST(UINT8)MEM(output2,src_w)[x:x+step_x-1] <= PROC(0) <= CAST(UINT8)SYNC PCORE(np)[:].equalize::in[0:kHistogramInSize*nt-1];
          } else {
-            >CAST(ushort)MEM(output2,src_w)[x:x+step_x-1] <= CAST(ushort)SYNC PCORE(np)[:].equalize::in[0:kHistogramInSize*nt-1];
+            >CAST(UINT8)MEM(output2,src_w)[x:x+step_x-1] <= CAST(UINT8)SYNC PCORE(np)[:].equalize::in[0:kHistogramInSize*nt-1];
          }
 
          > EXE_LOCKSTEP(equalize::exe,np,nt);
@@ -114,7 +114,7 @@ static void equalize(void *_p,int pid) {
 
    ztaTaskYield();
 
-   > equalize::done.count <= INT(nt);
+   > equalize::done.count <= INT16(nt);
 
    // Summarize results among the threads...
    > EXE_LOCKSTEP(equalize::done,np,kHistogramBinSize);
@@ -123,9 +123,9 @@ static void equalize(void *_p,int pid) {
    // Save results to SCRATCH...
    len=np*kHistogramBinSize*VECTOR_WIDTH;
    p=(pid==0)?0:len*2*2;
-   >CAST(int)SCRATCH(p,len)[0:len-1] <= CAST(int)PCORE(np)[0:np-1].equalize::histogram_lo[0:kHistogramBinSize-1][:];
+   >CAST(INT16)SCRATCH(p,len)[0:len-1] <= CAST(INT16)PCORE(np)[0:np-1].equalize::histogram_lo[0:kHistogramBinSize-1][:];
    p += len*2;
-   >CAST(int)SCRATCH(p,len)[0:len-1] <= CAST(int)PCORE(np)[0:np-1].equalize::histogram_hi[0:kHistogramBinSize-1][:];
+   >CAST(INT16)SCRATCH(p,len)[0:len-1] <= CAST(INT16)PCORE(np)[0:np-1].equalize::histogram_hi[0:kHistogramBinSize-1][:];
 
    req->ws.extra_zero[pid]=j-dx*dy;
 }
@@ -139,31 +139,31 @@ static void equalize_final(Request *req) {
    np=NUM_PCORE;
    len=np*kHistogramBinSize*VECTOR_WIDTH;
    p=0;
-   >PCORE(np)[0].equalize::histogram_lo[0:kHistogramBinSize*np-1][:] <= CAST(int)SCRATCH(p,len)[0:len-1];
+   >PCORE(np)[0].equalize::histogram_lo[0:kHistogramBinSize*np-1][:] <= CAST(INT16)SCRATCH(p,len)[0:len-1];
    p += len*2;
-   >PCORE(np)[0].equalize::histogram_hi[0:kHistogramBinSize*np-1][:] <= CAST(int)SCRATCH(p,len)[0:len-1];
+   >PCORE(np)[0].equalize::histogram_hi[0:kHistogramBinSize*np-1][:] <= CAST(INT16)SCRATCH(p,len)[0:len-1];
    p += len*2;
-   >PCORE(np)[0].equalize::histogram_lo[kHistogramBinSize*np:kHistogramBinSize*2*np-1][:] <= CAST(int)SCRATCH(p,len)[0:len-1];
+   >PCORE(np)[0].equalize::histogram_lo[kHistogramBinSize*np:kHistogramBinSize*2*np-1][:] <= CAST(INT16)SCRATCH(p,len)[0:len-1];
    p += len*2;
-   >PCORE(np)[0].equalize::histogram_hi[kHistogramBinSize*np:kHistogramBinSize*2*np-1][:] <= CAST(int)SCRATCH(p,len)[0:len-1];
+   >PCORE(np)[0].equalize::histogram_hi[kHistogramBinSize*np:kHistogramBinSize*2*np-1][:] <= CAST(INT16)SCRATCH(p,len)[0:len-1];
 
    if((2*np) > NUM_THREAD_PER_CORE)
       ztaAbort(0);
 
-   > equalize::done.count <= INT(2*np);
+   > equalize::done.count <= INT16(2*np);
    > EXE_LOCKSTEP(equalize::done,1,kHistogramBinSize);
 
    extra_zero=req->ws.extra_zero[0]+req->ws.extra_zero[1];
 
-   >CAST(int)PCORE(np)[0].equalize::histogram_hi[kHistogramBinSize][:] <= INT(extra_zero/1000);
-   >CAST(int)PCORE(np)[0].equalize::histogram_lo[kHistogramBinSize][:] <= INT(extra_zero%1000);
+   >CAST(INT16)PCORE(np)[0].equalize::histogram_hi[kHistogramBinSize][:] <= INT16(extra_zero/1000);
+   >CAST(INT16)PCORE(np)[0].equalize::histogram_lo[kHistogramBinSize][:] <= INT16(extra_zero%1000);
 
    > EXE_LOCKSTEP(equalize::adjust_extra_zero,1,1);
 
    p=req->output+req->ws.channel*(kHistogramBinSize*VECTOR_WIDTH)*2*2;
-   > CAST(int)MEM(p,kHistogramBinSize*VECTOR_WIDTH)[:] <= CAST(int)PCORE(np)[0].equalize::histogram_hi[0:kHistogramBinSize-1][:];
+   > CAST(INT16)MEM(p,kHistogramBinSize*VECTOR_WIDTH)[:] <= CAST(INT16)PCORE(np)[0].equalize::histogram_hi[0:kHistogramBinSize-1][:];
    p+=kHistogramBinSize*VECTOR_WIDTH*2;
-   > CAST(int)MEM(p,kHistogramBinSize*VECTOR_WIDTH)[:] <= CAST(int)PCORE(np)[0].equalize::histogram_lo[0:kHistogramBinSize-1][:];
+   > CAST(INT16)MEM(p,kHistogramBinSize*VECTOR_WIDTH)[:] <= CAST(INT16)PCORE(np)[0].equalize::histogram_lo[0:kHistogramBinSize-1][:];
 }
 
 // Process request from host to do equalization/histogram

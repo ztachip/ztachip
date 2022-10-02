@@ -53,16 +53,16 @@ static void innerProduct(void *_p,int pid) {
    int coeftopcnt;
    int dx2;
    int index2;
-   int topfmt=DP_DATA_TYPE_UINT8;
-   int botfmt=DP_DATA_TYPE_UINT8;
-   int biasfmt=DP_DATA_TYPE_INT16;
-   int weightfmt=DP_DATA_TYPE_UINT8;
+   int topfmt=UINT8;
+   int botfmt=UINT8;
+   int biasfmt=INT16;
+   int weightfmt=UINT8;
    
    nthread=req->num_thread;
    coeftopcnt=req->coeftopcnt*IP_CHUNK_SIZE;
    dx2=req->dx*IP_CHUNK_SIZE;
 
-   > PCORE(NUM_PCORE)[*][0:nthread-1].inner_product::init._out_scale <= INT(req->top_scale);
+   > PCORE(NUM_PCORE)[*][0:nthread-1].inner_product::init._out_scale <= INT16(req->top_scale);
    > EXE_LOCKSTEP(inner_product::init,NUM_PCORE,nthread);
    ztaTaskYield();
    for(i=(pid==0)?0:req->dx;i < req->topcnt;i += 2*req->dx) {
@@ -110,7 +110,7 @@ static void pooling(void *_p,int pid) {
    int i,j;
    int from,to;
    int np; 
-   int fmt=DP_DATA_TYPE_UINT8;
+   int fmt=UINT8;
    int botsz;
    int cnt,step,nt;
 
@@ -126,7 +126,7 @@ static void pooling(void *_p,int pid) {
       from=cnt/2;
       to=cnt;
    }
-   > PCORE(np)[*][:].max_pool::init._out_scale <= INT(req->output_shift);
+   > PCORE(np)[*][:].max_pool::init._out_scale <= INT16(req->output_shift);
    > EXE_LOCKSTEP(max_pool::init,np);
    ztaTaskYield();
  
@@ -164,7 +164,7 @@ void kernel_concatenate_exe(
    uint32_t spu,src,dest;
    int copySize;
    int len,remain;
-   int fmt=DP_DATA_TYPE_UINT8;
+   int fmt=UINT8;
 
    ztaInitPcore(zta_pcore_img);
 
@@ -213,7 +213,7 @@ void kernel_logistic_exe(
    uint32_t src,dest;
    int copySize;
    int len,remain;
-   int fmt=DP_DATA_TYPE_UINT8;
+   int fmt=UINT8;
 
    ztaInitPcore(zta_pcore_img);
    ztaInitStream(_spu);

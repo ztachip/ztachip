@@ -103,15 +103,15 @@ static void of_phase_0(void *_p,int pid) {
          cnt=NUM_PCORE;
          // Copy the left-pad from left most tiles edges from memory.
          if(x>0) {
-            >CAST(ushort)PCORE(NUM_PCORE)[0].of::inbuf1(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= 
-            >CAST(ushort)PCORE(NUM_PCORE)[cnt-1].of::inbuf1(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM-pad:TILE_DX_DIM+pad-pad-1][:];
+            >CAST(UINT8)PCORE(NUM_PCORE)[0].of::inbuf1(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= 
+            >CAST(UINT8)PCORE(NUM_PCORE)[cnt-1].of::inbuf1(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM-pad:TILE_DX_DIM+pad-pad-1][:];
 
-            >CAST(ushort)PCORE(NUM_PCORE)[0].of::inbuf2(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= 
-            >CAST(ushort)SYNC PCORE(NUM_PCORE)[cnt-1].of::inbuf2(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM-pad:TILE_DX_DIM+pad-pad-1][:];
+            >CAST(UINT8)PCORE(NUM_PCORE)[0].of::inbuf2(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= 
+            >CAST(UINT8)SYNC PCORE(NUM_PCORE)[cnt-1].of::inbuf2(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM-pad:TILE_DX_DIM+pad-pad-1][:];
          } else {
             // There is nothing at the left. So set it to zero...
-            >CAST(ushort)PCORE(NUM_PCORE)[0].of::inbuf1(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= SHORT(0);
-            >CAST(ushort)PCORE(NUM_PCORE)[0].of::inbuf2(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= SHORT(0);
+            >CAST(UINT8)PCORE(NUM_PCORE)[0].of::inbuf1(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= SHORT(0);
+            >CAST(UINT8)PCORE(NUM_PCORE)[0].of::inbuf2(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= SHORT(0);
          }
          
          >FLUSH;
@@ -119,29 +119,29 @@ static void of_phase_0(void *_p,int pid) {
          // Copy input to PCORE array...
 
          >SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM+2*pad-1) FOR(II=0:NUM_PCORE-1) FOR(J=pad:pad+TILE_DX_DIM-1) PCORE(NUM_PCORE)[II].of::inbuf1(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[I][J][K] <= 
-         >CAST(ushort)MEM(input[0],inputLen(h,TILE_DY_DIM+,req->src_w))[y*VECTOR_WIDTH:y*VECTOR_WIDTH+VECTOR_WIDTH-1][0:TILE_DY_DIM+2*pad-1][x*dx+x_off:x*dx+dx2+x_off-1];
+         >CAST(UINT8)MEM(input[0],inputLen(h,TILE_DY_DIM+,req->src_w))[y*VECTOR_WIDTH:y*VECTOR_WIDTH+VECTOR_WIDTH-1][0:TILE_DY_DIM+2*pad-1][x*dx+x_off:x*dx+dx2+x_off-1];
 
          >SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM+2*pad-1) FOR(II=0:NUM_PCORE-1) FOR(J=pad:pad+TILE_DX_DIM-1) PCORE(NUM_PCORE)[II].of::inbuf2(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[I][J][K] <= 
-         >CAST(ushort)MEM(input[1],inputLen(h,TILE_DY_DIM+,req->src_w))[y*VECTOR_WIDTH:y*VECTOR_WIDTH+VECTOR_WIDTH-1][0:TILE_DY_DIM+2*pad-1][x*dx+x_off:x*dx+dx2+x_off-1];
+         >CAST(UINT8)MEM(input[1],inputLen(h,TILE_DY_DIM+,req->src_w))[y*VECTOR_WIDTH:y*VECTOR_WIDTH+VECTOR_WIDTH-1][0:TILE_DY_DIM+2*pad-1][x*dx+x_off:x*dx+dx2+x_off-1];
 
          // Copy the gap from adjacent tile.
 
          // Copy left margin from right tiles to the immediate left tiles...
-         >CAST(ushort)PCORE(NUM_PCORE)[0:cnt-2].of::inbuf1(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM+pad:TILE_DX_DIM+2*pad-1][:] <=
-         >CAST(ushort)SYNC PCORE(NUM_PCORE)[1:cnt-1].of::inbuf1(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][pad:2*pad-1][:];
+         >CAST(UINT8)PCORE(NUM_PCORE)[0:cnt-2].of::inbuf1(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM+pad:TILE_DX_DIM+2*pad-1][:] <=
+         >CAST(UINT8)SYNC PCORE(NUM_PCORE)[1:cnt-1].of::inbuf1(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][pad:2*pad-1][:];
          
          // Copy right margin from left tiles to the immediate right tiles...
 
-         >CAST(ushort)PCORE(NUM_PCORE)[1:cnt-1].of::inbuf1(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <=
-         >CAST(ushort)SYNC PCORE(NUM_PCORE)[0:cnt-2].of::inbuf1(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM:TILE_DX_DIM+pad-1][:];
+         >CAST(UINT8)PCORE(NUM_PCORE)[1:cnt-1].of::inbuf1(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <=
+         >CAST(UINT8)SYNC PCORE(NUM_PCORE)[0:cnt-2].of::inbuf1(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM:TILE_DX_DIM+pad-1][:];
 
          // Copy left margin from right tiles to the immediate left tiles...
-         >CAST(ushort)PCORE(NUM_PCORE)[0:cnt-2].of::inbuf2(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM+pad:TILE_DX_DIM+2*pad-1][:] <=
-         >CAST(ushort)SYNC PCORE(NUM_PCORE)[1:cnt-1].of::inbuf2(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][pad:2*pad-1][:];
+         >CAST(UINT8)PCORE(NUM_PCORE)[0:cnt-2].of::inbuf2(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM+pad:TILE_DX_DIM+2*pad-1][:] <=
+         >CAST(UINT8)SYNC PCORE(NUM_PCORE)[1:cnt-1].of::inbuf2(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][pad:2*pad-1][:];
 
          // Copy right margin from left tiles to the immediate right tiles...
-         >CAST(ushort)PCORE(NUM_PCORE)[1:cnt-1].of::inbuf2(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <=
-         >CAST(ushort)SYNC PCORE(NUM_PCORE)[0:cnt-2].of::inbuf2(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM:TILE_DX_DIM+pad-1][:];
+         >CAST(UINT8)PCORE(NUM_PCORE)[1:cnt-1].of::inbuf2(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <=
+         >CAST(UINT8)SYNC PCORE(NUM_PCORE)[0:cnt-2].of::inbuf2(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM:TILE_DX_DIM+pad-1][:];
 
          >FLUSH;
          if(y==0)
@@ -155,14 +155,14 @@ static void of_phase_0(void *_p,int pid) {
          ztaTaskYield();
 
          // Copy result tiles back to memory
-         >CAST(int)MEM(x_gradient,req->dst_h,req->dst_w)[y*dy:y*dy+TILE_DY_DIM*VECTOR_WIDTH-1][x*dx:x*dx+dx2-1] <=
-         >SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM-1) FOR(II=0:NUM_PCORE-1) FOR(J=0:TILE_DX_DIM-1) CAST(int)PCORE(NUM_PCORE)[II].of::x_gradient(TILE_DY_DIM,TILE_DX_DIM,VECTOR_WIDTH)[I][J][K];
+         >CAST(INT16)MEM(x_gradient,req->dst_h,req->dst_w)[y*dy:y*dy+TILE_DY_DIM*VECTOR_WIDTH-1][x*dx:x*dx+dx2-1] <=
+         >SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM-1) FOR(II=0:NUM_PCORE-1) FOR(J=0:TILE_DX_DIM-1) CAST(INT16)PCORE(NUM_PCORE)[II].of::x_gradient(TILE_DY_DIM,TILE_DX_DIM,VECTOR_WIDTH)[I][J][K];
 
-         >CAST(int)MEM(y_gradient,req->dst_h,req->dst_w)[y*dy:y*dy+TILE_DY_DIM*VECTOR_WIDTH-1][x*dx:x*dx+dx2-1] <=
-         >SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM-1) FOR(II=0:NUM_PCORE-1) FOR(J=0:TILE_DX_DIM-1) CAST(int)PCORE(NUM_PCORE)[II].of::y_gradient(TILE_DY_DIM,TILE_DX_DIM,VECTOR_WIDTH)[I][J][K];
+         >CAST(INT16)MEM(y_gradient,req->dst_h,req->dst_w)[y*dy:y*dy+TILE_DY_DIM*VECTOR_WIDTH-1][x*dx:x*dx+dx2-1] <=
+         >SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM-1) FOR(II=0:NUM_PCORE-1) FOR(J=0:TILE_DX_DIM-1) CAST(INT16)PCORE(NUM_PCORE)[II].of::y_gradient(TILE_DY_DIM,TILE_DX_DIM,VECTOR_WIDTH)[I][J][K];
 
-         >CAST(int)MEM(t_gradient,req->dst_h,req->dst_w)[y*dy:y*dy+TILE_DY_DIM*VECTOR_WIDTH-1][x*dx:x*dx+dx2-1] <=
-         >SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM-1) FOR(II=0:NUM_PCORE-1) FOR(J=0:TILE_DX_DIM-1) CAST(int)PCORE(NUM_PCORE)[II].of::t_gradient(TILE_DY_DIM,TILE_DX_DIM,VECTOR_WIDTH)[I][J][K];
+         >CAST(INT16)MEM(t_gradient,req->dst_h,req->dst_w)[y*dy:y*dy+TILE_DY_DIM*VECTOR_WIDTH-1][x*dx:x*dx+dx2-1] <=
+         >SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM-1) FOR(II=0:NUM_PCORE-1) FOR(J=0:TILE_DX_DIM-1) CAST(INT16)PCORE(NUM_PCORE)[II].of::t_gradient(TILE_DY_DIM,TILE_DX_DIM,VECTOR_WIDTH)[I][J][K];
       }
    }
 }
@@ -228,93 +228,93 @@ static void of_phase_1(void *_p,int pid) {
 
          // Copy the left-pad from left most tiles edges from memory.
          if(x>0) {
-            >CAST(int)PCORE(NUM_PCORE)[0].of1::x_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= 
-            >CAST(int)PCORE(NUM_PCORE)[cnt-1].of1::x_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][OF1_TILE_DX_DIM-pad:OF1_TILE_DX_DIM+pad-pad-1][:];
-            >CAST(int)PCORE(NUM_PCORE)[0].of1::y_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= 
-            >CAST(int)SYNC PCORE(NUM_PCORE)[cnt-1].of1::y_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][OF1_TILE_DX_DIM-pad:OF1_TILE_DX_DIM+pad-pad-1][:];
+            >CAST(INT16)PCORE(NUM_PCORE)[0].of1::x_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= 
+            >CAST(INT16)PCORE(NUM_PCORE)[cnt-1].of1::x_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][OF1_TILE_DX_DIM-pad:OF1_TILE_DX_DIM+pad-pad-1][:];
+            >CAST(INT16)PCORE(NUM_PCORE)[0].of1::y_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= 
+            >CAST(INT16)SYNC PCORE(NUM_PCORE)[cnt-1].of1::y_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][OF1_TILE_DX_DIM-pad:OF1_TILE_DX_DIM+pad-pad-1][:];
 
-            >CAST(int)PCORE(NUM_PCORE)[0].of1::t_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= 
-            >CAST(int)SYNC PCORE(NUM_PCORE)[cnt-1].of1::t_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][OF1_TILE_DX_DIM-pad:OF1_TILE_DX_DIM+pad-pad-1][:];
+            >CAST(INT16)PCORE(NUM_PCORE)[0].of1::t_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= 
+            >CAST(INT16)SYNC PCORE(NUM_PCORE)[cnt-1].of1::t_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][OF1_TILE_DX_DIM-pad:OF1_TILE_DX_DIM+pad-pad-1][:];
          } else {
             // There is nothing at the left. So set it to zero...
-            >CAST(int)PCORE(NUM_PCORE)[0].of1::x_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= INT(0);
-            >CAST(int)PCORE(NUM_PCORE)[0].of1::y_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= INT(0);
-            >CAST(int)PCORE(NUM_PCORE)[0].of1::t_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= INT(0);
+            >CAST(INT16)PCORE(NUM_PCORE)[0].of1::x_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= INT16(0);
+            >CAST(INT16)PCORE(NUM_PCORE)[0].of1::y_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= INT16(0);
+            >CAST(INT16)PCORE(NUM_PCORE)[0].of1::t_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= INT16(0);
          }
          >FLUSH;
          // Copy input to PCORE array...
-         >SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:OF1_TILE_DY_DIM+2*pad-1) FOR(II=0:NUM_PCORE-1) FOR(J=pad:pad+OF1_TILE_DX_DIM-1) CAST(int) PCORE(NUM_PCORE)[II].of1::x_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[I][J][K] <= 
-         >CAST(int)MEM(x_gradient,x_gradientLen(h2,OF1_TILE_DY_DIM+,w))[y*VECTOR_WIDTH:y*VECTOR_WIDTH+VECTOR_WIDTH-1][0:OF1_TILE_DY_DIM+2*pad-1][x*dx:x*dx+dx2-1];
+         >SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:OF1_TILE_DY_DIM+2*pad-1) FOR(II=0:NUM_PCORE-1) FOR(J=pad:pad+OF1_TILE_DX_DIM-1) CAST(INT16) PCORE(NUM_PCORE)[II].of1::x_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[I][J][K] <= 
+         >CAST(INT16)MEM(x_gradient,x_gradientLen(h2,OF1_TILE_DY_DIM+,w))[y*VECTOR_WIDTH:y*VECTOR_WIDTH+VECTOR_WIDTH-1][0:OF1_TILE_DY_DIM+2*pad-1][x*dx:x*dx+dx2-1];
 
-         >SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:OF1_TILE_DY_DIM+2*pad-1) FOR(II=0:NUM_PCORE-1) FOR(J=pad:pad+OF1_TILE_DX_DIM-1) CAST(int) PCORE(NUM_PCORE)[II].of1::y_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[I][J][K] <= 
-         >CAST(int)MEM(y_gradient,y_gradientLen(h2,OF1_TILE_DY_DIM+,w))[y*VECTOR_WIDTH:y*VECTOR_WIDTH+VECTOR_WIDTH-1][0:OF1_TILE_DY_DIM+2*pad-1][x*dx:x*dx+dx2-1];
+         >SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:OF1_TILE_DY_DIM+2*pad-1) FOR(II=0:NUM_PCORE-1) FOR(J=pad:pad+OF1_TILE_DX_DIM-1) CAST(INT16) PCORE(NUM_PCORE)[II].of1::y_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[I][J][K] <= 
+         >CAST(INT16)MEM(y_gradient,y_gradientLen(h2,OF1_TILE_DY_DIM+,w))[y*VECTOR_WIDTH:y*VECTOR_WIDTH+VECTOR_WIDTH-1][0:OF1_TILE_DY_DIM+2*pad-1][x*dx:x*dx+dx2-1];
 
-         >SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:OF1_TILE_DY_DIM+2*pad-1) FOR(II=0:NUM_PCORE-1) FOR(J=pad:pad+OF1_TILE_DX_DIM-1) CAST(int) PCORE(NUM_PCORE)[II].of1::t_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[I][J][K] <= 
-         >CAST(int)MEM(t_gradient,t_gradientLen(h2,OF1_TILE_DY_DIM+,w))[y*VECTOR_WIDTH:y*VECTOR_WIDTH+VECTOR_WIDTH-1][0:OF1_TILE_DY_DIM+2*pad-1][x*dx:x*dx+dx2-1];
+         >SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:OF1_TILE_DY_DIM+2*pad-1) FOR(II=0:NUM_PCORE-1) FOR(J=pad:pad+OF1_TILE_DX_DIM-1) CAST(INT16) PCORE(NUM_PCORE)[II].of1::t_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[I][J][K] <= 
+         >CAST(INT16)MEM(t_gradient,t_gradientLen(h2,OF1_TILE_DY_DIM+,w))[y*VECTOR_WIDTH:y*VECTOR_WIDTH+VECTOR_WIDTH-1][0:OF1_TILE_DY_DIM+2*pad-1][x*dx:x*dx+dx2-1];
 
          // Copy the gap from adjacent tile.
 
          // Copy left margin from right tiles to the immediate left tiles...
-	     >CAST(int)PCORE(NUM_PCORE)[0:cnt-2].of1::x_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][OF1_TILE_DX_DIM+pad:OF1_TILE_DX_DIM+2*pad-1][:] <=
-         >CAST(int)SYNC PCORE(NUM_PCORE)[1:cnt-1].of1::x_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][pad:2*pad-1][:];
+	     >CAST(INT16)PCORE(NUM_PCORE)[0:cnt-2].of1::x_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][OF1_TILE_DX_DIM+pad:OF1_TILE_DX_DIM+2*pad-1][:] <=
+         >CAST(INT16)SYNC PCORE(NUM_PCORE)[1:cnt-1].of1::x_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][pad:2*pad-1][:];
 
          // Copy right margin from left tiles to the immediate right tiles...
-	     >CAST(int)PCORE(NUM_PCORE)[1:cnt-1].of1::x_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <=
-         >CAST(int)SYNC PCORE(NUM_PCORE)[0:cnt-2].of1::x_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][OF1_TILE_DX_DIM:OF1_TILE_DX_DIM+pad-1][:];
+	     >CAST(INT16)PCORE(NUM_PCORE)[1:cnt-1].of1::x_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <=
+         >CAST(INT16)SYNC PCORE(NUM_PCORE)[0:cnt-2].of1::x_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][OF1_TILE_DX_DIM:OF1_TILE_DX_DIM+pad-1][:];
 
          // Copy left margin from right tiles to the immediate left tiles...
-	     >CAST(int)PCORE(NUM_PCORE)[0:cnt-2].of1::y_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][OF1_TILE_DX_DIM+pad:OF1_TILE_DX_DIM+2*pad-1][:] <=
-         >CAST(int)SYNC PCORE(NUM_PCORE)[1:cnt-1].of1::y_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][pad:2*pad-1][:];
+	     >CAST(INT16)PCORE(NUM_PCORE)[0:cnt-2].of1::y_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][OF1_TILE_DX_DIM+pad:OF1_TILE_DX_DIM+2*pad-1][:] <=
+         >CAST(INT16)SYNC PCORE(NUM_PCORE)[1:cnt-1].of1::y_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][pad:2*pad-1][:];
 
          // Copy right margin from left tiles to the immediate right tiles...
-	     >CAST(int)PCORE(NUM_PCORE)[1:cnt-1].of1::y_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <=
-         >CAST(int)SYNC PCORE(NUM_PCORE)[0:cnt-2].of1::y_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][OF1_TILE_DX_DIM:OF1_TILE_DX_DIM+pad-1][:];
+	     >CAST(INT16)PCORE(NUM_PCORE)[1:cnt-1].of1::y_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <=
+         >CAST(INT16)SYNC PCORE(NUM_PCORE)[0:cnt-2].of1::y_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][OF1_TILE_DX_DIM:OF1_TILE_DX_DIM+pad-1][:];
 
          // Copy left margin from right tiles to the immediate left tiles...
-	     >CAST(int)PCORE(NUM_PCORE)[0:cnt-2].of1::t_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][OF1_TILE_DX_DIM+pad:OF1_TILE_DX_DIM+2*pad-1][:] <=
-         >CAST(int)SYNC PCORE(NUM_PCORE)[1:cnt-1].of1::t_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][pad:2*pad-1][:];
+	     >CAST(INT16)PCORE(NUM_PCORE)[0:cnt-2].of1::t_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][OF1_TILE_DX_DIM+pad:OF1_TILE_DX_DIM+2*pad-1][:] <=
+         >CAST(INT16)SYNC PCORE(NUM_PCORE)[1:cnt-1].of1::t_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][pad:2*pad-1][:];
 
          // Copy right margin from left tiles to the immediate right tiles...
-	     >CAST(int)PCORE(NUM_PCORE)[1:cnt-1].of1::t_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <=
-         >CAST(int)SYNC PCORE(NUM_PCORE)[0:cnt-2].of1::t_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][OF1_TILE_DX_DIM:OF1_TILE_DX_DIM+pad-1][:];
+	     >CAST(INT16)PCORE(NUM_PCORE)[1:cnt-1].of1::t_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <=
+         >CAST(INT16)SYNC PCORE(NUM_PCORE)[0:cnt-2].of1::t_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][OF1_TILE_DX_DIM:OF1_TILE_DX_DIM+pad-1][:];
          
          >FLUSH;
          
          if(y==0) {
-            >CAST(int)PCORE(NUM_PCORE)[*].of1::x_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[0:pad-1][:][0] <= INT(0);
-            >CAST(int)PCORE(NUM_PCORE)[*].of1::y_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[0:pad-1][:][0] <= INT(0);
-            >CAST(int)PCORE(NUM_PCORE)[*].of1::t_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[0:pad-1][:][0] <= INT(0);
+            >CAST(INT16)PCORE(NUM_PCORE)[*].of1::x_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[0:pad-1][:][0] <= INT16(0);
+            >CAST(INT16)PCORE(NUM_PCORE)[*].of1::y_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[0:pad-1][:][0] <= INT16(0);
+            >CAST(INT16)PCORE(NUM_PCORE)[*].of1::t_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[0:pad-1][:][0] <= INT16(0);
          }
          > EXE_LOCKSTEP(of1::calc_lucus_kanade,NUM_PCORE);
 
          ztaTaskYield();
 
-         >CAST(int)PCORE(NUM_PCORE)[:].of1::t_gradient(OF1_TILE_DY_DIM,OF1_TILE_DX_IN_DIM,VECTOR_WIDTH)[:][OF1_TILE_DX_DIM:OF1_TILE_DX_DIM+OF1_TILE_DX_DIM-1][:] <= PROC(0) <= 
-         >CAST(int)PCORE(NUM_PCORE)[:].of1::t_gradient(OF1_TILE_DY_DIM,OF1_TILE_DX_IN_DIM,VECTOR_WIDTH)[:][OF1_TILE_DX_DIM:OF1_TILE_DX_DIM+OF1_TILE_DX_DIM-1][:];
+         >CAST(INT16)PCORE(NUM_PCORE)[:].of1::t_gradient(OF1_TILE_DY_DIM,OF1_TILE_DX_IN_DIM,VECTOR_WIDTH)[:][OF1_TILE_DX_DIM:OF1_TILE_DX_DIM+OF1_TILE_DX_DIM-1][:] <= PROC(0) <= 
+         >CAST(INT16)PCORE(NUM_PCORE)[:].of1::t_gradient(OF1_TILE_DY_DIM,OF1_TILE_DX_IN_DIM,VECTOR_WIDTH)[:][OF1_TILE_DX_DIM:OF1_TILE_DX_DIM+OF1_TILE_DX_DIM-1][:];
 
          > EXE_LOCKSTEP(of1::calc_lucus_kanade_final,NUM_PCORE);
 
          ztaTaskYield();
 
          // Copy result tiles back to memory
-         >CAST(int)MEM(req->x_vect,h,w)[y*dy:y*dy+OF1_TILE_DY_DIM*VECTOR_WIDTH-1][x*dx:x*dx+dx2-1] <= 
-         >SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:OF1_TILE_DY_DIM-1) FOR(II=0:NUM_PCORE-1) FOR(J=OF1_TILE_DX_DIM:OF1_TILE_DX_DIM+OF1_TILE_DX_DIM-1) CAST(int)PCORE(NUM_PCORE)[II].of1::x_gradient(OF1_TILE_DY_DIM,OF1_TILE_DX_IN_DIM,VECTOR_WIDTH)[I][J][K];
+         >CAST(INT16)MEM(req->x_vect,h,w)[y*dy:y*dy+OF1_TILE_DY_DIM*VECTOR_WIDTH-1][x*dx:x*dx+dx2-1] <= 
+         >SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:OF1_TILE_DY_DIM-1) FOR(II=0:NUM_PCORE-1) FOR(J=OF1_TILE_DX_DIM:OF1_TILE_DX_DIM+OF1_TILE_DX_DIM-1) CAST(INT16)PCORE(NUM_PCORE)[II].of1::x_gradient(OF1_TILE_DY_DIM,OF1_TILE_DX_IN_DIM,VECTOR_WIDTH)[I][J][K];
 
-         >CAST(int)MEM(req->y_vect,h,w)[y*dy:y*dy+OF1_TILE_DY_DIM*VECTOR_WIDTH-1][x*dx:x*dx+dx2-1] <= 
-         >SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:OF1_TILE_DY_DIM-1) FOR(II=0:NUM_PCORE-1) FOR(J=OF1_TILE_DX_DIM:OF1_TILE_DX_DIM+OF1_TILE_DX_DIM-1) CAST(int)PCORE(NUM_PCORE)[II].of1::y_gradient(OF1_TILE_DY_DIM,OF1_TILE_DX_IN_DIM,VECTOR_WIDTH)[I][J][K];
+         >CAST(INT16)MEM(req->y_vect,h,w)[y*dy:y*dy+OF1_TILE_DY_DIM*VECTOR_WIDTH-1][x*dx:x*dx+dx2-1] <= 
+         >SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:OF1_TILE_DY_DIM-1) FOR(II=0:NUM_PCORE-1) FOR(J=OF1_TILE_DX_DIM:OF1_TILE_DX_DIM+OF1_TILE_DX_DIM-1) CAST(INT16)PCORE(NUM_PCORE)[II].of1::y_gradient(OF1_TILE_DY_DIM,OF1_TILE_DX_IN_DIM,VECTOR_WIDTH)[I][J][K];
     
          if(req->display) {
             // Show red color for horizontal movementto the right 
-            >CAST(ushort)MEM(req->display,3,h,w)[0][y*dy:y*dy+OF1_TILE_DY_DIM*VECTOR_WIDTH-1][x*dx:x*dx+dx2-1] <= PROC(1) <=
-            >CAST(ushort)SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:OF1_TILE_DY_DIM-1) FOR(II=0:NUM_PCORE-1) FOR(J=OF1_TILE_DX_DIM:OF1_TILE_DX_DIM+OF1_TILE_DX_DIM-1) PCORE(NUM_PCORE)[II].of1::x_gradient(OF1_TILE_DY_DIM,OF1_TILE_DX_IN_DIM,VECTOR_WIDTH)[I][J][K]; 
+            >CAST(UINT8)MEM(req->display,3,h,w)[0][y*dy:y*dy+OF1_TILE_DY_DIM*VECTOR_WIDTH-1][x*dx:x*dx+dx2-1] <= PROC(1) <=
+            >CAST(UINT8)SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:OF1_TILE_DY_DIM-1) FOR(II=0:NUM_PCORE-1) FOR(J=OF1_TILE_DX_DIM:OF1_TILE_DX_DIM+OF1_TILE_DX_DIM-1) PCORE(NUM_PCORE)[II].of1::x_gradient(OF1_TILE_DY_DIM,OF1_TILE_DX_IN_DIM,VECTOR_WIDTH)[I][J][K]; 
 
             // Show green color for horizontal movement to the left          
-            >CAST(ushort)MEM(req->display,3,h,w)[1][y*dy:y*dy+OF1_TILE_DY_DIM*VECTOR_WIDTH-1][x*dx:x*dx+dx2-1] <= PROC(2) <=
-            >CAST(ushort)SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:OF1_TILE_DY_DIM-1) FOR(II=0:NUM_PCORE-1) FOR(J=OF1_TILE_DX_DIM:OF1_TILE_DX_DIM+OF1_TILE_DX_DIM-1) PCORE(NUM_PCORE)[II].of1::x_gradient(OF1_TILE_DY_DIM,OF1_TILE_DX_IN_DIM,VECTOR_WIDTH)[I][J][K]; 
+            >CAST(UINT8)MEM(req->display,3,h,w)[1][y*dy:y*dy+OF1_TILE_DY_DIM*VECTOR_WIDTH-1][x*dx:x*dx+dx2-1] <= PROC(2) <=
+            >CAST(UINT8)SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:OF1_TILE_DY_DIM-1) FOR(II=0:NUM_PCORE-1) FOR(J=OF1_TILE_DX_DIM:OF1_TILE_DX_DIM+OF1_TILE_DX_DIM-1) PCORE(NUM_PCORE)[II].of1::x_gradient(OF1_TILE_DY_DIM,OF1_TILE_DX_IN_DIM,VECTOR_WIDTH)[I][J][K]; 
 
             // Show blue color for vertical movement 
-            >CAST(ushort)MEM(req->display,3,h,w)[2][y*dy:y*dy+OF1_TILE_DY_DIM*VECTOR_WIDTH-1][x*dx:x*dx+dx2-1] <= PROC(3) <=
-            >CAST(ushort)SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:OF1_TILE_DY_DIM-1) FOR(II=0:NUM_PCORE-1) FOR(J=OF1_TILE_DX_DIM:OF1_TILE_DX_DIM+OF1_TILE_DX_DIM-1) PCORE(NUM_PCORE)[II].of1::y_gradient(OF1_TILE_DY_DIM,OF1_TILE_DX_IN_DIM,VECTOR_WIDTH)[I][J][K]; 
+            >CAST(UINT8)MEM(req->display,3,h,w)[2][y*dy:y*dy+OF1_TILE_DY_DIM*VECTOR_WIDTH-1][x*dx:x*dx+dx2-1] <= PROC(3) <=
+            >CAST(UINT8)SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:OF1_TILE_DY_DIM-1) FOR(II=0:NUM_PCORE-1) FOR(J=OF1_TILE_DX_DIM:OF1_TILE_DX_DIM+OF1_TILE_DX_DIM-1) PCORE(NUM_PCORE)[II].of1::y_gradient(OF1_TILE_DY_DIM,OF1_TILE_DX_IN_DIM,VECTOR_WIDTH)[I][J][K]; 
          }
       }
    }

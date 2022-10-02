@@ -80,10 +80,10 @@ static void convolution_3x3(void *_p,int pid) {
    int dysz,dycnt;
    int dx;
    int kfunc;
-   int topfmt=DP_DATA_TYPE_UINT8;
-   int botfmt=DP_DATA_TYPE_UINT8;
-   int biasfmt=DP_DATA_TYPE_INT16;
-   int weightfmt=DP_DATA_TYPE_UINT8;
+   int topfmt=UINT8;
+   int botfmt=UINT8;
+   int biasfmt=INT16;
+   int weightfmt=UINT8;
       
    conv_dx=req->conv_dx;
    if(conv_dx <= (NUM_THREAD_PER_CORE/2))
@@ -119,14 +119,14 @@ static void convolution_3x3(void *_p,int pid) {
    if(y > CONV_SMALL_BOT_DY) ztaAbort(0);
    if(req->group > 2) ztaAbort(0);
 
-   > CAST(int)PCORE(np)[*][:].convolution::init.stride <= INT(req->stride);
-   > PCORE(np)[*][:].convolution::init._out_scale <= INT(req->activation_scale);
+   > CAST(INT16)PCORE(np)[*][:].convolution::init.stride <= INT16(req->stride);
+   > PCORE(np)[*][:].convolution::init._out_scale <= INT16(req->activation_scale);
    > PCORE(np)[*][:].convolution::init._in_scale <= HALF(req->bias_scale);
-   > CAST(int)PCORE(np)[*][:].convolution::init.conv_dx_log <= INT(conv_dx_log);
-   > CAST(int)PCORE(np)[*][:].convolution::init._dx <= INT(x);
+   > CAST(INT16)PCORE(np)[*][:].convolution::init.conv_dx_log <= INT16(conv_dx_log);
+   > CAST(INT16)PCORE(np)[*][:].convolution::init._dx <= INT16(x);
    for(i=0;i < np;i++) {
       index=(i%groupsz);
-      > CAST(int)PCORE(np)[i][:].convolution::init.mypid <= INT(index);
+      > CAST(INT16)PCORE(np)[i][:].convolution::init.mypid <= INT16(index);
    }
    > EXE_LOCKSTEP(convolution::init,np);
    ztaTaskYield();
@@ -148,7 +148,7 @@ static void convolution_3x3(void *_p,int pid) {
       for(r=0,r2=-req->pad;r < req->topdim;r += conv_dy,r2 += stride_dy) {
          for(c=0,c2=-req->pad;c < req->topdim;c += conv_dx,c2+=stride_dx) {
             > $bot_ddr := PAD(-req->input_offset) CAST(botfmt)MEM(bot,botcnt,botdim,botdim)[$][r2:r2+y-1][c2:c2+x-1];
-            > convolution::start.count <= INT(dycnt);
+            > convolution::start.count <= INT16(dycnt);
             > EXE_LOCKSTEP(convolution::start,np);
             for(jj=0;jj < botcnt2;jj++) {
                ztaTaskYield(); 
@@ -161,13 +161,13 @@ static void convolution_3x3(void *_p,int pid) {
                for(kk=0,offset=0,r4=r;kk < dycnt;kk++,offset+=dysz,r4+=conv_dy2) {
                   if(r4 >= req->topdim)
                      break;
-                  > convolution::exe3x3.k <= INT(kk);
-                  > convolution::exe3x3.offset <= INT(offset);
+                  > convolution::exe3x3.k <= INT16(kk);
+                  > convolution::exe3x3.offset <= INT16(offset);
                   > EXE_LOCKSTEP(kfunc,np,dx);
                }
             } 
             for(jj=0;jj < dycnt;jj++) {
-            > convolution::activate.idx <= INT(jj);
+            > convolution::activate.idx <= INT16(jj);
             > EXE_LOCKSTEP(convolution::activate,np);
             }
             ztaTaskYield();
@@ -216,10 +216,10 @@ static void convolution_1x1(void *_p,int pid) {
    int conv_dx;
    int dysz,dycnt,dycntLast,dzcnt,dycnt2,xy2,xy3,xy4;
    int remain,delta;
-   int topfmt=DP_DATA_TYPE_UINT8;
-   int botfmt=DP_DATA_TYPE_UINT8;
-   int biasfmt=DP_DATA_TYPE_INT16;	
-   int weightfmt=DP_DATA_TYPE_UINT8;
+   int topfmt=UINT8;
+   int botfmt=UINT8;
+   int biasfmt=INT16;	
+   int weightfmt=UINT8;
    uint32_t f,f_activate;
    int mindycnt,batchcnt;
    int cnt;
@@ -300,15 +300,15 @@ static void convolution_1x1(void *_p,int pid) {
 
       // Initialize convolution module...
 
-      > PCORE(np)[*][:].convolution1x1::init._out_scale <= INT(req->activation_scale);
-      > PCORE(np)[*][:].convolution1x1::init._dysz <= INT(dysz);
-      > PCORE(np)[*][:].convolution1x1::init._conv_dx <= INT(conv_dx);
+      > PCORE(np)[*][:].convolution1x1::init._out_scale <= INT16(req->activation_scale);
+      > PCORE(np)[*][:].convolution1x1::init._dysz <= INT16(dysz);
+      > PCORE(np)[*][:].convolution1x1::init._conv_dx <= INT16(conv_dx);
       for(i=0;i < np;i++) {
          if(req->ksz==11)
             index=0;
          else
             index=(i%groupsz);
-         > CAST(int)PCORE(np)[i][:].convolution1x1::init.mypid <= INT(index);
+         > CAST(INT16)PCORE(np)[i][:].convolution1x1::init.mypid <= INT16(index);
       }
       > EXE_LOCKSTEP(convolution1x1::init,np);
       ztaTaskYield();
@@ -357,7 +357,7 @@ static void convolution_1x1(void *_p,int pid) {
                xy4=ROUND(dzcnt*botsz,VECTOR_WIDTH);      
             > $bot_ddr := CAST(botfmt)MEM(bot,botcnt/dzcnt,botsz*dzcnt)[$][mm:mm+xy4-1];
             > $bot_pcore := PCORE(np)[*].convolution1x1::bot[0:xy4-1];
-            > convolution1x1::start.count <= INT(dycnt2);
+            > convolution1x1::start.count <= INT16(dycnt2);
             > EXE_LOCKSTEP(convolution1x1::start,np);
 
             // Do convolution...
@@ -368,16 +368,16 @@ static void convolution_1x1(void *_p,int pid) {
                   ztaTaskYield(); 
                   > $bot_pcore <= PROC(1) <= $bot_ddr[jj];
                   > $coef_pcore <= PROC(2) <= $coef_ddr[jj];
-                  > convolution1x1::exe2.idx <= INT(0);
-                  > convolution1x1::exe2.idx2 <= INT(0);
+                  > convolution1x1::exe2.idx <= INT16(0);
+                  > convolution1x1::exe2.idx2 <= INT16(0);
                   > EXE_LOCKSTEP(f);
-                  > convolution1x1::exe2.idx <= INT(botsz);
-                  > convolution1x1::exe2.idx2 <= INT(1);
+                  > convolution1x1::exe2.idx <= INT16(botsz);
+                  > convolution1x1::exe2.idx2 <= INT16(1);
                   > EXE_LOCKSTEP(f);
                }
             } else {
-               > convolution1x1::exe2.idx <= INT(0);
-               > convolution1x1::exe2.idx2 <= INT(0);
+               > convolution1x1::exe2.idx <= INT16(0);
+               > convolution1x1::exe2.idx2 <= INT16(0);
                for(jj=0;jj < botcnt2;jj+=dzcnt) {
                   ztaTaskYield(); 
                   > $bot_pcore <= PROC(1) <= $bot_ddr[jj];
@@ -391,8 +391,8 @@ static void convolution_1x1(void *_p,int pid) {
             
             for(jj=0;jj < dycnt2;jj++)
             { 
-               > convolution1x1::activate.idx <= INT(jj);
-               > convolution1x1::activate.idx2 <= INT(jj*conv_dx);
+               > convolution1x1::activate.idx <= INT16(jj);
+               > convolution1x1::activate.idx2 <= INT16(jj*conv_dx);
                > EXE_LOCKSTEP(f_activate);
             }
             ztaTaskYield();
@@ -449,10 +449,10 @@ static void convolution_depthwise(void *_p,int pid) {
    int conv_dx,conv_dy,conv_dy2,conv_dx2;
    int dysz,dycnt,dxcnt;
    int dx;
-   int topfmt=DP_DATA_TYPE_UINT8;
-   int botfmt=DP_DATA_TYPE_UINT8;
-   int biasfmt=DP_DATA_TYPE_INT16;
-   int weightfmt=DP_DATA_TYPE_UINT8;
+   int topfmt=UINT8;
+   int botfmt=UINT8;
+   int biasfmt=INT16;
+   int weightfmt=UINT8;
    int f,loop;
    int count,minCount,interation,minInteration;
    int batchcnt,maxgroupsz,mingroup;
@@ -536,14 +536,14 @@ static void convolution_depthwise(void *_p,int pid) {
 
       // Initialize module...
 
-      > CAST(int)PCORE(np)[*][:].convolution_depthwise::init.stride <= INT(req->stride);
-      > PCORE(np)[*][:].convolution_depthwise::init._out_scale <= INT(req->activation_scale);
+      > CAST(INT16)PCORE(np)[*][:].convolution_depthwise::init.stride <= INT16(req->stride);
+      > PCORE(np)[*][:].convolution_depthwise::init._out_scale <= INT16(req->activation_scale);
       > PCORE(np)[*][:].convolution_depthwise::init._in_scale <= HALF(req->bias_scale);
-      > CAST(int)PCORE(np)[*][:].convolution_depthwise::init._dx <= INT(x);
+      > CAST(INT16)PCORE(np)[*][:].convolution_depthwise::init._dx <= INT16(x);
 
       for(i=0;i < np;i++) {
          index=(i%groupsz);
-         > CAST(int)PCORE(np)[i][:].convolution_depthwise::init.mypid <= INT(index);
+         > CAST(INT16)PCORE(np)[i][:].convolution_depthwise::init.mypid <= INT16(index);
       }
       if(dxcnt==1) {
          > EXE_LOCKSTEP(convolution_depthwise::init,np);
@@ -599,8 +599,8 @@ static void convolution_depthwise(void *_p,int pid) {
                for(kk=0,offset=0;kk < dycnt;kk++,offset+=dxcnt*dysz) {
                   if((r+kk*conv_dy2*dxcnt) >= req->topdim)
                      break;
-                  > convolution_depthwise::exe3x3.k <= INT(kk);
-                  > convolution_depthwise::exe3x3.offset <= INT(offset);
+                  > convolution_depthwise::exe3x3.k <= INT16(kk);
+                  > convolution_depthwise::exe3x3.offset <= INT16(offset);
                   > EXE_LOCKSTEP(f);
                }
                ztaTaskYield();
@@ -627,7 +627,7 @@ static void do_add_process(void *_p,int pid)
 {
    RequestAdd *req=(RequestAdd *)_p;
    int i,np,step,step2,from,to;
-   int fmt=DP_DATA_TYPE_UINT8;
+   int fmt=UINT8;
    np=NUM_PCORE;
 
    step=NUM_PCORE*NUM_THREAD_PER_CORE*VECTOR_WIDTH;

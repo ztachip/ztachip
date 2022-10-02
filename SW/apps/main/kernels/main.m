@@ -58,7 +58,7 @@ void ztaInitPcore(uint16_t *_image) {
    }
 
    // Set pcore code space
-   > PROG((pcoreLen>>1)) <= CAST(int)MEM((uint32_t)pcore_p,(pcoreLen>>1)<<2)[:];
+   > PROG((pcoreLen>>1)) <= CAST(INT16)MEM((uint32_t)pcore_p,(pcoreLen>>1)<<2)[:];
    > FLUSH;
 }
 
@@ -70,7 +70,7 @@ void ztaInitStream(uint32_t _spu) {
    if(_spu ) {
       spuCnt=*((uint16_t *)_spu);
       _spu += sizeof(uint16_t);
-      > SPU <= CAST(int)MEM(_spu,spuCnt*SPU_LOOKUP_SIZE)[:];
+      > SPU <= CAST(INT16)MEM(_spu,spuCnt*SPU_LOOKUP_SIZE)[:];
       > FLUSH;
    }
 }

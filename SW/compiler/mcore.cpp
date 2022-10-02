@@ -78,7 +78,7 @@
 #define TOKEN_LOG_ON          "LOG_ON"
 #define TOKEN_LOG_OFF         "LOG_OFF"
 #define TOKEN_FLUSH           "FLUSH"
-#define TOKEN_ALL_INT         "INT"
+#define TOKEN_ALL_INT         "INT16"
 #define TOKEN_ALL_HALF        "HALF"
 #define TOKEN_ALL_SHORT       "SHORT"
 #define TOKEN_FOR             "FOR"
@@ -529,26 +529,26 @@ int cMcoreTerm::Validate()
 
       // This is referencing PCORE memory space...
       m_id = cMcoreTerm::eMcoreTermTypePCORE;
-      if (strcasecmp(m_cast.c_str(), "int") == 0)
+      if (strcasecmp(m_cast.c_str(), "INT16") == 0)
       {
-         m_datatype = "DP_DATA_TYPE_INT16";
+         m_datatype = "INT16";
       }
-      else if (strcasecmp(m_cast.c_str(), "short") == 0)
+      else if (strcasecmp(m_cast.c_str(), "INT8") == 0)
       {
-         m_datatype = "DP_DATA_TYPE_INT8";
+         m_datatype = "INT8";
       }
-      else if (strcasecmp(m_cast.c_str(), "ushort") == 0)
+      else if (strcasecmp(m_cast.c_str(), "UINT8") == 0)
       {
-         m_datatype = "DP_DATA_TYPE_UINT8";
+         m_datatype = "UINT8";
       }
       else if (strcasecmp(m_cast.c_str(), "uhalf") == 0)
       {
-         m_datatype = "DP_DATA_TYPE_UFLOAT8";
+         m_datatype = "UFLOAT8";
       }
       else if (strcasecmp(m_cast.c_str(), "half") == 0)
       {
          // Float8
-         m_datatype = "DP_DATA_TYPE_FLOAT8";
+         m_datatype = "FLOAT8";
       }
       else if (m_cast.length() > 0)
       {
@@ -559,7 +559,7 @@ int cMcoreTerm::Validate()
       }
       else
       {
-         m_datatype = "DP_DATA_TYPE_FLOAT8";
+         m_datatype = "FLOAT8";
       }
       if (m_specifier.size() <= SPECIFIER_PCORE_DIM)
       {
@@ -657,7 +657,7 @@ int cMcoreTerm::Validate()
    {
       // Constants
       m_id = cMcoreTerm::eMcoreTermTypeALLFloat;
-      m_datatype = "DP_DATA_TYPE_FLOAT8";
+      m_datatype = "FLOAT8";
       if (m_specifier.size() != 1)
          error(cMcore::M_currLine, "Invalid ALL syntax");
       if (m_scatter.size() > 0)
@@ -667,7 +667,7 @@ int cMcoreTerm::Validate()
    {
       // Constants
       m_id = cMcoreTerm::eMcoreTermTypeALLInt;
-      m_datatype = "DP_DATA_TYPE_INT16";
+      m_datatype = "INT16";
       if (m_specifier.size() != 1)
          error(cMcore::M_currLine, "Invalid ALL syntax");
       if (m_scatter.size() > 0)
@@ -677,7 +677,7 @@ int cMcoreTerm::Validate()
    {
       // Constants
       m_id = cMcoreTerm::eMcoreTermTypeALLInt;
-      m_datatype = "DP_DATA_TYPE_INT8";
+      m_datatype = "INT8";
       if (m_specifier.size() != 1)
          error(cMcore::M_currLine, "Invalid ALL syntax");
       if (m_scatter.size() > 0)
@@ -687,7 +687,7 @@ int cMcoreTerm::Validate()
    {
       // Program SPU unit
       m_id = cMcoreTerm::eMcoreTermTypeSPU;
-      m_datatype = "DP_DATA_TYPE_INT16";
+      m_datatype = "INT16";
       if (m_specifier.size() == 0)
          m_spuCount = SPU_NUM_STREAM;
       else
@@ -697,7 +697,7 @@ int cMcoreTerm::Validate()
    {
       // Program SPU unit
       m_id = cMcoreTerm::eMcoreTermTypePcoreProg;
-      m_datatype = "DP_DATA_TYPE_INT16";
+      m_datatype = "INT16";
       if (m_specifier.size() != 1)
          error(cMcore::M_currLine, "Invalid PROG specification");
    }
@@ -720,25 +720,25 @@ int cMcoreTerm::Validate()
          }
          m_specifier.resize(m_specifier.size() - 1);
       }
-      if (strcasecmp(m_cast.c_str(), "int") == 0)
+      if (strcasecmp(m_cast.c_str(), "INT16") == 0)
       {
-         m_datatype = "DP_DATA_TYPE_INT16";
+         m_datatype = "INT16";
       }
-      else if (strcasecmp(m_cast.c_str(), "short") == 0)
+      else if (strcasecmp(m_cast.c_str(), "INT8") == 0)
       {
-         m_datatype = "DP_DATA_TYPE_INT8";
+         m_datatype = "INT8";
       }
       else if (strcasecmp(m_cast.c_str(), "uhalf") == 0)
       {
-         m_datatype = "DP_DATA_TYPE_UFLOAT8";
+         m_datatype = "UFLOAT8";
       }
-      else if (strcasecmp(m_cast.c_str(), "ushort") == 0)
+      else if (strcasecmp(m_cast.c_str(), "UINT8") == 0)
       {
-         m_datatype = "DP_DATA_TYPE_UINT8";
+         m_datatype = "UINT8";
       }
       else if (strcasecmp(m_cast.c_str(), "half") == 0)
       {
-         m_datatype = "DP_DATA_TYPE_FLOAT8";
+         m_datatype = "FLOAT8";
       }
       else if (m_cast.length() > 0)
       {
@@ -748,7 +748,7 @@ int cMcoreTerm::Validate()
       }
       else
       {
-         m_datatype = "DP_DATA_TYPE_INT16";
+         m_datatype = "INT16";
       }
       if (m_specifier.size() < 1)
          error(cMcore::M_currLine, "Invalid SRAM memory reference");
@@ -797,25 +797,25 @@ int cMcoreTerm::Validate()
       }
       if (m_scatter.size() > 0)
          error(cMcore::M_currLine, "SCATTER is only for PCORE");
-      if (strcasecmp(m_cast.c_str(), "int") == 0)
+      if (strcasecmp(m_cast.c_str(), "INT16") == 0)
       {
-         m_datatype = "DP_DATA_TYPE_INT16";
+         m_datatype = "INT16";
       }
-      else if (strcasecmp(m_cast.c_str(), "short") == 0)
+      else if (strcasecmp(m_cast.c_str(), "INT8") == 0)
       {
-         m_datatype = "DP_DATA_TYPE_INT8";
+         m_datatype = "INT8";
       }
       else if (strcasecmp(m_cast.c_str(), "uhalf") == 0)
       {
-         m_datatype = "DP_DATA_TYPE_UFLOAT8";
+         m_datatype = "UFLOAT8";
       }
-      else if (strcasecmp(m_cast.c_str(), "ushort") == 0)
+      else if (strcasecmp(m_cast.c_str(), "UINT8") == 0)
       {
-         m_datatype = "DP_DATA_TYPE_UINT8";
+         m_datatype = "UINT8";
       }
       else if (strcasecmp(m_cast.c_str(), "half") == 0)
       {
-         m_datatype = "DP_DATA_TYPE_FLOAT8";
+         m_datatype = "FLOAT8";
       }
       else if (m_cast.length() > 0)
       {
@@ -825,7 +825,7 @@ int cMcoreTerm::Validate()
       }
       else
       {
-         m_datatype = "DP_DATA_TYPE_INT16";
+         m_datatype = "INT16";
       }
       if (m_specifier.size() < 1)
          error(cMcore::M_currLine, "Invalid DDR memory reference");
