@@ -80,7 +80,7 @@
 #define TOKEN_FLUSH           "FLUSH"
 #define TOKEN_ALL_INT         "INT16"
 #define TOKEN_ALL_HALF        "HALF"
-#define TOKEN_ALL_SHORT       "SHORT"
+#define TOKEN_ALL_SHORT       "INT8"
 #define TOKEN_FOR             "FOR"
 #define TOKEN_REPEAT          "REPEAT"
 #define TOKEN_PAD             "PAD"

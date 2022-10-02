@@ -98,7 +98,7 @@ static void iconv(void *_p,int pid) {
                >CAST(UINT8)PCORE(NUM_PCORE)[cnt-1].iconv::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM-pad:TILE_DX_DIM+pad-pad-1][:];
             } else {
                // There is nothing at the left. So set it to zero...
-               >CAST(UINT8)PCORE(NUM_PCORE)[0].iconv::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= SHORT(0);
+               >CAST(UINT8)PCORE(NUM_PCORE)[0].iconv::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= INT8(0);
             }
 
             // Copy input to PCORE array...
@@ -116,7 +116,7 @@ static void iconv(void *_p,int pid) {
             >CAST(UINT8)PCORE(NUM_PCORE)[0:cnt-2].iconv::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM:TILE_DX_DIM+pad-1][:];
 
             if(y==0) {
-               >PCORE(NUM_PCORE)[*].iconv::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[0:pad-1][:][0] <= SHORT(0);
+               >PCORE(NUM_PCORE)[*].iconv::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[0:pad-1][:][0] <= INT8(0);
             }
             > EXE_LOCKSTEP(iconv::exe_7x7,NUM_PCORE);
 

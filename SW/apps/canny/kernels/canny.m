@@ -97,7 +97,7 @@ static void canny_phase_0(void *_p,int pid) {
             >CAST(UINT8)PCORE(NUM_PCORE)[cnt-1].canny::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM-pad:TILE_DX_DIM+pad-pad-1][:];
          } else {
             // There is nothing at the left. So set it to zero...
-            >CAST(UINT8)PCORE(NUM_PCORE)[0].canny::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= SHORT(0);
+            >CAST(UINT8)PCORE(NUM_PCORE)[0].canny::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= INT8(0);
          }
          
          >FLUSH;
@@ -119,7 +119,7 @@ static void canny_phase_0(void *_p,int pid) {
          >FLUSH;
          
          if(y==0) {
-            >PCORE(NUM_PCORE)[*].canny::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[0:pad-1][:][0] <= SHORT(0);
+            >PCORE(NUM_PCORE)[*].canny::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[0:pad-1][:][0] <= INT8(0);
          }
 
          > EXE_LOCKSTEP(canny::calc_gradient,NUM_PCORE);

@@ -110,8 +110,8 @@ static void of_phase_0(void *_p,int pid) {
             >CAST(UINT8)SYNC PCORE(NUM_PCORE)[cnt-1].of::inbuf2(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM-pad:TILE_DX_DIM+pad-pad-1][:];
          } else {
             // There is nothing at the left. So set it to zero...
-            >CAST(UINT8)PCORE(NUM_PCORE)[0].of::inbuf1(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= SHORT(0);
-            >CAST(UINT8)PCORE(NUM_PCORE)[0].of::inbuf2(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= SHORT(0);
+            >CAST(UINT8)PCORE(NUM_PCORE)[0].of::inbuf1(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= INT8(0);
+            >CAST(UINT8)PCORE(NUM_PCORE)[0].of::inbuf2(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= INT8(0);
          }
          
          >FLUSH;
@@ -146,8 +146,8 @@ static void of_phase_0(void *_p,int pid) {
          >FLUSH;
          if(y==0)
          {
-            >PCORE(NUM_PCORE)[*].of::inbuf1(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[0:pad-1][:][0] <= SHORT(0);
-            >PCORE(NUM_PCORE)[*].of::inbuf2(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[0:pad-1][:][0] <= SHORT(0);
+            >PCORE(NUM_PCORE)[*].of::inbuf1(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[0:pad-1][:][0] <= INT8(0);
+            >PCORE(NUM_PCORE)[*].of::inbuf2(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[0:pad-1][:][0] <= INT8(0);
          }
 
          > EXE_LOCKSTEP(of::calc_gradient,NUM_PCORE);
