@@ -716,11 +716,15 @@ module main(
    
    ztachip ztachip_inst( 
        .clock_in(clk_main),
-       .reset_in(1), -- For FPGA, we dont need reset since all register reset values
-                     -- are initialized by signal declaration.
-                     -- With FPGA, the initial register values are set during image
-                     -- download, so reset signal is not really required.
-                     -- However, with ASIC, we should have a reset (active low)
+       
+       // For FPGA, we dont need reset since all register reset values
+       // are initialized by signal declaration.
+       // With FPGA, the initial register values are set during image
+       // download, so reset signal is not really required.
+       // However, with ASIC, we should have a reset (active low)
+       
+       .reset_in(1), 
+       
        .axi_araddr_out(ZTA_DATA_araddr),
        .axi_arlen_out(ZTA_DATA_arlen),
        .axi_arvalid_out(ZTA_DATA_arvalid),
@@ -730,11 +734,11 @@ module main(
        .axi_arready_in(ZTA_DATA_arready),
        .axi_rready_out(ZTA_DATA_rready),    
        .axi_arburst_out(ZTA_DATA_arburst),
-       .axi_arcache_out(ZTA_DATA_arcache),
-       .axi_arid_out(ZTA_DATA_arid),
-       .axi_arlock_out(ZTA_DATA_arlock),
-       .axi_arprot_out(ZTA_DATA_arprot),
-       .axi_arqos_out(ZTA_DATA_arqos),
+       .axi_arcache_out(ZTA_DATA_arcache), // Not used. Can be ignored
+       .axi_arid_out(ZTA_DATA_arid),       // Not used. Can be ignored
+       .axi_arlock_out(ZTA_DATA_arlock),   // Not used. Can be ignored
+       .axi_arprot_out(ZTA_DATA_arprot),   // Not used. Can be ignored
+       .axi_arqos_out(ZTA_DATA_arqos),     // Not used. Can be ignored
        .axi_arsize_out(ZTA_DATA_arsize),
             
        .axi_awaddr_out(ZTA_DATA_awaddr),
@@ -749,11 +753,11 @@ module main(
        .axi_wready_in(ZTA_DATA_wready),
        .axi_bresp_in(ZTA_DATA_bvalid),       
        .axi_awburst_out(ZTA_DATA_awburst),
-       .axi_awcache_out(ZTA_DATA_awcache),
-       .axi_awid_out(ZTA_DATA_awid),
-       .axi_awlock_out(ZTA_DATA_awlock),
-       .axi_awprot_out(ZTA_DATA_awprot),
-       .axi_awqos_out(ZTA_DATA_awqos),
+       .axi_awcache_out(ZTA_DATA_awcache), // Not used. Can be ignored
+       .axi_awid_out(ZTA_DATA_awid),       // Not used. Can be ignored
+       .axi_awlock_out(ZTA_DATA_awlock),   // Not used. Can be ignored
+       .axi_awprot_out(ZTA_DATA_awprot),   // Not used. Can be ignored
+       .axi_awqos_out(ZTA_DATA_awqos),     // Not used. Can be ignored
        .axi_awsize_out(ZTA_DATA_awsize),
        .axi_bready_out(ZTA_DATA_bready),
 
