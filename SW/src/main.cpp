@@ -25,7 +25,7 @@ extern int vision_ai(void);
 
 int main() {
    ztaInit();
-#if 0 
+#if 1 
    while(1){
       test();
    }

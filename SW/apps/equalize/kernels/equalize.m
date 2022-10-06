@@ -91,7 +91,7 @@ static void equalize(void *_p,int pid) {
          >CAST(UINT8)PCORE(np)[:].equalize::in[0:kHistogramInSize*nt-1] <= CAST(UINT8)MEM(input,src_w)[x:x+step_x-1];
 
          if(req->equalize) {
-            >CAST(UINT8)MEM(output2,src_w)[x:x+step_x-1] <= PROC(0) <= CAST(UINT8)SYNC PCORE(np)[:].equalize::in[0:kHistogramInSize*nt-1];
+            >CAST(UINT8)MEM(output2,src_w)[x:x+step_x-1] <= REMAP(0) CAST(UINT8) SYNC PCORE(np)[:].equalize::in[0:kHistogramInSize*nt-1];
          } else {
             >CAST(UINT8)MEM(output2,src_w)[x:x+step_x-1] <= CAST(UINT8)SYNC PCORE(np)[:].equalize::in[0:kHistogramInSize*nt-1];
          }

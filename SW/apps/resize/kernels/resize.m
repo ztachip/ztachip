@@ -139,7 +139,7 @@ void box_resize_horizontal(void *_p,int pid) {
 
             // Copy results back to DDR
 
-            > CAST(fmt) MEM(req->temp,req->nchannel,dst_h,dst_w)[ch][dst_y:dst_y+dst_dy-1][dst_x:dst_x+dst_dx-1] <= PROC(0) <= CAST(fmt) SCATTER(0) FOR(I=0:np-1) FOR(J=0:VECTOR_WIDTH-1) PCORE(np)[I].resize_box::outbuf(BOX_RESIZE_MAX_OUTBUF/8,8,VECTOR_WIDTH)[0:dst_dx/8-1][:][J];         
+            > CAST(fmt) MEM(req->temp,req->nchannel,dst_h,dst_w)[ch][dst_y:dst_y+dst_dy-1][dst_x:dst_x+dst_dx-1] <= REMAP(0) CAST(fmt) SCATTER(0) FOR(I=0:np-1) FOR(J=0:VECTOR_WIDTH-1) PCORE(np)[I].resize_box::outbuf(BOX_RESIZE_MAX_OUTBUF/8,8,VECTOR_WIDTH)[0:dst_dx/8-1][:][J];         
          }
       }
    }
@@ -213,7 +213,7 @@ void box_resize_vertical(void *_p,int pid) {
 
             // Copy results back to DDR
 
-            > CAST(fmt)MEM(req->output,req->nchannel,dst_h,dst_w)[ch][dst_y:dst_y+dst_dy2-1][dst_x:dst_x+dst_dx-1] <= PROC(1) <= CAST(fmt) FOR(K=0:dst_dy2-1) FOR(I=0:np-1) FOR(J=0:VECTOR_WIDTH-1) PCORE(np)[I].resize_box::outbuf[K][J];
+            > CAST(fmt)MEM(req->output,req->nchannel,dst_h,dst_w)[ch][dst_y:dst_y+dst_dy2-1][dst_x:dst_x+dst_dx-1] <= REMAP(1) CAST(fmt) FOR(K=0:dst_dy2-1) FOR(I=0:np-1) FOR(J=0:VECTOR_WIDTH-1) PCORE(np)[I].resize_box::outbuf[K][J];
          }
       }
    }

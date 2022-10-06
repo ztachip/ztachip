@@ -87,12 +87,12 @@
 #define TOKEN_SYNC            "SYNC"
 #define TOKEN_THREAD          "THREAD"
 #define TOKEN_SCATTER         "SCATTER"
-#define TOKEN_STREAM          "PROC"
 #define TOKEN_SPU             "SPU"
 #define TOKEN_PCORE_PROG      "PROG"
 #define TOKEN_EXPORT          "EXPORT"
 #define TOKEN_VAR             "VAR"
 #define TOKEN_CAST            "CAST"
+#define TOKEN_REMAP           "REMAP"
 
 // PCORE layout
 
@@ -439,6 +439,7 @@ int cMcoreTerm::Validate()
    int i, j;
    int var;
    std::string item1, item2, item3;
+   char *remap;
 
    if (m_name.length() == 0)
    {
@@ -451,6 +452,12 @@ int cMcoreTerm::Validate()
          error(cMcore::M_currLine, "Variable has not been defined");
       m_id = cMcoreTerm::eMcoreTermTypeVar;
       m_var = var;
+//VUONG
+      remap=strstr(cMcore::M_vars[var].m_line.c_str(), TOKEN_REMAP);
+      if(remap) {
+         remap += strlen(TOKEN_REMAP);
+         cMcore::scan_remap(remap,&m_remap);
+      }
    }
    else if (strcasecmp(m_name.c_str(), TOKEN_PCORE) == 0 || strcasecmp(m_name.c_str(), TOKEN_PCORES) == 0)
    {
@@ -836,6 +843,7 @@ int cMcoreTerm::Validate()
    }
    else
       error(cMcore::M_currLine, "Unrecognized memory space");
+
    for (i = 0; i < (int)m_index.size(); i++)
    {
       m_index[i].validate((char *)range_min[i].c_str(), (char *)range_max[i].c_str());
@@ -2467,6 +2475,23 @@ char *cMcore::scan_cast(char *line, char *cast)
       return line;
 }
 
+char *cMcore::scan_remap(char *line, std::vector<cMcoreSpecifier> *stream_id)
+{
+   char *p = line;
+   p = skipWS(p);
+   if (*p == '(')
+   {
+      p = scan_specifier(stream_id,p);
+      if (stream_id->size() != 1)
+      {
+         error(cMcore::M_currLine, "Invalid REMAP specifier");
+      }
+   }
+   else
+      error(cMcore::M_currLine, "Invalid REMAP specifier");
+   return p;
+}
+
 // Scan a tensor definition from mcore program
 
 char *cMcore::scan_term(char *line, cMcoreTerm *term)
@@ -2475,6 +2500,7 @@ char *cMcore::scan_term(char *line, cMcoreTerm *term)
    int i;
    char token[MAX_LINE];
    char cast[MAX_LINE];
+   char remap[MAX_LINE];
    line = skipWS(line);
 
    if (line[0] == '$')
@@ -2583,6 +2609,12 @@ char *cMcore::scan_term(char *line, cMcoreTerm *term)
       {
          line = skipWS(line);
          line = scan_cast(line, cast);
+         line = scan_name(line, token);
+      }
+      else if (strcasecmp(token, TOKEN_REMAP) == 0)
+      {
+         line = skipWS(line);
+         line = scan_remap(line, &term->m_remap);
          line = scan_name(line, token);
       }
       else
@@ -2713,7 +2745,7 @@ char *cMcore::scan_transfer(FILE *out, char *line)
    char c1[MAX_LINE], c2[MAX_LINE], c3[MAX_LINE];
    cMcoreTerm left, right;
    cMcoreTerm leftScratch, rightScratch;
-   std::vector<cMcoreSpecifier> stream_id;
+   std::vector<cMcoreSpecifier> *remap=0;
    std::string forkCount;
    int waitCondition;
 
@@ -2727,30 +2759,21 @@ char *cMcore::scan_transfer(FILE *out, char *line)
    else
       error(cMcore::M_currLine, "Syntax error");
    scan_name(line, token);
-   if (strcasecmp(token, TOKEN_STREAM) == 0)
-   {
-      line = scan_name(line, token);
-      line = skipWS(line);
-      if (*line == '(')
-      {
-         line = scan_specifier(&stream_id, line);
-         if (stream_id.size() != 1)
-         {
-            error(cMcore::M_currLine, "Invalid PROC specifier");
-         }
-      }
-      else
-         error(cMcore::M_currLine, "Invalid PROC specifier");
-      line = skipWS(line);
-      if (memcmp(line, "<=", 2) != 0)
-         error(cMcore::M_currLine, "Syntax error");
-      line += 2;
-   }
+
 
    line = scan_term(line, &right);
 
    left.Validate();
    right.Validate();
+
+   if(right.m_remap.size()>0) {
+      if(left.m_remap.size()>0)
+          error(cMcore::M_currLine, "REMAP cannot be applied to both left and right term");
+      remap=&right.m_remap;
+   }
+   else
+      remap=&left.m_remap;
+
 
    if (left.m_id == cMcoreTerm::eMcoreTermTypeGlobalRef)
    {
@@ -2777,7 +2800,7 @@ char *cMcore::scan_transfer(FILE *out, char *line)
       rightScratch.ScratchCreate(&right, (char *)left.m_cast.c_str(), (char *)right.m_scatter[0].m_v.c_str(), forkCount);
       rightScratch.Validate();
       rightScratch.ScratchReorder(&right, true);
-      gen_transfer(out, rightScratch, right, c1, &stream_id);
+      gen_transfer(out, rightScratch, right, c1, remap);
       rightScratch.ScratchReorder(0, false);
       gen_transfer(out, left, rightScratch, c2, 0);
    }
@@ -2787,7 +2810,7 @@ char *cMcore::scan_transfer(FILE *out, char *line)
       leftScratch.ScratchCreate(&left, (char *)right.m_cast.c_str(), (char *)left.m_scatter[0].m_v.c_str(), forkCount);
       leftScratch.Validate();
       leftScratch.ScratchReorder(0, false);
-      gen_transfer(out, leftScratch, right, c1, &stream_id);
+      gen_transfer(out, leftScratch, right, c1, remap);
       leftScratch.ScratchReorder(&left, true);
       gen_transfer(out, left, leftScratch, c2, 0);
 
@@ -2802,11 +2825,11 @@ char *cMcore::scan_transfer(FILE *out, char *line)
       rightScratch.ScratchCreate(&right, 0, (char *)right.m_scatter[0].m_v.c_str(), forkCount);
       rightScratch.Validate();
       rightScratch.ScratchReorder(&right, true);
-      gen_transfer(out, rightScratch, right, c1, &stream_id);
+      gen_transfer(out, rightScratch, right, c1, remap);
       gen_transfer(out, left, leftScratch, c2, 0);
    }
    else
-      gen_transfer(out, left, right, c3, &stream_id);
+      gen_transfer(out, left, right, c3, remap);
    return line;
 }
 

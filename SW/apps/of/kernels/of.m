@@ -289,8 +289,8 @@ static void of_phase_1(void *_p,int pid) {
 
          ztaTaskYield();
 
-         >CAST(INT16)PCORE(NUM_PCORE)[:].of1::t_gradient(OF1_TILE_DY_DIM,OF1_TILE_DX_IN_DIM,VECTOR_WIDTH)[:][OF1_TILE_DX_DIM:OF1_TILE_DX_DIM+OF1_TILE_DX_DIM-1][:] <= PROC(0) <= 
-         >CAST(INT16)PCORE(NUM_PCORE)[:].of1::t_gradient(OF1_TILE_DY_DIM,OF1_TILE_DX_IN_DIM,VECTOR_WIDTH)[:][OF1_TILE_DX_DIM:OF1_TILE_DX_DIM+OF1_TILE_DX_DIM-1][:];
+         >CAST(INT16)PCORE(NUM_PCORE)[:].of1::t_gradient(OF1_TILE_DY_DIM,OF1_TILE_DX_IN_DIM,VECTOR_WIDTH)[:][OF1_TILE_DX_DIM:OF1_TILE_DX_DIM+OF1_TILE_DX_DIM-1][:]  <= 
+         >REMAP(0) CAST(INT16)PCORE(NUM_PCORE)[:].of1::t_gradient(OF1_TILE_DY_DIM,OF1_TILE_DX_IN_DIM,VECTOR_WIDTH)[:][OF1_TILE_DX_DIM:OF1_TILE_DX_DIM+OF1_TILE_DX_DIM-1][:];
 
          > EXE_LOCKSTEP(of1::calc_lucus_kanade_final,NUM_PCORE);
 
@@ -305,16 +305,16 @@ static void of_phase_1(void *_p,int pid) {
     
          if(req->display) {
             // Show red color for horizontal movementto the right 
-            >CAST(UINT8)MEM(req->display,3,h,w)[0][y*dy:y*dy+OF1_TILE_DY_DIM*VECTOR_WIDTH-1][x*dx:x*dx+dx2-1] <= PROC(1) <=
-            >CAST(UINT8)SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:OF1_TILE_DY_DIM-1) FOR(II=0:NUM_PCORE-1) FOR(J=OF1_TILE_DX_DIM:OF1_TILE_DX_DIM+OF1_TILE_DX_DIM-1) PCORE(NUM_PCORE)[II].of1::x_gradient(OF1_TILE_DY_DIM,OF1_TILE_DX_IN_DIM,VECTOR_WIDTH)[I][J][K]; 
+            >CAST(UINT8)MEM(req->display,3,h,w)[0][y*dy:y*dy+OF1_TILE_DY_DIM*VECTOR_WIDTH-1][x*dx:x*dx+dx2-1] <= 
+            >REMAP(1) CAST(UINT8)SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:OF1_TILE_DY_DIM-1) FOR(II=0:NUM_PCORE-1) FOR(J=OF1_TILE_DX_DIM:OF1_TILE_DX_DIM+OF1_TILE_DX_DIM-1) PCORE(NUM_PCORE)[II].of1::x_gradient(OF1_TILE_DY_DIM,OF1_TILE_DX_IN_DIM,VECTOR_WIDTH)[I][J][K]; 
 
             // Show green color for horizontal movement to the left          
-            >CAST(UINT8)MEM(req->display,3,h,w)[1][y*dy:y*dy+OF1_TILE_DY_DIM*VECTOR_WIDTH-1][x*dx:x*dx+dx2-1] <= PROC(2) <=
-            >CAST(UINT8)SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:OF1_TILE_DY_DIM-1) FOR(II=0:NUM_PCORE-1) FOR(J=OF1_TILE_DX_DIM:OF1_TILE_DX_DIM+OF1_TILE_DX_DIM-1) PCORE(NUM_PCORE)[II].of1::x_gradient(OF1_TILE_DY_DIM,OF1_TILE_DX_IN_DIM,VECTOR_WIDTH)[I][J][K]; 
+            >CAST(UINT8)MEM(req->display,3,h,w)[1][y*dy:y*dy+OF1_TILE_DY_DIM*VECTOR_WIDTH-1][x*dx:x*dx+dx2-1] <=
+            >REMAP(2) CAST(UINT8)SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:OF1_TILE_DY_DIM-1) FOR(II=0:NUM_PCORE-1) FOR(J=OF1_TILE_DX_DIM:OF1_TILE_DX_DIM+OF1_TILE_DX_DIM-1) PCORE(NUM_PCORE)[II].of1::x_gradient(OF1_TILE_DY_DIM,OF1_TILE_DX_IN_DIM,VECTOR_WIDTH)[I][J][K]; 
 
             // Show blue color for vertical movement 
-            >CAST(UINT8)MEM(req->display,3,h,w)[2][y*dy:y*dy+OF1_TILE_DY_DIM*VECTOR_WIDTH-1][x*dx:x*dx+dx2-1] <= PROC(3) <=
-            >CAST(UINT8)SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:OF1_TILE_DY_DIM-1) FOR(II=0:NUM_PCORE-1) FOR(J=OF1_TILE_DX_DIM:OF1_TILE_DX_DIM+OF1_TILE_DX_DIM-1) PCORE(NUM_PCORE)[II].of1::y_gradient(OF1_TILE_DY_DIM,OF1_TILE_DX_IN_DIM,VECTOR_WIDTH)[I][J][K]; 
+            >CAST(UINT8)MEM(req->display,3,h,w)[2][y*dy:y*dy+OF1_TILE_DY_DIM*VECTOR_WIDTH-1][x*dx:x*dx+dx2-1] <=
+            >REMAP(3) CAST(UINT8)SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:OF1_TILE_DY_DIM-1) FOR(II=0:NUM_PCORE-1) FOR(J=OF1_TILE_DX_DIM:OF1_TILE_DX_DIM+OF1_TILE_DX_DIM-1) PCORE(NUM_PCORE)[II].of1::y_gradient(OF1_TILE_DY_DIM,OF1_TILE_DX_IN_DIM,VECTOR_WIDTH)[I][J][K]; 
          }
       }
    }

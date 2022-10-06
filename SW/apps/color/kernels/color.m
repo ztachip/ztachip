@@ -172,19 +172,19 @@ static void yuyv2rgb(void *_p,int pid) {
          ztaTaskYield();
          if(req->dst_channel_fmt==kChannelFmtInterleave) {
             if(clip) {
-               > CAST(UINT8)MEM(output,dy2,dx2)[y2:y2+step2_y-1][x2:x2+step2_x-1] <= PROC(0) <= CAST(UINT8) SCATTER(0) FOR(X=0:PCORE_DY-1) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].yuyv2rgb::rgb(RGB_BUF_SIZE/8,8,8)[:][:][L];
+               > CAST(UINT8)MEM(output,dy2,dx2)[y2:y2+step2_y-1][x2:x2+step2_x-1] <=  REMAP(0) CAST(UINT8) SCATTER(0) FOR(X=0:PCORE_DY-1) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].yuyv2rgb::rgb(RGB_BUF_SIZE/8,8,8)[:][:][L];
             } else {
-               > CAST(UINT8)MEM(output,dy2,dx2)[y2][x2:x2+step2_x-1] <= PROC(0) <= CAST(UINT8) SCATTER(0) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:NUM_PCORE-1) PCORE(NUM_PCORE)[JJ].yuyv2rgb::rgb(RGB_BUF_SIZE/8,8,8)[:][:][L];
+               > CAST(UINT8)MEM(output,dy2,dx2)[y2][x2:x2+step2_x-1] <= REMAP(0) CAST(UINT8) SCATTER(0) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:NUM_PCORE-1) PCORE(NUM_PCORE)[JJ].yuyv2rgb::rgb(RGB_BUF_SIZE/8,8,8)[:][:][L];
             }
          } else {
             if(clip) {
-               > CAST(UINT8)MEM(output,(dx2*dy2)(dy2,dx2))[y2:y2+step2_y-1][x2:x2+step2_x-1] <= PROC(0) <= CAST(UINT8) SCATTER(0) FOR(X=0:PCORE_DY-1) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].yuyv2rgb::rgb(3,RGB_BUF_SIZE/24,8,8)[0][:][:][L];
-               > CAST(UINT8)MEM(output1,(dx2*dy2)(dy2,dx2))[y2:y2+step2_y-1][x2:x2+step2_x-1] <= PROC(0) <= CAST(UINT8) SCATTER(0) FOR(X=0:PCORE_DY-1) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].yuyv2rgb::rgb(3,RGB_BUF_SIZE/24,8,8)[1][:][:][L];
-               > CAST(UINT8)MEM(output2,(dx2*dy2)(dy2,dx2))[y2:y2+step2_y-1][x2:x2+step2_x-1] <= PROC(0) <= CAST(UINT8) SCATTER(0) FOR(X=0:PCORE_DY-1) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].yuyv2rgb::rgb(3,RGB_BUF_SIZE/24,8,8)[2][:][:][L];
+               > CAST(UINT8)MEM(output,(dx2*dy2)(dy2,dx2))[y2:y2+step2_y-1][x2:x2+step2_x-1] <= REMAP(0) CAST(UINT8) SCATTER(0) FOR(X=0:PCORE_DY-1) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].yuyv2rgb::rgb(3,RGB_BUF_SIZE/24,8,8)[0][:][:][L];
+               > CAST(UINT8)MEM(output1,(dx2*dy2)(dy2,dx2))[y2:y2+step2_y-1][x2:x2+step2_x-1] <= REMAP(0) CAST(UINT8) SCATTER(0) FOR(X=0:PCORE_DY-1) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].yuyv2rgb::rgb(3,RGB_BUF_SIZE/24,8,8)[1][:][:][L];
+               > CAST(UINT8)MEM(output2,(dx2*dy2)(dy2,dx2))[y2:y2+step2_y-1][x2:x2+step2_x-1] <= REMAP(0) CAST(UINT8) SCATTER(0) FOR(X=0:PCORE_DY-1) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].yuyv2rgb::rgb(3,RGB_BUF_SIZE/24,8,8)[2][:][:][L];
             } else {
-               > CAST(UINT8)MEM(output,(dx2*dy2)(dy2,dx2))[y2][x2:x2+step2_x-1] <= PROC(0) <= CAST(UINT8) SCATTER(0) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:NUM_PCORE-1) PCORE(NUM_PCORE)[JJ].yuyv2rgb::rgb(3,RGB_BUF_SIZE/24,8,8)[0][:][:][L];
-               > CAST(UINT8)MEM(output1,(dx2*dy2)(dy2,dx2))[y2][x2:x2+step2_x-1] <= PROC(0) <= CAST(UINT8) SCATTER(0) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:NUM_PCORE-1) PCORE(NUM_PCORE)[JJ].yuyv2rgb::rgb(3,RGB_BUF_SIZE/24,8,8)[1][:][:][L];
-               > CAST(UINT8)MEM(output2,(dx2*dy2)(dy2,dx2))[y2][x2:x2+step2_x-1] <= PROC(0) <= CAST(UINT8) SCATTER(0) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:NUM_PCORE-1) PCORE(NUM_PCORE)[JJ].yuyv2rgb::rgb(3,RGB_BUF_SIZE/24,8,8)[2][:][:][L];
+               > CAST(UINT8)MEM(output,(dx2*dy2)(dy2,dx2))[y2][x2:x2+step2_x-1] <= REMAP(0) CAST(UINT8) SCATTER(0) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:NUM_PCORE-1) PCORE(NUM_PCORE)[JJ].yuyv2rgb::rgb(3,RGB_BUF_SIZE/24,8,8)[0][:][:][L];
+               > CAST(UINT8)MEM(output1,(dx2*dy2)(dy2,dx2))[y2][x2:x2+step2_x-1] <= REMAP(0) CAST(UINT8) SCATTER(0) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:NUM_PCORE-1) PCORE(NUM_PCORE)[JJ].yuyv2rgb::rgb(3,RGB_BUF_SIZE/24,8,8)[1][:][:][L];
+               > CAST(UINT8)MEM(output2,(dx2*dy2)(dy2,dx2))[y2][x2:x2+step2_x-1] <= REMAP(0) CAST(UINT8) SCATTER(0) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:NUM_PCORE-1) PCORE(NUM_PCORE)[JJ].yuyv2rgb::rgb(3,RGB_BUF_SIZE/24,8,8)[2][:][:][L];
             }
          }
       }
@@ -389,23 +389,23 @@ static void copy(void *_p,int pid) {
 
          if(dst_channel_fmt==kChannelFmtInterleave) {
             if(clip) {
-               > CAST(UINT8)MEM(output,dy2,dx2)[y2:y2+step2_y-1][x2:x2+step2_x-1] <= PROC(equalize) <= CAST(UINT8) SCATTER(0) FOR(X=0:PCORE_DY-1) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].copy::out(RGB2RGB_BUF_SIZE/ZZZ,ZZZ,8)[:][:][L];
+               > CAST(UINT8)MEM(output,dy2,dx2)[y2:y2+step2_y-1][x2:x2+step2_x-1] <= REMAP(equalize) CAST(UINT8) SCATTER(0) FOR(X=0:PCORE_DY-1) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].copy::out(RGB2RGB_BUF_SIZE/ZZZ,ZZZ,8)[:][:][L];
             } else {
-               > CAST(UINT8)MEM(output,dy2,dx2)[y2][x2:x2+step2_x-1] <= PROC(equalize) <= CAST(UINT8) SCATTER(0) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:NUM_PCORE-1) PCORE(NUM_PCORE)[JJ].copy::out(RGB2RGB_BUF_SIZE/ZZZ,ZZZ,8)[:][:][L];
+               > CAST(UINT8)MEM(output,dy2,dx2)[y2][x2:x2+step2_x-1] <= REMAP(equalize) CAST(UINT8) SCATTER(0) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:NUM_PCORE-1) PCORE(NUM_PCORE)[JJ].copy::out(RGB2RGB_BUF_SIZE/ZZZ,ZZZ,8)[:][:][L];
             }
          } else {
             if(clip) {
-               > CAST(UINT8)MEM(output,dy2,dx2)[y2:y2+step2_y-1][x2:x2+step2_x-1] <= PROC(equalize)<= CAST(UINT8) SCATTER(0) FOR(X=0:PCORE_DY-1) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].copy::out(3,RGB2RGB_BUF_SIZE/(3*ZZZ),ZZZ,8)[0][:][:][L];
+               > CAST(UINT8)MEM(output,dy2,dx2)[y2:y2+step2_y-1][x2:x2+step2_x-1] <= REMAP(equalize) CAST(UINT8) SCATTER(0) FOR(X=0:PCORE_DY-1) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].copy::out(3,RGB2RGB_BUF_SIZE/(3*ZZZ),ZZZ,8)[0][:][:][L];
             } else {
-               > CAST(UINT8)MEM(output,dy2,dx2)[y2][x2:x2+step2_x-1] <= PROC(equalize)<= CAST(UINT8) SCATTER(0) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:NUM_PCORE-1) PCORE(NUM_PCORE)[JJ].copy::out(3,RGB2RGB_BUF_SIZE/(3*ZZZ),ZZZ,8)[0][:][:][L];
+               > CAST(UINT8)MEM(output,dy2,dx2)[y2][x2:x2+step2_x-1] <= REMAP(equalize) CAST(UINT8) SCATTER(0) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:NUM_PCORE-1) PCORE(NUM_PCORE)[JJ].copy::out(3,RGB2RGB_BUF_SIZE/(3*ZZZ),ZZZ,8)[0][:][:][L];
             }
             if(dst_channel_fmt!=kChannelFmtSingle) {
                if(clip) {
-                  > CAST(UINT8)MEM(output2,dy2,dx2)[y2:y2+step2_y-1][x2:x2+step2_x-1] <= PROC(equalize)<= CAST(UINT8) SCATTER(0) FOR(X=0:PCORE_DY-1) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].copy::out(3,RGB2RGB_BUF_SIZE/(3*ZZZ),ZZZ,8)[1][:][:][L];
-                  > CAST(UINT8)MEM(output3,dy2,dx2)[y2:y2+step2_y-1][x2:x2+step2_x-1] <= PROC(equalize)<= CAST(UINT8) SCATTER(0) FOR(X=0:PCORE_DY-1) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].copy::out(3,RGB2RGB_BUF_SIZE/(3*ZZZ),ZZZ,8)[2][:][:][L];
+                  > CAST(UINT8)MEM(output2,dy2,dx2)[y2:y2+step2_y-1][x2:x2+step2_x-1] <= REMAP(equalize) CAST(UINT8) SCATTER(0) FOR(X=0:PCORE_DY-1) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].copy::out(3,RGB2RGB_BUF_SIZE/(3*ZZZ),ZZZ,8)[1][:][:][L];
+                  > CAST(UINT8)MEM(output3,dy2,dx2)[y2:y2+step2_y-1][x2:x2+step2_x-1] <= REMAP(equalize) CAST(UINT8) SCATTER(0) FOR(X=0:PCORE_DY-1) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].copy::out(3,RGB2RGB_BUF_SIZE/(3*ZZZ),ZZZ,8)[2][:][:][L];
                } else {
-                  > CAST(UINT8)MEM(output2,dy2,dx2)[y2][x2:x2+step2_x-1] <= PROC(equalize)<= CAST(UINT8) SCATTER(0) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:NUM_PCORE-1) PCORE(NUM_PCORE)[JJ].copy::out(3,RGB2RGB_BUF_SIZE/(3*ZZZ),ZZZ,8)[1][:][:][L];
-                  > CAST(UINT8)MEM(output3,dy2,dx2)[y2][x2:x2+step2_x-1] <= PROC(equalize)<= CAST(UINT8) SCATTER(0) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:NUM_PCORE-1) PCORE(NUM_PCORE)[JJ].copy::out(3,RGB2RGB_BUF_SIZE/(3*ZZZ),ZZZ,8)[2][:][:][L];
+                  > CAST(UINT8)MEM(output2,dy2,dx2)[y2][x2:x2+step2_x-1] <= REMAP(equalize) CAST(UINT8) SCATTER(0) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:NUM_PCORE-1) PCORE(NUM_PCORE)[JJ].copy::out(3,RGB2RGB_BUF_SIZE/(3*ZZZ),ZZZ,8)[1][:][:][L];
+                  > CAST(UINT8)MEM(output3,dy2,dx2)[y2][x2:x2+step2_x-1] <= REMAP(equalize) CAST(UINT8) SCATTER(0) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:NUM_PCORE-1) PCORE(NUM_PCORE)[JJ].copy::out(3,RGB2RGB_BUF_SIZE/(3*ZZZ),ZZZ,8)[2][:][:][L];
                }
             }
          }

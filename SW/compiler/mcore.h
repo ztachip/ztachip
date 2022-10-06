@@ -51,7 +51,6 @@ public:
 public:
    std::string m_name;
    int m_depth;
-private:
    int m_parmIndex;
    std::string m_line;
 };
@@ -146,6 +145,7 @@ public:
    int m_var;
    bool m_isSource;
    int m_spuCount;
+   std::vector<cMcoreSpecifier> m_remap;
 };
 
 class cMcoreTerm;
@@ -166,6 +166,7 @@ public:
                            std::vector<std::string> *_forName,std::vector<cMcoreRange> *_forRange);
    static char *scan_for(char *line,std::vector<std::string> *_name,std::vector<cMcoreRange> *_range);
    static char *scan_cast(char *line, char *cast);
+   static char *scan_remap(char *line, std::vector<cMcoreSpecifier> *remap);
    static char *scan_name(char *line,char *token);
    static char *scan_scoped_name(char *line,char *token);
    static char *scan_item(char *line,char *item,char seperator);
