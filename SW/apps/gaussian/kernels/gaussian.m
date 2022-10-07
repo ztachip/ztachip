@@ -74,12 +74,12 @@ static void iconv(void *_p,int pid) {
    }
 
    // Load the convolution kernel...
-   >CAST(INT16)PCORE(NUM_PCORE)[*][:].iconv::init._ksz <= INT16(req->ksz);
+   >DTYPE(INT16)PCORE(NUM_PCORE)[*][:].iconv::init._ksz <= INT16(req->ksz);
 
    > EXE_LOCKSTEP(iconv::init,NUM_PCORE);
    ztaTaskYield();
 
-   >CAST(INT16)PCORE(NUM_PCORE)[*].iconv::k[0:req->ksz-1][0:req->ksz-1] <= CAST(INT16)MEM(req->kernel)[0:req->ksz*req->ksz-1];
+   >DTYPE(INT16)PCORE(NUM_PCORE)[*].iconv::k[0:req->ksz-1][0:req->ksz-1] <= DTYPE(INT16)MEM(req->kernel)[0:req->ksz*req->ksz-1];
 
    for(ch=0;ch < req->nchannel;ch++) {
       inputLen=req->src_w*req->src_h;
@@ -94,26 +94,26 @@ static void iconv(void *_p,int pid) {
             cnt=NUM_PCORE;
             // Copy the left-pad from left most tiles edges from memory.
             if(x>0) {
-               >CAST(UINT8)PCORE(NUM_PCORE)[0].iconv::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= 
-               >CAST(UINT8)PCORE(NUM_PCORE)[cnt-1].iconv::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM-pad:TILE_DX_DIM+pad-pad-1][:];
+               >DTYPE(UINT8)PCORE(NUM_PCORE)[0].iconv::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= 
+               >DTYPE(UINT8)PCORE(NUM_PCORE)[cnt-1].iconv::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM-pad:TILE_DX_DIM+pad-pad-1][:];
             } else {
                // There is nothing at the left. So set it to zero...
-               >CAST(UINT8)PCORE(NUM_PCORE)[0].iconv::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= INT8(0);
+               >DTYPE(UINT8)PCORE(NUM_PCORE)[0].iconv::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= INT8(0);
             }
 
             // Copy input to PCORE array...
-            >SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM+2*pad-1) FOR(II=0:NUM_PCORE-1) FOR(J=pad:pad+TILE_DX_DIM-1) PCORE(NUM_PCORE)[II].iconv::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[I][J][K] <= 
-            >CAST(UINT8)MEM(input,inputLen(h,TILE_DY_DIM+,req->src_w))[y*VECTOR_WIDTH:y*VECTOR_WIDTH+VECTOR_WIDTH-1][0:TILE_DY_DIM+2*pad-1][x*dx+x_off:x*dx+dx2+x_off-1];
+            >SHUFFLE FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM+2*pad-1) FOR(II=0:NUM_PCORE-1) FOR(J=pad:pad+TILE_DX_DIM-1) PCORE(NUM_PCORE)[II].iconv::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[I][J][K] <= 
+            >DTYPE(UINT8)MEM(input,inputLen(h,TILE_DY_DIM+,req->src_w))[y*VECTOR_WIDTH:y*VECTOR_WIDTH+VECTOR_WIDTH-1][0:TILE_DY_DIM+2*pad-1][x*dx+x_off:x*dx+dx2+x_off-1];
 
             // Copy the gap from adjacent tile.
 
             // Copy left margin from right tiles to the immediate left tiles...
-            >CAST(UINT8)PCORE(NUM_PCORE)[0:cnt-2].iconv::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM+pad:TILE_DX_DIM+2*pad-1][:] <=
-            >CAST(UINT8) SYNC PCORE(NUM_PCORE)[1:cnt-1].iconv::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][pad:2*pad-1][:];
+            >DTYPE(UINT8)PCORE(NUM_PCORE)[0:cnt-2].iconv::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM+pad:TILE_DX_DIM+2*pad-1][:] <=
+            >DTYPE(UINT8) LATEST PCORE(NUM_PCORE)[1:cnt-1].iconv::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][pad:2*pad-1][:];
 
             // Copy right margin from left tiles to the immediate right tiles...
-            >CAST(UINT8)PCORE(NUM_PCORE)[1:cnt-1].iconv::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <=
-            >CAST(UINT8)PCORE(NUM_PCORE)[0:cnt-2].iconv::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM:TILE_DX_DIM+pad-1][:];
+            >DTYPE(UINT8)PCORE(NUM_PCORE)[1:cnt-1].iconv::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <=
+            >DTYPE(UINT8)PCORE(NUM_PCORE)[0:cnt-2].iconv::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM:TILE_DX_DIM+pad-1][:];
 
             if(y==0) {
                >PCORE(NUM_PCORE)[*].iconv::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[0:pad-1][:][0] <= INT8(0);
@@ -123,8 +123,8 @@ static void iconv(void *_p,int pid) {
             ztaTaskYield();
 
             // Copy result tiles back to memory
-            >CAST(UINT8)MEM(output,req->dst_h,req->dst_w)[y*dy:y*dy+TILE_DY_DIM*VECTOR_WIDTH-1][x*dx:x*dx+dx2-1] <=
-            >SCATTER(0) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM-1) FOR(II=0:NUM_PCORE-1) FOR(J=0:TILE_DX_DIM-1) CAST(UINT8) PCORE(NUM_PCORE)[II].iconv::outbuf(TILE_DY_DIM,TILE_DX_DIM,VECTOR_WIDTH)[I][J][K];
+            >DTYPE(UINT8)MEM(output,req->dst_h,req->dst_w)[y*dy:y*dy+TILE_DY_DIM*VECTOR_WIDTH-1][x*dx:x*dx+dx2-1] <=
+            >SHUFFLE FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM-1) FOR(II=0:NUM_PCORE-1) FOR(J=0:TILE_DX_DIM-1) DTYPE(UINT8) PCORE(NUM_PCORE)[II].iconv::outbuf(TILE_DY_DIM,TILE_DX_DIM,VECTOR_WIDTH)[I][J][K];
          }
       }
    }

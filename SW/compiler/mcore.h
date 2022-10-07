@@ -97,7 +97,7 @@ public:
    void Print();
    static bool decodeVarName(char *name,int *var);
    void ScratchCreate(cMcoreTerm *term,char *cast,char *scratchAddr,std::string &forkCount);
-   void ScratchReorder(cMcoreTerm *term,bool scatter);
+   void ScratchReorder(cMcoreTerm *term,bool shuffle);
    int GetParmRange();
    int GetNumDim(cIdentifier *id);
    std::string GetDim(cIdentifier *id,int index);
@@ -113,12 +113,12 @@ public:
    int GenSramDDRTensor(FILE *out, int _parm, cMcoreRange *_parmRange);
    int Gen(FILE *out,int _parm,cMcoreRange *_parmRange);
    int Validate();
-   int getStrideRegisterIndex(int index,int dimSize,bool scatter);
+   int getStrideRegisterIndex(int index,int dimSize,bool shuffle);
    void GEN(FILE *fp, int p1, int p2, int p3, char *s);
    std::string m_name;
-   std::vector<cMcoreSpecifier> m_scatter;
+   std::vector<cMcoreSpecifier> m_shuffle;
    std::vector<cMcoreSpecifier> m_pad;
-   std::string m_cast;
+   std::string m_dtype;
    std::vector<std::string> m_forVariable;
    std::vector<cMcoreRange> m_forRange;
    std::vector<cMcoreSpecifier> m_specifier;
@@ -137,7 +137,7 @@ public:
    int m_maxNumThreads;
    int m_dataModel;
    bool m_repeat;
-   bool m_sync;
+   bool m_latest;
    bool m_stream;
    std::string m_datatype;
    int m_pcoreDim;
@@ -165,7 +165,7 @@ public:
    static char *scan_array(char *line,std::vector<cMcoreRange> *_range,
                            std::vector<std::string> *_forName,std::vector<cMcoreRange> *_forRange);
    static char *scan_for(char *line,std::vector<std::string> *_name,std::vector<cMcoreRange> *_range);
-   static char *scan_cast(char *line, char *cast);
+   static char *scan_dtype(char *line, char *cast);
    static char *scan_remap(char *line, std::vector<cMcoreSpecifier> *remap);
    static char *scan_name(char *line,char *token);
    static char *scan_scoped_name(char *line,char *token);
