@@ -440,6 +440,7 @@ int cMcoreTerm::Validate()
    int var;
    std::string item1, item2, item3;
    char *remap;
+   cMcoreTerm term;
 
    if (m_name.length() == 0)
    {
@@ -452,12 +453,9 @@ int cMcoreTerm::Validate()
          error(cMcore::M_currLine, "Variable has not been defined");
       m_id = cMcoreTerm::eMcoreTermTypeVar;
       m_var = var;
-//VUONG
-      remap=strstr(cMcore::M_vars[var].m_line.c_str(), TOKEN_REMAP);
-      if(remap) {
-         remap += strlen(TOKEN_REMAP);
-         cMcore::scan_remap(remap,&m_remap);
-      }
+      // Reload some required parameters
+      cMcore::scan_term(cMcore::M_vars[var].m_line.c_str(),&term);
+      m_remap=term.m_remap;
    }
    else if (strcasecmp(m_name.c_str(), TOKEN_PCORE) == 0 || strcasecmp(m_name.c_str(), TOKEN_PCORES) == 0)
    {
@@ -690,6 +688,8 @@ int cMcoreTerm::Validate()
       m_id = cMcoreTerm::eMcoreTermTypeSRAM;
       if (m_scatter.size() > 0)
          error(cMcore::M_currLine, "SCATTER is only for PCORE");
+      if(m_remap.size() > 0)
+          error(cMcore::M_currLine, "REMAP is only for PCORE");
 
       if (strcasecmp(m_name.c_str(), TOKEN_SRAMS) == 0)
       {
@@ -758,6 +758,8 @@ int cMcoreTerm::Validate()
    {
       // Referenced DDR
       m_id = cMcoreTerm::eMcoreTermTypeDDR;
+      if(m_remap.size() > 0)
+          error(cMcore::M_currLine, "REMAP is only for PCORE");
       if (strcasecmp(m_name.c_str(), TOKEN_DDRS) == 0)
       {
          // This is a fork. First dimension is fork count
