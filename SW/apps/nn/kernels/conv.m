@@ -120,8 +120,8 @@ static void convolution_3x3(void *_p,int pid) {
    if(req->group > 2) ztaAbort(0);
 
    > DTYPE(INT16)PCORE(np)[*][:].convolution::init.stride <= INT16(req->stride);
-   > PCORE(np)[*][:].convolution::init._out_scale <= INT16(req->activation_scale);
-   > PCORE(np)[*][:].convolution::init._in_scale <= INT16(req->bias_scale);
+   > DTYPE(INT16)PCORE(np)[*][:].convolution::init._out_scale <= INT16(req->activation_scale);
+   > DTYPE(INT16)PCORE(np)[*][:].convolution::init._in_scale <= INT16(req->bias_scale);
    > DTYPE(INT16)PCORE(np)[*][:].convolution::init.conv_dx_log <= INT16(conv_dx_log);
    > DTYPE(INT16)PCORE(np)[*][:].convolution::init._dx <= INT16(x);
    for(i=0;i < np;i++) {
@@ -138,7 +138,7 @@ static void convolution_3x3(void *_p,int pid) {
       to=req->topcnt;
    }
    > $coef_pcore := REMAP(2) DTYPE(weightfmt)PCORE(group,groupsz)[:][*].convolution::coef[0:kz-1][:];
-   > $bot_pcore := REMAP(1) PCORE(np)[*].convolution::bot[0:x*y-1];
+   > $bot_pcore := REMAP(1)DTYPE(botfmt) PCORE(np)[*].convolution::bot[0:x*y-1];
    for(i=from;i < to;i += step) {
       > DTYPE(biasfmt)PCORE(group,groupsz)[:][*].convolution::biasHi[:] <= DTYPE(biasfmt)MEM(req->biasHi,req->topcnt)[i:i+step-1];
       > DTYPE(biasfmt)PCORE(group,groupsz)[:][*].convolution::biasLo[:] <= DTYPE(biasfmt)MEM(req->biasLo,req->topcnt)[i:i+step-1];
@@ -300,9 +300,9 @@ static void convolution_1x1(void *_p,int pid) {
 
       // Initialize convolution module...
 
-      > PCORE(np)[*][:].convolution1x1::init._out_scale <= INT16(req->activation_scale);
-      > PCORE(np)[*][:].convolution1x1::init._dysz <= INT16(dysz);
-      > PCORE(np)[*][:].convolution1x1::init._conv_dx <= INT16(conv_dx);
+      > DTYPE(INT16)PCORE(np)[*][:].convolution1x1::init._out_scale <= INT16(req->activation_scale);
+      > DTYPE(INT16)PCORE(np)[*][:].convolution1x1::init._dysz <= INT16(dysz);
+      > DTYPE(INT16)PCORE(np)[*][:].convolution1x1::init._conv_dx <= INT16(conv_dx);
       for(i=0;i < np;i++) {
          if(req->ksz==11)
             index=0;
@@ -356,7 +356,7 @@ static void convolution_1x1(void *_p,int pid) {
             if(dzcnt>1 && xy4 > (dzcnt*botsz))
                xy4=ROUND(dzcnt*botsz,VECTOR_WIDTH);      
             > $bot_ddr := DTYPE(botfmt)MEM(bot,botcnt/dzcnt,botsz*dzcnt)[$][mm:mm+xy4-1];
-            > $bot_pcore := REMAP(1) PCORE(np)[*].convolution1x1::bot[0:xy4-1];
+            > $bot_pcore := REMAP(1)DTYPE(botfmt) PCORE(np)[*].convolution1x1::bot[0:xy4-1];
             > convolution1x1::start.count <= INT16(dycnt2);
             > EXE_LOCKSTEP(convolution1x1::start,np);
 
@@ -537,8 +537,8 @@ static void convolution_depthwise(void *_p,int pid) {
       // Initialize module...
 
       > DTYPE(INT16)PCORE(np)[*][:].convolution_depthwise::init.stride <= INT16(req->stride);
-      > PCORE(np)[*][:].convolution_depthwise::init._out_scale <= INT16(req->activation_scale);
-      > PCORE(np)[*][:].convolution_depthwise::init._in_scale <= INT16(req->bias_scale);
+      > DTYPE(INT16)PCORE(np)[*][:].convolution_depthwise::init._out_scale <= INT16(req->activation_scale);
+      > DTYPE(INT16)PCORE(np)[*][:].convolution_depthwise::init._in_scale <= INT16(req->bias_scale);
       > DTYPE(INT16)PCORE(np)[*][:].convolution_depthwise::init._dx <= INT16(x);
 
       for(i=0;i < np;i++) {
@@ -570,7 +570,7 @@ static void convolution_depthwise(void *_p,int pid) {
       if(req->in_interleave) {
          > $bot_pcore := REMAP(1) DTYPE(botfmt) FOR(XY=0:x*y-1) FOR(K=0:group-1) PCORE(group,groupsz)[K][*].convolution_depthwise::bot[XY][:];
       } else {
-         > $bot_pcore := REMAP(1) FOR(K=0:group-1) FOR(J=0:VECTOR_WIDTH-1) PCORE(group,groupsz)[K][*].convolution_depthwise::bot[0:x*y-1][J];
+         > $bot_pcore := REMAP(1) DTYPE(botfmt) FOR(K=0:group-1) FOR(J=0:VECTOR_WIDTH-1) PCORE(group,groupsz)[K][*].convolution_depthwise::bot[0:x*y-1][J];
       }
 
       for(i=from;i < to;i += step) {

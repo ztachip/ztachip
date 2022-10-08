@@ -139,13 +139,13 @@ static void equalize_final(Request *req) {
    np=NUM_PCORE;
    len=np*kHistogramBinSize*VECTOR_WIDTH;
    p=0;
-   >PCORE(np)[0].equalize::histogram_lo[0:kHistogramBinSize*np-1][:] <= DTYPE(INT16)SCRATCH(p,len)[0:len-1];
+   >DTYPE(INT16) PCORE(np)[0].equalize::histogram_lo[0:kHistogramBinSize*np-1][:] <= DTYPE(INT16)SCRATCH(p,len)[0:len-1];
    p += len*2;
-   >PCORE(np)[0].equalize::histogram_hi[0:kHistogramBinSize*np-1][:] <= DTYPE(INT16)SCRATCH(p,len)[0:len-1];
+   >DTYPE(INT16) PCORE(np)[0].equalize::histogram_hi[0:kHistogramBinSize*np-1][:] <= DTYPE(INT16)SCRATCH(p,len)[0:len-1];
    p += len*2;
-   >PCORE(np)[0].equalize::histogram_lo[kHistogramBinSize*np:kHistogramBinSize*2*np-1][:] <= DTYPE(INT16)SCRATCH(p,len)[0:len-1];
+   >DTYPE(INT16) PCORE(np)[0].equalize::histogram_lo[kHistogramBinSize*np:kHistogramBinSize*2*np-1][:] <= DTYPE(INT16)SCRATCH(p,len)[0:len-1];
    p += len*2;
-   >PCORE(np)[0].equalize::histogram_hi[kHistogramBinSize*np:kHistogramBinSize*2*np-1][:] <= DTYPE(INT16)SCRATCH(p,len)[0:len-1];
+   >DTYPE(INT16) PCORE(np)[0].equalize::histogram_hi[kHistogramBinSize*np:kHistogramBinSize*2*np-1][:] <= DTYPE(INT16)SCRATCH(p,len)[0:len-1];
 
    if((2*np) > NUM_THREAD_PER_CORE)
       ztaAbort(0);

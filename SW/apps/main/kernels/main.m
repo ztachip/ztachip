@@ -48,13 +48,13 @@ void ztaInitPcore(uint16_t *_image) {
    // Set pcore process1's constant memory space
    // Set pcore process1's constant memory space
    if(c_len > 0) {
-      > PCORE[*].root.constant[0:c_len-1] <= MEM((uint32_t)c_p)[0:c_len-1];
+      > DTYPE(INT16) PCORE[*].root.constant[0:c_len-1] <= MEM((uint32_t)c_p)[0:c_len-1];
    }
    ZTAM_GREG(0,REG_DP_VM_TOGGLE,0)=0;
 
    // Set pcore process0's constant memory space.
    if(c_len > 0) {
-      > PCORE[*].root.constant[0:c_len-1] <= MEM((uint32_t)c_p)[0:c_len-1];
+      > DTYPE(INT16) PCORE[*].root.constant[0:c_len-1] <= MEM((uint32_t)c_p)[0:c_len-1];
    }
 
    // Set pcore code space

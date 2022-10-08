@@ -379,6 +379,17 @@ std::string cMcoreTerm::GetDimSize(cIdentifier *id, int index)
    }
 }
 
+// Get definition of the term
+// If term is a reference of a previously defined variable, then return
+// the definition of the variable
+
+cMcoreTerm *cMcoreTerm::GetDef() {
+   if(m_id==cMcoreTerm::eMcoreTermTypeVar)
+      return cMcore::M_vars[m_var].m_term;
+   else
+      return this;
+}
+
 // Return if this tensor can perform scattering operation
 bool cMcoreTerm::CanScatter()
 {
@@ -540,7 +551,7 @@ int cMcoreTerm::Validate()
       {
          // This is a dynamic type
          char temp[MAX_LINE];
-         sprintf(temp, "((%s)&0xFE)", m_dtype.c_str());
+         sprintf(temp, "(%s)", m_dtype.c_str());
          m_datatype = temp;
       }
       else
@@ -2759,16 +2770,20 @@ char *cMcore::scan_transfer(FILE *out, char *line)
    left.Validate();
    right.Validate();
 
+   // Left and right hand side must have same daat types
+
+   if(left.m_id == cMcoreTerm::eMcoreTermTypeGlobalRef) {
+      if(right.m_id != cMcoreTerm::eMcoreTermTypeALLInt)
+         error(cMcore::M_currLine, "Invalid global variable assignment");
+   } else if(left.GetDef()->m_datatype != right.GetDef()->m_datatype) {
+      error(cMcore::M_currLine, "Left and right term must have same data type");
+   }
+
    // Check for remap directive
 
-   if(right.m_id==cMcoreTerm::eMcoreTermTypeVar)
-      rremap=&cMcore::M_vars[right.m_var].m_term->m_remap;
-   else
-      rremap=&right.m_remap;
-   if(left.m_id==cMcoreTerm::eMcoreTermTypeVar)
-      lremap=&cMcore::M_vars[left.m_var].m_term->m_remap;
-   else
-      lremap=&left.m_remap;
+   lremap=&(left.GetDef()->m_remap);
+   rremap=&(right.GetDef()->m_remap);
+
    if(rremap->size()>0) {
       if(lremap->size()>0)
           error(cMcore::M_currLine, "REMAP cannot be applied to both left and right term");

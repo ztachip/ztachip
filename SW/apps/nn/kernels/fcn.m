@@ -62,7 +62,7 @@ static void innerProduct(void *_p,int pid) {
    coeftopcnt=req->coeftopcnt*IP_CHUNK_SIZE;
    dx2=req->dx*IP_CHUNK_SIZE;
 
-   > PCORE(NUM_PCORE)[*][0:nthread-1].inner_product::init._out_scale <= INT16(req->top_scale);
+   > DTYPE(INT16)PCORE(NUM_PCORE)[*][0:nthread-1].inner_product::init._out_scale <= INT16(req->top_scale);
    > EXE_LOCKSTEP(inner_product::init,NUM_PCORE,nthread);
    ztaTaskYield();
    for(i=(pid==0)?0:req->dx;i < req->topcnt;i += 2*req->dx) {
@@ -126,7 +126,7 @@ static void pooling(void *_p,int pid) {
       from=cnt/2;
       to=cnt;
    }
-   > PCORE(np)[*][:].max_pool::init._out_scale <= INT16(req->output_shift);
+   > DTYPE(INT16)PCORE(np)[*][:].max_pool::init._out_scale <= INT16(req->output_shift);
    > EXE_LOCKSTEP(max_pool::init,np);
    ztaTaskYield();
  

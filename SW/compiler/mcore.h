@@ -103,6 +103,7 @@ public:
    int GetNumDim(cIdentifier *id);
    std::string GetDim(cIdentifier *id,int index);
    int GetDim();
+   cMcoreTerm *GetDef();
    bool CanScatter();
    std::string GetDimSize(cIdentifier *id,int index);
    int GenDef(FILE *out);
