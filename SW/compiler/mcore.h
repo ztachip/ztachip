@@ -36,6 +36,7 @@ public:
    bool m_plus;
 };
 
+class cMcoreTerm;
 class cMcoreVariable
 {
 public:
@@ -44,7 +45,6 @@ public:
    bool IsDeclared() {return m_name.length()>0;}
    bool IsDefined() {return m_line.length()>0;}
    void Declare(char *name,int depth);
-   int Define(char *line, int parmIndex);
    void Clear();
    std::string getLine(cMcoreRange &range);
    int getParmIndex() { return m_parmIndex; }
@@ -53,6 +53,7 @@ public:
    int m_depth;
    int m_parmIndex;
    std::string m_line;
+   cMcoreTerm *m_term;
 };
 
 // Class to define a range (For example SRAM[0:2:100])

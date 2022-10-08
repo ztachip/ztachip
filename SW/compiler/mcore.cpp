@@ -217,11 +217,14 @@ cMcoreSpecifier::cMcoreSpecifier(const cMcoreSpecifier &other)
 cMcoreVariable::cMcoreVariable()
 {
    m_parmIndex = -1;
+   m_term = 0;
 }
 
 // Destructor for cMcoreVariable
 cMcoreVariable::~cMcoreVariable()
 {
+   if(m_term)
+      delete m_term;
 }
 
 // Expand the macro by substitute macro argument '$' with supplied parameter
@@ -237,18 +240,14 @@ std::string cMcoreVariable::getLine(cMcoreRange &range)
    return line;
 }
 
-int cMcoreVariable::Define(char *line, int parmIndex)
-{
-   m_line = line;
-   m_parmIndex = parmIndex;
-   return 0;
-}
-
 void cMcoreVariable::Clear() {
    m_line = "";
    m_parmIndex = 0;
    m_depth = 0;
    m_name = "";
+   if(m_term)
+      delete m_term;
+   m_term=0;
 }
 
 void cMcoreVariable::Declare(char *name, int depth) {
@@ -440,7 +439,6 @@ int cMcoreTerm::Validate()
    int var;
    std::string item1, item2, item3;
    char *remap;
-   cMcoreTerm term;
 
    if (m_name.length() == 0)
    {
@@ -453,9 +451,6 @@ int cMcoreTerm::Validate()
          error(cMcore::M_currLine, "Variable has not been defined");
       m_id = cMcoreTerm::eMcoreTermTypeVar;
       m_var = var;
-      // Reload some required parameters
-      cMcore::scan_term(cMcore::M_vars[var].m_line.c_str(),&term);
-      m_remap=term.m_remap;
    }
    else if (strcasecmp(m_name.c_str(), TOKEN_PCORE) == 0 || strcasecmp(m_name.c_str(), TOKEN_PCORES) == 0)
    {
@@ -2256,34 +2251,33 @@ char *cMcore::scan_define(FILE *out, char *line)
 {
    int var;
    char *varLine;
-   cMcoreTerm term;
    char token[MAX_LINE];
    line = scan_name(line, token);
 
    cMcoreTerm::decodeVarName(token, &var);
-   if (var >= 0)
-   {
-      // This is a define for source
-      term.m_isSource = true;
-   }
-   else
+   if(var < 0)
       error(cMcore::M_currLine, "Invalid MCORE variable");
    if (var < 0 || var >= ((DP_TEMPLATE_MAX / 2) - 1))
       error(cMcore::M_currLine, "Invalid MCORE variable");
-
+   // This is a define for source
+   if(M_vars[var].m_term)
+      delete M_vars[var].m_term;
+   M_vars[var].m_term=new cMcoreTerm;
+   M_vars[var].m_term->m_isSource = true;
    line = skipWS(line);
    if (memcmp(line, ":=", 2) != 0)
       error(cMcore::M_currLine, "Invalid assignment statement");
    line += 2;
    line = skipWS(line);
    varLine = line;
-   line = scan_term(line, &term);
-   term.m_var = var;
-   term.Validate();
-   M_vars[var].Define(varLine, term.m_varIndex); // Remember this variable definition...
+   line = scan_term(line,M_vars[var].m_term);
+   M_vars[var].m_term->m_var = var;
+   M_vars[var].m_term->Validate();
+   M_vars[var].m_line = varLine;
+   M_vars[var].m_parmIndex = M_vars[var].m_term->m_varIndex;
    fprintf(out, "{");
-   term.GenDef(out);
-   term.Gen(out, -1, 0);
+   M_vars[var].m_term->GenDef(out);
+   M_vars[var].m_term->Gen(out, -1, 0);
    fprintf(out, "}");
    return line;
 }
@@ -2744,6 +2738,7 @@ char *cMcore::scan_transfer(FILE *out, char *line)
    cMcoreTerm left, right;
    cMcoreTerm leftScratch, rightScratch;
    std::vector<cMcoreSpecifier> *remap=0;
+   std::vector<cMcoreSpecifier> *lremap,*rremap;
    std::string forkCount;
    int waitCondition;
 
@@ -2764,14 +2759,23 @@ char *cMcore::scan_transfer(FILE *out, char *line)
    left.Validate();
    right.Validate();
 
-   if(right.m_remap.size()>0) {
-      if(left.m_remap.size()>0)
+   // Check for remap directive
+
+   if(right.m_id==cMcoreTerm::eMcoreTermTypeVar)
+      rremap=&cMcore::M_vars[right.m_var].m_term->m_remap;
+   else
+      rremap=&right.m_remap;
+   if(left.m_id==cMcoreTerm::eMcoreTermTypeVar)
+      lremap=&cMcore::M_vars[left.m_var].m_term->m_remap;
+   else
+      lremap=&left.m_remap;
+   if(rremap->size()>0) {
+      if(lremap->size()>0)
           error(cMcore::M_currLine, "REMAP cannot be applied to both left and right term");
-      remap=&right.m_remap;
+      remap=rremap;
    }
    else
-      remap=&left.m_remap;
-
+      remap=lremap;
 
    if (left.m_id == cMcoreTerm::eMcoreTermTypeGlobalRef)
    {
