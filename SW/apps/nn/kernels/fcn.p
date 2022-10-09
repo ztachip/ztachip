@@ -19,8 +19,6 @@
 #include "../../../base/zta.h"
 #include "fcn.h"
 
-_NT16_ class inner_product,max_pool,concatenate;
-
 //---  Process fully-connected layer (innerproduct)
 
 _share float inner_product::bot[IP_CHUNK_SIZE];

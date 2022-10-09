@@ -21,8 +21,6 @@
 
 // Perform histogram equalization
 
-_NT16_ class equalize;
-
 // Add a short positive number to a long positive integer
 
 #define LONG_PLUS_SHORT(y_hi,y_lo,x)  \

@@ -19,8 +19,6 @@
 #include "../../../base/zta.h"
 #include "conv.h"
 
-_NT16_ class convolution,convolution_depthwise,convolution1x1;
-
 // Convolution 3x3 kernel
 
 _share float8 convolution::coef[MAX_SMALL_KERNEL_SIZE];
@@ -286,8 +284,6 @@ _kernel_ void convolution1x1::exe(_global int idx,_global int idx2) {
 _kernel_ void convolution1x1::activate(_global int idx,_global int idx2) {
    p2[idx2] = _A[idx] >> out_scale;
 }
-
-_NT16_ class add;
 
 // Add
 

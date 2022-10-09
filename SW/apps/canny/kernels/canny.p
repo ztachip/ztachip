@@ -22,8 +22,6 @@
 // Perform canny edge detection algorithm
 // Refer to https://en.wikipedia.org/wiki/Canny_edge_detector
 
-_NT16_ class canny;
-
 _share float8 canny::inbuf[CANNY_MAX_INBUF];
 _share float8 canny::magnitude[CANNY_MAX_OUTBUF];
 _share float8 canny::phase[CANNY_MAX_OUTBUF];
@@ -135,8 +133,6 @@ _kernel_ void canny::calc_gradient() {
 // Phase 1 canny...
 // Perform local maxima suppression
 
-_NT16_ class canny1;
-
 _share float8 canny1::magnitude[CANNY_MAX_INBUF];
 _share float8 canny1::phase[TILE_DX_DIM*TILE_DY_DIM];
 _share float8 canny1::maxima[TILE_DX_DIM*TILE_DY_DIM];
@@ -199,8 +195,6 @@ _kernel_ void canny1::calc_maxima() {
 
 // Phase 2 canny. 
 // Do edge detection threshold hysteresis
-
-_NT16_ class canny2;
 
 _share float8 canny2::maxima[CANNY_MAX_INBUF];
 _share float8 canny2::output[TILE_DX_DIM*TILE_DY_DIM];

@@ -19,8 +19,6 @@
 #include "../../../base/zta.h"
 #include "color.h"
 
-_NT16_ class yuyv2rgb;
-
 _share float8 yuyv2rgb::yuyv[PIXEL_PER_THREAD*YUYV_PIXEL_SIZE*NUM_THREAD_PER_CORE];
 
 _share float8 yuyv2rgb::rgb[PIXEL_PER_THREAD*RGB_PIXEL_SIZE*NUM_THREAD_PER_CORE];
@@ -144,8 +142,6 @@ _kernel_ void yuyv2rgb::final_rgb_split() {
 }
 
 // RGB TO RGB copy 
-
-_NT16_ class copy;
 
 _share float8 copy::in[RGB_PIXEL_SIZE*NUM_THREAD_PER_CORE];
 _share float8 copy::out[RGB_PIXEL_SIZE*NUM_THREAD_PER_CORE];

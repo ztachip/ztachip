@@ -22,8 +22,6 @@
 // Doing dense optical flow using Lucas-Kanade method.
 // https://en.wikipedia.org/wiki/Lucas%E2%80%93Kanade_method
 
-_NT16_ class of;
-
 _share float8 of::inbuf1[OF_MAX_INBUF];
 _share float8 of::inbuf2[OF_MAX_INBUF];
 _share float8 of::x_gradient[OF_MAX_OUTBUF];
@@ -102,8 +100,6 @@ _kernel_ void of::calc_gradient() {
 }
 
 // Calculate optical flow with Lucas-Kanade method 
-
-_NT16_ class of1;
 
 _share float8 of1::x_gradient[OF1_MAX_INBUF];
 _share float8 of1::y_gradient[OF1_MAX_INBUF];

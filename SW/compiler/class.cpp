@@ -42,10 +42,11 @@ cClass::~cClass()
 
 int cClass::scan(cAstNode *_root)
 {
+   // Class is now self-declared.
+#if 0
    cAstNode *node,*node2;
    char *className;
    int nthreads=16;
-
 
    if(_root->getID()==eTOKEN_block_item_list)
    {
@@ -121,6 +122,7 @@ int cClass::scan(cAstNode *_root)
       }
       node=(cAstNode *)node->getNext();
    }
+#endif
    return 0;
 }
 
@@ -141,5 +143,7 @@ cClass *cClass::Find(char *className)
       if(strcmp(M_list[i]->m_name.c_str(),className)==0)
          return M_list[i];
    }
-   return 0;
+   cClass *newClass=new cClass(className,NUM_THREAD_PER_CORE);
+   M_list.push_back(newClass);
+   return newClass;
 }

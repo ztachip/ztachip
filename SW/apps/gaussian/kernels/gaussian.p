@@ -22,8 +22,6 @@
 // Perform gaussian blurring algorithm
 // Refer to https://en.wikipedia.org/wiki/Gaussian_blur
 
-_NT16_ class iconv;
-
 _share float8 iconv::inbuf[ICONV_MAX_INBUF];
 _share float8 iconv::outbuf[ICONV_MAX_OUTBUF];
 _share float iconv::k[TILE_MAX_KZ][TILE_MAX_KZ];

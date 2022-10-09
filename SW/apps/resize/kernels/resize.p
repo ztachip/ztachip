@@ -21,8 +21,6 @@
 
 // Image resize using bicubic interpolation
 
-_NT16_ class resize;
-
 _share float8 resize::inbuf[RESIZE_MAX_INBUF];
 _share float8 resize::outbuf[RESIZE_MAX_OUTBUF];
 int resize::x;
@@ -88,8 +86,6 @@ _kernel_ void resize::exe() {
 }
 
 // Image resize using boxing method
-
-_NT16_ class resize_box;
 
 _share float8 resize_box::inbuf[BOX_RESIZE_MAX_INBUF];
 _share float8 resize_box::outbuf[BOX_RESIZE_MAX_OUTBUF];

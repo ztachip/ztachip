@@ -4,8 +4,6 @@
 // Perform harris-corner algorithm
 // Refer to https://en.wikipedia.org/wiki/Harris_Corner_Detector
 
-_NT16_ class harris;
-
 _share float8 harris::inbuf[HARRIS_MAX_INBUF];
 _share float8 harris::x_gradient[HARRIS_MAX_OUTBUF];
 _share float8 harris::y_gradient[HARRIS_MAX_OUTBUF];
@@ -73,8 +71,6 @@ _kernel_ void harris::calc_gradient() {
 }
 
 // Phase 1
-
-_NT16_ class harris1;
 
 _share float8 harris1::x_gradient[HARRIS_MAX_INBUF];
 _share float8 harris1::y_gradient[HARRIS_MAX_INBUF];
@@ -164,8 +160,6 @@ _kernel_ void harris1::calc() {
 
 // Phase 2
 // Calculate score
-
-_NT16_ class harris2;
 
 _share float8 harris2::score[HARRIS_MAX_INBUF];
 _share float8 harris2::output[TILE_DX_DIM*TILE_DY_DIM];
