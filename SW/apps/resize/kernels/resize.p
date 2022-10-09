@@ -21,18 +21,18 @@
 
 // Image resize using bicubic interpolation
 
-_share float8 resize::inbuf[RESIZE_MAX_INBUF];
-_share float8 resize::outbuf[RESIZE_MAX_OUTBUF];
+_share vint16 resize::inbuf[RESIZE_MAX_INBUF];
+_share vint16 resize::outbuf[RESIZE_MAX_OUTBUF];
 int resize::x;
 int resize::y;
-float8 *resize::p_in;
-float8 *resize::p_out;
-_share float resize::fract0[TILE_DIM];
-_share float resize::fract1[TILE_DIM];
-_share float resize::fract2[TILE_DIM];
-double8 resize::_A;
-double8 resize::_B;
-_share float resize::pixel[8];
+vint16 *resize::p_in;
+vint16 *resize::p_out;
+_share int16 resize::fract0[TILE_DIM];
+_share int16 resize::fract1[TILE_DIM];
+_share int16 resize::fract2[TILE_DIM];
+vint32 resize::_A;
+vint32 resize::_B;
+_share int16 resize::pixel[8];
 
 // Assigned pixel to be processed by each thread
 // _coord is encoded [AAAAAA][YYYY][XXXX]
@@ -74,7 +74,7 @@ _kernel_ void resize::init(int _pixel,int _pixel2) {
 // So each call to this kernel will process (NUM_PCORE*VECTOR_WIDTH) tiles of 4x4 simultaneously 
 //
 _kernel_ void resize::exe() {
-   float8 c[4];
+   vint16 c[4];
    HERMITE(x,c[0],p_in);
    p_in+=TILE_DIM+TILE_PAD;
    HERMITE(x,c[1],p_in);
@@ -87,12 +87,12 @@ _kernel_ void resize::exe() {
 
 // Image resize using boxing method
 
-_share float8 resize_box::inbuf[BOX_RESIZE_MAX_INBUF];
-_share float8 resize_box::outbuf[BOX_RESIZE_MAX_OUTBUF];
-float8 *resize_box::p_in;
-float8 *resize_box::p_out;
-double8 resize_box::_A;
-float resize_box::filter[BOX_RESIZE_MAX_FILTER];
+_share vint16 resize_box::inbuf[BOX_RESIZE_MAX_INBUF];
+_share vint16 resize_box::outbuf[BOX_RESIZE_MAX_OUTBUF];
+vint16 *resize_box::p_in;
+vint16 *resize_box::p_out;
+vint32 resize_box::_A;
+int16 resize_box::filter[BOX_RESIZE_MAX_FILTER];
 int resize_box::scale;
 
 _kernel_ void resize_box::init(int filteri) {

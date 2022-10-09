@@ -21,15 +21,15 @@
 
 // Convolution 3x3 kernel
 
-_share float8 convolution::coef[MAX_SMALL_KERNEL_SIZE];
-_share float convolution::bot[CONV_SMALL_BOTSZ];
-_share float8 convolution::biasHi;
-_share float8 convolution::biasLo;
-float8 convolution::top[MAX_CONV_Y_DIM];
-float *convolution::p;
+_share vint16 convolution::coef[MAX_SMALL_KERNEL_SIZE];
+_share int16 convolution::bot[CONV_SMALL_BOTSZ];
+_share vint16 convolution::biasHi;
+_share vint16 convolution::biasLo;
+vint16 convolution::top[MAX_CONV_Y_DIM];
+int16 *convolution::p;
 int convolution::out_scale;
-float convolution::in_scale;
-double8 convolution::_A[MAX_CONV_Y_DIM];
+int16 convolution::in_scale;
+vint32 convolution::_A[MAX_CONV_Y_DIM];
 int convolution::dx;
 
 _kernel_ void convolution::start(_global int count) {
@@ -40,7 +40,7 @@ _kernel_ void convolution::start(_global int count) {
    }
 }
 
-_kernel_ void convolution::init(int stride,int conv_dx_log,int mypid,int _out_scale,float _in_scale,int _dx) {
+_kernel_ void convolution::init(int stride,int conv_dx_log,int mypid,int _out_scale,int16 _in_scale,int _dx) {
     int i;
     i=mypid*_dx;
     i=i*stride+tid*stride;
@@ -52,7 +52,7 @@ _kernel_ void convolution::init(int stride,int conv_dx_log,int mypid,int _out_sc
 
 _kernel_ void convolution::exe3x3(_global int k,_global int offset) {
    int i,j;
-   float *p2;
+   int16 *p2;
 
 #pragma unroll
    for(j=0;j < 3;j++) {
@@ -79,18 +79,18 @@ _kernel_ void convolution::activate(_global int idx) {
 
 // Depth-wise Convolution
 
-_share float8 convolution_depthwise::coef[MAX_DEPTHWISE_KERNEL_SIZE];
-_share float8 convolution_depthwise::bot[CONV_DEPTHWISE_BOTSZ];
-_share float8 convolution_depthwise::biasHi;
-_share float8 convolution_depthwise::biasLo;
-float8 convolution_depthwise::top[CONV_DEPTHWISE_Y_DIM];
-float8 *convolution_depthwise::p;
+_share vint16 convolution_depthwise::coef[MAX_DEPTHWISE_KERNEL_SIZE];
+_share vint16 convolution_depthwise::bot[CONV_DEPTHWISE_BOTSZ];
+_share vint16 convolution_depthwise::biasHi;
+_share vint16 convolution_depthwise::biasLo;
+vint16 convolution_depthwise::top[CONV_DEPTHWISE_Y_DIM];
+vint16 *convolution_depthwise::p;
 int convolution_depthwise::out_scale;
-float convolution_depthwise::in_scale;
-double8 convolution_depthwise::_A[CONV_DEPTHWISE_Y_DIM];
+int16 convolution_depthwise::in_scale;
+vint32 convolution_depthwise::_A[CONV_DEPTHWISE_Y_DIM];
 int convolution_depthwise::dx;
 
-_kernel_ void convolution_depthwise::init(int stride,int mypid,int _out_scale,float _in_scale,int _dx) {
+_kernel_ void convolution_depthwise::init(int stride,int mypid,int _out_scale,int16 _in_scale,int _dx) {
    int i;
    i=mypid*_dx;
    i=i*stride+tid*stride;
@@ -100,7 +100,7 @@ _kernel_ void convolution_depthwise::init(int stride,int mypid,int _out_scale,fl
    dx=_dx;
 }
 
-_kernel_ void convolution_depthwise::init2(int stride,int mypid,int _out_scale,float _in_scale,int _dx) {
+_kernel_ void convolution_depthwise::init2(int stride,int mypid,int _out_scale,int16 _in_scale,int _dx) {
    int i,j;
    i=(tid>>3);
    j=(tid&7);
@@ -113,7 +113,7 @@ _kernel_ void convolution_depthwise::init2(int stride,int mypid,int _out_scale,f
 
 _kernel_ void convolution_depthwise::exe3x3(_global int k,_global int offset) {
    int i,j;
-   float8 *p2;
+   vint16 *p2;
 
    _A[k] = biasLo;
    _A[k] += biasHi*1024;
@@ -139,17 +139,17 @@ _kernel_ void convolution_depthwise::exe3x3(_global int k,_global int offset) {
 
 // Convolution 1x1
 
-//_share float8 convolution1x1::coef[2];
-//_share float convolution1x1::bot[CONV_1X1_BOTSZ];
-_share float8 convolution1x1::coef[4];
-_share float convolution1x1::bot[CONV_1X1_BOTSZ];
-_share float8 convolution1x1::biasHi;
-_share float8 convolution1x1::biasLo;
-_share float8 convolution1x1::top[CONV_1X1_Y_DIM*NUM_THREAD_PER_CORE];
-float *convolution1x1::p;
-float8 *convolution1x1::p2;
+//_share vint16 convolution1x1::coef[2];
+//_share int16 convolution1x1::bot[CONV_1X1_BOTSZ];
+_share vint16 convolution1x1::coef[4];
+_share int16 convolution1x1::bot[CONV_1X1_BOTSZ];
+_share vint16 convolution1x1::biasHi;
+_share vint16 convolution1x1::biasLo;
+_share vint16 convolution1x1::top[CONV_1X1_Y_DIM*NUM_THREAD_PER_CORE];
+int16 *convolution1x1::p;
+vint16 *convolution1x1::p2;
 int convolution1x1::out_scale;
-double8 convolution1x1::_A[CONV_1X1_Y_DIM];
+vint32 convolution1x1::_A[CONV_1X1_Y_DIM];
 int convolution1x1::dysz;
 
 _kernel_ void convolution1x1::start(_global int count) {
@@ -287,7 +287,7 @@ _kernel_ void convolution1x1::activate(_global int idx,_global int idx2) {
 
 // Add
 
-_kernel_ void add::exe(float8 x1,float8 x2,float8 y) {
+_kernel_ void add::exe(vint16 x1,vint16 x2,vint16 y) {
    y=x1+x2;
 }
 

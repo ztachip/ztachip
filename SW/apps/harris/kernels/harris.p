@@ -4,17 +4,17 @@
 // Perform harris-corner algorithm
 // Refer to https://en.wikipedia.org/wiki/Harris_Corner_Detector
 
-_share float8 harris::inbuf[HARRIS_MAX_INBUF];
-_share float8 harris::x_gradient[HARRIS_MAX_OUTBUF];
-_share float8 harris::y_gradient[HARRIS_MAX_OUTBUF];
-_share float harris::k_x[TILE_MAX_KZ][TILE_MAX_KZ];
-_share float harris::k_y[TILE_MAX_KZ][TILE_MAX_KZ];
-float8 *harris::in_p;
-float8 *harris::x_gradient_p;
-float8 *harris::y_gradient_p;
+_share vint16 harris::inbuf[HARRIS_MAX_INBUF];
+_share vint16 harris::x_gradient[HARRIS_MAX_OUTBUF];
+_share vint16 harris::y_gradient[HARRIS_MAX_OUTBUF];
+_share int16 harris::k_x[TILE_MAX_KZ][TILE_MAX_KZ];
+_share int16 harris::k_y[TILE_MAX_KZ][TILE_MAX_KZ];
+vint16 *harris::in_p;
+vint16 *harris::x_gradient_p;
+vint16 *harris::y_gradient_p;
 int harris::pad;
-double8 harris::_A;
-double8 harris::_B;
+vint32 harris::_A;
+vint32 harris::_B;
 
 _kernel_ void harris::init() {
    int i,j;
@@ -47,8 +47,8 @@ _kernel_ void harris::init() {
 
 _kernel_ void harris::calc_gradient() {
    int x,y;
-   float8 max,min;
-   float8 *p2;
+   vint16 max,min;
+   vint16 *p2;
 
    p2=in_p;
 
@@ -72,16 +72,16 @@ _kernel_ void harris::calc_gradient() {
 
 // Phase 1
 
-_share float8 harris1::x_gradient[HARRIS_MAX_INBUF];
-_share float8 harris1::y_gradient[HARRIS_MAX_INBUF];
-_share float8 harris1::score[TILE_DX_DIM*TILE_DY_DIM];
-float8 *harris1::x_gradient_p;
-float8 *harris1::y_gradient_p;
+_share vint16 harris1::x_gradient[HARRIS_MAX_INBUF];
+_share vint16 harris1::y_gradient[HARRIS_MAX_INBUF];
+_share vint16 harris1::score[TILE_DX_DIM*TILE_DY_DIM];
+vint16 *harris1::x_gradient_p;
+vint16 *harris1::y_gradient_p;
 int harris1::pad;
-double8 harris1::_XX;
-double8 harris1::_YY;
-double8 harris1::_XY;
-double8 harris1::_SUM;
+vint32 harris1::_XX;
+vint32 harris1::_YY;
+vint32 harris1::_XY;
+vint32 harris1::_SUM;
 
 _kernel_ void harris1::init() {
    int i,j;
@@ -97,9 +97,9 @@ _kernel_ void harris1::init() {
 _kernel_ void harris1::calc() {
    int i;
    int x,y;
-   float8 xx,yy,xy;
-   float8 sum;
-   float8 *x_p,*y_p;
+   vint16 xx,yy,xy;
+   vint16 sum;
+   vint16 *x_p,*y_p;
 
    x_p=x_gradient_p;
    y_p=y_gradient_p;
@@ -161,10 +161,10 @@ _kernel_ void harris1::calc() {
 // Phase 2
 // Calculate score
 
-_share float8 harris2::score[HARRIS_MAX_INBUF];
-_share float8 harris2::output[TILE_DX_DIM*TILE_DY_DIM];
-float8 *harris2::score_p;
-float8 *harris2::output_p;
+_share vint16 harris2::score[HARRIS_MAX_INBUF];
+_share vint16 harris2::output[TILE_DX_DIM*TILE_DY_DIM];
+vint16 *harris2::score_p;
+vint16 *harris2::output_p;
 int harris2::pad;
 
 _kernel_ void harris2::init() {
@@ -178,8 +178,8 @@ _kernel_ void harris2::init() {
 
 _kernel_ void harris2::calc() {
    int x,y;
-   float8 *p2;
-   float8 v;
+   vint16 *p2;
+   vint16 v;
    int c;
 
    p2=score_p;

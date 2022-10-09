@@ -19,14 +19,14 @@
 #include "../../../base/zta.h"
 #include "color.h"
 
-_share float8 yuyv2rgb::yuyv[PIXEL_PER_THREAD*YUYV_PIXEL_SIZE*NUM_THREAD_PER_CORE];
+_share vint16 yuyv2rgb::yuyv[PIXEL_PER_THREAD*YUYV_PIXEL_SIZE*NUM_THREAD_PER_CORE];
 
-_share float8 yuyv2rgb::rgb[PIXEL_PER_THREAD*RGB_PIXEL_SIZE*NUM_THREAD_PER_CORE];
-double8 yuyv2rgb::red[PIXEL_PER_THREAD];
-double8 yuyv2rgb::blue[PIXEL_PER_THREAD];
-double8 yuyv2rgb::green[PIXEL_PER_THREAD];
-float8 *yuyv2rgb::p1;
-float8 *yuyv2rgb::p2;
+_share vint16 yuyv2rgb::rgb[PIXEL_PER_THREAD*RGB_PIXEL_SIZE*NUM_THREAD_PER_CORE];
+vint32 yuyv2rgb::red[PIXEL_PER_THREAD];
+vint32 yuyv2rgb::blue[PIXEL_PER_THREAD];
+vint32 yuyv2rgb::green[PIXEL_PER_THREAD];
+vint16 *yuyv2rgb::p1;
+vint16 *yuyv2rgb::p2;
 
 // Color conversion: YUYV -> RGB in interleave format
 
@@ -52,7 +52,7 @@ _kernel_ void yuyv2rgb::init_split() {
 
 _kernel_ void yuyv2rgb::convert() {
    int i;
-   float8 u,v,g;
+   vint16 u,v,g;
 
    u=p1[1]-128;
    v=p1[3]-128;
@@ -143,11 +143,11 @@ _kernel_ void yuyv2rgb::final_rgb_split() {
 
 // RGB TO RGB copy 
 
-_share float8 copy::in[RGB_PIXEL_SIZE*NUM_THREAD_PER_CORE];
-_share float8 copy::out[RGB_PIXEL_SIZE*NUM_THREAD_PER_CORE];
-float8 *copy::p1;
-float8 *copy::p2;
-double8 copy::_A;
+_share vint16 copy::in[RGB_PIXEL_SIZE*NUM_THREAD_PER_CORE];
+_share vint16 copy::out[RGB_PIXEL_SIZE*NUM_THREAD_PER_CORE];
+vint16 *copy::p1;
+vint16 *copy::p2;
+vint32 copy::_A;
 
 #define RGB2MONO(r,g,b,m) {_A=(r)*154;_A+=(g)*302;_A+=(b)*56;_A+=256;m=_A>>9;}
 
@@ -182,7 +182,7 @@ _kernel_ void copy::interleave2split() {
 }
 
 _kernel_ void copy::interleaveRGB2split_mono() {
-   float8 mono;
+   vint16 mono;
    RGB2MONO(p1[0],p1[1],p1[2],mono);
    p2[0]=mono;
    p2[NUM_THREAD_PER_CORE]=mono;
@@ -190,7 +190,7 @@ _kernel_ void copy::interleaveRGB2split_mono() {
 }
 
 _kernel_ void copy::interleaveBGR2split_mono() {
-   float8 mono;
+   vint16 mono;
    RGB2MONO(p1[2],p1[1],p1[0],mono);
    p2[0]=mono;
    p2[NUM_THREAD_PER_CORE]=mono;
@@ -210,7 +210,7 @@ _kernel_ void copy::split2interleave() {
 }
 
 _kernel_ void copy::splitRGB2interleave_mono() {
-   float8 mono;
+   vint16 mono;
    RGB2MONO(p1[0],p1[NUM_THREAD_PER_CORE],p1[2*NUM_THREAD_PER_CORE],mono);
    p2[0]=mono;
    p2[1]=mono;
@@ -218,7 +218,7 @@ _kernel_ void copy::splitRGB2interleave_mono() {
 }
 
 _kernel_ void copy::splitBGR2interleave_mono() {
-   float8 mono;
+   vint16 mono;
    RGB2MONO(p1[2*NUM_THREAD_PER_CORE],p1[NUM_THREAD_PER_CORE],p1[0],mono);
    p2[0]=mono;
    p2[1]=mono;
@@ -238,7 +238,7 @@ _kernel_ void copy::split2split() {
 }
 
 _kernel_ void copy::splitRGB2split_mono() {
-   float8 mono;
+   vint16 mono;
 
    RGB2MONO(p1[0],p1[NUM_THREAD_PER_CORE],p1[2*NUM_THREAD_PER_CORE],mono);
    p2[0]=mono;
@@ -247,7 +247,7 @@ _kernel_ void copy::splitRGB2split_mono() {
 }
 
 _kernel_ void copy::splitBGR2split_mono() {
-   float8 mono;
+   vint16 mono;
 
    RGB2MONO(p1[2*NUM_THREAD_PER_CORE],p1[NUM_THREAD_PER_CORE],p1[0],mono);
    p2[0]=mono;
@@ -268,7 +268,7 @@ _kernel_ void copy::interleave2interleave() {
 }
 
 _kernel_ void copy::interleaveRGB2interleave_mono() {
-   float8 mono;
+   vint16 mono;
    RGB2MONO(p1[0],p1[1],p1[2],mono);
    p2[0]=mono;
    p2[1]=mono;
@@ -276,7 +276,7 @@ _kernel_ void copy::interleaveRGB2interleave_mono() {
 }
 
 _kernel_ void copy::interleaveBGR2interleave_mono() {
-   float8 mono;
+   vint16 mono;
    RGB2MONO(p1[2],p1[1],p1[0],mono);
    p2[0]=mono;
    p2[1]=mono;

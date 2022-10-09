@@ -22,17 +22,17 @@
 // Perform canny edge detection algorithm
 // Refer to https://en.wikipedia.org/wiki/Canny_edge_detector
 
-_share float8 canny::inbuf[CANNY_MAX_INBUF];
-_share float8 canny::magnitude[CANNY_MAX_OUTBUF];
-_share float8 canny::phase[CANNY_MAX_OUTBUF];
-_share float canny::k_x[TILE_MAX_KZ][TILE_MAX_KZ];
-_share float canny::k_y[TILE_MAX_KZ][TILE_MAX_KZ];
-float8 *canny::in_p;
-float8 *canny::magnitude_p;
-float8 *canny::phase_p;
+_share vint16 canny::inbuf[CANNY_MAX_INBUF];
+_share vint16 canny::magnitude[CANNY_MAX_OUTBUF];
+_share vint16 canny::phase[CANNY_MAX_OUTBUF];
+_share int16 canny::k_x[TILE_MAX_KZ][TILE_MAX_KZ];
+_share int16 canny::k_y[TILE_MAX_KZ][TILE_MAX_KZ];
+vint16 *canny::in_p;
+vint16 *canny::magnitude_p;
+vint16 *canny::phase_p;
 int canny::pad;
-double8 canny::_A;
-double8 canny::_B;
+vint32 canny::_A;
+vint32 canny::_B;
 
 _kernel_ void canny::init() {
    int i,j;
@@ -67,10 +67,10 @@ _kernel_ void canny::init() {
 
 _kernel_ void canny::calc_gradient() {
    int x,y;
-   float8 *p2;
-   float8 t;
-   float8 x_gradient,y_gradient;
-   float8 max,min;
+   vint16 *p2;
+   vint16 t;
+   vint16 x_gradient,y_gradient;
+   vint16 max,min;
 
    p2=in_p;
 
@@ -133,12 +133,12 @@ _kernel_ void canny::calc_gradient() {
 // Phase 1 canny...
 // Perform local maxima suppression
 
-_share float8 canny1::magnitude[CANNY_MAX_INBUF];
-_share float8 canny1::phase[TILE_DX_DIM*TILE_DY_DIM];
-_share float8 canny1::maxima[TILE_DX_DIM*TILE_DY_DIM];
-float8 *canny1::m_p;
-float8 *canny1::phase_p;
-float8 *canny1::maxima_p;
+_share vint16 canny1::magnitude[CANNY_MAX_INBUF];
+_share vint16 canny1::phase[TILE_DX_DIM*TILE_DY_DIM];
+_share vint16 canny1::maxima[TILE_DX_DIM*TILE_DY_DIM];
+vint16 *canny1::m_p;
+vint16 *canny1::phase_p;
+vint16 *canny1::maxima_p;
 
 _kernel_ void canny1::init() {
    int i,j;
@@ -151,7 +151,7 @@ _kernel_ void canny1::init() {
 
 _kernel_ void canny1::calc_maxima() {
    int c;
-   float8 v;
+   vint16 v;
 
    v=m_p[7];
    maxima_p[0]=v;
@@ -196,12 +196,12 @@ _kernel_ void canny1::calc_maxima() {
 // Phase 2 canny. 
 // Do edge detection threshold hysteresis
 
-_share float8 canny2::maxima[CANNY_MAX_INBUF];
-_share float8 canny2::output[TILE_DX_DIM*TILE_DY_DIM];
-float8 *canny2::in_p;
-float8 *canny2::out_p;
-_share float canny2::threshold_lo;
-_share float canny2::threshold_hi;
+_share vint16 canny2::maxima[CANNY_MAX_INBUF];
+_share vint16 canny2::output[TILE_DX_DIM*TILE_DY_DIM];
+vint16 *canny2::in_p;
+vint16 *canny2::out_p;
+_share int16 canny2::threshold_lo;
+_share int16 canny2::threshold_hi;
 
 _kernel_ void canny2::init() {
    int i,j;
@@ -215,7 +215,7 @@ _kernel_ void canny2::init() {
 
 _kernel_ void canny2::threshold_hysteris() {
    int c;
-   float8 v;
+   vint16 v;
 
    out_p[0]=0;
    v=in_p[7];

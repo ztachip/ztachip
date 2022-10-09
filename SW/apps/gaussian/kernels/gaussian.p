@@ -22,13 +22,13 @@
 // Perform gaussian blurring algorithm
 // Refer to https://en.wikipedia.org/wiki/Gaussian_blur
 
-_share float8 iconv::inbuf[ICONV_MAX_INBUF];
-_share float8 iconv::outbuf[ICONV_MAX_OUTBUF];
-_share float iconv::k[TILE_MAX_KZ][TILE_MAX_KZ];
-float8 *iconv::in_p;
-float8 *iconv::out_p;
+_share vint16 iconv::inbuf[ICONV_MAX_INBUF];
+_share vint16 iconv::outbuf[ICONV_MAX_OUTBUF];
+_share int16 iconv::k[TILE_MAX_KZ][TILE_MAX_KZ];
+vint16 *iconv::in_p;
+vint16 *iconv::out_p;
 int iconv::pad;
-double8 iconv::_A;
+vint32 iconv::_A;
 
 _kernel_ void iconv::init(int _ksz) {
    int i,j;
@@ -43,7 +43,7 @@ _kernel_ void iconv::init(int _ksz) {
 
 _kernel_ void iconv::exe_7x7() {
    int x,y,i;
-   float8 *p2;
+   vint16 *p2;
 
    for(i=0;i < 2;i++) {
       p2=in_p+i*((6+TILE_DX_DIM)<<1);

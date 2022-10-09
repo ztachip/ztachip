@@ -22,19 +22,19 @@
 // Doing dense optical flow using Lucas-Kanade method.
 // https://en.wikipedia.org/wiki/Lucas%E2%80%93Kanade_method
 
-_share float8 of::inbuf1[OF_MAX_INBUF];
-_share float8 of::inbuf2[OF_MAX_INBUF];
-_share float8 of::x_gradient[OF_MAX_OUTBUF];
-_share float8 of::y_gradient[OF_MAX_OUTBUF];
-_share float8 of::t_gradient[OF_MAX_OUTBUF];
-_share float of::k_x[TILE_MAX_KZ][TILE_MAX_KZ];
-_share float of::k_y[TILE_MAX_KZ][TILE_MAX_KZ];
-float8 *of::in1_p;
-float8 *of::in2_p;
+_share vint16 of::inbuf1[OF_MAX_INBUF];
+_share vint16 of::inbuf2[OF_MAX_INBUF];
+_share vint16 of::x_gradient[OF_MAX_OUTBUF];
+_share vint16 of::y_gradient[OF_MAX_OUTBUF];
+_share vint16 of::t_gradient[OF_MAX_OUTBUF];
+_share int16 of::k_x[TILE_MAX_KZ][TILE_MAX_KZ];
+_share int16 of::k_y[TILE_MAX_KZ][TILE_MAX_KZ];
+vint16 *of::in1_p;
+vint16 *of::in2_p;
 int of::pad;
-double8 of::_A;
-double8 of::_B;
-double8 of::_C;
+vint32 of::_A;
+vint32 of::_B;
+vint32 of::_C;
 
 _kernel_ void of::init() {
    int i,j;
@@ -67,8 +67,8 @@ _kernel_ void of::init() {
 
 _kernel_ void of::calc_gradient() {
    int x,y;
-   float8 max,min;
-   float8 *p1,*p2;
+   vint16 max,min;
+   vint16 *p1,*p2;
    int idx;
 
    p1=in1_p;
@@ -101,19 +101,19 @@ _kernel_ void of::calc_gradient() {
 
 // Calculate optical flow with Lucas-Kanade method 
 
-_share float8 of1::x_gradient[OF1_MAX_INBUF];
-_share float8 of1::y_gradient[OF1_MAX_INBUF];
-_share float8 of1::t_gradient[OF1_MAX_INBUF];
+_share vint16 of1::x_gradient[OF1_MAX_INBUF];
+_share vint16 of1::y_gradient[OF1_MAX_INBUF];
+_share vint16 of1::t_gradient[OF1_MAX_INBUF];
 int of1::input_idx;
 int of1::output_idx;
 int of1::pad;
-double8 of1::IX2;
-double8 of1::IY2;
-double8 of1::IXY;
-double8 of1::IXT;
-double8 of1::IYT;
-double8 of1::T;
-double8 of1::A;
+vint32 of1::IX2;
+vint32 of1::IY2;
+vint32 of1::IXY;
+vint32 of1::IXT;
+vint32 of1::IYT;
+vint32 of1::T;
+vint32 of1::A;
 
 _kernel_ void of1::init() {
    int i,j;
@@ -126,9 +126,9 @@ _kernel_ void of1::init() {
 
 _kernel_ void of1::calc_lucus_kanade() {
    int x,y;
-   float8 *x_p,*y_p;
-   float8 *t_p;
-   float8 t1,t2;
+   vint16 *x_p,*y_p;
+   vint16 *t_p;
+   vint16 t1,t2;
 
    x_p=&x_gradient[input_idx];
    y_p=&y_gradient[input_idx];

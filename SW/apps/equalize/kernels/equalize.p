@@ -41,19 +41,19 @@
                        y_lo = y_lo-1000; \
                        _VMASK=-1;}
 
-_share float8 equalize::histogram_lo[NUM_THREAD_PER_CORE*kHistogramBinSize];
-_share float8 equalize::histogram_hi[NUM_THREAD_PER_CORE*kHistogramBinSize];
-float8 equalize::histogram[kHistogramBinSize];
-_share float equalize::in[kHistogramInSize*NUM_THREAD_PER_CORE];
-float *equalize::p;
-float *equalize::histogram_p;
+_share vint16 equalize::histogram_lo[NUM_THREAD_PER_CORE*kHistogramBinSize];
+_share vint16 equalize::histogram_hi[NUM_THREAD_PER_CORE*kHistogramBinSize];
+vint16 equalize::histogram[kHistogramBinSize];
+_share int16 equalize::in[kHistogramInSize*NUM_THREAD_PER_CORE];
+int16 *equalize::p;
+int16 *equalize::histogram_p;
 
 // Module initialization
 
 _kernel_ void equalize::init() {
    int i,ii;
-   float8 *t;
-   float8 *p_lo,*p_hi;
+   vint16 *t;
+   vint16 *p_lo,*p_hi;
 
    t=histogram;
    histogram_p=t<<VECTOR_DEPTH;
@@ -74,8 +74,8 @@ _kernel_ void equalize::init() {
 
 _kernel_ void equalize::accumulate() {
    int i,ii;
-   float8 *p_lo;
-   float8 *p_hi;
+   vint16 *p_lo;
+   vint16 *p_hi;
    ii=tid*kHistogramBinSize;
    p_lo=&histogram_lo[ii];
    p_hi=&histogram_hi[ii];
@@ -89,7 +89,7 @@ _kernel_ void equalize::accumulate() {
 
 _kernel_ void equalize::done(_global int count) {
    int ii,i,j,idx;
-   float8 *p_lo,*p_hi;
+   vint16 *p_lo,*p_hi;
    ii=tid;
    p_lo=&histogram_lo[ii];
    p_hi=&histogram_hi[ii];

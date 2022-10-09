@@ -21,13 +21,13 @@
 
 //---  Process fully-connected layer (innerproduct)
 
-_share float inner_product::bot[IP_CHUNK_SIZE];
-float8 inner_product::coef[IP_CHUNK_SIZE];
-float8 inner_product::top;
+_share int16 inner_product::bot[IP_CHUNK_SIZE];
+vint16 inner_product::coef[IP_CHUNK_SIZE];
+vint16 inner_product::top;
 int inner_product::out_scale;
-double8 inner_product::_A;
-float8 inner_product::biasHi;
-float8 inner_product::biasLo;
+vint32 inner_product::_A;
+vint16 inner_product::biasHi;
+vint16 inner_product::biasLo;
 
 _kernel_ void inner_product::init(int _out_scale) {
    out_scale=_out_scale;
@@ -54,10 +54,10 @@ _kernel_ void inner_product::activate_none() {
 
 // ---- Pooling layer...
 
-float8 max_pool::bot[POOL_BOT_SIZE];
-double8 max_pool::_A;
+vint16 max_pool::bot[POOL_BOT_SIZE];
+vint32 max_pool::_A;
 int max_pool::out_scale;
-float8 max_pool::top;
+vint16 max_pool::top;
 
 _kernel_ void max_pool::init(int _out_scale) {
    out_scale=_out_scale;
@@ -69,7 +69,7 @@ _kernel_ void max_pool::init(int _out_scale) {
 // Divide for averaging is done by stream processor later
  
 _kernel_ void max_pool::exe() {
-   float8 *p;
+   vint16 *p;
    int i;
    p=bot;
 #pragma unroll
@@ -86,11 +86,11 @@ _kernel_ void max_pool::finish() {
 
 // --- Do concatenation layer.
 
-_share float concatenate::buf[CONCATENATE_BUFSZ];
+_share int16 concatenate::buf[CONCATENATE_BUFSZ];
 
 // No pcore code required for concatenation layer
 // Concatenation layer is processed by mcore and stream processor only
 
-_kernel_ void concatenate::dummy(float _dummy) {
+_kernel_ void concatenate::dummy(int16 _dummy) {
    buf[0]=_dummy;
 }
