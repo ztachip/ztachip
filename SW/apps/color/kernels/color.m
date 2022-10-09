@@ -151,9 +151,9 @@ static void yuyv2rgb(void *_p,int pid) {
        x < dx;
        x += step_x,x2+=step2_x) {
          if(clip) {
-            > DTYPE(UINT8) SHUFFLE FOR(X=0:PCORE_DY-1) FOR(K=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].yuyv2rgb::yuyv(YUYV_BUF_SIZE/8,8,8)[:][:][K] <= DTYPE(UINT8)MEM(input,src_h,src_w)[y+y_off:y+y_off+step_y-1][x+x_off:x+x_off+step_x-1];
+            > DTYPE(UINT8) CONCURRENT FOR(X=0:PCORE_DY-1) FOR(K=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].yuyv2rgb::yuyv(YUYV_BUF_SIZE/8,8,8)[:][:][K] <= DTYPE(UINT8)MEM(input,src_h,src_w)[y+y_off:y+y_off+step_y-1][x+x_off:x+x_off+step_x-1];
          } else {
-            > DTYPE(UINT8) SHUFFLE FOR(K=0:VECTOR_WIDTH-1) FOR(JJ=0:NUM_PCORE-1) PCORE(NUM_PCORE)[JJ].yuyv2rgb::yuyv(YUYV_BUF_SIZE/8,8,8)[:][:][K] <= DTYPE(UINT8)MEM(input,src_h,src_w)[y+y_off][x+x_off:x+x_off+step_x-1];
+            > DTYPE(UINT8) CONCURRENT FOR(K=0:VECTOR_WIDTH-1) FOR(JJ=0:NUM_PCORE-1) PCORE(NUM_PCORE)[JJ].yuyv2rgb::yuyv(YUYV_BUF_SIZE/8,8,8)[:][:][K] <= DTYPE(UINT8)MEM(input,src_h,src_w)[y+y_off][x+x_off:x+x_off+step_x-1];
          }
          > EXE_LOCKSTEP(yuyv2rgb::convert,NUM_PCORE);
          if(req->dst_channel_fmt==kChannelFmtInterleave) {
@@ -172,19 +172,19 @@ static void yuyv2rgb(void *_p,int pid) {
          ztaTaskYield();
          if(req->dst_channel_fmt==kChannelFmtInterleave) {
             if(clip) {
-               > DTYPE(UINT8)MEM(output,dy2,dx2)[y2:y2+step2_y-1][x2:x2+step2_x-1] <=  REMAP(0) DTYPE(UINT8) SHUFFLE FOR(X=0:PCORE_DY-1) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].yuyv2rgb::rgb(RGB_BUF_SIZE/8,8,8)[:][:][L];
+               > DTYPE(UINT8)MEM(output,dy2,dx2)[y2:y2+step2_y-1][x2:x2+step2_x-1] <=  REMAP(0) DTYPE(UINT8) CONCURRENT FOR(X=0:PCORE_DY-1) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].yuyv2rgb::rgb(RGB_BUF_SIZE/8,8,8)[:][:][L];
             } else {
-               > DTYPE(UINT8)MEM(output,dy2,dx2)[y2][x2:x2+step2_x-1] <= REMAP(0) DTYPE(UINT8) SHUFFLE FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:NUM_PCORE-1) PCORE(NUM_PCORE)[JJ].yuyv2rgb::rgb(RGB_BUF_SIZE/8,8,8)[:][:][L];
+               > DTYPE(UINT8)MEM(output,dy2,dx2)[y2][x2:x2+step2_x-1] <= REMAP(0) DTYPE(UINT8) CONCURRENT FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:NUM_PCORE-1) PCORE(NUM_PCORE)[JJ].yuyv2rgb::rgb(RGB_BUF_SIZE/8,8,8)[:][:][L];
             }
          } else {
             if(clip) {
-               > DTYPE(UINT8)MEM(output,(dx2*dy2)(dy2,dx2))[y2:y2+step2_y-1][x2:x2+step2_x-1] <= REMAP(0) DTYPE(UINT8) SHUFFLE FOR(X=0:PCORE_DY-1) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].yuyv2rgb::rgb(3,RGB_BUF_SIZE/24,8,8)[0][:][:][L];
-               > DTYPE(UINT8)MEM(output1,(dx2*dy2)(dy2,dx2))[y2:y2+step2_y-1][x2:x2+step2_x-1] <= REMAP(0) DTYPE(UINT8) SHUFFLE FOR(X=0:PCORE_DY-1) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].yuyv2rgb::rgb(3,RGB_BUF_SIZE/24,8,8)[1][:][:][L];
-               > DTYPE(UINT8)MEM(output2,(dx2*dy2)(dy2,dx2))[y2:y2+step2_y-1][x2:x2+step2_x-1] <= REMAP(0) DTYPE(UINT8) SHUFFLE FOR(X=0:PCORE_DY-1) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].yuyv2rgb::rgb(3,RGB_BUF_SIZE/24,8,8)[2][:][:][L];
+               > DTYPE(UINT8)MEM(output,(dx2*dy2)(dy2,dx2))[y2:y2+step2_y-1][x2:x2+step2_x-1] <= REMAP(0) DTYPE(UINT8) CONCURRENT FOR(X=0:PCORE_DY-1) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].yuyv2rgb::rgb(3,RGB_BUF_SIZE/24,8,8)[0][:][:][L];
+               > DTYPE(UINT8)MEM(output1,(dx2*dy2)(dy2,dx2))[y2:y2+step2_y-1][x2:x2+step2_x-1] <= REMAP(0) DTYPE(UINT8) CONCURRENT FOR(X=0:PCORE_DY-1) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].yuyv2rgb::rgb(3,RGB_BUF_SIZE/24,8,8)[1][:][:][L];
+               > DTYPE(UINT8)MEM(output2,(dx2*dy2)(dy2,dx2))[y2:y2+step2_y-1][x2:x2+step2_x-1] <= REMAP(0) DTYPE(UINT8) CONCURRENT FOR(X=0:PCORE_DY-1) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].yuyv2rgb::rgb(3,RGB_BUF_SIZE/24,8,8)[2][:][:][L];
             } else {
-               > DTYPE(UINT8)MEM(output,(dx2*dy2)(dy2,dx2))[y2][x2:x2+step2_x-1] <= REMAP(0) DTYPE(UINT8) SHUFFLE FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:NUM_PCORE-1) PCORE(NUM_PCORE)[JJ].yuyv2rgb::rgb(3,RGB_BUF_SIZE/24,8,8)[0][:][:][L];
-               > DTYPE(UINT8)MEM(output1,(dx2*dy2)(dy2,dx2))[y2][x2:x2+step2_x-1] <= REMAP(0) DTYPE(UINT8) SHUFFLE FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:NUM_PCORE-1) PCORE(NUM_PCORE)[JJ].yuyv2rgb::rgb(3,RGB_BUF_SIZE/24,8,8)[1][:][:][L];
-               > DTYPE(UINT8)MEM(output2,(dx2*dy2)(dy2,dx2))[y2][x2:x2+step2_x-1] <= REMAP(0) DTYPE(UINT8) SHUFFLE FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:NUM_PCORE-1) PCORE(NUM_PCORE)[JJ].yuyv2rgb::rgb(3,RGB_BUF_SIZE/24,8,8)[2][:][:][L];
+               > DTYPE(UINT8)MEM(output,(dx2*dy2)(dy2,dx2))[y2][x2:x2+step2_x-1] <= REMAP(0) DTYPE(UINT8) CONCURRENT FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:NUM_PCORE-1) PCORE(NUM_PCORE)[JJ].yuyv2rgb::rgb(3,RGB_BUF_SIZE/24,8,8)[0][:][:][L];
+               > DTYPE(UINT8)MEM(output1,(dx2*dy2)(dy2,dx2))[y2][x2:x2+step2_x-1] <= REMAP(0) DTYPE(UINT8) CONCURRENT FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:NUM_PCORE-1) PCORE(NUM_PCORE)[JJ].yuyv2rgb::rgb(3,RGB_BUF_SIZE/24,8,8)[1][:][:][L];
+               > DTYPE(UINT8)MEM(output2,(dx2*dy2)(dy2,dx2))[y2][x2:x2+step2_x-1] <= REMAP(0) DTYPE(UINT8) CONCURRENT FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:NUM_PCORE-1) PCORE(NUM_PCORE)[JJ].yuyv2rgb::rgb(3,RGB_BUF_SIZE/24,8,8)[2][:][:][L];
             }
          }
       }
@@ -363,22 +363,22 @@ static void copy(void *_p,int pid) {
          x += step_x,x2+=step2_x) {
          if(src_channel_fmt==kChannelFmtInterleave) {
             if(clip) {
-               > DTYPE(UINT8) SHUFFLE FOR(X=0:PCORE_DY-1) FOR(K=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].copy::in(RGB2RGB_BUF_SIZE/ZZZ,ZZZ,8)[:][:][K] <= DTYPE(UINT8)MEM(input,src_h,src_w)[y+y_off:y+y_off+step_y-1][x+x_off:x+x_off+step_x-1];
+               > DTYPE(UINT8) CONCURRENT FOR(X=0:PCORE_DY-1) FOR(K=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].copy::in(RGB2RGB_BUF_SIZE/ZZZ,ZZZ,8)[:][:][K] <= DTYPE(UINT8)MEM(input,src_h,src_w)[y+y_off:y+y_off+step_y-1][x+x_off:x+x_off+step_x-1];
             } else {
-               > DTYPE(UINT8) SHUFFLE FOR(K=0:VECTOR_WIDTH-1) FOR(JJ=0:NUM_PCORE-1) PCORE(NUM_PCORE)[JJ].copy::in(RGB2RGB_BUF_SIZE/ZZZ,ZZZ,8)[:][:][K] <= DTYPE(UINT8)MEM(input,src_h,src_w)[y+y_off][x+x_off:x+x_off+step_x-1];
+               > DTYPE(UINT8) CONCURRENT FOR(K=0:VECTOR_WIDTH-1) FOR(JJ=0:NUM_PCORE-1) PCORE(NUM_PCORE)[JJ].copy::in(RGB2RGB_BUF_SIZE/ZZZ,ZZZ,8)[:][:][K] <= DTYPE(UINT8)MEM(input,src_h,src_w)[y+y_off][x+x_off:x+x_off+step_x-1];
             }
          } else {
             if(src_channel_fmt==kChannelFmtSingle) {
                if(clip) {
-                  > DTYPE(UINT8) SHUFFLE FOR(X=0:PCORE_DY-1) FOR(K=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].copy::in(3,RGB2RGB_BUF_SIZE/(3*ZZZ),ZZZ,8)[0][:][:][K] <= DTYPE(UINT8) MEM(input,src_h,src_w)[y+y_off:y+y_off+step_y-1][x+x_off:x+x_off+step_x-1];
+                  > DTYPE(UINT8) CONCURRENT FOR(X=0:PCORE_DY-1) FOR(K=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].copy::in(3,RGB2RGB_BUF_SIZE/(3*ZZZ),ZZZ,8)[0][:][:][K] <= DTYPE(UINT8) MEM(input,src_h,src_w)[y+y_off:y+y_off+step_y-1][x+x_off:x+x_off+step_x-1];
                } else {
-                  > DTYPE(UINT8) SHUFFLE FOR(K=0:VECTOR_WIDTH-1) FOR(JJ=0:NUM_PCORE-1) PCORE(NUM_PCORE)[JJ].copy::in(3,RGB2RGB_BUF_SIZE/(3*ZZZ),ZZZ,8)[0][:][:][K] <= DTYPE(UINT8) MEM(input,src_h,src_w)[y+y_off][x+x_off:x+x_off+step_x-1];
+                  > DTYPE(UINT8) CONCURRENT FOR(K=0:VECTOR_WIDTH-1) FOR(JJ=0:NUM_PCORE-1) PCORE(NUM_PCORE)[JJ].copy::in(3,RGB2RGB_BUF_SIZE/(3*ZZZ),ZZZ,8)[0][:][:][K] <= DTYPE(UINT8) MEM(input,src_h,src_w)[y+y_off][x+x_off:x+x_off+step_x-1];
                }
             } else {
                if(clip) {
-                  > DTYPE(UINT8) SHUFFLE FOR(X=0:PCORE_DY-1) FOR(K=0:VECTOR_WIDTH-1) FOR(LL=0:2) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].copy::in(3,RGB2RGB_BUF_SIZE/(3*ZZZ),ZZZ,8)[LL][:][:][K] <= DTYPE(UINT8) FOR(MM=y+y_off:y+y_off+step_y-1) FOR(KK=0:2) MEM(input,3,src_h,src_w)[KK][MM][x+x_off:x+x_off+step_x-1];
+                  > DTYPE(UINT8) CONCURRENT FOR(X=0:PCORE_DY-1) FOR(K=0:VECTOR_WIDTH-1) FOR(LL=0:2) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].copy::in(3,RGB2RGB_BUF_SIZE/(3*ZZZ),ZZZ,8)[LL][:][:][K] <= DTYPE(UINT8) FOR(MM=y+y_off:y+y_off+step_y-1) FOR(KK=0:2) MEM(input,3,src_h,src_w)[KK][MM][x+x_off:x+x_off+step_x-1];
                } else {
-                  > DTYPE(UINT8) SHUFFLE FOR(LL=0:2) FOR(K=0:VECTOR_WIDTH-1) FOR(JJ=0:NUM_PCORE-1) PCORE(NUM_PCORE)[JJ].copy::in(3,RGB2RGB_BUF_SIZE/(3*ZZZ),ZZZ,8)[LL][:][:][K] <= DTYPE(UINT8) FOR(KK=0:2) MEM(input,3,src_h,src_w)[KK][y+y_off][x+x_off:x+x_off+step_x-1];
+                  > DTYPE(UINT8) CONCURRENT FOR(LL=0:2) FOR(K=0:VECTOR_WIDTH-1) FOR(JJ=0:NUM_PCORE-1) PCORE(NUM_PCORE)[JJ].copy::in(3,RGB2RGB_BUF_SIZE/(3*ZZZ),ZZZ,8)[LL][:][:][K] <= DTYPE(UINT8) FOR(KK=0:2) MEM(input,3,src_h,src_w)[KK][y+y_off][x+x_off:x+x_off+step_x-1];
                }
             }
          }
@@ -389,23 +389,23 @@ static void copy(void *_p,int pid) {
 
          if(dst_channel_fmt==kChannelFmtInterleave) {
             if(clip) {
-               > DTYPE(UINT8)MEM(output,dy2,dx2)[y2:y2+step2_y-1][x2:x2+step2_x-1] <= REMAP(equalize) DTYPE(UINT8) SHUFFLE FOR(X=0:PCORE_DY-1) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].copy::out(RGB2RGB_BUF_SIZE/ZZZ,ZZZ,8)[:][:][L];
+               > DTYPE(UINT8)MEM(output,dy2,dx2)[y2:y2+step2_y-1][x2:x2+step2_x-1] <= REMAP(equalize) DTYPE(UINT8) CONCURRENT FOR(X=0:PCORE_DY-1) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].copy::out(RGB2RGB_BUF_SIZE/ZZZ,ZZZ,8)[:][:][L];
             } else {
-               > DTYPE(UINT8)MEM(output,dy2,dx2)[y2][x2:x2+step2_x-1] <= REMAP(equalize) DTYPE(UINT8) SHUFFLE FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:NUM_PCORE-1) PCORE(NUM_PCORE)[JJ].copy::out(RGB2RGB_BUF_SIZE/ZZZ,ZZZ,8)[:][:][L];
+               > DTYPE(UINT8)MEM(output,dy2,dx2)[y2][x2:x2+step2_x-1] <= REMAP(equalize) DTYPE(UINT8) CONCURRENT FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:NUM_PCORE-1) PCORE(NUM_PCORE)[JJ].copy::out(RGB2RGB_BUF_SIZE/ZZZ,ZZZ,8)[:][:][L];
             }
          } else {
             if(clip) {
-               > DTYPE(UINT8)MEM(output,dy2,dx2)[y2:y2+step2_y-1][x2:x2+step2_x-1] <= REMAP(equalize) DTYPE(UINT8) SHUFFLE FOR(X=0:PCORE_DY-1) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].copy::out(3,RGB2RGB_BUF_SIZE/(3*ZZZ),ZZZ,8)[0][:][:][L];
+               > DTYPE(UINT8)MEM(output,dy2,dx2)[y2:y2+step2_y-1][x2:x2+step2_x-1] <= REMAP(equalize) DTYPE(UINT8) CONCURRENT FOR(X=0:PCORE_DY-1) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].copy::out(3,RGB2RGB_BUF_SIZE/(3*ZZZ),ZZZ,8)[0][:][:][L];
             } else {
-               > DTYPE(UINT8)MEM(output,dy2,dx2)[y2][x2:x2+step2_x-1] <= REMAP(equalize) DTYPE(UINT8) SHUFFLE FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:NUM_PCORE-1) PCORE(NUM_PCORE)[JJ].copy::out(3,RGB2RGB_BUF_SIZE/(3*ZZZ),ZZZ,8)[0][:][:][L];
+               > DTYPE(UINT8)MEM(output,dy2,dx2)[y2][x2:x2+step2_x-1] <= REMAP(equalize) DTYPE(UINT8) CONCURRENT FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:NUM_PCORE-1) PCORE(NUM_PCORE)[JJ].copy::out(3,RGB2RGB_BUF_SIZE/(3*ZZZ),ZZZ,8)[0][:][:][L];
             }
             if(dst_channel_fmt!=kChannelFmtSingle) {
                if(clip) {
-                  > DTYPE(UINT8)MEM(output2,dy2,dx2)[y2:y2+step2_y-1][x2:x2+step2_x-1] <= REMAP(equalize) DTYPE(UINT8) SHUFFLE FOR(X=0:PCORE_DY-1) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].copy::out(3,RGB2RGB_BUF_SIZE/(3*ZZZ),ZZZ,8)[1][:][:][L];
-                  > DTYPE(UINT8)MEM(output3,dy2,dx2)[y2:y2+step2_y-1][x2:x2+step2_x-1] <= REMAP(equalize) DTYPE(UINT8) SHUFFLE FOR(X=0:PCORE_DY-1) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].copy::out(3,RGB2RGB_BUF_SIZE/(3*ZZZ),ZZZ,8)[2][:][:][L];
+                  > DTYPE(UINT8)MEM(output2,dy2,dx2)[y2:y2+step2_y-1][x2:x2+step2_x-1] <= REMAP(equalize) DTYPE(UINT8) CONCURRENT FOR(X=0:PCORE_DY-1) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].copy::out(3,RGB2RGB_BUF_SIZE/(3*ZZZ),ZZZ,8)[1][:][:][L];
+                  > DTYPE(UINT8)MEM(output3,dy2,dx2)[y2:y2+step2_y-1][x2:x2+step2_x-1] <= REMAP(equalize) DTYPE(UINT8) CONCURRENT FOR(X=0:PCORE_DY-1) FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:PCORE_DX-1) PCORE(PCORE_DY,PCORE_DX)[X][JJ].copy::out(3,RGB2RGB_BUF_SIZE/(3*ZZZ),ZZZ,8)[2][:][:][L];
                } else {
-                  > DTYPE(UINT8)MEM(output2,dy2,dx2)[y2][x2:x2+step2_x-1] <= REMAP(equalize) DTYPE(UINT8) SHUFFLE FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:NUM_PCORE-1) PCORE(NUM_PCORE)[JJ].copy::out(3,RGB2RGB_BUF_SIZE/(3*ZZZ),ZZZ,8)[1][:][:][L];
-                  > DTYPE(UINT8)MEM(output3,dy2,dx2)[y2][x2:x2+step2_x-1] <= REMAP(equalize) DTYPE(UINT8) SHUFFLE FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:NUM_PCORE-1) PCORE(NUM_PCORE)[JJ].copy::out(3,RGB2RGB_BUF_SIZE/(3*ZZZ),ZZZ,8)[2][:][:][L];
+                  > DTYPE(UINT8)MEM(output2,dy2,dx2)[y2][x2:x2+step2_x-1] <= REMAP(equalize) DTYPE(UINT8) CONCURRENT FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:NUM_PCORE-1) PCORE(NUM_PCORE)[JJ].copy::out(3,RGB2RGB_BUF_SIZE/(3*ZZZ),ZZZ,8)[1][:][:][L];
+                  > DTYPE(UINT8)MEM(output3,dy2,dx2)[y2][x2:x2+step2_x-1] <= REMAP(equalize) DTYPE(UINT8) CONCURRENT FOR(L=0:VECTOR_WIDTH-1) FOR(JJ=0:NUM_PCORE-1) PCORE(NUM_PCORE)[JJ].copy::out(3,RGB2RGB_BUF_SIZE/(3*ZZZ),ZZZ,8)[2][:][:][L];
                }
             }
          }

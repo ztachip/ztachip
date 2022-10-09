@@ -180,9 +180,9 @@ static void convolution_3x3(void *_p,int pid) {
             }
             if(req->out_interleave==kTensorFormatFlat || req->out_interleave==kTensorFormatFlatAndInterleaved) {
                if(conv_dx2==NUM_THREAD_PER_CORE) {
-                  > DTYPE(topfmt)MEM(req->top,req->topcnt,req->topdim,req->topdim)[i:i+step-1][r:r+conv_dy-1][c:c+conv_dx2-1] <= REMAP(0) DTYPE(topfmt) SHUFFLE FOR(J=0:group-1) FOR(I=0:VECTOR_WIDTH-1) FOR(K=0:dycnt-1) PCORE(group,groupsz)[J][:].THREAD(2,8)[:][:].convolution::top[K][I];
+                  > DTYPE(topfmt)MEM(req->top,req->topcnt,req->topdim,req->topdim)[i:i+step-1][r:r+conv_dy-1][c:c+conv_dx2-1] <= REMAP(0) DTYPE(topfmt) CONCURRENT FOR(J=0:group-1) FOR(I=0:VECTOR_WIDTH-1) FOR(K=0:dycnt-1) PCORE(group,groupsz)[J][:].THREAD(2,8)[:][:].convolution::top[K][I];
                } else {
-                  > DTYPE(topfmt)MEM(req->top,req->topcnt,req->topdim,req->topdim)[i:i+step-1][r:r+conv_dy-1][c:c+conv_dx2-1] <= REMAP(0) DTYPE(topfmt) SHUFFLE FOR(J=0:group-1) FOR(I=0:VECTOR_WIDTH-1) FOR(K=0:dycnt-1) PCORE(group,groupsz)[J][:].THREAD[0:NUM_THREAD_PER_CORE/2-1].convolution::top[K][I];
+                  > DTYPE(topfmt)MEM(req->top,req->topcnt,req->topdim,req->topdim)[i:i+step-1][r:r+conv_dy-1][c:c+conv_dx2-1] <= REMAP(0) DTYPE(topfmt) CONCURRENT FOR(J=0:group-1) FOR(I=0:VECTOR_WIDTH-1) FOR(K=0:dycnt-1) PCORE(group,groupsz)[J][:].THREAD[0:NUM_THREAD_PER_CORE/2-1].convolution::top[K][I];
                }
             }
          }
@@ -406,7 +406,7 @@ static void convolution_1x1(void *_p,int pid) {
                }
                if(req->out_interleave==kTensorFormatFlat || req->out_interleave==kTensorFormatFlatAndInterleaved) {
                   // Output in non-interleave format
-                  > DTYPE(topfmt)MEM(req->top,req->topcnt,topsz)[i:i+step-1][mm:mm+xy2-1] <= REMAP(0) DTYPE(topfmt) SHUFFLE FOR(J=0:group-1) FOR(I=0:VECTOR_WIDTH-1) FOR(K=0:dycnt2-1) PCORE(group,groupsz)[J][:].convolution1x1::top(CONV_1X1_Y_DIM,2,8,VECTOR_WIDTH)[K][:][:][I];
+                  > DTYPE(topfmt)MEM(req->top,req->topcnt,topsz)[i:i+step-1][mm:mm+xy2-1] <= REMAP(0) DTYPE(topfmt) CONCURRENT FOR(J=0:group-1) FOR(I=0:VECTOR_WIDTH-1) FOR(K=0:dycnt2-1) PCORE(group,groupsz)[J][:].convolution1x1::top(CONV_1X1_Y_DIM,2,8,VECTOR_WIDTH)[K][:][:][I];
                }
             } else {
                if(req->out_interleave==kTensorFormatInterleaved || req->out_interleave==kTensorFormatFlatAndInterleaved) {
@@ -415,7 +415,7 @@ static void convolution_1x1(void *_p,int pid) {
                }
                if(req->out_interleave==kTensorFormatFlat || req->out_interleave==kTensorFormatFlatAndInterleaved) {
                   // Output in non-interleave format
-                  > DTYPE(topfmt)MEM(req->top,req->topcnt,topsz)[i:i+step-1][mm:mm+xy3-1] <= REMAP(0) DTYPE(topfmt) SHUFFLE FOR(J=0:group-1) FOR(I=0:VECTOR_WIDTH-1) FOR(K=0:xy3/8-1) PCORE(group)[J].convolution1x1::top(CONV_1X1_Y_DIM*NUM_THREAD_PER_CORE/8,8,VECTOR_WIDTH)[K][:][I];
+                  > DTYPE(topfmt)MEM(req->top,req->topcnt,topsz)[i:i+step-1][mm:mm+xy3-1] <= REMAP(0) DTYPE(topfmt) CONCURRENT FOR(J=0:group-1) FOR(I=0:VECTOR_WIDTH-1) FOR(K=0:xy3/8-1) PCORE(group)[J].convolution1x1::top(CONV_1X1_Y_DIM*NUM_THREAD_PER_CORE/8,8,VECTOR_WIDTH)[K][:][I];
                }
             }
             mm += dysz*dycnt2;
@@ -607,7 +607,7 @@ static void convolution_depthwise(void *_p,int pid) {
 
                // Output results...
 
-               > DTYPE(topfmt)MEM(req->top,req->topcnt,req->topdim,req->topdim)[i:i+step-1][r:r+conv_dy-1][c:c+conv_dx2-1] <= REMAP(0) DTYPE(topfmt) SHUFFLE FOR(J=0:group-1) FOR(I=0:VECTOR_WIDTH-1) FOR(K=0:dycnt-1) PCORE(group,groupsz)[J][:].THREAD(2,8)[0:threadSubBlock-1][:].convolution_depthwise::top[K][I];
+               > DTYPE(topfmt)MEM(req->top,req->topcnt,req->topdim,req->topdim)[i:i+step-1][r:r+conv_dy-1][c:c+conv_dx2-1] <= REMAP(0) DTYPE(topfmt) CONCURRENT FOR(J=0:group-1) FOR(I=0:VECTOR_WIDTH-1) FOR(K=0:dycnt-1) PCORE(group,groupsz)[J][:].THREAD(2,8)[0:threadSubBlock-1][:].convolution_depthwise::top[K][I];
             }
          }      
       }

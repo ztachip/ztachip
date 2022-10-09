@@ -98,7 +98,7 @@ public:
    void Print();
    static bool decodeVarName(char *name,int *var);
    void ScratchCreate(cMcoreTerm *term,char *cast,char *scratchAddr,std::string &forkCount);
-   void ScratchReorder(cMcoreTerm *term,bool shuffle);
+   void ScratchReorder(cMcoreTerm *term,bool concurrent);
    int GetParmRange();
    int GetNumDim(cIdentifier *id);
    std::string GetDim(cIdentifier *id,int index);
@@ -115,10 +115,10 @@ public:
    int GenSramDDRTensor(FILE *out, int _parm, cMcoreRange *_parmRange);
    int Gen(FILE *out,int _parm,cMcoreRange *_parmRange);
    int Validate();
-   int getStrideRegisterIndex(int index,int dimSize,bool shuffle);
+   int getStrideRegisterIndex(int index,int dimSize,bool concurrent);
    void GEN(FILE *fp, int p1, int p2, int p3, char *s);
    std::string m_name;
-   std::vector<cMcoreSpecifier> m_shuffle;
+   std::vector<cMcoreSpecifier> m_concurrent;
    std::vector<cMcoreSpecifier> m_pad;
    std::string m_dtype;
    std::vector<std::string> m_forVariable;

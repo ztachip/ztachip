@@ -131,7 +131,7 @@ void box_resize_horizontal(void *_p,int pid) {
             
             // Copy input image to pcore memory space...
 
-            > DTYPE(fmt) SHUFFLE FOR(I=0:np-1) FOR(J=0:VECTOR_WIDTH-1) PCORE(np)[I].resize_box::inbuf(BOX_RESIZE_MAX_INBUF/8,8,VECTOR_WIDTH)[0:src_dx2/8-1][:][J] <= DTYPE(fmt)MEM(req->input,req->nchannel,src_h,src_w)[ch][src_y:src_y+src_dy-1][src_x:src_x+src_dx2-1];
+            > DTYPE(fmt) CONCURRENT FOR(I=0:np-1) FOR(J=0:VECTOR_WIDTH-1) PCORE(np)[I].resize_box::inbuf(BOX_RESIZE_MAX_INBUF/8,8,VECTOR_WIDTH)[0:src_dx2/8-1][:][J] <= DTYPE(fmt)MEM(req->input,req->nchannel,src_h,src_w)[ch][src_y:src_y+src_dy-1][src_x:src_x+src_dx2-1];
 
             > EXE_LOCKSTEP(kfunc[req->filterLen[0]-1],np);
 
@@ -139,7 +139,7 @@ void box_resize_horizontal(void *_p,int pid) {
 
             // Copy results back to DDR
 
-            > DTYPE(fmt) MEM(req->temp,req->nchannel,dst_h,dst_w)[ch][dst_y:dst_y+dst_dy-1][dst_x:dst_x+dst_dx-1] <= REMAP(0) DTYPE(fmt) SHUFFLE FOR(I=0:np-1) FOR(J=0:VECTOR_WIDTH-1) PCORE(np)[I].resize_box::outbuf(BOX_RESIZE_MAX_OUTBUF/8,8,VECTOR_WIDTH)[0:dst_dx/8-1][:][J];         
+            > DTYPE(fmt) MEM(req->temp,req->nchannel,dst_h,dst_w)[ch][dst_y:dst_y+dst_dy-1][dst_x:dst_x+dst_dx-1] <= REMAP(0) DTYPE(fmt) CONCURRENT FOR(I=0:np-1) FOR(J=0:VECTOR_WIDTH-1) PCORE(np)[I].resize_box::outbuf(BOX_RESIZE_MAX_OUTBUF/8,8,VECTOR_WIDTH)[0:dst_dx/8-1][:][J];         
          }
       }
    }

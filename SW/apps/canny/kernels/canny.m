@@ -103,7 +103,7 @@ static void canny_phase_0(void *_p,int pid) {
          >BARRIER;
          
          // Copy input to PCORE array...
-         >SHUFFLE DTYPE(UINT8) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM+2*pad-1) FOR(II=0:NUM_PCORE-1) FOR(J=pad:pad+TILE_DX_DIM-1) PCORE(NUM_PCORE)[II].canny::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[I][J][K] <= 
+         >CONCURRENT DTYPE(UINT8) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM+2*pad-1) FOR(II=0:NUM_PCORE-1) FOR(J=pad:pad+TILE_DX_DIM-1) PCORE(NUM_PCORE)[II].canny::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[I][J][K] <= 
          >DTYPE(UINT8)MEM(input,inputLen(h,TILE_DY_DIM+,req->src_w))[y*VECTOR_WIDTH:y*VECTOR_WIDTH+VECTOR_WIDTH-1][0:TILE_DY_DIM+2*pad-1][x*dx+x_off:x*dx+dx2+x_off-1];
 
          // Copy the gap from adjacent tile.
@@ -128,10 +128,10 @@ static void canny_phase_0(void *_p,int pid) {
 
          // Copy result tiles back to memory
          >DTYPE(INT16)MEM(magnitude,req->dst_h,req->dst_w)[y*dy:y*dy+TILE_DY_DIM*VECTOR_WIDTH-1][x*dx:x*dx+dx2-1] <=
-         >SHUFFLE FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM-1) FOR(II=0:NUM_PCORE-1) FOR(J=0:TILE_DX_DIM-1) DTYPE(INT16)PCORE(NUM_PCORE)[II].canny::magnitude(TILE_DY_DIM,TILE_DX_DIM,VECTOR_WIDTH)[I][J][K];
+         >CONCURRENT FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM-1) FOR(II=0:NUM_PCORE-1) FOR(J=0:TILE_DX_DIM-1) DTYPE(INT16)PCORE(NUM_PCORE)[II].canny::magnitude(TILE_DY_DIM,TILE_DX_DIM,VECTOR_WIDTH)[I][J][K];
 
          >DTYPE(UINT8)MEM(phase,req->dst_h,req->dst_w)[y*dy:y*dy+TILE_DY_DIM*VECTOR_WIDTH-1][x*dx:x*dx+dx2-1] <=
-         >SHUFFLE FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM-1) FOR(II=0:NUM_PCORE-1) FOR(J=0:TILE_DX_DIM-1) DTYPE(UINT8) PCORE(NUM_PCORE)[II].canny::phase(TILE_DY_DIM,TILE_DX_DIM,VECTOR_WIDTH)[I][J][K];
+         >CONCURRENT FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM-1) FOR(II=0:NUM_PCORE-1) FOR(J=0:TILE_DX_DIM-1) DTYPE(UINT8) PCORE(NUM_PCORE)[II].canny::phase(TILE_DY_DIM,TILE_DX_DIM,VECTOR_WIDTH)[I][J][K];
 	   }
    }
 }
@@ -192,10 +192,10 @@ static void canny_phase_1(void *_p,int pid) {
          }
          >BARRIER;
          // Copy input to PCORE array...
-         >SHUFFLE FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM+2*pad-1) FOR(II=0:NUM_PCORE-1) FOR(J=pad:pad+TILE_DX_DIM-1) DTYPE(INT16) PCORE(NUM_PCORE)[II].canny1::magnitude(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[I][J][K] <= 
+         >CONCURRENT FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM+2*pad-1) FOR(II=0:NUM_PCORE-1) FOR(J=pad:pad+TILE_DX_DIM-1) DTYPE(INT16) PCORE(NUM_PCORE)[II].canny1::magnitude(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[I][J][K] <= 
          >DTYPE(INT16)MEM(magnitude,magnitudeLen(h2,TILE_DY_DIM+,w))[y*VECTOR_WIDTH:y*VECTOR_WIDTH+VECTOR_WIDTH-1][0:TILE_DY_DIM+2*pad-1][x*dx:x*dx+dx2-1];
 
-         >SHUFFLE FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM-1) FOR(II=0:NUM_PCORE-1) FOR(J=0:TILE_DX_DIM-1) DTYPE(INT8)PCORE(NUM_PCORE)[II].canny1::phase(TILE_DY_DIM,TILE_DX_DIM,VECTOR_WIDTH)[I][J][K] <= 
+         >CONCURRENT FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM-1) FOR(II=0:NUM_PCORE-1) FOR(J=0:TILE_DX_DIM-1) DTYPE(INT8)PCORE(NUM_PCORE)[II].canny1::phase(TILE_DY_DIM,TILE_DX_DIM,VECTOR_WIDTH)[I][J][K] <= 
          >DTYPE(INT8)MEM(req->phase,h2,TILE_DY_DIM,w)[y*VECTOR_WIDTH:y*VECTOR_WIDTH+VECTOR_WIDTH-1][0:TILE_DY_DIM-1][x*dx:x*dx+dx2-1];
 
          // Copy the gap from adjacent tile.
@@ -220,7 +220,7 @@ static void canny_phase_1(void *_p,int pid) {
 
          // Copy result tiles back to memory
          >DTYPE(INT16)MEM(req->maxima,h,w)[y*dy:y*dy+TILE_DY_DIM*VECTOR_WIDTH-1][x*dx:x*dx+dx2-1] <=
-         >SHUFFLE FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM-1) FOR(II=0:NUM_PCORE-1) FOR(J=0:TILE_DX_DIM-1) DTYPE(INT16)PCORE(NUM_PCORE)[II].canny1::maxima(TILE_DY_DIM,TILE_DX_DIM,VECTOR_WIDTH)[I][J][K];
+         >CONCURRENT FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM-1) FOR(II=0:NUM_PCORE-1) FOR(J=0:TILE_DX_DIM-1) DTYPE(INT16)PCORE(NUM_PCORE)[II].canny1::maxima(TILE_DY_DIM,TILE_DX_DIM,VECTOR_WIDTH)[I][J][K];
       }
    }
 }
@@ -284,7 +284,7 @@ static void canny_phase_2(void *_p,int pid) {
          }
          >BARRIER;
          // Copy input to PCORE array...
-         >SHUFFLE FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM+2*pad-1) FOR(II=0:NUM_PCORE-1) FOR(J=pad:pad+TILE_DX_DIM-1) DTYPE(INT16) PCORE(NUM_PCORE)[II].canny2::maxima(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[I][J][K] <= 
+         >CONCURRENT FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM+2*pad-1) FOR(II=0:NUM_PCORE-1) FOR(J=pad:pad+TILE_DX_DIM-1) DTYPE(INT16) PCORE(NUM_PCORE)[II].canny2::maxima(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[I][J][K] <= 
          >DTYPE(INT16)MEM(maxima,maximaLen(h2,TILE_DY_DIM+,w))[y*VECTOR_WIDTH:y*VECTOR_WIDTH+VECTOR_WIDTH-1][0:TILE_DY_DIM+2*pad-1][x*dx:x*dx+dx2-1];
 
          // Copy the gap from adjacent tile.
@@ -309,7 +309,7 @@ static void canny_phase_2(void *_p,int pid) {
 
          // Copy result tiles back to memory
          >DTYPE(UINT8)MEM(req->output,h,w)[y*dy:y*dy+TILE_DY_DIM*VECTOR_WIDTH-1][x*dx:x*dx+dx2-1] <=
-         >SHUFFLE FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM-1) FOR(II=0:NUM_PCORE-1) FOR(J=0:TILE_DX_DIM-1) DTYPE(UINT8)PCORE(NUM_PCORE)[II].canny2::output(TILE_DY_DIM,TILE_DX_DIM,VECTOR_WIDTH)[I][J][K];
+         >CONCURRENT FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM-1) FOR(II=0:NUM_PCORE-1) FOR(J=0:TILE_DX_DIM-1) DTYPE(UINT8)PCORE(NUM_PCORE)[II].canny2::output(TILE_DY_DIM,TILE_DX_DIM,VECTOR_WIDTH)[I][J][K];
       }
    }
 }

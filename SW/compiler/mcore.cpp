@@ -84,9 +84,9 @@
 #define TOKEN_FOR             "FOR"
 #define TOKEN_REPEAT          "REPEAT"
 #define TOKEN_PAD             "PAD"
-#define TOKEN_LATEST            "LATEST"
+#define TOKEN_LATEST          "LATEST"
 #define TOKEN_THREAD          "THREAD"
-#define TOKEN_SHUFFLE         "SHUFFLE"
+#define TOKEN_CONCURRENT      "CONCURRENT"
 #define TOKEN_SPU             "SPU"
 #define TOKEN_PCORE_PROG      "PROG"
 #define TOKEN_EXPORT          "EXPORT"
@@ -657,7 +657,7 @@ int cMcoreTerm::Validate()
       m_datatype = "INT16";
       if (m_specifier.size() != 1)
          error(cMcore::M_currLine, "Invalid ALL syntax");
-      if (m_shuffle.size() > 0)
+      if (m_concurrent.size() > 0)
          error(cMcore::M_currLine, "SCATTER is only for PCORE");
    }
    else if (strcasecmp(m_name.c_str(), TOKEN_ALL_SHORT) == 0)
@@ -667,7 +667,7 @@ int cMcoreTerm::Validate()
       m_datatype = "INT8";
       if (m_specifier.size() != 1)
          error(cMcore::M_currLine, "Invalid ALL syntax");
-      if (m_shuffle.size() > 0)
+      if (m_concurrent.size() > 0)
          error(cMcore::M_currLine, "SCATTER is only for PCORE");
    }
    else if (strcasecmp(m_name.c_str(), TOKEN_SPU) == 0)
@@ -692,7 +692,7 @@ int cMcoreTerm::Validate()
    {
       // Referenced SRAM
       m_id = cMcoreTerm::eMcoreTermTypeSRAM;
-      if (m_shuffle.size() > 0)
+      if (m_concurrent.size() > 0)
          error(cMcore::M_currLine, "SCATTER is only for PCORE");
       if(m_remap.size() > 0)
           error(cMcore::M_currLine, "REMAP is only for PCORE");
@@ -778,7 +778,7 @@ int cMcoreTerm::Validate()
          }
          m_specifier.resize(m_specifier.size() - 1);
       }
-      if (m_shuffle.size() > 0)
+      if (m_concurrent.size() > 0)
          error(cMcore::M_currLine, "SCATTER is only for PCORE");
       if (strcasecmp(m_dtype.c_str(), "INT16") == 0)
       {
@@ -899,7 +899,7 @@ int cMcoreTerm::Validate()
 // mcore functions like a hardware nested-for loop
 // Find which of the hardware loop counter to use
 //
-int cMcoreTerm::getStrideRegisterIndex(int index, int dimSize, bool shuffle)
+int cMcoreTerm::getStrideRegisterIndex(int index, int dimSize, bool concurrent)
 {
    int _index;
    int i;
@@ -936,7 +936,7 @@ int cMcoreTerm::getStrideRegisterIndex(int index, int dimSize, bool shuffle)
       index = m_forRange.size() + count;
    }
    assert(dimSize <= MAX_DP_STRIDE);
-   if (shuffle)
+   if (concurrent)
    {
       if (m_pcoreSize > 0 && _index >= m_pcoreDim && _index <= (m_pcoreDim + m_pcoreSize - 1))
       {
@@ -1052,14 +1052,14 @@ int cMcoreTerm::GenPcoreTensor(FILE *out, int _parm, cMcoreRange *_parmRange, ch
          if (_parm < 0 || _parmRange->m_type != cMcoreRange::eMcoreRangeTypeSingle)
          {
             sprintf(temp, "(%s)*t%d1", m_dim[idx].c_str(), idx);
-            GEN(out, STR_DPREG_STRIDE[getStrideRegisterIndex(idx, m_dim.size() + parmSize, m_shuffle.size()>0)], dp_template, 0, temp);
+            GEN(out, STR_DPREG_STRIDE[getStrideRegisterIndex(idx, m_dim.size() + parmSize, m_concurrent.size()>0)], dp_template, 0, temp);
             sprintf(temp, "((t%d2-t%d0+t%d1)/t%d1)-1", idx, idx, idx, idx);
-            GEN(out, STR_DPREG_STRIDE_COUNT[getStrideRegisterIndex(idx, m_dim.size() + parmSize, m_shuffle.size() > 0)], dp_template, 0, temp);
+            GEN(out, STR_DPREG_STRIDE_COUNT[getStrideRegisterIndex(idx, m_dim.size() + parmSize, m_concurrent.size() > 0)], dp_template, 0, temp);
 
             sprintf(temp, "((%s)-t%d0)*(%s)-1", (idx == 0) ? m_specifier[SPECIFIER_PCORE_DIM].m_v.c_str() : m_dim[idx].c_str(), idx, m_dim[idx].c_str());
-            GEN(out, STR_DPREG_STRIDE_MAX[getStrideRegisterIndex(idx, m_dim.size() + parmSize, m_shuffle.size() > 0)], dp_template, 0, temp);
+            GEN(out, STR_DPREG_STRIDE_MAX[getStrideRegisterIndex(idx, m_dim.size() + parmSize, m_concurrent.size() > 0)], dp_template, 0, temp);
             sprintf(temp, "t%d0*(%s)", idx, m_dim[idx].c_str());
-            GEN(out, STR_DPREG_STRIDE_MIN[getStrideRegisterIndex(idx, m_dim.size() + parmSize, m_shuffle.size() > 0)], dp_template, 0, temp);
+            GEN(out, STR_DPREG_STRIDE_MIN[getStrideRegisterIndex(idx, m_dim.size() + parmSize, m_concurrent.size() > 0)], dp_template, 0, temp);
          }
       }
    }
@@ -1103,13 +1103,13 @@ int cMcoreTerm::GenPcoreTensor(FILE *out, int _parm, cMcoreRange *_parmRange, ch
                   strcat(varLen, varLen2);
                   sprintf(varStride, "(%s)*(%s)", GetDimSize(m_identifier, i).c_str(), m_parm[i].m_item[1].c_str());
                   sprintf(temp, "(%s-1)", varLen2);
-                  GEN(out, STR_DPREG_STRIDE_COUNT[getStrideRegisterIndex(m_dim.size() + index, m_dim.size() + parmSize, m_shuffle.size() > 0)], dp_template, 0, temp);
+                  GEN(out, STR_DPREG_STRIDE_COUNT[getStrideRegisterIndex(m_dim.size() + index, m_dim.size() + parmSize, m_concurrent.size() > 0)], dp_template, 0, temp);
                   sprintf(temp, "%s", varStride);
-                  GEN(out, STR_DPREG_STRIDE[getStrideRegisterIndex(m_dim.size() + index, m_dim.size() + parmSize, m_shuffle.size() > 0)], dp_template, 0, temp);
+                  GEN(out, STR_DPREG_STRIDE[getStrideRegisterIndex(m_dim.size() + index, m_dim.size() + parmSize, m_concurrent.size() > 0)], dp_template, 0, temp);
                   sprintf(temp, "%d", (m_identifier->getLen() - 1));
-                  GEN(out, STR_DPREG_STRIDE_MAX[getStrideRegisterIndex(m_dim.size() + index, m_dim.size() + parmSize, m_shuffle.size() > 0)], dp_template, 0, temp);
+                  GEN(out, STR_DPREG_STRIDE_MAX[getStrideRegisterIndex(m_dim.size() + index, m_dim.size() + parmSize, m_concurrent.size() > 0)], dp_template, 0, temp);
                   sprintf(temp, "%d", 0);
-                  GEN(out, STR_DPREG_STRIDE_MIN[getStrideRegisterIndex(m_dim.size() + index, m_dim.size() + parmSize, m_shuffle.size() > 0)], dp_template, 0, temp);
+                  GEN(out, STR_DPREG_STRIDE_MIN[getStrideRegisterIndex(m_dim.size() + index, m_dim.size() + parmSize, m_concurrent.size() > 0)], dp_template, 0, temp);
                   assert(!m_parm[i].m_isParm);
                   index++;
                }
@@ -1123,13 +1123,13 @@ int cMcoreTerm::GenPcoreTensor(FILE *out, int _parm, cMcoreRange *_parmRange, ch
             sprintf(varLen, "0");
             sprintf(varStride, "1");
             sprintf(temp, "%s", varLen);
-            GEN(out, STR_DPREG_STRIDE_COUNT[getStrideRegisterIndex(m_dim.size(), m_dim.size() + parmSize, m_shuffle.size() > 0)], dp_template, 0, temp);
+            GEN(out, STR_DPREG_STRIDE_COUNT[getStrideRegisterIndex(m_dim.size(), m_dim.size() + parmSize, m_concurrent.size() > 0)], dp_template, 0, temp);
             sprintf(temp, "%s", varStride);
-            GEN(out, STR_DPREG_STRIDE[getStrideRegisterIndex(m_dim.size(), m_dim.size() + parmSize, m_shuffle.size() > 0)], dp_template, 0, temp);
+            GEN(out, STR_DPREG_STRIDE[getStrideRegisterIndex(m_dim.size(), m_dim.size() + parmSize, m_concurrent.size() > 0)], dp_template, 0, temp);
             sprintf(temp, "%d", (m_identifier->getLen() - 1));
-            GEN(out, STR_DPREG_STRIDE_MAX[getStrideRegisterIndex(m_dim.size(), m_dim.size() + parmSize, m_shuffle.size() > 0)], dp_template, 0, temp);
+            GEN(out, STR_DPREG_STRIDE_MAX[getStrideRegisterIndex(m_dim.size(), m_dim.size() + parmSize, m_concurrent.size() > 0)], dp_template, 0, temp);
             sprintf(temp, "%d", 0);
-            GEN(out, STR_DPREG_STRIDE_MIN[getStrideRegisterIndex(m_dim.size(), m_dim.size() + parmSize, m_shuffle.size() > 0)], dp_template, 0, temp);
+            GEN(out, STR_DPREG_STRIDE_MIN[getStrideRegisterIndex(m_dim.size(), m_dim.size() + parmSize, m_concurrent.size() > 0)], dp_template, 0, temp);
          }
       }
       else
@@ -1138,13 +1138,13 @@ int cMcoreTerm::GenPcoreTensor(FILE *out, int _parm, cMcoreRange *_parmRange, ch
          sprintf(varLen, "%d", m_identifier->getLen() - 1);
          sprintf(varStride, "1");
          sprintf(temp, "%s", varLen);
-         GEN(out, STR_DPREG_STRIDE_COUNT[getStrideRegisterIndex(m_dim.size(), m_dim.size() + parmSize, m_shuffle.size() > 0)], dp_template, 0, temp);
+         GEN(out, STR_DPREG_STRIDE_COUNT[getStrideRegisterIndex(m_dim.size(), m_dim.size() + parmSize, m_concurrent.size() > 0)], dp_template, 0, temp);
          sprintf(temp, "%s", varStride);
-         GEN(out, STR_DPREG_STRIDE[getStrideRegisterIndex(m_dim.size(), m_dim.size() + parmSize, m_shuffle.size() > 0)], dp_template, 0, temp);
+         GEN(out, STR_DPREG_STRIDE[getStrideRegisterIndex(m_dim.size(), m_dim.size() + parmSize, m_concurrent.size() > 0)], dp_template, 0, temp);
          sprintf(temp, "%d", (m_identifier->getLen() - 1));
-         GEN(out, STR_DPREG_STRIDE_MAX[getStrideRegisterIndex(m_dim.size(), m_dim.size() + parmSize, m_shuffle.size() > 0)], dp_template, 0, temp);
+         GEN(out, STR_DPREG_STRIDE_MAX[getStrideRegisterIndex(m_dim.size(), m_dim.size() + parmSize, m_concurrent.size() > 0)], dp_template, 0, temp);
          sprintf(temp, "%d", 0);
-         GEN(out, STR_DPREG_STRIDE_MIN[getStrideRegisterIndex(m_dim.size(), m_dim.size() + parmSize, m_shuffle.size() > 0)], dp_template, 0, temp);
+         GEN(out, STR_DPREG_STRIDE_MIN[getStrideRegisterIndex(m_dim.size(), m_dim.size() + parmSize, m_concurrent.size() > 0)], dp_template, 0, temp);
       }
    }
    temp[0] = 0;
@@ -1199,7 +1199,7 @@ int cMcoreTerm::GenPcoreTensor(FILE *out, int _parm, cMcoreRange *_parmRange, ch
       GEN(out, DPREG_TOTALCOUNT, dp_template, 0, temp);
    }
    mode = 0;
-   if (m_shuffle.size() > 0)
+   if (m_concurrent.size() > 0)
       mode |= (1 << DP_MODE_SCATTER);
    mode |= (m_id << DP_MODE_BUSID);
 
@@ -1621,7 +1621,7 @@ bool cMcoreTerm::decodeVarName(char *name, int *var)
    }
 }
 
-// Create the SCRATCH memory to hold intermediate data during a shuffle transfer
+// Create the SCRATCH memory to hold intermediate data during a concurrent transfer
 
 void cMcoreTerm::ScratchCreate(cMcoreTerm *term, char *dtype, char *_scratchAddr, std::string &forkCount)
 {
@@ -1634,7 +1634,7 @@ void cMcoreTerm::ScratchCreate(cMcoreTerm *term, char *dtype, char *_scratchAddr
    char scratchAddr[MAX_LINE];
 
    assert(term->m_id == cMcoreTerm::eMcoreTermTypePCORE);
-   assert(term->m_shuffle.size() > 0);
+   assert(term->m_concurrent.size() > 0);
    m_id = cMcoreTerm::eMcoreTermTypeSRAM;
    m_datatype = "DP_DATA_TYPE_INT16";
    sprintf(scratchAddr, "(%s)", _scratchAddr);
@@ -1713,16 +1713,16 @@ void cMcoreTerm::ScratchCreate(cMcoreTerm *term, char *dtype, char *_scratchAddr
 }
 
 // Reorder the transfer ordering to match the reorder of PCORE
-void cMcoreTerm::ScratchReorder(cMcoreTerm *term, bool shuffle)
+void cMcoreTerm::ScratchReorder(cMcoreTerm *term, bool concurrent)
 {
    int i, oldindex, newindex;
    int dimSize;
    dimSize = m_index.size();
-   if (shuffle)
+   if (concurrent)
    {
       assert(term->m_id == cMcoreTerm::eMcoreTermTypePCORE);
-      assert(term->m_shuffle.size() > 0);
-      if (term->m_shuffle.size() > 0)
+      assert(term->m_concurrent.size() > 0);
+      if (term->m_concurrent.size() > 0)
       {
          for (i = 0; i < (int)m_index.size(); i++)
          {
@@ -2595,11 +2595,11 @@ char *cMcore::scan_term(char *line, cMcoreTerm *term)
          term->m_latest = true;
          line = scan_name(line, token);
       }
-      else if (strcasecmp(token, TOKEN_SHUFFLE) == 0)
+      else if (strcasecmp(token, TOKEN_CONCURRENT) == 0)
       {
-         if (term->m_shuffle.size() > 0)
+         if (term->m_concurrent.size() > 0)
             error(cMcore::M_currLine, "Multiple SCATTER");
-         scan_specifier(&term->m_shuffle,"(0)");
+         scan_specifier(&term->m_concurrent,"(0)");
          line = scan_name(line, token);
       }
       else if (strcasecmp(token, TOKEN_FOR) == 0)
@@ -2811,20 +2811,20 @@ char *cMcore::scan_transfer(FILE *out, char *line)
    sprintf(c1, "((DP_CONDITION_SRAM_FLUSH)|%d)", waitCondition);
    sprintf(c2, "(DP_CONDITION_SRAM_FLUSH)");
    sprintf(c3, "(%d)", waitCondition);
-   if ((right.m_shuffle.size() > 0 && !right.CanScatter()) && left.m_shuffle.size() == 0)
+   if ((right.m_concurrent.size() > 0 && !right.CanScatter()) && left.m_concurrent.size() == 0)
    {
       // Scatter transfer. Source is scattered and destination is not
-      rightScratch.ScratchCreate(&right, (char *)left.m_dtype.c_str(), (char *)right.m_shuffle[0].m_v.c_str(), forkCount);
+      rightScratch.ScratchCreate(&right, (char *)left.m_dtype.c_str(), (char *)right.m_concurrent[0].m_v.c_str(), forkCount);
       rightScratch.Validate();
       rightScratch.ScratchReorder(&right, true);
       gen_transfer(out, rightScratch, right, c1, remap);
       rightScratch.ScratchReorder(0, false);
       gen_transfer(out, left, rightScratch, c2, 0);
    }
-   else if (right.m_shuffle.size() == 0 && (left.m_shuffle.size() > 0 && !left.CanScatter()))
+   else if (right.m_concurrent.size() == 0 && (left.m_concurrent.size() > 0 && !left.CanScatter()))
    {
       // Scatter transfer. Destination is scattered and source is not
-      leftScratch.ScratchCreate(&left, (char *)right.m_dtype.c_str(), (char *)left.m_shuffle[0].m_v.c_str(), forkCount);
+      leftScratch.ScratchCreate(&left, (char *)right.m_dtype.c_str(), (char *)left.m_concurrent[0].m_v.c_str(), forkCount);
       leftScratch.Validate();
       leftScratch.ScratchReorder(0, false);
       gen_transfer(out, leftScratch, right, c1, remap);
@@ -2832,14 +2832,14 @@ char *cMcore::scan_transfer(FILE *out, char *line)
       gen_transfer(out, left, leftScratch, c2, 0);
 
    }
-   else if ((right.m_shuffle.size() > 0 && !right.CanScatter()) &&
-      (left.m_shuffle.size() > 0 && !left.CanScatter()))
+   else if ((right.m_concurrent.size() > 0 && !right.CanScatter()) &&
+      (left.m_concurrent.size() > 0 && !left.CanScatter()))
    {
       // Scatter transfer. Source and destination are scattered
-      leftScratch.ScratchCreate(&left, 0, (char *)right.m_shuffle[0].m_v.c_str(), forkCount);
+      leftScratch.ScratchCreate(&left, 0, (char *)right.m_concurrent[0].m_v.c_str(), forkCount);
       leftScratch.Validate();
       leftScratch.ScratchReorder(&left, true);
-      rightScratch.ScratchCreate(&right, 0, (char *)right.m_shuffle[0].m_v.c_str(), forkCount);
+      rightScratch.ScratchCreate(&right, 0, (char *)right.m_concurrent[0].m_v.c_str(), forkCount);
       rightScratch.Validate();
       rightScratch.ScratchReorder(&right, true);
       gen_transfer(out, rightScratch, right, c1, remap);
