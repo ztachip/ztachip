@@ -63,7 +63,7 @@ ZtaStatus GraphNodeGaussian::Verify() {
    m_sigma=SIGMA;
    BuildKernel();
    std::vector<int> dim={m_nChannel,m_h,m_w};
-   m_output->Create(TensorDataTypeUint8,TensorFormatSplit,m_input->GetSemantic(),dim);
+   m_output->Create(TensorDataTypeUint8,TensorFormatSplit,m_input->GetObjType(),dim);
    return ZtaStatusOk;
 }
 

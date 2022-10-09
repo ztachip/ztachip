@@ -46,19 +46,19 @@ typedef enum {
 // Tensor data meaning...
 
 typedef enum {
-   TensorSemanticRGB, // Image with pixel color in RGB order
-   TensorSemanticBGR, // Image with pixel color in BGR order 
-   TensorSemanticYUYV, // Image with YUYV pixel (2bytes per pixel)
-   TensorSemanticMonochrome, // Image monochrome but with 3 color plane (R=G=B) 
-   TensorSemanticMonochromeSingleChannel, // Image monochrome but 1 color plane
-   TensorSemanticUnknown // Unknown meaning
-} TensorSemantic;
+   TensorObjTypeRGB, // Image with pixel color in RGB order
+   TensorObjTypeBGR, // Image with pixel color in BGR order
+   TensorObjTypeYUYV, // Image with YUYV pixel (2bytes per pixel)
+   TensorObjTypeMonochrome, // Image monochrome but with 3 color plane (R=G=B)
+   TensorObjTypeMonochromeSingleChannel, // Image monochrome but 1 color plane
+   TensorObjTypeUnknown // Unknown meaning
+} TensorObjType;
 
 class TENSOR {
 public:
    TENSOR();
-   TENSOR(TensorDataType _dataType,TensorFormat _fmt,TensorSemantic _semantic,int numDim,...);
-   ZtaStatus Create(TensorDataType _dataType,TensorFormat _fmt,TensorSemantic _semantic,std::vector<int> &dim,ZTA_SHARED_MEM _shm=0);
+   TENSOR(TensorDataType _dataType,TensorFormat _fmt,TensorObjType _objType,int numDim,...);
+   ZtaStatus Create(TensorDataType _dataType,TensorFormat _fmt,TensorObjType _objType,std::vector<int> &dim,ZTA_SHARED_MEM _shm=0);
    ZtaStatus Clone(TENSOR *other);
    ZtaStatus Alias(TENSOR *other);
    ZtaStatus Alias(ZTA_SHARED_MEM _shm);
@@ -66,7 +66,7 @@ public:
    ~TENSOR();
    TensorDataType GetDataType() {return m_dataType;}
    TensorFormat GetFormat() {return m_fmt;}
-   TensorSemantic GetSemantic() {return m_semantic;}
+   TensorObjType GetObjType() {return m_objType;}
    std::vector<int> *GetDimension() {return &m_dim;}
    int GetDimension(int _idx) {return m_dim[_idx];}
    ZTA_SHARED_MEM GetBufShm() {return m_shm;}
@@ -79,7 +79,7 @@ public:
 private:
    ZtaStatus setDataType(TensorDataType _dataType);
    ZtaStatus setFormat(TensorFormat fmt);
-   ZtaStatus setSemantic(TensorSemantic _semantic);
+   ZtaStatus setObjType(TensorObjType _objType);
    ZtaStatus setDimension(std::vector<int> &dim);
    ZtaStatus allocate(ZTA_SHARED_MEM shm=0);
 private:
@@ -88,7 +88,7 @@ private:
    TensorDataType m_dataType;
    int m_dataElementLen;
    TensorFormat m_fmt;
-   TensorSemantic m_semantic;
+   TensorObjType m_objType;
    void *m_buf;
    int m_size;
 };

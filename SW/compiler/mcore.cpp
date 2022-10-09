@@ -449,7 +449,6 @@ int cMcoreTerm::Validate()
    int i, j;
    int var;
    std::string item1, item2, item3;
-   char *remap;
 
    if (m_name.length() == 0)
    {
@@ -2507,7 +2506,6 @@ char *cMcore::scan_term(char *line, cMcoreTerm *term)
    int i;
    char token[MAX_LINE];
    char dtype[MAX_LINE];
-   char remap[MAX_LINE];
    line = skipWS(line);
 
    if (line[0] == '$')

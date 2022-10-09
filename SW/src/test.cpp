@@ -91,7 +91,7 @@ int test_color()
    int crop;
    uint8_t blue,green,red;
    TENSOR inputTensor,outputTensor;
-   TensorSemantic srcColorSpace,dstColorSpace;
+   TensorObjType srcColorSpace,dstColorSpace;
    TensorFormat destFormat;
    Graph graph;
 
@@ -120,8 +120,8 @@ int test_color()
                dstfmt=kChannelFmtInterleave;
                srcorder=kChannelColorBGR;
                dstorder=kChannelColorBGR;
-               srcColorSpace=TensorSemanticBGR;
-               dstColorSpace=TensorSemanticBGR;
+               srcColorSpace=TensorObjTypeBGR;
+               dstColorSpace=TensorObjTypeBGR;
                destFormat=TensorFormatInterleaved;
                break;
             case 1:
@@ -129,8 +129,8 @@ int test_color()
                dstfmt=kChannelFmtSplit;
                srcorder=kChannelColorBGR;
                dstorder=kChannelColorBGR;
-               srcColorSpace=TensorSemanticBGR;
-               dstColorSpace=TensorSemanticBGR;
+               srcColorSpace=TensorObjTypeBGR;
+               dstColorSpace=TensorObjTypeBGR;
                destFormat=TensorFormatSplit;
                break;
             case 2:
@@ -138,8 +138,8 @@ int test_color()
                dstfmt=kChannelFmtInterleave;
                srcorder=kChannelColorBGR;
                dstorder=kChannelColorBGR;
-               srcColorSpace=TensorSemanticBGR;
-               dstColorSpace=TensorSemanticBGR;
+               srcColorSpace=TensorObjTypeBGR;
+               dstColorSpace=TensorObjTypeBGR;
                destFormat=TensorFormatInterleaved;
                break;
             case 3:
@@ -147,8 +147,8 @@ int test_color()
                dstfmt=kChannelFmtSplit;
                srcorder=kChannelColorBGR;
                dstorder=kChannelColorBGR;
-               srcColorSpace=TensorSemanticBGR;
-               dstColorSpace=TensorSemanticBGR;
+               srcColorSpace=TensorObjTypeBGR;
+               dstColorSpace=TensorObjTypeBGR;
                destFormat=TensorFormatSplit;
                break;
             case 4:
@@ -156,8 +156,8 @@ int test_color()
                dstfmt=kChannelFmtSingle;
                srcorder=kChannelColorBGR;
                dstorder=kChannelColorMono;
-               srcColorSpace=TensorSemanticBGR;
-               dstColorSpace=TensorSemanticMonochromeSingleChannel;
+               srcColorSpace=TensorObjTypeBGR;
+               dstColorSpace=TensorObjTypeMonochromeSingleChannel;
                destFormat=TensorFormatSplit;
                break;
             case 5:
@@ -165,8 +165,8 @@ int test_color()
                dstfmt=kChannelFmtSingle;
                srcorder=kChannelColorBGR;
                dstorder=kChannelColorMono;
-               srcColorSpace=TensorSemanticBGR;
-               dstColorSpace=TensorSemanticMonochromeSingleChannel;
+               srcColorSpace=TensorObjTypeBGR;
+               dstColorSpace=TensorObjTypeMonochromeSingleChannel;
                destFormat=TensorFormatSplit;
                break;
             case 6:
@@ -174,8 +174,8 @@ int test_color()
                dstfmt=kChannelFmtSingle;
                srcorder=kChannelColorRGB;
                dstorder=kChannelColorMono;
-               srcColorSpace=TensorSemanticRGB;
-               dstColorSpace=TensorSemanticMonochromeSingleChannel;
+               srcColorSpace=TensorObjTypeRGB;
+               dstColorSpace=TensorObjTypeMonochromeSingleChannel;
                destFormat=TensorFormatSplit;
                break;
             case 7:
@@ -183,8 +183,8 @@ int test_color()
                dstfmt=kChannelFmtSingle;
                srcorder=kChannelColorRGB;
                dstorder=kChannelColorMono;
-               srcColorSpace=TensorSemanticRGB;
-               dstColorSpace=TensorSemanticMonochromeSingleChannel;
+               srcColorSpace=TensorObjTypeRGB;
+               dstColorSpace=TensorObjTypeMonochromeSingleChannel;
                destFormat=TensorFormatSplit;
                break;
             case 8:
@@ -192,8 +192,8 @@ int test_color()
                dstfmt=kChannelFmtInterleave;
                srcorder=kChannelColorRGB;
                dstorder=kChannelColorMono;
-               srcColorSpace=TensorSemanticRGB;
-               dstColorSpace=TensorSemanticMonochrome;
+               srcColorSpace=TensorObjTypeRGB;
+               dstColorSpace=TensorObjTypeMonochrome;
                destFormat=TensorFormatInterleaved;
                break;
             case 9:
@@ -201,8 +201,8 @@ int test_color()
                dstfmt=kChannelFmtSplit;
                srcorder=kChannelColorRGB;
                dstorder=kChannelColorMono;
-               srcColorSpace=TensorSemanticRGB;
-               dstColorSpace=TensorSemanticMonochrome;
+               srcColorSpace=TensorObjTypeRGB;
+               dstColorSpace=TensorObjTypeMonochrome;
                destFormat=TensorFormatSplit;
                break;
             case 10:
@@ -210,8 +210,8 @@ int test_color()
                dstfmt=kChannelFmtSplit;
                srcorder=kChannelColorRGB;
                dstorder=kChannelColorMono;
-               srcColorSpace=TensorSemanticRGB;
-               dstColorSpace=TensorSemanticMonochrome;
+               srcColorSpace=TensorObjTypeRGB;
+               dstColorSpace=TensorObjTypeMonochrome;
                destFormat=TensorFormatSplit;
                break;
             case 11:
@@ -219,8 +219,8 @@ int test_color()
                dstfmt=kChannelFmtInterleave;
                srcorder=kChannelColorRGB;
                dstorder=kChannelColorMono;
-               srcColorSpace=TensorSemanticRGB;
-               dstColorSpace=TensorSemanticMonochrome;
+               srcColorSpace=TensorObjTypeRGB;
+               dstColorSpace=TensorObjTypeMonochrome;
                destFormat=TensorFormatInterleaved;
                break;
             case 12:
@@ -228,8 +228,8 @@ int test_color()
                dstfmt=kChannelFmtInterleave;
                srcorder=kChannelColorBGR;
                dstorder=kChannelColorMono;
-               srcColorSpace=TensorSemanticBGR;
-               dstColorSpace=TensorSemanticMonochrome;
+               srcColorSpace=TensorObjTypeBGR;
+               dstColorSpace=TensorObjTypeMonochrome;
                destFormat=TensorFormatInterleaved;
                break;
             case 13:
@@ -237,8 +237,8 @@ int test_color()
                dstfmt=kChannelFmtSplit;
                srcorder=kChannelColorBGR;
                dstorder=kChannelColorMono;
-               srcColorSpace=TensorSemanticBGR;
-               dstColorSpace=TensorSemanticMonochrome;
+               srcColorSpace=TensorObjTypeBGR;
+               dstColorSpace=TensorObjTypeMonochrome;
                destFormat=TensorFormatSplit;
                break;
             case 14:
@@ -246,8 +246,8 @@ int test_color()
                dstfmt=kChannelFmtSplit;
                srcorder=kChannelColorBGR;
                dstorder=kChannelColorMono;
-               srcColorSpace=TensorSemanticBGR;
-               dstColorSpace=TensorSemanticMonochrome;
+               srcColorSpace=TensorObjTypeBGR;
+               dstColorSpace=TensorObjTypeMonochrome;
                destFormat=TensorFormatSplit;
                break;
             default:
@@ -255,8 +255,8 @@ int test_color()
                dstfmt=kChannelFmtInterleave;
                srcorder=kChannelColorBGR;
                dstorder=kChannelColorMono;
-               srcColorSpace=TensorSemanticBGR;
-               dstColorSpace=TensorSemanticMonochrome;
+               srcColorSpace=TensorObjTypeBGR;
+               dstColorSpace=TensorObjTypeMonochrome;
                destFormat=TensorFormatInterleaved;
                break;
 
@@ -412,9 +412,9 @@ int test_of() {
    // Load the 2 images
 
    std::vector<int> dim={1,src_h,src_w};
-   input[0].Create(TensorDataTypeUint8,TensorFormatSplit,TensorSemanticMonochromeSingleChannel,dim);
-   input[1].Create(TensorDataTypeUint8,TensorFormatSplit,TensorSemanticMonochromeSingleChannel,dim);
-   inputCurr.Create(TensorDataTypeUint8,TensorFormatSplit,TensorSemanticMonochromeSingleChannel,dim);
+   input[0].Create(TensorDataTypeUint8,TensorFormatSplit,TensorObjTypeMonochromeSingleChannel,dim);
+   input[1].Create(TensorDataTypeUint8,TensorFormatSplit,TensorObjTypeMonochromeSingleChannel,dim);
+   inputCurr.Create(TensorDataTypeUint8,TensorFormatSplit,TensorObjTypeMonochromeSingleChannel,dim);
    input_p[0]=(uint8_t *)input[0].GetBuf();
    input_p[1]=(uint8_t *)input[1].GetBuf();
 
@@ -608,7 +608,7 @@ int test_yuyv_to_bgr() {
             // Read input image...
 
             std::vector<int> dim={1,src_h,src_w};
-            rc=inputTensor.Create(TensorDataTypeUint16,TensorFormatSplit,TensorSemanticYUYV,dim);
+            rc=inputTensor.Create(TensorDataTypeUint16,TensorFormatSplit,TensorObjTypeYUYV,dim);
             assert(rc==ZtaStatusOk);
 
             sprintf(fname,"color_conversion_%d_%d_in.bin",src_w,src_h);
@@ -621,7 +621,7 @@ int test_yuyv_to_bgr() {
             rc=graphNode.Create(
                     &inputTensor,
                     &outputTensor,
-                    (order==kChannelColorRGB)?TensorSemanticRGB:TensorSemanticBGR,
+                    (order==kChannelColorRGB)?TensorObjTypeRGB:TensorObjTypeBGR,
                     (fmt==kChannelFmtSplit)?TensorFormatSplit:TensorFormatInterleaved,
                     x_off,
                     y_off,
@@ -712,7 +712,7 @@ int test_canny()
       assert(fp);
 
       std::vector<int> input_dim={1,src_w,src_h};
-      inputTensor.Create(TensorDataTypeUint8,TensorFormatSplit,TensorSemanticMonochromeSingleChannel,input_dim);
+      inputTensor.Create(TensorDataTypeUint8,TensorFormatSplit,TensorObjTypeMonochromeSingleChannel,input_dim);
       input=(uint8_t *)inputTensor.GetBuf();
 
       memset(input,0,src_w*src_h);
@@ -782,7 +782,7 @@ int test_harris() {
       assert(fp);
 
       std::vector<int> dim={1,src_h,src_w};
-      inputTensor.Create(TensorDataTypeUint8,TensorFormatSplit,TensorSemanticMonochromeSingleChannel,dim);
+      inputTensor.Create(TensorDataTypeUint8,TensorFormatSplit,TensorObjTypeMonochromeSingleChannel,dim);
       input=(uint8_t *)inputTensor.GetBuf();
 
       memset(input,0,src_w*src_h);
@@ -902,7 +902,7 @@ int test_gaussian() {
          dst_h=h;
 
          std::vector<int> dim={3,src_h,src_w};
-         inputTensor.Create(TensorDataTypeUint8,TensorFormatSplit,TensorSemanticRGB,dim);
+         inputTensor.Create(TensorDataTypeUint8,TensorFormatSplit,TensorObjTypeRGB,dim);
          input=(uint8_t *)inputTensor.GetBuf();
 
          // Read input image...
@@ -992,7 +992,7 @@ int test_histogram()
    src_h = dst_h;
 
    std::vector<int> inputDim={nchannels,src_h,src_w};
-   inputTensor.Create(TensorDataTypeUint8,TensorFormatSplit,TensorSemanticRGB,inputDim);
+   inputTensor.Create(TensorDataTypeUint8,TensorFormatSplit,TensorObjTypeRGB,inputDim);
    input=(uint8_t *)inputTensor.GetBuf();
    memcpy(input,pict_in,inputTensor.GetBufLen());
 

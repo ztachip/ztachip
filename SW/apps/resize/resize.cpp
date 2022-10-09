@@ -102,7 +102,7 @@ ZtaStatus GraphNodeResize::Verify() {
    m_nChannel=(*(m_input->GetDimension()))[0];
 
    std::vector<int> dim={m_nChannel,m_dst_h,m_dst_w};
-   m_output->Create(TensorDataTypeUint8,TensorFormatSplit,m_input->GetSemantic(),dim);
+   m_output->Create(TensorDataTypeUint8,TensorFormatSplit,m_input->GetObjType(),dim);
 
    m_temp=ztaAllocSharedMem(2*(m_src_w*m_src_h*3+64));
    for(int i=0;i < 2;i++) {

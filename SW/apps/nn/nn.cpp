@@ -320,7 +320,7 @@ ZtaStatus NeuralNet::AssignOutputTensors(bool firstTime) {
       }
       // Allocate output tensor
       if(firstTime)
-         m_output[which]->Create(tensorDataType,tensorFmt,TensorSemanticUnknown,dim2);
+         m_output[which]->Create(tensorDataType,tensorFmt,TensorObjTypeUnknown,dim2);
       // Then assign NN internal buffer to this external tensors...
       BufferAllocate(bufid,m_output[which]);
    }

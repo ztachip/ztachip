@@ -255,20 +255,20 @@ int vision_ai() {
     CameraInit(WEBCAM_WIDTH,WEBCAM_HEIGHT);
 
     std::vector<int> dim={3,WEBCAM_HEIGHT,WEBCAM_WIDTH};
-    rc=tensorInput.Create(TensorDataTypeUint8,TensorFormatInterleaved,TensorSemanticRGB,dim);
+    rc=tensorInput.Create(TensorDataTypeUint8,TensorFormatInterleaved,TensorObjTypeRGB,dim);
 
     // Create the appropriate graph according to test case.
 
     if(testcase==TestCaseEdgeDetection) {
        // Graph for edge detection
-       rc=nodeInput.Create(&tensorInput,&tensor[1],TensorSemanticRGB,TensorFormatSplit);
+       rc=nodeInput.Create(&tensorInput,&tensor[1],TensorObjTypeRGB,TensorFormatSplit);
        assert(rc==ZtaStatusOk);
-       rc=nodeConvert2Mono.Create(&tensor[1],&tensor[2],TensorSemanticMonochromeSingleChannel,TensorFormatSplit);
+       rc=nodeConvert2Mono.Create(&tensor[1],&tensor[2],TensorObjTypeMonochromeSingleChannel,TensorFormatSplit);
        assert(rc==ZtaStatusOk);
        rc=nodeCanny.Create(&tensor[2],&tensor[3]);
        assert(rc==ZtaStatusOk);
        nodeCanny.SetThreshold(81,100);
-       rc=nodeOutput.Create(&tensor[3],&tensorOutput,TensorSemanticMonochrome,TensorFormatInterleaved);
+       rc=nodeOutput.Create(&tensor[3],&tensorOutput,TensorObjTypeMonochrome,TensorFormatInterleaved);
        assert(rc==ZtaStatusOk);
 
        graph.Add(&nodeInput);
@@ -278,11 +278,11 @@ int vision_ai() {
        graph.Verify();
     } else if(testcase==TestCaseOpticalFlow) {
         // Graph for optical flow
-        rc=nodeInput.Create(&tensorInput,&tensor[1],TensorSemanticRGB,TensorFormatSplit);
+        rc=nodeInput.Create(&tensorInput,&tensor[1],TensorObjTypeRGB,TensorFormatSplit);
         assert(rc==ZtaStatusOk);
         rc=nodeConvert2Mono.Create(&tensor[1],
                                    &tensorOpticalFlowInput,
-                                   TensorSemanticMonochromeSingleChannel,
+                                   TensorObjTypeMonochromeSingleChannel,
                                    TensorFormatSplit);
         assert(rc==ZtaStatusOk);
         rc=nodeOpticalFlow.Create(&tensorOpticalFlowInput,
@@ -293,7 +293,7 @@ int vision_ai() {
                                  &tensorOpticalFlowVectY,
                                  &tensorOpticalFlowDisplay);
         assert(rc==ZtaStatusOk);
-        rc=nodeOutput.Create(&tensorOpticalFlowDisplay,&tensorOutput,TensorSemanticRGB,TensorFormatInterleaved);
+        rc=nodeOutput.Create(&tensorOpticalFlowDisplay,&tensorOutput,TensorObjTypeRGB,TensorFormatInterleaved);
         assert(rc==ZtaStatusOk);
 
         graph.Add(&nodeInput);
@@ -303,13 +303,13 @@ int vision_ai() {
         graph.Verify();
     } else if(testcase==TestCaseHarrisCorner) {
         // Graph for harris-corner feature detection
-        rc=nodeInput.Create(&tensorInput,&tensor[1],TensorSemanticRGB,TensorFormatSplit);
+        rc=nodeInput.Create(&tensorInput,&tensor[1],TensorObjTypeRGB,TensorFormatSplit);
         assert(rc==ZtaStatusOk);
-        rc=nodeConvert2Mono.Create(&tensor[1],&tensor[2],TensorSemanticMonochromeSingleChannel,TensorFormatSplit);
+        rc=nodeConvert2Mono.Create(&tensor[1],&tensor[2],TensorObjTypeMonochromeSingleChannel,TensorFormatSplit);
         assert(rc==ZtaStatusOk);
         rc=nodeHarris.Create(&tensor[2],&tensorHarris);
         assert(rc==ZtaStatusOk);
-        rc=nodeOutput.Create(&tensor[1],&tensorOutput,TensorSemanticRGB,TensorFormatInterleaved);
+        rc=nodeOutput.Create(&tensor[1],&tensorOutput,TensorObjTypeRGB,TensorFormatInterleaved);
         assert(rc==ZtaStatusOk);
 
         graph.Add(&nodeInput);
@@ -319,7 +319,7 @@ int vision_ai() {
         graph.Verify();
     } else if(testcase==TestCaseImageClassifier) {
          // Graph for image classifier using Mobinet model
-         rc=nodeInput.Create(&tensorInput,&tensor[1],TensorSemanticRGB,TensorFormatSplit);
+         rc=nodeInput.Create(&tensorInput,&tensor[1],TensorObjTypeRGB,TensorFormatSplit);
          assert(rc==ZtaStatusOk);
          rc=nodeResize.Create(&tensor[1],&tensor[2],224,224);
          assert(rc==ZtaStatusOk);
@@ -333,13 +333,13 @@ int vision_ai() {
          graphNN.Add(&nodeNN);
          graphNN.Verify();
          // Graph to show the background camera capture for image classifier
-         rc=nodeOutput.Create(&tensorInput,&tensorOutput,TensorSemanticRGB,TensorFormatInterleaved);
+         rc=nodeOutput.Create(&tensorInput,&tensorOutput,TensorObjTypeRGB,TensorFormatInterleaved);
          assert(rc==ZtaStatusOk);
          graph.Add(&nodeOutput);
          graph.Verify();
     } else if(testcase==TestCaseObjectDetection) {
         // Graph for object detection using SSD-Mobinet model.
-        rc=nodeInput.Create(&tensorInput,&tensor[1],TensorSemanticRGB,TensorFormatSplit);
+        rc=nodeInput.Create(&tensorInput,&tensor[1],TensorObjTypeRGB,TensorFormatSplit);
         assert(rc==ZtaStatusOk);
         rc=nodeResize.Create(&tensor[1],&tensor[2],300,300);
         assert(rc==ZtaStatusOk);
@@ -353,7 +353,7 @@ int vision_ai() {
         graphNN.Add(&nodeNN);
         graphNN.Verify();
         // Graph to show background camera capture when doing object detection
-        rc=nodeOutput.Create(&tensorInput,&tensorOutput,TensorSemanticRGB,TensorFormatInterleaved);
+        rc=nodeOutput.Create(&tensorInput,&tensorOutput,TensorObjTypeRGB,TensorFormatInterleaved);
         assert(rc==ZtaStatusOk);
         graph.Add(&nodeOutput);
         graph.Verify();
@@ -366,12 +366,12 @@ int vision_ai() {
         // Each of the 4 vision tasks output to seperate tile on the display
         int w=WEBCAM_WIDTH/2;
         int h=WEBCAM_HEIGHT/2;
-        rc=nodeInput.Create(&tensorInput,&tensor[1],TensorSemanticRGB,TensorFormatSplit);
+        rc=nodeInput.Create(&tensorInput,&tensor[1],TensorObjTypeRGB,TensorFormatSplit);
         assert(rc==ZtaStatusOk);
         rc=nodeResize.Create(&tensor[1],&tensorResize,w,h);
         assert(rc==ZtaStatusOk);
         // Object detection background. The output is the top left tile of full display
-        rc=nodeOutputs[0].Create(&tensorResize,&tensorOutputs[0],TensorSemanticRGB,TensorFormatInterleaved,
+        rc=nodeOutputs[0].Create(&tensorResize,&tensorOutputs[0],TensorObjTypeRGB,TensorFormatInterleaved,
                              0,0,0,0,
                              0,0,w*2,h*2);
 
@@ -379,13 +379,13 @@ int vision_ai() {
 
         // Edge detection
 
-        rc=nodeConvert2Mono.Create(&tensorResize,&tensor[2],TensorSemanticMonochromeSingleChannel,TensorFormatSplit);
+        rc=nodeConvert2Mono.Create(&tensorResize,&tensor[2],TensorObjTypeMonochromeSingleChannel,TensorFormatSplit);
         assert(rc==ZtaStatusOk);
         rc=nodeCanny.Create(&tensor[2],&tensor[3]);
         assert(rc==ZtaStatusOk);
         nodeCanny.SetThreshold(81,100);
         // Output for edge detection is the top right tile of full display
-        rc=nodeOutputs[1].Create(&tensor[3],&tensorOutputs[1],TensorSemanticMonochrome,TensorFormatInterleaved,
+        rc=nodeOutputs[1].Create(&tensor[3],&tensorOutputs[1],TensorObjTypeMonochrome,TensorFormatInterleaved,
                              0,0,0,0,
                              w,0,w*2,h*2);
         assert(rc==ZtaStatusOk);
@@ -394,7 +394,7 @@ int vision_ai() {
         rc=nodeHarris.Create(&tensor[2],&tensorHarris);
         assert(rc==ZtaStatusOk);
         // Output of harris-corner is the bottom left tile of full display
-        rc=nodeOutputs[2].Create(&tensorResize,&tensorOutputs[2],TensorSemanticRGB,TensorFormatInterleaved,
+        rc=nodeOutputs[2].Create(&tensorResize,&tensorOutputs[2],TensorObjTypeRGB,TensorFormatInterleaved,
                              0,0,0,0,
                              0,h,w*2,h*2);
         assert(rc==ZtaStatusOk);
@@ -409,7 +409,7 @@ int vision_ai() {
                                  &tensorOpticalFlowDisplay);
         assert(rc==ZtaStatusOk);
         // Output of optical flow is the bottom right tile of full display
-        rc=nodeOutputs[3].Create(&tensorOpticalFlowDisplay,&tensorOutputs[3],TensorSemanticRGB,TensorFormatInterleaved,
+        rc=nodeOutputs[3].Create(&tensorOpticalFlowDisplay,&tensorOutputs[3],TensorObjTypeRGB,TensorFormatInterleaved,
                              0,0,0,0,
                              w,h,w*2,h*2);
         assert(rc==ZtaStatusOk);

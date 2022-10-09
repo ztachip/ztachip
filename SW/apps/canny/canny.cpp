@@ -71,7 +71,7 @@ ZtaStatus GraphNodeCanny::Verify() {
    m_thresholdHi=163;
 //   m_thresholdHi=100;
    std::vector<int> dim={1,m_h,m_w};
-   m_output->Create(TensorDataTypeUint8,TensorFormatSplit,TensorSemanticMonochromeSingleChannel,dim);
+   m_output->Create(TensorDataTypeUint8,TensorFormatSplit,TensorObjTypeMonochromeSingleChannel,dim);
    return ZtaStatusOk;
 }
 

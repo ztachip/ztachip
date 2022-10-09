@@ -31,7 +31,7 @@ class GraphNodeColorAndReshape : public GraphNode {
 public:
    GraphNodeColorAndReshape();
    GraphNodeColorAndReshape(TENSOR *input,TENSOR *output,
-                            TensorSemantic _dstColorSpace,
+                            TensorObjType _dstColorSpace,
                             TensorFormat _dstFormat,
                             int clip_x=0,
                             int clip_y=0,
@@ -43,7 +43,7 @@ public:
                             int dst_h=0);
    virtual ~GraphNodeColorAndReshape();
    ZtaStatus Create(TENSOR *input,TENSOR *output,
-                    TensorSemantic dstColorSpace,
+                    TensorObjType dstColorSpace,
                     TensorFormat _dstFormat,
                     int clip_x=0,
                     int clip_y=0,
@@ -61,8 +61,8 @@ private:
 private:
    TENSOR *m_input;
    TENSOR *m_output;
-   TensorSemantic m_srcColorSpace;
-   TensorSemantic m_dstColorSpace;
+   TensorObjType m_srcColorSpace;
+   TensorObjType m_dstColorSpace;
    TensorFormat m_dstFormat;
    int m_srcorder;   
    int m_srcfmt;

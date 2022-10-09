@@ -56,14 +56,14 @@ ZtaStatus GraphNodeHarris::Verify() {
    m_nChannel=(*(m_input->GetDimension()))[0];
    if(m_nChannel != 1)
       return ZtaStatusFail;
-   if(m_input->GetSemantic() != TensorSemanticMonochromeSingleChannel)
+   if(m_input->GetObjType() != TensorObjTypeMonochromeSingleChannel)
       return ZtaStatusFail;
    
    m_x_gradient=ztaAllocSharedMem(m_w*m_h*sizeof(int16_t));
    m_y_gradient=ztaAllocSharedMem(m_w*m_h*sizeof(int16_t));
    m_score=ztaAllocSharedMem(m_w*m_h*sizeof(int16_t));
    std::vector<int> dim={m_h,m_w};
-   m_output->Create(TensorDataTypeInt16,TensorFormatSplit,TensorSemanticUnknown,dim);
+   m_output->Create(TensorDataTypeInt16,TensorFormatSplit,TensorObjTypeUnknown,dim);
    return ZtaStatusOk;
 }
 

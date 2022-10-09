@@ -56,9 +56,9 @@ ZtaStatus GraphNodeEqualize::Verify() {
    m_nChannel=(*(m_input->GetDimension()))[0];
    SetContrast(2.0);
    std::vector<int> dim={m_nChannel,2,kHistogramBinSize,VECTOR_WIDTH};
-   m_result.Create(TensorDataTypeInt16,TensorFormatSplit,TensorSemanticUnknown,dim);
+   m_result.Create(TensorDataTypeInt16,TensorFormatSplit,TensorObjTypeUnknown,dim);
    std::vector<int> dim2={m_nChannel,m_h,m_w};
-   m_output->Create(TensorDataTypeUint8,TensorFormatSplit,m_input->GetSemantic(),dim2);
+   m_output->Create(TensorDataTypeUint8,TensorFormatSplit,m_input->GetObjType(),dim2);
    m_histogramAvail=false;
    return ZtaStatusOk;
 }

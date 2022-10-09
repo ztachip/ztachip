@@ -35,7 +35,7 @@ TENSOR::TENSOR() {
    m_dataType=TensorDataTypeUint8;
    m_dataElementLen=1;
    m_fmt=TensorFormatSplit;
-   m_semantic=TensorSemanticUnknown;
+   m_objType=TensorObjTypeUnknown;
    m_buf=0;
    m_size=0;
 }
@@ -43,13 +43,13 @@ TENSOR::TENSOR() {
 // Create a fully defined tensor.
 // Also allocate memory for it
 
-TENSOR::TENSOR(TensorDataType _dataType,TensorFormat _fmt,TensorSemantic _semantic,int numDim,...):TENSOR() {
+TENSOR::TENSOR(TensorDataType _dataType,TensorFormat _fmt,TensorObjType _objType,int numDim,...):TENSOR() {
    va_list args;
    int v;
 
    setDataType(_dataType);
    setFormat(_fmt);
-   setSemantic(_semantic);
+   setObjType(_objType);
    va_start(args,numDim);
    for(int i=0;i < numDim;i++) {
       v=va_arg(args,int);
@@ -64,7 +64,7 @@ TENSOR::TENSOR(TensorDataType _dataType,TensorFormat _fmt,TensorSemantic _semant
 // If _shm specified, tensor buffer has been created already so just reference it directly
 // Otherwise allocate new buffer
 
-ZtaStatus TENSOR::Create(TensorDataType _dataType,TensorFormat _fmt,TensorSemantic _semantic,std::vector<int> &dim,
+ZtaStatus TENSOR::Create(TensorDataType _dataType,TensorFormat _fmt,TensorObjType _objType,std::vector<int> &dim,
                         ZTA_SHARED_MEM _shm) {
    if(m_shm && !m_isAlias) {
       ztaFreeSharedMem(m_shm);
@@ -73,7 +73,7 @@ ZtaStatus TENSOR::Create(TensorDataType _dataType,TensorFormat _fmt,TensorSemant
    m_isAlias=false;
    setDataType(_dataType);
    setFormat(_fmt);
-   setSemantic(_semantic);
+   setObjType(_objType);
    setDimension(dim);
    if(_shm)
       allocate(_shm);
@@ -83,7 +83,7 @@ ZtaStatus TENSOR::Create(TensorDataType _dataType,TensorFormat _fmt,TensorSemant
 }
 
 ZtaStatus TENSOR::Clone(TENSOR *other) {
-   return Create(other->GetDataType(),other->GetFormat(),other->GetSemantic(),other->m_dim);
+   return Create(other->GetDataType(),other->GetFormat(),other->GetObjType(),other->m_dim);
 }
 
 ZtaStatus TENSOR::CreateWithBitmap(const char *bmpFile,TensorFormat fmt)
@@ -102,10 +102,10 @@ ZtaStatus TENSOR::CreateWithBitmap(const char *bmpFile,TensorFormat fmt)
    }
    if(fmt==TensorFormatSplit) {
       std::vector<int> dim={3,bmp_h,bmp_w};
-      Create(TensorDataTypeUint8,TensorFormatSplit,TensorSemanticRGB,dim);
+      Create(TensorDataTypeUint8,TensorFormatSplit,TensorObjTypeRGB,dim);
    } else {
       std::vector<int> dim={bmp_h,3*bmp_w};
-      Create(TensorDataTypeUint8,TensorFormatSplit,TensorSemanticRGB,dim);
+      Create(TensorDataTypeUint8,TensorFormatSplit,TensorObjTypeRGB,dim);
    }
    output=(uint8_t *)GetBuf();
 
@@ -160,8 +160,8 @@ ZtaStatus TENSOR::setDataType(TensorDataType _dataType) {
    return ZtaStatusOk;
 }
 
-ZtaStatus TENSOR::setSemantic(TensorSemantic _semantic) {
-   m_semantic=_semantic;
+ZtaStatus TENSOR::setObjType(TensorObjType _objType) {
+   m_objType=_objType;
    return ZtaStatusOk;
 }
 

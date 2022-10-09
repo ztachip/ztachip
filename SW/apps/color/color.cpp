@@ -36,7 +36,7 @@ GraphNodeColorAndReshape::GraphNodeColorAndReshape() {
 }
 
 GraphNodeColorAndReshape::GraphNodeColorAndReshape(TENSOR *input,TENSOR *output,
-                                                   TensorSemantic _dstColorSpace,
+                                                   TensorObjType _dstColorSpace,
                                                    TensorFormat _dstFormat,
                                                    int clip_x,int clip_y,
                                                    int clip_w,int clip_h,
@@ -50,7 +50,7 @@ GraphNodeColorAndReshape::~GraphNodeColorAndReshape() {
 }
 
 ZtaStatus GraphNodeColorAndReshape::Create(TENSOR *input,TENSOR *output,
-                                          TensorSemantic _dstColorSpace,
+                                          TensorObjType _dstColorSpace,
                                           TensorFormat _dstFormat,
                                           int clip_x,int clip_y,
                                           int clip_w,int clip_h,
@@ -82,15 +82,15 @@ void GraphNodeColorAndReshape::Cleanup() {
 // Implement verify operation required by GraphNode base class
 
 ZtaStatus GraphNodeColorAndReshape::Verify() {
-   TensorSemantic semantic;
+   TensorObjType objType;
 
-   m_srcColorSpace=m_input->GetSemantic();
+   m_srcColorSpace=m_input->GetObjType();
    if((*(m_input->GetDimension())).size() != 3)
       return ZtaStatusFail;
    m_src_w=(*(m_input->GetDimension()))[2];
    m_src_h=(*(m_input->GetDimension()))[1];
    m_nChannel=(*(m_input->GetDimension()))[0];
-   if(m_srcColorSpace==TensorSemanticYUYV) {
+   if(m_srcColorSpace==TensorObjTypeYUYV) {
       if(m_nChannel != 1) {
          return ZtaStatusFail;
       }
@@ -98,14 +98,14 @@ ZtaStatus GraphNodeColorAndReshape::Verify() {
          m_input->GetDataType() != TensorDataTypeInt16) {
          return ZtaStatusFail;
       }
-      if(m_dstColorSpace != TensorSemanticRGB &&
-         m_dstColorSpace != TensorSemanticBGR) {
+      if(m_dstColorSpace != TensorObjTypeRGB &&
+         m_dstColorSpace != TensorObjTypeBGR) {
          return ZtaStatusFail;
       } 
       if(m_spu) 
          ztaFreeSharedMem(m_spu);
       m_spu=ztaBuildSpuBundle(1,SpuCallback,0,0,0);
-   } else if(m_srcColorSpace==TensorSemanticMonochromeSingleChannel) {
+   } else if(m_srcColorSpace==TensorObjTypeMonochromeSingleChannel) {
       // Monochrome with 1 channel
       if(m_nChannel != 1)
          return ZtaStatusFail;
@@ -113,7 +113,7 @@ ZtaStatus GraphNodeColorAndReshape::Verify() {
          return ZtaStatusFail;
       m_srcorder=kChannelColorMono;
       m_srcfmt=kChannelFmtSingle;
-   } else if(m_srcColorSpace==TensorSemanticRGB || m_srcColorSpace==TensorSemanticBGR || m_srcColorSpace==TensorSemanticMonochrome) {
+   } else if(m_srcColorSpace==TensorObjTypeRGB || m_srcColorSpace==TensorObjTypeBGR || m_srcColorSpace==TensorObjTypeMonochrome) {
       // Convert from RGB/BGR space
       if((*(m_input->GetDimension())).size() != 3)
          return ZtaStatusFail;
@@ -121,9 +121,9 @@ ZtaStatus GraphNodeColorAndReshape::Verify() {
          return ZtaStatusFail;
       if(m_nChannel != 3)
          return ZtaStatusFail;
-      if(m_srcColorSpace==TensorSemanticRGB)
+      if(m_srcColorSpace==TensorObjTypeRGB)
          m_srcorder=kChannelColorRGB;
-      else if(m_srcColorSpace==TensorSemanticBGR)
+      else if(m_srcColorSpace==TensorObjTypeBGR)
          m_srcorder=kChannelColorBGR;
       else
          m_srcorder=kChannelColorMono;
@@ -141,38 +141,38 @@ ZtaStatus GraphNodeColorAndReshape::Verify() {
    if(m_dst_h==0)
       m_dst_h=m_clip_h;
    switch(m_dstColorSpace) {
-      case TensorSemanticRGB:
+      case TensorObjTypeRGB:
          m_dstorder=kChannelColorRGB;
          m_dstfmt=(m_dstFormat==TensorFormatSplit)?kChannelFmtSplit:kChannelFmtInterleave;
-         semantic=TensorSemanticRGB;
+         objType=TensorObjTypeRGB;
          break;
-      case TensorSemanticBGR:
+      case TensorObjTypeBGR:
          m_dstorder=kChannelColorBGR;
          m_dstfmt=(m_dstFormat==TensorFormatSplit)?kChannelFmtSplit:kChannelFmtInterleave;
-         semantic=TensorSemanticBGR;
+         objType=TensorObjTypeBGR;
          break;
-      case TensorSemanticYUYV:
+      case TensorObjTypeYUYV:
          return ZtaStatusFail;
-      case TensorSemanticMonochrome:
+      case TensorObjTypeMonochrome:
          m_dstorder=kChannelColorMono;
          m_dstfmt=(m_dstFormat==TensorFormatSplit)?kChannelFmtSplit:kChannelFmtInterleave;
-         semantic=TensorSemanticMonochrome;
+         objType=TensorObjTypeMonochrome;
          break;
-      case TensorSemanticMonochromeSingleChannel:
+      case TensorObjTypeMonochromeSingleChannel:
          m_dstorder=kChannelColorMono;
          m_dstfmt=kChannelFmtSingle;
          m_dstFormat=TensorFormatSplit;
-         semantic=TensorSemanticMonochromeSingleChannel;
+         objType=TensorObjTypeMonochromeSingleChannel;
          break;
       default:
          assert(0);
    }
-   if(m_dstColorSpace==TensorSemanticMonochromeSingleChannel) {
+   if(m_dstColorSpace==TensorObjTypeMonochromeSingleChannel) {
       std::vector<int> dim={1,m_dst_h,m_dst_w};
-      m_output->Create(TensorDataTypeUint8,m_dstFormat,semantic,dim);
+      m_output->Create(TensorDataTypeUint8,m_dstFormat,objType,dim);
    } else {
       std::vector<int> dim={3,m_dst_h,m_dst_w};
-      m_output->Create(TensorDataTypeUint8,m_dstFormat,semantic,dim);
+      m_output->Create(TensorDataTypeUint8,m_dstFormat,objType,dim);
    }
    return ZtaStatusOk;
 }
@@ -180,7 +180,7 @@ ZtaStatus GraphNodeColorAndReshape::Verify() {
 // Implement schedule function required by GraphNode base class
 
 ZtaStatus GraphNodeColorAndReshape::Execute(int queue,bool stepMode) {
-   if(m_srcColorSpace==TensorSemanticYUYV) {
+   if(m_srcColorSpace==TensorObjTypeYUYV) {
       kernel_yuyv2rgb_exe(
          GetJobId(queue),
          (unsigned int)m_input->GetBuf(),

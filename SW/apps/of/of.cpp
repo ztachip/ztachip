@@ -83,7 +83,7 @@ ZtaStatus GraphNodeOpticalFlow::Verify() {
    m_nChannel=(*(m_input1->GetDimension()))[0];
    if(m_nChannel != 1)
       return ZtaStatusFail;
-   if(m_input1->GetSemantic() != TensorSemanticMonochromeSingleChannel)
+   if(m_input1->GetObjType() != TensorObjTypeMonochromeSingleChannel)
       return ZtaStatusFail;
    if((*(m_input1->GetDimension())).size() != 3)
       return ZtaStatusFail;
@@ -93,17 +93,17 @@ ZtaStatus GraphNodeOpticalFlow::Verify() {
       return ZtaStatusFail;
    if((*(m_input1->GetDimension()))[0] != 1)
       return ZtaStatusFail;
-   if(m_input1->GetSemantic() != TensorSemanticMonochromeSingleChannel)
+   if(m_input1->GetObjType() != TensorObjTypeMonochromeSingleChannel)
       return ZtaStatusFail;
 
    std::vector<int> dim={m_h,m_w};
-   m_x_gradient->Create(TensorDataTypeInt16,TensorFormatSplit,TensorSemanticUnknown,dim);
-   m_y_gradient->Create(TensorDataTypeInt16,TensorFormatSplit,TensorSemanticUnknown,dim);
-   m_t_gradient->Create(TensorDataTypeInt16,TensorFormatSplit,TensorSemanticUnknown,dim);
-   m_x_vect->Create(TensorDataTypeInt16,TensorFormatSplit,TensorSemanticUnknown,dim);
-   m_y_vect->Create(TensorDataTypeInt16,TensorFormatSplit,TensorSemanticUnknown,dim);
+   m_x_gradient->Create(TensorDataTypeInt16,TensorFormatSplit,TensorObjTypeUnknown,dim);
+   m_y_gradient->Create(TensorDataTypeInt16,TensorFormatSplit,TensorObjTypeUnknown,dim);
+   m_t_gradient->Create(TensorDataTypeInt16,TensorFormatSplit,TensorObjTypeUnknown,dim);
+   m_x_vect->Create(TensorDataTypeInt16,TensorFormatSplit,TensorObjTypeUnknown,dim);
+   m_y_vect->Create(TensorDataTypeInt16,TensorFormatSplit,TensorObjTypeUnknown,dim);
    std::vector<int> dim2={3,m_h,m_w};
-   m_display->Create(TensorDataTypeUint8,TensorFormatSplit,TensorSemanticRGB,dim2);
+   m_display->Create(TensorDataTypeUint8,TensorFormatSplit,TensorObjTypeRGB,dim2);
 
    m_spu=ztaBuildSpuBundle(4,
                                SpuCallback,0,0,0,
