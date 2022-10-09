@@ -135,10 +135,7 @@ ZtaStatus GraphNode::CheckResponse() {
    int queue;
    uint32_t resp;
    // Wait for response....
-   while(ZTAM_GREG(0,REG_DP_READ_INDICATION_AVAIL,0)>0) {
-	   ZTAM_GREG(0,REG_DP_READ_INDICATION,0);
-	   resp=ZTAM_GREG(0,REG_DP_READ_INDICATION_PARM,0);
-	   ZTAM_GREG(0,REG_DP_READ_SYNC,0);
+   while(ztaReadResponse(&resp)) {
 	   queue=(resp>>24);
 	   resp=(resp&0xFFFFFF);
 	   assert(queue < GRAPH_MAX_INSTANCE);

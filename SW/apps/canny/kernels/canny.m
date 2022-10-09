@@ -100,7 +100,7 @@ static void canny_phase_0(void *_p,int pid) {
             >DTYPE(INT8)PCORE(NUM_PCORE)[0].canny::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= INT8(0);
          }
          
-         >FLUSH;
+         >BARRIER;
          
          // Copy input to PCORE array...
          >SHUFFLE DTYPE(UINT8) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM+2*pad-1) FOR(II=0:NUM_PCORE-1) FOR(J=pad:pad+TILE_DX_DIM-1) PCORE(NUM_PCORE)[II].canny::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[I][J][K] <= 
@@ -116,10 +116,10 @@ static void canny_phase_0(void *_p,int pid) {
          >DTYPE(UINT8)PCORE(NUM_PCORE)[1:cnt-1].canny::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <=
          >DTYPE(UINT8) LATEST PCORE(NUM_PCORE)[0:cnt-2].canny::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM:TILE_DX_DIM+pad-1][:];
 
-         >FLUSH;
+         >BARRIER;
          
          if(y==0) {
-            >PCORE(NUM_PCORE)[*].canny::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[0:pad-1][:][0] <= INT8(0);
+            >DTYPE(INT8)PCORE(NUM_PCORE)[*].canny::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[0:pad-1][:][0] <= INT8(0);
          }
 
          > EXE_LOCKSTEP(canny::calc_gradient,NUM_PCORE);
@@ -190,7 +190,7 @@ static void canny_phase_1(void *_p,int pid) {
             // There is nothing at the left. So set it to zero...
             >DTYPE(INT16)PCORE(NUM_PCORE)[0].canny1::magnitude(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= INT16(0);
          }
-         >FLUSH;
+         >BARRIER;
          // Copy input to PCORE array...
          >SHUFFLE FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM+2*pad-1) FOR(II=0:NUM_PCORE-1) FOR(J=pad:pad+TILE_DX_DIM-1) DTYPE(INT16) PCORE(NUM_PCORE)[II].canny1::magnitude(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[I][J][K] <= 
          >DTYPE(INT16)MEM(magnitude,magnitudeLen(h2,TILE_DY_DIM+,w))[y*VECTOR_WIDTH:y*VECTOR_WIDTH+VECTOR_WIDTH-1][0:TILE_DY_DIM+2*pad-1][x*dx:x*dx+dx2-1];
@@ -208,7 +208,7 @@ static void canny_phase_1(void *_p,int pid) {
          >DTYPE(INT16)PCORE(NUM_PCORE)[1:cnt-1].canny1::magnitude(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <=
          >DTYPE(INT16)LATEST PCORE(NUM_PCORE)[0:cnt-2].canny1::magnitude(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM:TILE_DX_DIM+pad-1][:];
 
-         >FLUSH;
+         >BARRIER;
          
          if(y==0) {
             >DTYPE(INT16)PCORE(NUM_PCORE)[*].canny1::magnitude(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[0:pad-1][:][0] <= INT16(0);
@@ -282,7 +282,7 @@ static void canny_phase_2(void *_p,int pid) {
             // There is nothing at the left. So set it to zero...
             >DTYPE(INT16)PCORE(NUM_PCORE)[0].canny2::maxima(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= INT16(0);
          }
-         >FLUSH;
+         >BARRIER;
          // Copy input to PCORE array...
          >SHUFFLE FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM+2*pad-1) FOR(II=0:NUM_PCORE-1) FOR(J=pad:pad+TILE_DX_DIM-1) DTYPE(INT16) PCORE(NUM_PCORE)[II].canny2::maxima(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[I][J][K] <= 
          >DTYPE(INT16)MEM(maxima,maximaLen(h2,TILE_DY_DIM+,w))[y*VECTOR_WIDTH:y*VECTOR_WIDTH+VECTOR_WIDTH-1][0:TILE_DY_DIM+2*pad-1][x*dx:x*dx+dx2-1];
@@ -297,7 +297,7 @@ static void canny_phase_2(void *_p,int pid) {
          >DTYPE(INT16)PCORE(NUM_PCORE)[1:cnt-1].canny2::maxima(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <=
          >DTYPE(INT16)LATEST PCORE(NUM_PCORE)[0:cnt-2].canny2::maxima(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM:TILE_DX_DIM+pad-1][:];
 
-         >FLUSH;
+         >BARRIER;
          
          if(y==0) {
             >DTYPE(INT16)PCORE(NUM_PCORE)[*].canny2::maxima(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[0:pad-1][:][0] <= INT16(0);

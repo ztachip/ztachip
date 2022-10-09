@@ -116,7 +116,7 @@ static void harris_phase_0(void *_p,int pid) {
          >DTYPE(UINT8)PCORE(NUM_PCORE)[0:cnt-2].harris::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM:TILE_DX_DIM+pad-1][:];
 
          if(y==0) {
-            >PCORE(NUM_PCORE)[*].harris::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[0:pad-1][:][0] <= INT8(0);
+            >DTYPE(INT8)PCORE(NUM_PCORE)[*].harris::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[0:pad-1][:][0] <= INT8(0);
          }
 
          > EXE_LOCKSTEP(harris::calc_gradient,NUM_PCORE);

@@ -114,7 +114,7 @@ static void of_phase_0(void *_p,int pid) {
             >DTYPE(INT8)PCORE(NUM_PCORE)[0].of::inbuf2(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= INT8(0);
          }
          
-         >FLUSH;
+         >BARRIER;
          
          // Copy input to PCORE array...
 
@@ -143,11 +143,11 @@ static void of_phase_0(void *_p,int pid) {
          >DTYPE(UINT8)PCORE(NUM_PCORE)[1:cnt-1].of::inbuf2(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <=
          >DTYPE(UINT8)LATEST PCORE(NUM_PCORE)[0:cnt-2].of::inbuf2(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][TILE_DX_DIM:TILE_DX_DIM+pad-1][:];
 
-         >FLUSH;
+         >BARRIER;
          if(y==0)
          {
-            >PCORE(NUM_PCORE)[*].of::inbuf1(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[0:pad-1][:][0] <= INT8(0);
-            >PCORE(NUM_PCORE)[*].of::inbuf2(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[0:pad-1][:][0] <= INT8(0);
+            >DTYPE(INT8)PCORE(NUM_PCORE)[*].of::inbuf1(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[0:pad-1][:][0] <= INT8(0);
+            >DTYPE(INT8)PCORE(NUM_PCORE)[*].of::inbuf2(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[0:pad-1][:][0] <= INT8(0);
          }
 
          > EXE_LOCKSTEP(of::calc_gradient,NUM_PCORE);
@@ -241,7 +241,7 @@ static void of_phase_1(void *_p,int pid) {
             >DTYPE(INT16)PCORE(NUM_PCORE)[0].of1::y_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= INT16(0);
             >DTYPE(INT16)PCORE(NUM_PCORE)[0].of1::t_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= INT16(0);
          }
-         >FLUSH;
+         >BARRIER;
          // Copy input to PCORE array...
          >SHUFFLE FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:OF1_TILE_DY_DIM+2*pad-1) FOR(II=0:NUM_PCORE-1) FOR(J=pad:pad+OF1_TILE_DX_DIM-1) DTYPE(INT16) PCORE(NUM_PCORE)[II].of1::x_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[I][J][K] <= 
          >DTYPE(INT16)MEM(x_gradient,x_gradientLen(h2,OF1_TILE_DY_DIM+,w))[y*VECTOR_WIDTH:y*VECTOR_WIDTH+VECTOR_WIDTH-1][0:OF1_TILE_DY_DIM+2*pad-1][x*dx:x*dx+dx2-1];
@@ -278,7 +278,7 @@ static void of_phase_1(void *_p,int pid) {
 	     >DTYPE(INT16)PCORE(NUM_PCORE)[1:cnt-1].of1::t_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <=
          >DTYPE(INT16)LATEST PCORE(NUM_PCORE)[0:cnt-2].of1::t_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][OF1_TILE_DX_DIM:OF1_TILE_DX_DIM+pad-1][:];
          
-         >FLUSH;
+         >BARRIER;
          
          if(y==0) {
             >DTYPE(INT16)PCORE(NUM_PCORE)[*].of1::x_gradient(OF1_TILE_DY_DIM+2*pad,OF1_TILE_DX_DIM+2*pad,VECTOR_WIDTH)[0:pad-1][:][0] <= INT16(0);

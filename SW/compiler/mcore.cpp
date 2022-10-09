@@ -77,7 +77,7 @@
 #define TOKEN_NOTIFY          "CALLBACK"
 #define TOKEN_LOG_ON          "LOG_ON"
 #define TOKEN_LOG_OFF         "LOG_OFF"
-#define TOKEN_FLUSH           "FLUSH"
+#define TOKEN_BARRIER         "BARRIER"
 #define TOKEN_ALL_INT         "INT16"
 #define TOKEN_ALL_HALF        "HALF"
 #define TOKEN_ALL_SHORT       "INT8"
@@ -91,7 +91,7 @@
 #define TOKEN_PCORE_PROG      "PROG"
 #define TOKEN_EXPORT          "EXPORT"
 #define TOKEN_VAR             "VAR"
-#define TOKEN_DTYPE            "DTYPE"
+#define TOKEN_DTYPE           "DTYPE"
 #define TOKEN_REMAP           "REMAP"
 
 // PCORE layout
@@ -556,7 +556,7 @@ int cMcoreTerm::Validate()
       }
       else
       {
-         m_datatype = "INT8";
+         error(cMcore::M_currLine, "DTYPE is not defined");
       }
       if (m_specifier.size() <= SPECIFIER_PCORE_DIM)
       {
@@ -800,7 +800,7 @@ int cMcoreTerm::Validate()
       }
       else
       {
-         m_datatype = "INT16";
+    	  error(cMcore::M_currLine, "DTYPE is not defined");
       }
       if (m_specifier.size() < 1)
          error(cMcore::M_currLine, "Invalid DDR memory reference");
@@ -2448,7 +2448,7 @@ char *cMcore::scan_log_off(FILE *out, char *line, bool sync)
 }
 
 // Scan and generate a FLUSH command
-char *cMcore::scan_flush(FILE *out, char *line)
+char *cMcore::scan_barrier(FILE *out, char *line)
 {
    std::vector<std::string> specifier;
    char token[MAX_LINE];
@@ -2973,10 +2973,10 @@ char *cMcore::decode(char *line, FILE *out, int *cmd)
       *cmd = CMD_LOG_OFF;
       return scan_log_off(out, line, false);
    }
-   if (strcasecmp(token, TOKEN_FLUSH) == 0)
+   if (strcasecmp(token, TOKEN_BARRIER) == 0)
    {
       *cmd = CMD_NOP;
-      return scan_flush(out, line);
+      return scan_barrier(out, line);
    }
    if (strcasecmp(token, TOKEN_VAR) == 0)
    {

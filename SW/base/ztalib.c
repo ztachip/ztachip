@@ -148,10 +148,22 @@ ZTA_SHARED_MEM ztaBuildSpuBundle(int numSpuImg,...) {
    return bundle;
 }
 
+// Reading response message from ztachip core
+
+bool ztaReadResponse(uint32_t *resp) {
+   if(ZTAM_GREG(0,REG_DP_READ_INDICATION_AVAIL,0)==0) {
+      *resp=0;
+      return false;
+   }
+   ZTAM_GREG(0,REG_DP_READ_INDICATION,0);
+   *resp=ZTAM_GREG(0,REG_DP_READ_INDICATION_PARM,0);
+   ZTAM_GREG(0,REG_DP_READ_SYNC,0);
+   return true;
+}
+
 // Abort all excution
 
 void ztaAbort(int _errorCode) {
 	extern void _exit(int);
    _exit(_errorCode);
 }
-

@@ -186,13 +186,13 @@ void kernel_concatenate_exe(
          if(len > CONCATENATE_BUFSZ)
             len=CONCATENATE_BUFSZ;
          >DTYPE(fmt)PCORE(NUM_PCORE)[0].concatenate::buf[0:len-1] <= DTYPE(fmt)MEM(src)[idx:idx+len-1];
-         >FLUSH;
+         >BARRIER;
          if(spu) {
             >DTYPE(fmt)MEM(dest,copySize)[idx:idx+len-1] <= REMAP(0) DTYPE(fmt)PCORE(NUM_PCORE)[0].concatenate::buf[0:len-1];
          } else {
             >DTYPE(fmt)MEM(dest,copySize)[idx:idx+len-1] <= DTYPE(fmt)PCORE(NUM_PCORE)[0].concatenate::buf[0:len-1];
          }
-         >FLUSH;
+         >BARRIER;
          idx += len;
          remain -= len;
       }
@@ -230,9 +230,9 @@ void kernel_logistic_exe(
       if(len > CONCATENATE_BUFSZ)
          len=CONCATENATE_BUFSZ;
       >REMAP(1) DTYPE(fmt)PCORE(NUM_PCORE)[0].concatenate::buf[0:len-1] <= DTYPE(fmt)MEM(src)[idx:idx+len-1];
-      >FLUSH;
+      >BARRIER;
       >DTYPE(fmt)MEM(dest,copySize)[idx:idx+len-1] <= REMAP(0) DTYPE(fmt)PCORE(NUM_PCORE)[0].concatenate::buf[0:len-1];
-      >FLUSH;
+      >BARRIER;
       idx += len;
       remain -= len;
    }

@@ -48,18 +48,18 @@ void ztaInitPcore(uint16_t *_image) {
    // Set pcore process1's constant memory space
    // Set pcore process1's constant memory space
    if(c_len > 0) {
-      > DTYPE(INT16) PCORE[*].root.constant[0:c_len-1] <= MEM((uint32_t)c_p)[0:c_len-1];
+      > DTYPE(INT16) PCORE[*].root.constant[0:c_len-1] <= DTYPE(INT16)MEM((uint32_t)c_p)[0:c_len-1];
    }
    ZTAM_GREG(0,REG_DP_VM_TOGGLE,0)=0;
 
    // Set pcore process0's constant memory space.
    if(c_len > 0) {
-      > DTYPE(INT16) PCORE[*].root.constant[0:c_len-1] <= MEM((uint32_t)c_p)[0:c_len-1];
+      > DTYPE(INT16) PCORE[*].root.constant[0:c_len-1] <= DTYPE(INT16)MEM((uint32_t)c_p)[0:c_len-1];
    }
 
    // Set pcore code space
    > PROG((pcoreLen>>1)) <= DTYPE(INT16)MEM((uint32_t)pcore_p,(pcoreLen>>1)<<2)[:];
-   > FLUSH;
+   > BARRIER;
 }
 
 // Download code to stream processor
@@ -71,7 +71,7 @@ void ztaInitStream(uint32_t _spu) {
       spuCnt=*((uint16_t *)_spu);
       _spu += sizeof(uint16_t);
       > SPU <= DTYPE(INT16)MEM(_spu,spuCnt*SPU_LOOKUP_SIZE)[:];
-      > FLUSH;
+      > BARRIER;
    }
 }
 

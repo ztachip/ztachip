@@ -27,6 +27,7 @@
 extern "C" {
 #endif
 #include <stdint.h>
+#include <stdbool.h>
 #include "types.h"
 #include "zta.h"
 
@@ -75,6 +76,8 @@ extern void ztaInitPcore(uint16_t *_image);
 extern void ztaInitStream(uint32_t _spu);
 
 extern void ztaJobDone(unsigned int job_id);
+
+extern bool ztaReadResponse(uint32_t *resp);
 
 // Abort execution
 

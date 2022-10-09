@@ -175,7 +175,7 @@ public:
    static char *scan(char *line,char *delimiter,char *token);
    static char *scan_term(char *line,cMcoreTerm *term);
    static char *scan_exe(FILE *out,char *line,bool lockstep);
-   static char *scan_flush(FILE *out,char *line);
+   static char *scan_barrier(FILE *out,char *line);
    static char *scan_notify(FILE *out,char *line);
    static char *scan_print(FILE *out,char *line);
    static char *scan_log_on(FILE *out,char *line,bool sync);
