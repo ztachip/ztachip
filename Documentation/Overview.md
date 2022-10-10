@@ -79,6 +79,7 @@ hardware with different capacities with just a recompilation
 - Software stack is provided that implements many vision and AI algorithms. Native support
 for TensorFlow without retraining is also provided.   
 
+![dsa_component](images/dsa_component.bmp)
 
 ## Results
 
@@ -168,3 +169,19 @@ However, where Tesla Dojo is using SA and VECTOR units at each node for accelera
 in our case, ztachip is used instead as an accelerator.
 
 ![dojo](images/dojo.bmp)
+
+## Support for data sparsity
+
+Data sparsity support is critical for future AI models.
+
+Support for data sparsity is fairly straightforward with ztachip since data plane
+is decoupled from execution plane. Tensor can be compressed/decompressed on the fly
+as tensors are moved between external and internal memory.
+
+## Support for computing sparsity
+
+Currently, there is a one-to-one map between ALU and vector/array elements. However, 
+we may choose a reused ratio. For example, one ALU can serve multiple vector/array elements.
+Elements that are zero will be skipped automatically.
+
+  
