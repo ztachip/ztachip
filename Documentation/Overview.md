@@ -26,6 +26,8 @@ The most common DSA used today is the Systolic-Array (SA).
 SA maps very well to many important math operations required in AI, namely
 matrix multiplication, dot product, convolution...
 
+![systolic](images/systolic.bmp)
+
 However, SA is also very difficult to program. Users of SA often rely on prebuilt 
 libraries provided by hardware vendors. Training/research AI workload that requires custom algorithm
 implementation is therefore not suitable for SA.
@@ -46,6 +48,8 @@ and simple.
 
 ztachip targets applications that can be expressed as a sequence of tensor operations.
 Tensor operations include data operation and computing operation.
+
+![ztachip_example](images/ztachip_app_example.bmp)
 
 The reason for the above constraints is that we would like data plane operations to be
 decoupled from computing operations. This provides many advantages to the hardware
