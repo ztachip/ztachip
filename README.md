@@ -17,7 +17,7 @@ massive processing/data parallelism enabled by ztachip tensor processor.
 
 This is first release so documentation is still very lacking. Please visit this site later for more information including hardware architecture description and programmers's guide.
 
-[![ztachip demo video](Documentation/demo_video.bmp)](https://www.youtube.com/watch?v=amubm828YGs)
+[![ztachip demo video](Documentation/images/demo_video.bmp)](https://www.youtube.com/watch?v=amubm828YGs)
 
 
 # Code structure
@@ -124,11 +124,11 @@ Reference design example required the hardware components below...
 
 Attach the VGA and Camera modules to Arty-A7 board according to picture below 
 
-![arty_board](Documentation/arty_board.bmp)
+![arty_board](Documentation/images/arty_board.bmp)
 
 Connect camera_module to Arty board according to picture below
 
-![camera_to_arty](Documentation/camera_and_arty_connect.bmp)
+![camera_to_arty](Documentation/images/camera_and_arty_connect.bmp)
 
 ## Download and build OpenOCD package required for GDB debugger's JTAG connectivity
 
