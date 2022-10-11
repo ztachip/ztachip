@@ -54,10 +54,12 @@ data remapping, etc...
 ![ztachip_example](images/ztachip_app_example.bmp)
 
 The reason for the above constraints is that we would like data plane operations to be
-decoupled from computing operations. This provides many advantages to the hardware
+decoupled from computing operations. Tensor data operations are used to moved
+data between external memory and internal memory. And tensor computing operations are performed
+strictly from internal memory only. This strategy provides many advantages to the hardware
 design including
 
-- Memory transfer is streaming with prefetching and without round trip delay
+- Memory transfer to/from external memory is streaming with prefetching and without round trip delay
 
 - Tensor data operations specify exactly the data required for later execution. This
 eliminates the need for caching.
@@ -65,6 +67,9 @@ eliminates the need for caching.
 - Computing operations are presented as tensor operators. This is an intuitive way
 to specify algorithm parallelism. Many hardware threads can then be mapped to a large number
 of parallel tasks. For example with vector addition, each element-wise addition can be mapped to a thread. 
+
+- Tensor computing involves only with internal memory, greatly simplifying 
+the hardware design since there is no memory stall cycles to contend with.
 
 ## What are provided with ztachip
 
