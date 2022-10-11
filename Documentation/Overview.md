@@ -47,7 +47,9 @@ applications and not just for AI. DSA programming with ztachip should also be in
 and simple.
 
 ztachip targets applications that can be expressed as a sequence of tensor operations.
-Tensor operations include data operation and computing operation.
+Tensor operations include data operation and computing operation. Data operations involving
+tensors may also involve complex operations such as tensor transpose, tensor dimension resize,
+data remapping, etc...
 
 ![ztachip_example](images/ztachip_app_example.bmp)
 
