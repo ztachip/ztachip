@@ -199,6 +199,8 @@ Click [here](Documentation/PortProcedure.md) for procedure on how to port ztachi
 
 [Technical overview](Documentation/Overview.md)
 
+[Hardware Architecture](Documentation/HardwareDesign.md)
+
 # Contact
 
 This project is free to use. But for business consulting and support, please contact vuongdnguyen@hotmail.com
