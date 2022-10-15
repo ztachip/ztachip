@@ -4,13 +4,13 @@
 
 ![hw_ztachip](images/hw_ztachip.png)
 
-**Interfaces:**
+### Interfaces:
 
 - axilite_* : AXILite bus for RISCV to push tensor instructions to ztachip
 
 - axi_* : AXI bus for ztachip to initiate DMA memory transfer to/from external memory
 
-**Subcomponents:**
+### Subcomponents:
 
 - [axilite](../HW/src/top/axilite.vhd): bridge to connect dp_core with RISCV via axiLite bus protocol.
 
@@ -30,7 +30,7 @@ an array of lightweight VLIW processors.
 all activities within ztachip including memory transfer and launching execution on
 the VLIW processor array.
 
-**Functions:**
+### Functions:
 
 This is the top-level component of ztachip.
 
