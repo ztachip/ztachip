@@ -34,21 +34,77 @@ the VLIW processor array.
 
 This is the top-level component of ztachip.
 
-The central tensor processor unit is dp_core
+The central tensor processor unit is [dp_core]((../HW/src/dp/dp_core.vhd)
 
-dp_core receives tensor instructions from RISCV via axilite_* interface.
+[dp_core]((../HW/src/dp/dp_core.vhd)) receives tensor instructions from RISCV via axilite_* interface.
 
-dp_core then executes the tensor instructions by performing the following:
+[dp_core]((../HW/src/dp/dp_core.vhd)) then executes the tensor instructions by performing the following:
 
-- Coordinating tensor data operations which transfer tensor data between sram_core, core's internal memory and
-external DDR memory.
+- Coordinating tensor data operations which transfer tensor data between [sram_core]((../HW/src/top/sram_core.vhd)),
+[core](../HW/src/pcore/core.vhd)'s internal memory and
+external DDR memory. Tensor data operations may also include other complex functions such as
+transpose, dimension resize, data-remap...
 
-- Dispatching tensor operator execution requests to core which then in turn dispatch the execution to an array
-of VLIW processors. 
+- Dispatching tensor operator execution requests to [core](../HW/src/pcore/core.vhd) which then in turn dispatch the execution to an array of VLIW processors. 
 
 ## ztachip.dp_core
 
 ![hw_dp_core](images/hw_dp_core.png)
+
+### Interfaces:
+
+bus_* : bus for dp_core to receive tensor instructions from RISCV.
+
+task_*: bus to send tensor operator execution instructions to core
+
+readmaster1* : bus to receive DMA data transfer from [core](../HW/src/pcore/core.vhd)'s internal memory.
+
+readmaster2* : bus to receive DMA data transfer from [sram_core](../HW/src/top/sram_core.vhd)'s scratch-pad memory
+
+readmaster3* : bus to receive DMA data transfer from external DDR memory through [ddr_rx](../HW/src/top/ddr_rx.vhd)
+
+writemaster1* : bus to send DMA data transfer to [core](../HW/src/pcore/core.vhd)'s internal memory.
+
+writemaster2* : bus to send DMA data transfer to [sram_core](../HW/src/top/sram_core.vhd)'s scratch-pad memory.
+
+writemaster3* : bus to send DMA data transfer to external DDR memory through [ddr_tx](../HW/src/top/ddr_tx.vhd)
+
+### Subcomponents
+
+- [dp_fetch](../HW/src/dp/dp_fetch.vhd): This component receives tensor instructions from RISCV and then
+dispatch them at the right time. Tensor data operations are dispatched to [dp_gen_core](../HW/src/dp/dp_gen_core.vhd). Tensor operator execution is dispatched to [core](../HW/src/pcore/core.vhd) via task* interface signals.
+    
+- [dp_gen_core](../HW/src/dp/dp_gen_core.vhd): This component receives tensor data operation instructions from [dp_fetch](../HW/src/dp/dp_fetch.vhd). It then generates the memory addresses for the transfer. There can be 2 tensor data operations executing at the same time with each assigned to one of the two [dp_gen](../HW/src/dp/dp_gen.vhd) subcomponents.
+
+- [dp_source](../HW/src/dp/dp_source.vhd): This component is responsible for generating the DMA transfer read requests to the source of the tensor data operations. It then forwards the received data to the appropriate 
+[dp_sink](../HW/src/dp/dp_sink.vhd) components which are then responsible for the DMA transfer of the received data to the destination point.
+
+- [dp_sink](../HW/src/dp/dp_sink.vhd): This component is responsible for generating DMA transfer write request to the destination point of the tensor data operations. It receives the data and addresses information for the transfer from
+the appropriate [dp_source](../HW/src/dp/dp_source.vhd) above.
+
+### Functions
+
+This component is the main tensor processor of ztachip. It performs the following functions:
+
+- Receives tensor instructions from RISCV. Each tensor instruction are associated with a hardware thread.
+There are 2 hardware threads available. Hardware threads are useful to provide the ability to overlay
+the tensor operator execution phase of one thread with the data transfer phase of the other threads.
+
+- Decodes the tensor instructions. 
+
+- Instructions may be executed out-of-order but applications can enforce the order. 
+
+- Data operations are then processed by [dp_gen_core](../HW/src/dp/dp_gen_core.vhd),
+[dp_source](../HW/src/dp/dp_source.vhd) and 
+[dp_sink](../HW/src/dp/dp_sink.vhd). 
+There can be up to 2 data operations executing at the same time. For example, data transfer from the 
+[core](../HW/src/pcore/core.vhd)'s internal memory
+to DDR external memory can occur at the same time as data transfer from the scratch-pad to 
+[core](../HW/src/pcore/core.vhd)'s internal memory.
+
+- Tensor operator execution is forwarded to core via interface signal task*
+
+- Before tensor operator execution can be issued, all memory transfer with [core](../HW/src/pcore/core.vhd)'s internal memory must be completed. Since there is a seperate [core](../HW/src/pcore/core.vhd)'s internal memory for each hardware thread, for example, memory transfer to [core](../HW/src/pcore/core.vhd)'s internal memory belonging to thread#1 can still be running at the same time while [core](../HW/src/pcore/core.vhd) is busy performing tensor operator execution but on thread#2.
 
 ## ztachip.core
 
