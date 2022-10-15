@@ -53,9 +53,9 @@ transpose, dimension resize, data-remap...
 
 ### Interfaces:
 
-bus_* : bus for dp_core to receive tensor instructions from RISCV.
+bus_* : bus for [dp_core](../HW/src/dp/dp_core.vhd) to receive tensor instructions from RISCV.
 
-task_*: bus to send tensor operator execution instructions to core
+task_*: bus to send tensor operator execution instructions to [core](../HW/src/pcore/core.vhd)
 
 readmaster1* : bus to receive DMA data transfer from [core](../HW/src/pcore/core.vhd)'s internal memory.
 
@@ -102,7 +102,7 @@ There can be up to 2 data operations executing at the same time. For example, da
 to DDR external memory can occur at the same time as data transfer from the scratch-pad to 
 [core](../HW/src/pcore/core.vhd)'s internal memory.
 
-- Tensor operator execution is forwarded to core via interface signal task*
+- Tensor operator execution is forwarded to [core](../HW/src/pcore/core.vhd) via interface signal task*
 
 - Before tensor operator execution can be issued, all memory transfer with [core](../HW/src/pcore/core.vhd)'s internal memory must be completed. Since there is a seperate [core](../HW/src/pcore/core.vhd)'s internal memory for each hardware thread, for example, memory transfer to [core](../HW/src/pcore/core.vhd)'s internal memory belonging to thread#1 can still be running at the same time while [core](../HW/src/pcore/core.vhd) is busy performing tensor operator execution but on thread#2.
 
@@ -110,7 +110,44 @@ to DDR external memory can occur at the same time as data transfer from the scra
 
 ![hw_core](images/hw_core.png)
 
+### Interfaces:
+
+- dp_write*: bus to receive DMA data transfer to its internal memory
+
+- dp_read*: bus to send DMA data transfer from its internal memory
+
+- task* : bus to receive tensor operator execution commands from [dp_core](../HW/src/dp/dp_core.vhd)
+
+### Subcomponents:
+
+- [stream](../HW/src/pcore/stream.vhd): this is a stream processor that performs data mapping between input and output.  
+One stream processor is used to perform data mapping before data is written to core's internal memory
+And a second stream processor performs data mapping on data as it is just retrieved from core's internal memory.
+
+- [cell](../HW/src/top/cell.vhd): 4 pcore are grouped in a cell. The purpose is to improve the fan-out performance of bus signals.
+
+- [cell.pcore](../HW/src/pcore/pcore.vhd): Implements the VLIW processor array. All tensor operator execution are performed by many ot these pcores.
+
+- [instr](../HW/src/pcore/instr.vhd): This is the master processor for all pcore's VLIW processor cores that are just simply ALUs running in locked step mode with each other.
+
+- [instr.rom](../HW/src/pcore/rom.vhd): Holding VLIW instruction code. All VLIW cores are sharing the same instruction code. Since VLIW processors are all running in lock-step, only 1 instruction is fetched for all the VLIW processors at every clock.
+
+### Functions:
+
+- This component is responsible for all tensor operator execution tasks.
+
+- It is composed of an array of [pcores](../HW/src/pcore/pcore.vhd). And each pcore is a VLIW vector processor.
+
+- Requests for tensor operator execution are coming from [dp_core](../HW/src/dp/dp_core.vhd) via task* interface signal.
+
+- The component [instr](../HW/src/pcore/instr.vhd) is controlling the execution of all pcore's VLIW processors.
+VLIW processors are very lightweight processors that are mostly just ALU with memory running in lock-step mode with each other.  
+
 ## ztachip.core.pcore
 
 ![hw_pcore](images/hw_pcore.png) 
+
+### Interfaces:
+
+
 
