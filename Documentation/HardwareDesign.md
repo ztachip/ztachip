@@ -149,5 +149,127 @@ VLIW processors are very lightweight processors that are mostly just ALU with me
 
 ### Interfaces:
 
+- dp_read* : bus to send DMA data transfer from pcore's internal memory
+
+- dp_write*: bus to send DMA data transfer to pcore's internal memory
+
+- instruction*: bus to receive VLIW instructions to be executed.
+
+### Subcomponents:
+
+- [alu](../HW/src/alu/alu.vhd) : This is the unit that performs the bulk of arithmetic
+vector calculation. There are 8 ALUs for each of the 8 elements in a vector word.
+
+- [xregister_file](../HW/src/pcore/xregister_file.vhd) : Register banks holding int32 accumulators used by FMA operations.
+
+- [register_bank](../HW/src/pcore/register_bank.vhd): Holding internal memory. All computations are operated directly
+from this internal memory without intermediate register load/store operations like more traditional processor
+design.
+
+- [register_bank.register_file](../HW/src/pcore/register_file.vhd): There are 2 pages of internal memory with each
+page associated with one of the two tensor processor's hardware threads. The two register_file implement the
+two internal memory pages.
+
+- [instr_decoder2](../HW/src/pcore/instr_decoder2.vhd): Main decoder for VLIW instructions.
+
+- [instr_dispatch2](../HW/src/pcore/instr_decoder2.vhd): Component that interfaces between 
+[instr_decoder2](../HW/src/pcore/instr_decoder2.vhd) and bank of
+[alu](../HW/src/alu/alu.vhd). It forwards execution instructions from instr_decoder2 to [alu](../HW/src/alu/alu.vhd). 
+It is also responsible for moving data from [register_bank](../HW/src/pcore/register_bank.vhd)
+to [alu](../HW/src/alu/alu.vhd). It is responsible for saving results from [alu](../HW/src/alu/alu.vhd) back to [register_bank](../HW/src/pcore/register_bank.vhd).
+
+- [ialu](../HW/src/ialu/ialu.vhd): VLIW may also contain integer arithmetic operation for tasks such as loop counter, 
+array indexing calculation, address calculation. This component is responsible for such calculation.
+
+- [iregister_file](../HW/src/ialu/iregister_file.vhd): Register banks holding integer values used by ialu.
+
+### Functions
+
+This component performs tensor operator execution.
+
+There are many instances of pcore running in parallel.
+
+pcore has a VLIW architecture. 
+
+pcore execution is multi-threaded. There are 16 hardware threads of execution. 
+
+The VLIW instruction is very wide that contains many sub-functions
+that perform the following tasks simultaneously within a single VLIW instruction.
+
+- Address calculation for 2 input parameters and 1 output parameter.
+
+- Fetching input parameter vectors from [register_bank](../HW/src/pcore/register_bank.vhd).
+
+- Fetching 32-bit accumulator from [xregister_file](../HW/src/pcore/xregister_file.vhd). These accumulator values are then used by alu performing FMA (Fused-multiply-add) operations.
+
+- Performing integer calculations on [ialu](../HW/src/ialu/ialu.vhd).
+
+- Perform vector calculation on the bank of [alu](../HW/src/alu/alu.vhd).
+
+- [alu](../HW/src/alu/alu.vhd) may produce results as 32-bit accumulator, save these values to [xregister_file](../HW/src/pcore/xregister_file.vhd).
+
+- [alu](../HW/src/alu/alu.vhd) may produce results as 16-bit vector. Save these results back to 
+[register_bank](../HW/src/pcore/register_bank.vhd). 
+
+Since all the functions above are simultaneously performed in one single VLIW instruction, the
+instruction pipeline is as long as 14 clocks. However, with hardware multi-threading execution, each
+stage of the execution pipeline is occupied by different threads. Therefore we have an effective
+execution rate of one VLIW instruction per clock per pcore.
+
+For example, the code below is compiled into one single VLIW instruction and taken one clock of execution.
+
+`z[i++] = x[i+2]+y[i+3];`
+
+### Internal memory format
+
+Internal memory holds 2 types of data
+
+- Private data: Data is private to each of the 16 threads
+
+- Shared data: Data is shared among all 16 threads but within the same pcore.
+
+Private memory words are interleaved between different threads as shown in picture below.
+
+Shared memory words are allocated from the bottom up as shown in picture below.
+
+
+`
++-------------------------+
++ Thread1.Private word#0  |
++-------------------------+ 
++ Thread2.Private word#0  |
++-------------------------+ 
+           :
+           :
++-------------------------+ 
++ Thread16.Private word#0 |
++-------------------------+ 
++ Thread1.Private word#1  |
++-------------------------+ 
++ Thread2.Private word#1  |
++-------------------------+ 
+           :
+           :
++-------------------------+ 
++ Thread16.Private word#1 |
++-------------------------+ 
+           :
+           :
++-------------------------+ 
++ Shared           word#3 |
++-------------------------+ 
++ Shared           word#2 |
++-------------------------+ 
++ Shared           word#1 |
++-------------------------+ 
++ Shared           word#0 |
++-------------------------+ 
+`
+
+
+
+
+
+
 
 
