@@ -172,7 +172,7 @@ two internal memory pages.
 
 - [instr_decoder2](../HW/src/pcore/instr_decoder2.vhd): Main decoder for VLIW instructions.
 
-- [instr_dispatch2](../HW/src/pcore/instr_decoder2.vhd): Component that interfaces between 
+- [instr_dispatch2](../HW/src/pcore/instr_dispatch2.vhd): Component that interfaces between 
 [instr_decoder2](../HW/src/pcore/instr_decoder2.vhd) and bank of
 [alu](../HW/src/alu/alu.vhd). It forwards execution instructions from instr_decoder2 to [alu](../HW/src/alu/alu.vhd). 
 It is also responsible for moving data from [register_bank](../HW/src/pcore/register_bank.vhd)
@@ -233,7 +233,7 @@ Private memory words are interleaved between different threads as shown in pictu
 Shared memory words are allocated from the bottom up as shown in picture below.
 
 
-`
+```
 +-------------------------+
 + Thread1.Private word#0  |
 +-------------------------+ 
@@ -264,7 +264,7 @@ Shared memory words are allocated from the bottom up as shown in picture below.
 +-------------------------+ 
 + Shared           word#0 |
 +-------------------------+ 
-`
+```
 
 
 
