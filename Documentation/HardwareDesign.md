@@ -34,7 +34,7 @@ the VLIW processor array.
 
 This is the top-level component of ztachip.
 
-The central tensor processor unit is [dp_core]((../HW/src/dp/dp_core.vhd)
+The central tensor processor unit is [dp_core](../HW/src/dp/dp_core.vhd)
 
 [dp_core]((../HW/src/dp/dp_core.vhd)) receives tensor instructions from RISCV via axilite_* interface.
 
@@ -129,6 +129,11 @@ And a second stream processor performs data mapping on data as it is just retrie
 - [cell.pcore](../HW/src/pcore/pcore.vhd): Implements the VLIW processor array. All tensor operator execution are performed by many ot these pcores.
 
 - [instr](../HW/src/pcore/instr.vhd): This is the master processor for all pcore's VLIW processor cores that are just simply ALUs running in locked step mode with each other.
+
+- [instr.instr_fetch](../HW/src/pcore/instr_fetch.vhd): This component performs thread scheduling of execution. pcore
+are multi-threaded processors with 16 hardware threads executing in a round-robin fashion. 
+VLIW instructions are complex and require a very deep pipeline, hardware multi-threading is a commonly used technique to hide
+the impact of instruction latency. Performance of 1 VLIW instruction per clock per pcore can then be achieved.
 
 - [instr.rom](../HW/src/pcore/rom.vhd): Holding VLIW instruction code. All VLIW cores are sharing the same instruction code. Since VLIW processors are all running in lock-step, only 1 instruction is fetched for all the VLIW processors at every clock.
 
