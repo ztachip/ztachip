@@ -220,7 +220,16 @@ For example, the code below is compiled into one single VLIW instruction and tak
 
 `z[i++] = x[i+2]+y[i+3];`
 
-### Internal memory format
+### pcore's internal memory
+
+pcore's internal memory is partitioned into 2 pages with each page assigned to one of the two
+tensor processor's threads. This is an important concept for ztachip since it allows
+for one thread to access its internal memory while the other thread is performing 
+tensor operator execution using the other internal memory's page. This allows for
+a memory operation to be overlapped with tensor operator execution.
+
+Tensor operator execution operates only on internal memory without requiring
+register stage.
 
 Internal memory holds 2 types of data
 
@@ -228,10 +237,9 @@ Internal memory holds 2 types of data
 
 - Shared data: Data is shared among all 16 threads but within the same pcore.
 
-Private memory words are interleaved between different threads as shown in picture below.
+Private memory words are interleaved between different threads as shown in the picture below.
 
-Shared memory words are allocated from the bottom up as shown in picture below.
-
+Shared memory words are allocated from the bottom up as shown in the picture below.
 
 ```
 +-------------------------+
