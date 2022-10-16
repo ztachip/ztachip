@@ -196,7 +196,8 @@ There are many instances of pcore running in parallel.
 
 pcore has a VLIW architecture. 
 
-pcore execution is multi-threaded. There are 16 hardware threads of execution. 
+pcore execution is multi-threaded. There are 16 hardware threads of execution running
+in round-robin fashion.
 
 The VLIW instruction is very wide that contains many sub-functions
 that perform the following tasks simultaneously within a single VLIW instruction.
@@ -221,7 +222,9 @@ instruction pipeline is as long as 14 clocks. However, with hardware multi-threa
 stage of the execution pipeline is occupied by different threads. Therefore we have an effective
 execution rate of one VLIW instruction per clock per pcore.
 
-For example, the code below is compiled into one single VLIW instruction and taken one clock of execution.
+For example, the code below is compiled into one single VLIW instruction. All data operations and
+arithmetic calculation together take just one clock of execution and also without any memory stall cycles. 
+This same code using traditional RISCV instructions would take up to 10 RISCV instructions that may also incur memory stall cycles in addition.
 
 `z[i++] = x[i+2]+y[i+3];`
 
@@ -233,18 +236,16 @@ for one thread to access its internal memory while the other thread is performin
 tensor operator execution using the other internal memory's page. This allows for
 a memory operation to be overlapped with tensor operator execution.
 
-Tensor operator execution operates only on internal memory without requiring
-register stage.
+It is important to note that tensor operator execution operates only on internal memory without any reference to external memory.
+This is an important concept since with ztachip, data operations are decoupled
+from execution operations by having seperate tensor instructions for data operations and execution operations.
+Reference [here](Overview.md) for further explanation of this concept.
 
 Internal memory holds 2 types of data
 
-- Private data: Data is private to each of the 16 threads
+- Private data: Data is private to each of the 16 threads. Private memory words are interleaved between different threads as shown in the picture below.
 
-- Shared data: Data is shared among all 16 threads but within the same pcore.
-
-Private memory words are interleaved between different threads as shown in the picture below.
-
-Shared memory words are allocated from the bottom up as shown in the picture below.
+- Shared data: Data is shared among all 16 threads but within the same pcore. Shared memory words are allocated from the bottom up as shown in the picture below.
 
 ```
 +-------------------------+
