@@ -36,11 +36,11 @@ This is the top-level component of ztachip.
 
 The central tensor processor unit is [dp_core](../HW/src/dp/dp_core.vhd)
 
-[dp_core]((../HW/src/dp/dp_core.vhd)) receives tensor instructions from RISCV via axilite_* interface.
+[dp_core](../HW/src/dp/dp_core.vhd) receives tensor instructions from RISCV via axilite_* interface.
 
-[dp_core]((../HW/src/dp/dp_core.vhd)) then executes the tensor instructions by performing the following:
+[dp_core](../HW/src/dp/dp_core.vhd) then executes the tensor instructions by performing the following:
 
-- Coordinating tensor data operations which transfer tensor data between [sram_core]((../HW/src/top/sram_core.vhd)),
+- Coordinating tensor data operations which transfer tensor data between [sram_core](../HW/src/top/sram_core.vhd),
 [core](../HW/src/pcore/core.vhd)'s internal memory and
 external DDR memory. Tensor data operations may also include other complex functions such as
 transpose, dimension resize, data-remap...

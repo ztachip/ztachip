@@ -1,4 +1,4 @@
-# Concepts
+# Abstract
 
 The recent explosion in AI creates an almost limitless demand for computing power.
 AI workload is especially challenging since it is demanding in both computing power
