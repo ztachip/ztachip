@@ -286,10 +286,10 @@ Internal memory holds 2 types of data
 
 ### Interfaces
 
-x1_in: Input parameter#1. This is a 12/16 bit integer. This parameter is fetched from
+x1_in: This is a 12/16 bit input value. This parameter is fetched from
 pcore internal memory stored in [register_file](../HW/src/pcore/register_file.vhd).
 
-x2_in: Input parameter#2. This is 12/16 bit integer. This parameter is fetched from
+x2_in: This is 12/16 bit input value. This parameter is fetched from
 pcore internal memory stored in [register_file](../HW/src/pcore/register_file.vhd)
 
 xreg_in: 32-bit accumulator input. This is fetched from [xregister_file](../HW/src/pcore/xregister_file.vhd).
@@ -299,9 +299,10 @@ xscalar_in: constant used to specify distance for shifting operation.
 y_out: Results as a full 32-bit value. This is then be stored in [xregister_file](../HW/src/pcore/xregister_file.vhd).
 
 y3_out: Results after being clipped to 12/16 bit. Value is properly clipped if exceeding range.
+This is then be stored in [register_file](../HW/src/pcore/register_file.vhd).
 
 y2_out: Result of comparator against y_out value. The comparator tests y_out for
-various boolean condition
+various boolean condition. This is then be stored in [xregister_file](../HW/src/pcore/xregister_file.vhd).
 
 ### Functions:
 
