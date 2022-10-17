@@ -280,9 +280,67 @@ Internal memory holds 2 types of data
 +-------------------------+ 
 ```
 
+## ztachip.core.pcore.alu
 
+![hw_alu](images/hw_alu.png) 
 
+### Interfaces
 
+x1_in: Input parameter#1. This is a 12/16 bit integer. This parameter is fetched from
+pcore internal memory stored in [register_file](../HW/src/pcore/register_file.vhd).
+
+x2_in: Input parameter#2. This is 12/16 bit integer. This parameter is fetched from
+pcore internal memory stored in [register_file](../HW/src/pcore/register_file.vhd)
+
+xreg_in: 32-bit accumulator input. This is fetched from [xregister_file](../HW/src/pcore/xregister_file.vhd).
+
+xscalar_in: constant used to specify distance for shifting operation.
+
+y_out: Results as a full 32-bit value. This is then be stored in [xregister_file](../HW/src/pcore/xregister_file.vhd).
+
+y3_out: Results after being clipped to 12/16 bit. Value is properly clipped if exceeding range.
+
+y2_out: Result of comparator against y_out value. The comparator tests y_out for
+various boolean condition
+
+### Functions:
+
+ALU has a fairly simple set of operations. They are meant to take care of linear
+
+arithmetic operations occuring normally during AI and vision processing tasks.
+
+Other non-linear operations are taken care of by [stream](../HW/src/pcore/stream.vhd). 
+
+ALU has the following arithmetic blocks:
+
+- Multiplication of two 12/16 bit value.
+
+- Adding the result of multiplication to a 32-bit accumulator value.
+
+- Perform shift operation
+
+- Perform boolean comparison of the result. Comparison against zero include GT,GE,LT,LE,EQ,NE
+
+- Casting the 32-bit result to 12/16 bit result. Value is clipped if it is overflowed or underflowed after casting.
+
+With the above blocks, the following opcodes are supported
+
+```
+  COMPARE_LT       : y2_out=(y_out < 0)?1:0
+  COMPARE_LE       : y2_out=(y_out <= 0)?1:0
+  COMPARE_GT       : y2_out=(y_out > 0)?1:0
+  COMPARE_GE       : y2_out=(y_out >= 0)?1:0
+  COMPARE_EQ       : y2_out=(y_out==0)?1:0
+  COMPARE_NE       : y2_out=(y_out!=0)?1:0
+  MULTIPLY         : y_out=x1*x2
+  FMA              : xreg_in += x1_in;
+  FMS              : xreg_in -= x1_in
+  ASSIGN           : y_out=x1_in
+  ACCUMULATOR_SHL  : y_out=(xreg_in << x_scalar_in)
+  ACCUMULATOR_SHR  : y_out=(xreg_in >> x_scalar_in)
+  INT12 SHR        : y_out=(x1_in >> x_scalar_in)
+  INT12 SHL        : y_out=(x1_in << x_scalar_in)
+```
 
 
 
