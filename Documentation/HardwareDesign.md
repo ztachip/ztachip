@@ -306,7 +306,6 @@ various boolean condition
 ### Functions:
 
 ALU has a fairly simple set of operations. They are meant to take care of linear
-
 arithmetic operations occuring normally during AI and vision processing tasks.
 
 Other non-linear operations are taken care of by [stream](../HW/src/pcore/stream.vhd). 
