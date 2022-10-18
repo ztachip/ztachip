@@ -346,5 +346,64 @@ With the above blocks, the following opcodes are supported
   INT12 SHL        : y_out=(x1_in << x_scalar_in)
 ```
 
+## ztachip.core.pcore.instr_decoder2
+
+This the main component that decodes the computing components of VLIW instructions
+
+There are 3 main operations to each VLIW instruction:
+
+- operation on pcore.alu: To perform math operations on vector data
+
+- operation on pcore.ialu: To perform simple scalar integer operation.
+
+- branching operation. But this is perfomed by master processor core.instr since
+all VLIW processors are running in lock step therefore sharing the same 
+branching operation.
+
+VLIW instructions is 128 bit long have the following format
+
+```
+MU                 -- pcore.alu instruction 
+   oc         5    -- opcode
+   save       1    -- Save alu.y_out=>xregister_file
+   x3              -- x3 parameter;map to alu.xscalar_in
+      vector  1    -- 1 if parameter is vector,0 if scalar
+      addr    12   -- Internal memory address of x3
+      attr    4    -- Attribute
+   x1              -- x1 parameter;map to alu.x1_in
+      vector  1    -- 1 if parameter is vector,0 if scalar
+      addr    12   -- Internal memory address of x1
+      attr    4    -- Attribute
+   x2              -- x2 parameter;map to alu.x2_in
+      vector  1    -- 1 if parameter is vector,0 if scalar
+      addr    12   -- Internal memory address of x2
+      attr    4    -- Attribute
+   y               -- y parameter;map to alu.y*_out
+      vector  1    -- 1 if parameter is vector,0 if scalar
+      addr    12   -- Internal memory address of y
+      attr    4    -- Attribute
+IMU                -- pcore.ialu instruction
+   oc         5    -- opcode 
+   x1         4    -- x1 parameter; map to ialu.x1_in
+   x2         4    -- x2 parameter; map to ialu.x2_in
+   y          4    -- y parameter; map to ialu.y_out
+   const      13   -- Constant field
+CTRL
+   oc         5    -- Branching opcode based on IMU.y value
+   addr       11   -- Code address to jump to
+
+
+** NOTE **
+MU.attr field above has the following meaning
+  11RR  Pointer with index [[addr]+[RR]] 
+  1011  Pointer no index   [[addr]]
+  1000  Shared no index    [addr]
+  1001  Private no index   [addr]
+  00RR  Share with index   [addr+[RR]]
+  01RR  Private with index [addr+[RR]]
+
+```
+
+
 
 
