@@ -348,7 +348,7 @@ With the above blocks, the following opcodes are supported
 
 ## ztachip.core.pcore.instr_decoder2
 
-This the main component that decodes the computing components of VLIW instructions
+This is the main component that decodes the computing components of VLIW instructions
 
 There are 3 main operations to each VLIW instruction:
 
@@ -356,11 +356,11 @@ There are 3 main operations to each VLIW instruction:
 
 - operation on pcore.ialu: To perform simple scalar integer operation.
 
-- branching operation. But this is perfomed by master processor core.instr since
-all VLIW processors are running in lock step therefore sharing the same 
+- branching operation. But this is performed by master processor core.instr since
+all VLIW processors are running in lockstep therefore sharing the same 
 branching operation.
 
-VLIW instructions is 128 bit long have the following format
+VLIW instructions are 128 bit long and have the following format
 
 ```
 MU                 -- pcore.alu instruction 
