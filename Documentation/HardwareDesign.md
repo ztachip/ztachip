@@ -352,11 +352,11 @@ This is the main component that decodes the computing components of VLIW instruc
 
 There are 3 main operations to each VLIW instruction:
 
-- operation on pcore.alu: To perform math operations on vector data
+- operation on [pcore.alu](../HW/src/alu/alu.vhd): To perform math operations on vector data
 
-- operation on pcore.ialu: To perform simple scalar integer operation.
+- operation on [pcore.ialu](../HW/src/ialu/ialu.vhd): To perform simple scalar integer operation.
 
-- branching operation. But this is performed by master processor core.instr since
+- branching operation. But this is performed by master processor [core.instr](../HW/src/pcore/instr.vhd) since
 all VLIW processors are running in lockstep therefore sharing the same 
 branching operation.
 
