@@ -214,7 +214,7 @@ that perform the following tasks simultaneously within a single VLIW instruction
 
 - [alu](../HW/src/alu/alu.vhd) may produce results as 32-bit accumulator, save these values to [xregister_file](../HW/src/pcore/xregister_file.vhd).
 
-- [alu](../HW/src/alu/alu.vhd) may produce results as 16-bit vector. Save these results back to 
+- [alu](../HW/src/alu/alu.vhd) may produce results as 12-bit word vector. Save these results back to 
 [register_bank](../HW/src/pcore/register_bank.vhd). 
 
 Since all the functions above are simultaneously performed in one single VLIW instruction, the
@@ -238,7 +238,7 @@ a memory operation to be overlapped with tensor operator execution.
 
 It is important to note that tensor operator execution operates only on internal memory without any reference to external memory.
 This is an important concept since with ztachip, data operations are decoupled
-from execution operations by having seperate tensor instructions for data operations and execution operations.
+from execution operations by having separate tensor instructions for data operations and execution operations.
 Reference [here](Overview.md) for further explanation of this concept.
 
 Internal memory holds 2 types of data
@@ -286,34 +286,38 @@ Internal memory holds 2 types of data
 
 ### Interfaces
 
-x1_in: This is a 12/16 bit input value. This parameter is fetched from
+x1_in: This is a 12 bit input value. This parameter is fetched from
 pcore internal memory stored in [register_file](../HW/src/pcore/register_file.vhd).
 
-x2_in: This is 12/16 bit input value. This parameter is fetched from
+x2_in: This is 12 bit input value. This parameter is fetched from
 pcore internal memory stored in [register_file](../HW/src/pcore/register_file.vhd)
 
 xreg_in: 32-bit accumulator input. This is fetched from [xregister_file](../HW/src/pcore/xregister_file.vhd).
 
-xscalar_in: constant used to specify distance for shifting operation.
+xscalar_in: constant used to specify the distance for shifting operation.
 
 y_out: Results as a full 32-bit value. This is then be stored in [xregister_file](../HW/src/pcore/xregister_file.vhd).
 
-y3_out: Results after being clipped to 12/16 bit. Value is properly clipped if exceeding range.
+y3_out: Results after being clipped to 12 bit. Value is properly clipped if exceeding range.
 This is then be stored in [register_file](../HW/src/pcore/register_file.vhd).
 
 y2_out: Result of comparator against y_out value. The comparator tests y_out for
-various boolean condition. This is then be stored in [xregister_file](../HW/src/pcore/xregister_file.vhd).
+various boolean conditions. This is then be stored in [xregister_file](../HW/src/pcore/xregister_file.vhd).
 
 ### Functions:
 
-ALU has a fairly simple set of operations. They are meant to take care of linear
-arithmetic operations occuring normally during AI and vision processing tasks.
+ALU has a fairly simple set of operations. We want the ALU to be as simple as 
+possible to reduce resource requirements. They are meant to perform linear
+arithmetic operations occurring normally during AI and vision processing tasks.
 
-Other non-linear operations are taken care of by [stream](../HW/src/pcore/stream.vhd). 
+Other non-linear operations are taken care of by [stream](../HW/src/pcore/stream.vhd).
+
+ALU and stream together were shown to be able to cover a wide range of AI and 
+vision processing.
 
 ALU has the following arithmetic blocks:
 
-- Multiplication of two 12/16 bit value.
+- Multiplication of two 12 bit values.
 
 - Adding the result of multiplication to a 32-bit accumulator value.
 
@@ -321,7 +325,7 @@ ALU has the following arithmetic blocks:
 
 - Perform boolean comparison of the result. Comparison against zero include GT,GE,LT,LE,EQ,NE
 
-- Casting the 32-bit result to 12/16 bit result. Value is clipped if it is overflowed or underflowed after casting.
+- Casting the 32-bit result to 12 bit result. Value is clipped if it is overflowed or underflowed after casting.
 
 With the above blocks, the following opcodes are supported
 
@@ -341,7 +345,6 @@ With the above blocks, the following opcodes are supported
   INT12 SHR        : y_out=(x1_in >> x_scalar_in)
   INT12 SHL        : y_out=(x1_in << x_scalar_in)
 ```
-
 
 
 
