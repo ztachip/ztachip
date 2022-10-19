@@ -391,20 +391,23 @@ IMU                -- pcore.ialu instruction
 CTRL
    oc         5    -- Branching opcode based on IMU.y value
    addr       11   -- Code address to jump to
+```
 
+MU.attr field above provides many ways for parameters to reference memory.
 
-** NOTE **
-
-MU.attr field provides many ways to address internal memory.
 Table below shows different addressing options for parameters.
+
 where IREG is ialu's register file and MEM is pcore's internal memory.
 
-  11RR  Access via pointer+index     MEM[IREG[addr]+IREG[RR]] 
-  1011  Access via pointer           MEM[IREG[addr]]
-  1000  Access shared memory         MEM[addr]
-  1001  Access private memory        MEM[addr]
-  00RR  Access shared memory+index   MEM[addr+IREG[RR]]
-  01RR  Access private memory+index  MEM[addr+IREG[RR]]
+```
+ATTR  DESCRIPTION                  MEMORY ACCESS PATTERN
+===========================================================
+11RR  Access via pointer+index     MEM[IREG[addr]+IREG[RR]] 
+1011  Access via pointer           MEM[IREG[addr]]
+1000  Access shared memory         MEM[addr]
+1001  Access private memory        MEM[addr]
+00RR  Access shared memory+index   MEM[addr+IREG[RR]]
+01RR  Access private memory+index  MEM[addr+IREG[RR]]
 
 ```
 
