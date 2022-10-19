@@ -394,13 +394,17 @@ CTRL
 
 
 ** NOTE **
-MU.attr field above has the following meaning
-  11RR  Pointer with index [[addr]+[RR]] 
-  1011  Pointer no index   [[addr]]
-  1000  Shared no index    [addr]
-  1001  Private no index   [addr]
-  00RR  Share with index   [addr+[RR]]
-  01RR  Private with index [addr+[RR]]
+
+MU.attr field provides many ways to address internal memory.
+Table below shows different addressing options for parameters.
+where IREG is ialu's register file and MEM is pcore's internal memory.
+
+  11RR  Access via pointer+index     MEM[IREG[addr]+IREG[RR]] 
+  1011  Access via pointer           MEM[IREG[addr]]
+  1000  Access shared memory         MEM[addr]
+  1001  Access private memory        MEM[addr]
+  00RR  Access shared memory+index   MEM[addr+IREG[RR]]
+  01RR  Access private memory+index  MEM[addr+IREG[RR]]
 
 ```
 
