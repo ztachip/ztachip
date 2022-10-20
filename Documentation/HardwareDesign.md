@@ -171,7 +171,7 @@ input and output.
 stream provides up to 4 different data-mapping functions at the same time. The 
 parameter stream_id_in selects which data mapping to be performed.
 
-stream is very commonly in AI applications to perform activation functions as
+stream is very commonly used in AI applications to perform activation functions as
 data being written back to memory. 
 
 
