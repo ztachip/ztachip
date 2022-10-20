@@ -154,15 +154,14 @@ VLIW processors are very lightweight processors that are mostly just ALU with me
 
 This module provides an arbitrary data mapping between input value and output.
 
-stream performs data mapping on data just before it is written to pcore's memory space.
+[stream](../HW/src/pcore/pcore.vhd) performs data mapping on data just before it is written to pcore's memory space.
 
-stream also performs data mapping on data just after it is read from pcore's memory space.
+[stream](../HW/src/pcore/pcore.vhd) also performs data mapping on data just after it is read from pcore's memory space.
 
 The data mapping is realized using the formula below
 
 ```
 y = lookup_quotient[x[11:5]] + x[4:0]* lookup_remainder[x[4:0]] 
-
 ```
 
 Effectively, the formula above provides a multi-point linear-interpolation between
