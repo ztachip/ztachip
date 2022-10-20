@@ -148,6 +148,33 @@ the impact of instruction latency. Performance of 1 VLIW instruction per clock p
 - The component [instr](../HW/src/pcore/instr.vhd) is controlling the execution of all pcore's VLIW processors.
 VLIW processors are very lightweight processors that are mostly just ALU with memory running in lock-step mode with each other.  
 
+## ztachip.core.stream
+
+![hw_stream](images/hw_stream.png)
+
+This module provides an arbitrary data mapping between input value and output.
+
+stream performs data mapping on data just before it is written to pcore's memory space.
+
+stream also performs data mapping on data just after it is read from pcore's memory space.
+
+The data mapping is realized using the formula below
+
+```
+y = lookup_quotient[x[11:5]] + x[4:0]* lookup_remainder[x[4:0]] 
+
+```
+
+Effectively, the formula above provides a multi-point linear-interpolation between
+input and output.
+
+stream provides up to 4 different data-mapping functions at the same time. The 
+parameter stream_id_in selects which data mapping to be performed.
+
+stream is very commonly in AI applications to perform activation functions as
+data being written back to memory. 
+
+
 ## ztachip.core.pcore
 
 ![hw_pcore](images/hw_pcore.png) 
