@@ -487,8 +487,10 @@ With the above blocks, the following opcodes are supported
   COMPARE_EQ       : y2_out=(y_out==0)?1:0
   COMPARE_NE       : y2_out=(y_out!=0)?1:0
   MULTIPLY         : y_out=x1*x2
-  FMA              : xreg_in += x1_in;
-  FMS              : xreg_in -= x1_in
+  ADD              : y_out=x1+x2
+  SUBTRACT         : y_out=x1-x2
+  FMA              : xreg_in += x1_in*x2_in
+  FMS              : xreg_in -= x1_in*x2_in
   ASSIGN           : y_out=x1_in
   ACCUMULATOR_SHL  : y_out=(xreg_in << x_scalar_in)
   ACCUMULATOR_SHR  : y_out=(xreg_in >> x_scalar_in)
