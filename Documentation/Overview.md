@@ -10,6 +10,8 @@ It is generally agreed in the computing community that the way forward is that w
 need a special architecture for this kind of workload. This is formally known as
 Domain-Specific-Architecture (DSA).
 
+ztachip is one such DSA particularly optimized for vision and AI workload.
+
 ## Challenges
 
 DSA also presents many challenges including
