@@ -86,13 +86,14 @@ the appropriate [dp_source](../HW/src/dp/dp_source.vhd) above.
 
 This component is the main tensor processor of ztachip. It performs the following functions:
 
-- Receives tensor instructions from RISCV. Each tensor instruction are associated with a hardware thread.
+- [dp_fetch](../HW/src/dp/dp_fetch.vhd) receives tensor instructions from RISCV. Each tensor instruction are associated 
+with a hardware thread.
 There are 2 hardware threads available. Hardware threads are useful to provide the ability to overlay
 the tensor operator execution phase of one thread with the data transfer phase of the other threads.
 
 - Decodes the tensor instructions. 
 
-- Instructions may be executed out-of-order but applications can enforce the order. 
+- Tensor instructions may be executed out-of-order but applications can enforce the order. 
 
 - Data operations are then processed by [dp_gen_core](../HW/src/dp/dp_gen_core.vhd),
 [dp_source](../HW/src/dp/dp_source.vhd) and 
@@ -254,7 +255,9 @@ This same code using traditional RISCV instructions would take up to 10 RISCV in
 
 `z[i++] = x[i+2]+y[i+3];`
 
-### pcore's internal memory
+## ztachip.core.pcore.register_bank
+
+This component implements pcore internal memory
 
 pcore's internal memory is partitioned into 2 pages with each page assigned to one of the two
 tensor processor's threads. This is an important concept for ztachip since it allows
@@ -418,7 +421,7 @@ p[i]=10;
 
 ```
 // VMASK=2 means only element#0 and element#1 of vector z are 
-// being after the vector calculation
+// being updated after the vector calculation
 VMASK=2;
 z=x+2;
 ```
