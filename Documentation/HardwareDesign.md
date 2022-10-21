@@ -322,7 +322,11 @@ There are 3 main operations to each VLIW instruction:
 
 - branching operation. But this is performed by master processor [core.instr](../HW/src/pcore/instr.vhd) since
 all VLIW processors are running in lockstep therefore sharing the same 
-branching operation.
+branching operation. ztachip currently does not support yet thread branching/divergence as commonly implemented in GPU, 
+therefore all threads must have the same branching condition. 
+However you can still perform the equivalent of branching with conditional execution using
+VMASK register as described in next section. Most AI/Vision processing tasks however are mostly predictable
+computing with minimum or no branching.
 
 VLIW instructions are 128 bit long and have the following format
 
