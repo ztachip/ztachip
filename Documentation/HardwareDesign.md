@@ -306,71 +306,6 @@ Internal memory holds 2 types of data
 +-------------------------+ 
 ```
 
-## ztachip.core.pcore.alu
-
-![hw_alu](images/hw_alu.png) 
-
-### Interfaces
-
-x1_in: This is a 12 bit input value. This parameter is fetched from
-pcore internal memory stored in [register_file](../HW/src/pcore/register_file.vhd).
-
-x2_in: This is 12 bit input value. This parameter is fetched from
-pcore internal memory stored in [register_file](../HW/src/pcore/register_file.vhd)
-
-xreg_in: 32-bit accumulator input. This is fetched from [xregister_file](../HW/src/pcore/xregister_file.vhd).
-
-xscalar_in: constant used to specify the distance for shifting operation.
-
-y_out: Results as a full 32-bit value. This is then be stored in [xregister_file](../HW/src/pcore/xregister_file.vhd).
-
-y3_out: Results after being clipped to 12 bit. Value is properly clipped if exceeding range.
-This is then be stored in [register_file](../HW/src/pcore/register_file.vhd).
-
-y2_out: Result of comparator against y_out value. The comparator tests y_out for
-various boolean conditions. This is then be stored in [xregister_file](../HW/src/pcore/xregister_file.vhd).
-
-### Functions:
-
-ALU has a fairly simple set of operations. We want the ALU to be as simple as 
-possible to reduce resource requirements. They are meant to perform linear
-arithmetic operations occurring normally during AI and vision processing tasks.
-
-Other non-linear operations are taken care of by [stream](../HW/src/pcore/stream.vhd).
-
-ALU and stream together were shown to be able to cover a wide range of AI and 
-vision processing.
-
-ALU has the following arithmetic blocks:
-
-- Multiplication of two 12 bit values.
-
-- Adding the result of multiplication to a 32-bit accumulator value.
-
-- Perform shift operation
-
-- Perform boolean comparison of the result. Comparison against zero include GT,GE,LT,LE,EQ,NE
-
-- Casting the 32-bit result to 12 bit result. Value is clipped if it is overflowed or underflowed after casting.
-
-With the above blocks, the following opcodes are supported
-
-```
-  COMPARE_LT       : y2_out=(y_out < 0)?1:0
-  COMPARE_LE       : y2_out=(y_out <= 0)?1:0
-  COMPARE_GT       : y2_out=(y_out > 0)?1:0
-  COMPARE_GE       : y2_out=(y_out >= 0)?1:0
-  COMPARE_EQ       : y2_out=(y_out==0)?1:0
-  COMPARE_NE       : y2_out=(y_out!=0)?1:0
-  MULTIPLY         : y_out=x1*x2
-  FMA              : xreg_in += x1_in;
-  FMS              : xreg_in -= x1_in
-  ASSIGN           : y_out=x1_in
-  ACCUMULATOR_SHL  : y_out=(xreg_in << x_scalar_in)
-  ACCUMULATOR_SHR  : y_out=(xreg_in >> x_scalar_in)
-  INT12 SHR        : y_out=(x1_in >> x_scalar_in)
-  INT12 SHL        : y_out=(x1_in << x_scalar_in)
-```
 
 ## ztachip.core.pcore.instr_decoder2
 
@@ -435,6 +370,123 @@ ATTR  DESCRIPTION                  MEMORY ACCESS PATTERN
 00RR  Access shared memory+index   MEM[addr+IREG[RR]]
 01RR  Access private memory+index  MEM[addr+IREG[RR]]
 
+```
+
+## ztachip.core.pcore.ialu
+
+This component is responsible for the scalar integer calculation of VLIW instruction described
+above.
+
+ialu operates using the following registers
+- R0-R7  : General purpose integer registers.
+- VMASK  : Register with each bit is used to enable/disable a vector lane.
+
+The integer calculations provided by ialu are typically used for tasks such as
+
+- Loop counter/control
+
+- Index to an array
+
+- Memory reference by pointer
+
+- Address calculation
+
+- Enable/disable vector lanes.
+
+For example
+
+```
+// i is an integer operation used for loop counter
+for(i=0;i < 10;i++) {
+   :
+   :
+}
+```
+
+```
+// i is an integer used for array indexing and address calculation
+z[i]=x[i]+y[i];
+```
+
+```
+// p is an integer used for pointer reference to memory
+// Both integers p and i are used for memory reference and
+// address calculation below
+p=&mem[0];
+p[i]=10;
+```
+
+```
+// VMASK=2 means only element#0 and element#1 of vector z are 
+// being after the vector calculation
+VMASK=2;
+z=x+2;
+```
+
+## ztachip.core.pcore.alu
+
+![hw_alu](images/hw_alu.png) 
+
+### Interfaces
+
+x1_in: This is a 12 bit input value. This parameter is fetched from
+pcore internal memory stored in [register_file](../HW/src/pcore/register_file.vhd).
+
+x2_in: This is 12 bit input value. This parameter is fetched from
+pcore internal memory stored in [register_file](../HW/src/pcore/register_file.vhd)
+
+xreg_in: 32-bit accumulator input. This is fetched from [xregister_file](../HW/src/pcore/xregister_file.vhd).
+
+xscalar_in: constant used to specify the distance for shifting operation.
+
+y_out: Results as a full 32-bit value. This is then be stored in [xregister_file](../HW/src/pcore/xregister_file.vhd).
+
+y3_out: Results after being clipped to 12 bit. Value is properly clipped if exceeding range.
+This is then be stored in [register_file](../HW/src/pcore/register_file.vhd).
+
+y2_out: Result of comparator against y_out value. The comparator tests y_out for
+various boolean conditions. This is then be stored in [xregister_file](../HW/src/pcore/xregister_file.vhd).
+
+### Functions:
+
+ALU has a fairly simple set of operations. We want the ALU to be as simple as 
+possible to reduce resource requirements. They are meant to perform linear
+arithmetic operations occurring normally during AI and vision processing tasks.
+
+Other non-linear operations are taken care of by [stream](../HW/src/pcore/stream.vhd).
+
+ALU and stream together were shown to be able to cover a wide range of AI and 
+vision processing.
+
+ALU has the following arithmetic blocks:
+
+- Multiplication of two 12 bit values.
+
+- Adding the result of multiplication to a 32-bit accumulator value.
+
+- Perform shift operation
+
+- Perform boolean comparison of the result. Comparison against zero include GT,GE,LT,LE,EQ,NE
+
+- Casting the 32-bit result to 12 bit result. Value is clipped if it is overflowed or underflowed after casting.
+
+With the above blocks, the following opcodes are supported
+
+```
+  COMPARE_LT       : y2_out=(y_out < 0)?1:0
+  COMPARE_LE       : y2_out=(y_out <= 0)?1:0
+  COMPARE_GT       : y2_out=(y_out > 0)?1:0
+  COMPARE_GE       : y2_out=(y_out >= 0)?1:0
+  COMPARE_EQ       : y2_out=(y_out==0)?1:0
+  COMPARE_NE       : y2_out=(y_out!=0)?1:0
+  MULTIPLY         : y_out=x1*x2
+  FMA              : xreg_in += x1_in;
+  FMS              : xreg_in -= x1_in
+  ASSIGN           : y_out=x1_in
+  ACCUMULATOR_SHL  : y_out=(xreg_in << x_scalar_in)
+  ACCUMULATOR_SHR  : y_out=(xreg_in >> x_scalar_in)
+  INT12 SHR        : y_out=(x1_in >> x_scalar_in)
+  INT12 SHL        : y_out=(x1_in << x_scalar_in)
 ```
 
 
