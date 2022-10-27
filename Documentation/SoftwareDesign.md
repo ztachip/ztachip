@@ -83,7 +83,7 @@ Tensor operators are implemented as operations of a C++ object.
 
 Due to limited memory, all tensor operator objects are singleton and overlapped in memory.
 
-Users must partion these objects in such a way that they are not in use at the same time.
+Users must partition these objects in such a way that they are not in use at the same time.
 
 Below is an example for the tensor operator example::vector_add referenced by tensor-core
 program shown in previous example.
