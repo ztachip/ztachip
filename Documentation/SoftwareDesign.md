@@ -11,7 +11,7 @@ the DSA can be applied to efficiently compared to a more general purpose computi
 architecture.
 
 ztachip domain are applications that can be expressed as a sequential steps of tensor
-operations. There are 2 primary types of tensor of operations defined:
+operations. There are 2 primary types of tensor operations defined:
 
 - Tensor data operations: Involving operations such as tensor data copy, 
 tensor transpose, dimension resize, data remapping...
@@ -54,10 +54,10 @@ Below is an example of what a tensor-core program would look like.
 // vector_add.m
 // Vector addition of 2 vectors 4096 words long
 
->DTYPE(INT16)PCORE[0:7].THREAD[0:15].x[0:3][0:7] <= DTYPE(INT16)MEM(x_p)[0:4095];
->DTYPE(INT16)PCORE[0:7].THREAD[0:15].y[0:3][0:7] <= DTYPE(INT16)MEM(y_p)[0:4095];
->EXE(example:vector_add);
->DTYPE(INT16)MEM(z_p)[0:4095] <= DTYPE(INT16)PCORE[0:7].THREAD[0:15].z[0:3][0:7];
+>DTYPE(INT16)PCORE[0:7].THREAD[0:15].example::x[0:3][0:7] <= DTYPE(INT16)MEM(x_p)[0:4095];
+>DTYPE(INT16)PCORE[0:7].THREAD[0:15].example::y[0:3][0:7] <= DTYPE(INT16)MEM(y_p)[0:4095];
+>EXE_LOCKSTEP(example:vector_add);
+>DTYPE(INT16)MEM(z_p)[0:4095] <= DTYPE(INT16)PCORE[0:7].THREAD[0:15].example::z[0:3][0:7];
 
 ```
 In example above, x,y and z are array of dimension 4x8 allocated in p-core private memory space. 
@@ -92,16 +92,14 @@ program shown in previous example.
 ```
 // vector_add.p
 
-vint16 vector_add::x[4];
-vint16 vector_add::y[4];
-vint16 vector_add::z[4];
+vint16 example::x[4];
+vint16 example::y[4];
+vint16 example::z[4];
 
-_kernel void exe_vector_add()
+_kernel void examle::vector_add()
 {
    int i;
-
-#pragma unroll
-   for(i=0;i > 3;i++)
+   for(i=0;i < 3;i++)
       z[i]=x[i]+y[i];
 }
 ```
@@ -109,14 +107,15 @@ _kernel void exe_vector_add()
 # Compare ztachip DSL with traditional programming
 
 With traditional programming, data and execution steps are interleaved.
-With vector addition example above, traditional architecture requires data to be 
-loaded first to memory and then followed by addition. But this would create a lot of 
-stall cycles when data is not readily available in L1 cache.
+With vector addition example above, traditional architecture requires each vector elements (or a small number of them 
+for the case of vector extension) to be 
+loaded first to memory one at a time and then followed by addition. But this would create a lot of 
+memory round trip delay and stall cycles when data is not readily available in L1 cache.
 
-But with ztachip, data are loaded into internal memory in a streaming fashion with 
+But with ztachip, data are loaded from external memory into internal memory in a streaming fashion with 
 prefetching and no round-trip delay. This results in huge gain in memory bandwidth
 usage efficiencies.
 
-Also in the example, with ztachip, each vector element additions are carried out by
+Also in the example above, each vector element additions are carried out by
 seperate threads and pcores, enable huge processing parallelism.
 
