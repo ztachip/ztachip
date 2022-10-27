@@ -201,7 +201,7 @@ Click [here](Documentation/PortProcedure.md) for procedure on how to port ztachi
 
 [Hardware Architecture](Documentation/HardwareDesign.md)
 
-[Software/Language Architecture](Documentation/SOftwareDesign.md)
+[Software/Language Architecture](Documentation/SoftwareDesign.md)
 
 # Contact
 
