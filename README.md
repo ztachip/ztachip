@@ -203,6 +203,10 @@ Click [here](Documentation/PortProcedure.md) for procedure on how to port ztachi
 
 [Software/Language Architecture](Documentation/SoftwareDesign.md)
 
+- [tensor programmers guide](Documentation/tensor_programmer_guide.md)
+
+- [pcore programmers guide](Documentation/pcore_programmer_guide.md)
+
 # Contact
 
 This project is free to use. But for business consulting and support, please contact vuongdnguyen@hotmail.com
