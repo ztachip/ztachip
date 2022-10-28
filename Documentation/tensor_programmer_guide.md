@@ -1,33 +1,26 @@
-# MCORE Programmer guide
+# Tensor Programmer guide
 
-## 1. Prerequisites
-To proceed with this document. Please familiar yourself with the software and hardware architecture of ztachip
+## Overview
 
-[ztachip Hardware Architecture](https://github.com/ztachip/ztachip/blob/master/Documentation/HardwareArchitecture.md)
-
-[ztachip Software Architecture](https://github.com/ztachip/ztachip/blob/master/Documentation/SoftwareArchitecture.md)
-
-## 2. Overview
-
-MCORE programs are codes that are executed on MCORE processor. 
+Tensor programs are codes that are executed on host RISC-V processor. 
 
 The program emits tensor instructions to the Tensor Engine. Tensor instructions perform functions such as tensor data movement,resize,reshape and tensor operator dispatching.
 
-MCORE programs are C programs with embedded tensor syntax extensions. Tensor extensions are lines that begin with '>'.
+Tensor programs are C programs with embedded tensor syntax extensions. Tensor extensions are lines that begin with '>'.
 
-There can be up to 2 threads running in the MCORE processor. The 2 threads are useful in interleaving memory operation cycle from one thread to tensor operator execution cycle from the other thread. This greatly reduces memory access delay.
+There can be up to 2 threads running in the tensor processor. The 2 threads are useful in interleaving memory operation cycle from one thread to tensor operator execution cycle from the other thread. This greatly reduces memory access delay.
 
-## 3. Tensor data objects 
+## Tensor data objects 
 
-Tensor data objects are objects defined in MCORE programs.
+Tensor data objects are objects defined in tensor programs.
 
-They can be viewed as data variables in MCORE programming paradigm.
+They can be viewed as data variables in tensor programming paradigm.
 
 Tensors can be resided in PCORE private memory space, PCORE shared memory space, scratch-pad memory space or external DDR memory space.
 
 PCORE memory space is further partitioned into 2 independent process space. This allows for memory operation from TensorEngine to be carried out while tensor operator execution from PCORE arrays can still access memory from the other process space.
 
-### 3.1 Tensor data objects in DDR memory space
+### Tensor data objects in DDR memory space
 External DDR tensor has the syntax below. It specifies a tensor as a subset of another tensor by specifying a dimension index range.
 ```
    DDR(pointer,dimension,dimension,...)[begin:stride:end][begin:stride:end]...
@@ -63,7 +56,7 @@ If end of index range is ignored, then end of dimension range is assumed.
    DDR(p,100,200)[0:][20:]
 ```
 
-### 3.2 Tensor data objects in scratch-pad memory space 
+### Tensor data objects in scratch-pad memory space 
 Tensor that is allocated in scratch-pad memory space.
 
 It has similar syntax to DDR tensor syntax except the keyword is SCRATCH
@@ -75,7 +68,7 @@ Example:
    SCRATCH(p,dy,dx)[y:dy-1][x:dx-1]
 ```
 
-### 3.3 Tensor data objects in PCORE private memory space
+### Tensor data objects in PCORE private memory space
 
 Each PCORE threads have its own private memory space.
 PCORE private memory space is further partitioned into 2 independent process space. This allows for memory operation from TensorEngine to be carried out while tensor operator execution from PCORE arrays can still access memory from the other process space.
@@ -112,7 +105,7 @@ PCORE(dy,dx)[0:dy-1][0:dx-1].thread[0:15].class::private_variable[:]
 
 ```
 
-### 3.4 Tensor data objects in PCORE shared memory space
+### Tensor data objects in PCORE shared memory space
 
 PCORE threads in the same PCORE share the same shared memory space. Data allocated in the shared memory can be accessed by any threads in the same PCORE.
 PCORE shared memory space is further partitioned into 2 independent process space. This allows for memory operation from TensorEngine to be carried out while tensor operator execution from PCORE arrays can still access memory from the other process space.
@@ -138,6 +131,7 @@ Where:
    - variable: class variable holding tensor data elements as defined in associated PCORE program.
     
 Example
+
 ```
 PCORE(8)[0:7].class::shared_variable[:]
 
@@ -147,9 +141,9 @@ PCORE(4,2)[0:dy-1][0:dx-1].class::shared_variable[:]
 
 ```
 
-## 4. Tensor variables.
+## Tensor variables.
 
-Tensor variables are tensor alias. Tensor variables are normally used in fast and tight loop of mcore programs.
+Tensor variables are tensor alias. Tensor variables are normally used in fast and tight loop of tensor programs.
 
 Example below is an example of a tensor variable
 
@@ -173,11 +167,11 @@ Example below is when the tensor variables above are being used in a tensor tran
    > $coef_pcore <= $coef_ddr[jj];
 ```
 
-## 5. Tensor data memory transfer instructions
+## Tensor data memory transfer instructions
 
-MCORE program emits these instructions to TensorEngine.
+tensor program emits these instructions to TensorEngine.
 
-They are inserted to MCORE C-programs with special syntax line begins with '>'
+They are inserted to tensor C-programs with special syntax line begins with '>'
 
 These instructions move data from one memory space to another.
 
@@ -185,7 +179,7 @@ The way data are read/written to tensors is like a nested FOR loop. The order st
 
 In addition to memory transfer, it can also perform tensor reshape,dimension resize,stream processing...
 
-### 5.1 Tensor data transfer from DDR to PCORE private memory space
+### Tensor data transfer from DDR to PCORE private memory space
 
 ```
 >PCORE[0:1].THREAD[0:1].myclass::myfunc.var[0:1] <= DDR(p)[0:2*2*2-1];
@@ -206,7 +200,7 @@ PCORE   THREAD  private_var      <=  DDR
 1       1       private_var[0]       p[6]
 1       1       private_var[1]       p[7]
 ```
-### 5.2 Tensor data transfer from DDR to PCORE shared memory space.
+### Tensor data transfer from DDR to PCORE shared memory space.
 
 ```
 >PCORE[0:1].myclass::myfunc.shared_var[0:1] <= DDR(p)[0:2*2-1];
@@ -223,7 +217,7 @@ PCORE   shared_var    <=   DDR
 1       shared_var[0]      p[2]
 1       shared_var[1]      p[3]
 ```
-### 5.3 Tensor data transfer from DDR to SCRATCH-PAD memory space.
+### Tensor data transfer from DDR to SCRATCH-PAD memory space.
 
 ```
 int len=4;
@@ -245,7 +239,7 @@ SCRATCH[1]  <=   p[1]
 SCRATCH[2]  <=   p[2]
 SCRATCH[3]  <=   p[3]
 ```
-### 5.4 Tensor data transfer from DDR to SCRATCH-PAD memory space. Multi-dimensional case.
+### Tensor data transfer from DDR to SCRATCH-PAD memory space. Multi-dimensional case.
 
 ```
 int dx=2;
@@ -273,7 +267,7 @@ SCRATCH[3][0] <= p[3][0]
 SCRATCH[3][1] <= p[3][1]
 ```
 
-### 5.5 Tensor reshape
+### Tensor reshape
 
 ```
 >PCORE[0].THREAD[0:2].myclass::myfunc.var[0:3] <= DDR(p,100,2,2)[0][0:2][0:3];
@@ -301,7 +295,7 @@ PCORE   THREAD    var   <=   DDR
 0          2        3        p[0][2][3] <- (Out of bound-Replace with zero)
 ```
 
-### 5.6 Tensor dimenstion casting
+### Tensor dimenstion casting
 
 You can cast the dimension of the components of PCORE tensor to different dimension.
 
@@ -315,7 +309,7 @@ recast THREAD component dimension from 16 to 4x4. And recast component myvar dim
 >PCORE(8)[:].THREAD(4,4)[0:3][0:3].myclass::myvar(4,4)[0:3][0:3] <= DDR(p)[0:8*16*16-1];
 ```
 
-### 5.7 Tensor data reordering
+### Tensor data reordering
 
 The way data are read/written to tensors is like a nested FOR loop.
 
@@ -361,7 +355,7 @@ myvar     THREAD        PCORE       <=  DDR
   3          1            2             p[23]
 ```
 
-### 5.8 Tensor scatter transfer
+### Tensor scatter transfer
 
 This is one of the key and unique capabilities of ztachip.
 
@@ -373,7 +367,7 @@ Scatter transfer is the solution to this problem by transfering/transforming non
 
 This method is used extensively in the provided vision and AI stack.
 
-#### 5.8.1 Tensor scatter transfer illustration - DDR to PCORE
+#### Tensor scatter transfer illustration - DDR to PCORE
 
 Animation below illustrates a transfer from DDR to PCORE when it is not possible to do in vector mode since the consecutive data elements are scattered between different words.
 
@@ -385,7 +379,7 @@ Scatter operation is performed automatically by TensorEngine and application doe
 
 ![scatter](images/write_scatter.gif)
 
-#### 5.8.2 Tensor scatter transfer illustration - PCORE to DDR
+#### Tensor scatter transfer illustration - PCORE to DDR
 
 Animation below illustrates a transfer from PCORE to DDR when it is not possible to do in vector mode since the consecutive data elements to be read are scattered between different words.
 
@@ -397,7 +391,7 @@ Scatter operation is performed automatically by TensorEngine and application doe
 
 ![scatter](images/vector_read.gif)
 
-#### 5.8.3 Tensor scatter transfer by vector word.
+#### Tensor scatter transfer by vector word.
 
 ```
 >FOR(I=0:7) PCORE(8)[0:7].THREAD[0:15].myclass::myvar(8,8)[:][I] <= DDR(p)[0:8*16*8*8-1];
@@ -417,7 +411,7 @@ The transfer now becomes...
 >SCATTER(0) FOR(I=0:7) PCORE(8)[0:7].THREAD[0:15].myclass::myvar(8,8)[:][I] <= DDR(p)[0:8*16*8*8-1];
 ```
 
-#### 5.8.4 Tensor scatter transfer by thread.
+#### Tensor scatter transfer by thread.
 
 ```
 >FOR(I=0:7) FOR(J=0:7) PCORE(8)[0:7].THREAD(2,8)[:][:].myclass::myvar[J] <= DDR(p)[0:8*16*8*8-1];
@@ -437,7 +431,7 @@ The transfer now becomes...
 >SCATTER(0) FOR(I=0:7) FOR(J=0:7) PCORE(8)[0:7].THREAD(2,8)[:][:].myclass::myvar[J] <= DDR(p)[0:8*16*8*8-1];
 ```
 
-### 5.9 Tensor transfer with boundary check disabled.
+### Tensor transfer with boundary check disabled.
 
 Normally the dimension index are bounded by the tensor dimension. If index is out-of-bound, then a read operation is padded with zero and a write operation is skipped.
 
@@ -453,13 +447,13 @@ Now, indexes of the last 2 dimensions of DDR tensor are no longer used for dimen
 
 This capability is commonly used to transfer tensors that are partially overlaped.
 
-### 5.10 Tensor transfer with overlapped dimension
+### Tensor transfer with overlapped dimension
 
 Tensor can be defined to have 2 overlapped dimension definitions.
 
 This is useful in-order to add additional boundary checks on the tensor read/write access.
 
-#### 5.10.1 Tensor transfer with overlapped dimension - Usecase 1
+#### Tensor transfer with overlapped dimension - Usecase 1
 
 ```
 DDR(p,1000(100,200))[:][:]
@@ -472,7 +466,7 @@ In addition to the index boundary check for dimension 100x200, any access beyond
 
 This syntax is useful in mapping arbitrary dimensioned tensor in DDR to a tensor in PCORE memory space where tensor dimensions are regular.
 
-#### 5.10.2 Tensor transfer with overlapped dimension - Usecase 2
+#### Tensor transfer with overlapped dimension - Usecase 2
 
 ```
 DDR(p,100,32,152(10,16))[:][:][:]
@@ -486,7 +480,7 @@ the elements of the second index are having size=16 except for the last element 
 
 This syntax is useful in mapping arbitrary dimensioned tensor in DDR to a tensor in PCORE memory space where tensor dimensions are regular.
 
-### 5.11 Tensor padding values
+### Tensor padding values
 
 Tensor read/write accesses are checked against dimension boundary. 
 
@@ -497,11 +491,12 @@ Any out-of-bound write accesses are skipped.
 But you can set different padding values for out-of-bound read accesses with PAD keyword.
 
 In example below, any out-of-bound read accesses from DDR tensor are padded with 0xff.
+
 ```
 >PCORE[0].THREAD[0:2].myclass::myfunc.var[0:3] <= PAD(0xff) DDR(p,100,2,2)[0][0:2][0:3];
 ```
 
-### 5.12 Tensor data types
+### Tensor data types
 
 Tensors can have the following data types
 
@@ -514,20 +509,21 @@ Tensors can have the following data types
 Data types are specified as first qualifier of the tensor.
 
 Below is an example of tensor transfer in UINT8 format.
+
 ```
 int fmt=DP_DATA_TYPE_UINT8;
 >(fmt)PCORE[0].THREAD[0:2].myclass::myfunc.var[0:3] <= (fmt)PAD(0xff) DDR(p,100,2,2)[0][0:2][0:3];
 ```
 
-## 6. Tensor operator execution
+## Tensor operator execution
 
 Tensor operators are functions defined in PCORE programs.
 
 These functions operate on tensors allocated within PCORE memory space.
 
-Input and results associated with tensor operators are then transfered to/from PCORE memory space to/from external DDR or sratch-pad memory space by TensorEngine under the instructions of MCORE program.
+Input and results associated with tensor operators are then transfered to/from PCORE memory space to/from external DDR or sratch-pad memory space by TensorEngine under the instructions of tensor program.
 
-### 6.1 Syntax
+### Syntax
 
 Example below invokes a tensor operator exe of class convolution defined in corresponding PCORE program
 
@@ -556,7 +552,7 @@ func=ztamBuildKernelFunc($convolution::exe,np,nt); // Assign function pointer
 > EXE_LOCKSTEP(func);
 ```
 
-## 7 Stream processing
+## Stream processing
 
 Transfer to/from PCORE memory space can be streamed through a stream processor for processing.
 
@@ -581,15 +577,15 @@ In the example, as data being transfered from DDR to PCORE, data is also being p
 
 And as data being transfered from PCORE to DDR, data is also being processed by stream processor's program #1
 
-## 8. CALLBACK
+## CALLBACK
 
-MCORE instructions to TensorEngine are queued for processing.
+Tensor instructions to TensorEngine are queued for processing.
 
-CALLBACK construct is used to trigger a function callback whenever MCORE executions have reached a check point.
+CALLBACK construct is used to trigger a function callback whenever tensor executions have reached a check point.
 
 This is normally used to send back responses to host applications at completion of TensorEngine executions.
 
-### 8.1 Syntax
+### Syntax
 ```
 >CALLBACK(callback_function,int parm);
 ```
@@ -599,27 +595,10 @@ Where:
 
    - parm: integer to be passed to callback_function.
 
-## 9. Host communication API
 
-MCORE is communicating with host applications via message queues.
+## Thread management API
 
-Functions below are API to read/write to/from the message queue.
-
-### 9.1 ztamMsgqReadPointer
-Read a DDR memory pointer passed from host applications.
-
-### 9.2 ztamMsgqReadInt
-Read a 32-bit interger value passed from host applications.
-
-### 9.3 ztamMsgqWritePointer
-Send a DDR memory pointer to host applications.
-
-### 9.4 ztamMsgqWriteInt
-Send a 32-bit integer value to host applications.
-
-## 10. Thread management API
-
-MCORE can have 2 processing threads: a main thread and a child thread.
+Tensor processor can have 2 processing threads: a main thread and a child thread.
 
 Thread switching is not automatic but manual by calling to ztamTaskYield function below.
 
@@ -629,7 +608,7 @@ This way you can interleave between memory cycle and execution cycle of the 2 PC
 while PCOREs are executing tensor operators on the other PCORE memory space.
 
 
-### 10.1 ztamTaskSpawn(void (*func)(void*,int),void *parm,int pid)
+### ztamTaskSpawn(void (*func)(void*,int),void *parm,int pid)
 
 To spawn a child thread
 
@@ -641,7 +620,7 @@ Where:
 
    - pid: 0 for main thread,1 for child thread. 
 
-### 10.2 ztamTaskStatus(int pid)
+### ztamTaskStatus(int pid)
 
 To check if task has been terminated.
 
@@ -649,110 +628,7 @@ Where:
 
    - pid: 0 for main main thread, 1 for child thread
 
-### 10.3 ztamTaskYield() 
+### ztamTaskYield() 
 
 Yield execution to the other thread.
-
-## 11. Debugging API
-
-### 11.1 ztamPrintf
-
-Display debug formatted string.
-
-This has similar syntax to printf. However it only supports %s and %d within formated string.
-
-For example:
-
-```
-ztamPrintf("do matrix_add cnt=%d \n",cnt);
-```
-
-### 11.2 Matrix Engine Activity trace
-
-Matrix Engine activity tracing is enabled with directive below...
-```
->LOG_ON;
-```
-
-Matrix Engine activity tracing can then be disabled with directive below...
-```
->LOG_OFF;
-```
-
-#### 11.2.1 Example of Tensor Engine Activity report
-
-Below is an example of a Tensor Engine activity output
-
-```
-           XX PP SS PP SS DD
-           01 WR WR WR WR WR
-[       0]    +            +
-[       2]    |            | PCORE V8 X1  <= DDR V8 X1 
-[     134]    |            | PCORE V8 X1  <= DDR V8 X1 
-[     137]    |     +      |
-[       2]    |     |      | PCORE V8 X1  <= DDR V8 X1 
-[      56]    +     |      |
-[       1] +        |      |
-[      35] +        |      |
-[      42]          |      | PCORE V8 X1  <= DDR V8 X1 
-[       2]     +    |     +|
-[       2]     |    |     || DDR V8 X1  <= PCORE V8 X1 
-[       5]     |    |+    ||
-[     141]     +    |+    ||
-[       8]          |     |+
-[      17]          |     + 
-[      52]          +       
-[       1]  +               
-[       1]  |        +    + 
-[       2]  |        |    |  DDR V8 X1  <= PCORE V8 X1 
-[      32]  +        |    | 
-[       2]     +     |    | 
-[     141]     +     +    | 
-[       5]                + 
-```
-
-#### 11.2.1 Tensor Engine Activity description
-
-Left most column is the delta time elapsed in mcore clock period unit (140MHZ).
-
-Tensor Activity Tracing header has the following meaning...
-```
-           +------------------- PCORE's process #0 busy status
-           |+------------------ PCORE's process #1 busy status
-           || +---------------- Write cycles to PCORE memory space from process #0.
-           || |+--------------- Read cycles from PCORE memory space from process #0.
-           || || +------------- Write cycles to SRATCH memory space from process #0
-           || || |+------------ Read cycles from SCRATCH memory space from process #0
-           || || || +---------- Write cycles to PCORE memory space from process #1.
-           || || || |+--------- Read cycles from PCORE memory space from process #1.
-           || || || || +------- Write cycles to SRATCH memory space from process #1
-           || || || || |+------ Read cycles from SCRATCH memory space from process #1
-           || || || || || +---- Write cycles to DDR memory space (from any process)
-           || || || || || |+--- Read cycles from DDR memory space (from any process)
-           || || || || || ||
-
-           XX PP SS PP SS DD
-           01 WR WR WR WR WR
-```
-
-Each tensor transfer activity can have the following attributes
-```
-   -V8: 8 vector elements transfered per clock
-
-   -V4: 4 vector elements transfered per clock
-
-   -V2: 2 vector elements transfered per clock
-
-   -V1: 1 vector element transfered per clock
-
-   -X1: single precision (UINT8 or INT8)
-
-   -X2: double precision (INT16)
-
-   -SCATTER: transfer is done in scatter mode
-```
-
-
-
-
 
