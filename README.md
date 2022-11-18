@@ -201,11 +201,7 @@ Click [here](Documentation/PortProcedure.md) for procedure on how to port ztachi
 
 [Hardware Architecture](Documentation/HardwareDesign.md)
 
-[Software/Language Architecture](Documentation/SoftwareDesign.md)
-
-- [tensor programmers guide](Documentation/tensor_programmer_guide.md)
-
-- [pcore programmers guide](Documentation/pcore_programmer_guide.md)
+[Programmers guide](Documentation/ztachip_programmer_guide.pdf)
 
 # Contact
 
