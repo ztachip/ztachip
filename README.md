@@ -201,7 +201,7 @@ Click [here](Documentation/PortProcedure.md) for procedure on how to port ztachi
 
 [Hardware Architecture](Documentation/HardwareDesign.md)
 
-[Programmers Guide](Documentation/ztachip_programmer_guide.pdf)
+[Programmers Guide](https://github.com/ztachip/ztachip/blob/master/Documentation/ztachip_programmer_guide.pdf)
 
 # Contact
 
