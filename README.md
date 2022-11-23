@@ -203,6 +203,8 @@ Click [here](Documentation/PortProcedure.md) for procedure on how to port ztachi
 
 [Programmers Guide](https://github.com/ztachip/ztachip/raw/master/Documentation/ztachip_programmer_guide.pdf)
 
+[VisionAI Stack Programmers Guide](https://github.com/ztachip/ztachip/raw/master/Documentation/visionai_programmer_guide.pdf)
+
 # Contact
 
 This project is free to use. But for business consulting and support, please contact vuongdnguyen@hotmail.com
