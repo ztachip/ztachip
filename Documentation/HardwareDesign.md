@@ -424,10 +424,10 @@ p[i]=10;
 ```
 
 ```
-// VMASK=2 means only element#0 and element#1 of vector z are 
+// VMASK=3 means only element#0 and element#1 of vector z are 
 // being updated after the vector calculation
-VMASK=2;
-z=x+2;
+VMASK=3;
+z=x+2; // Only the first 2 elements of z are written back to memory.
 ```
 
 ## ztachip.core.pcore.alu
