@@ -15,8 +15,6 @@ that tend to accelerate only a narrow range of applications only (for example co
 A new tensor programming paradigm is introduced to allow programmers to leverage the
 massive processing/data parallelism enabled by ztachip tensor processor.
 
-This is first release so documentation is still very lacking. Please visit this site later for more information including hardware architecture description and programmers's guide.
-
 [![ztachip demo video](Documentation/images/demo_video.bmp)](https://www.youtube.com/watch?v=amubm828YGs)
 
 
