@@ -17,6 +17,15 @@ massive processing/data parallelism enabled by ztachip tensor processor.
 
 [![ztachip demo video](Documentation/images/demo_video.bmp)](https://www.youtube.com/watch?v=amubm828YGs)
 
+# Documentation
+
+[Technical overview](Documentation/Overview.md)
+
+[Hardware Architecture](Documentation/HardwareDesign.md)
+
+[Programmers Guide](https://github.com/ztachip/ztachip/raw/master/Documentation/ztachip_programmer_guide.pdf)
+
+[VisionAI Stack Programmers Guide](https://github.com/ztachip/ztachip/raw/master/Documentation/visionai_programmer_guide.pdf)
 
 # Code structure
 
@@ -193,16 +202,6 @@ Press button0 to switch between different AI/vision applications.
 # How to port ztachip to other FPGA,ASIC and SOC 
 
 Click [here](Documentation/PortProcedure.md) for procedure on how to port ztachip and its applications to other FPGA/ASIC and SOC.
-
-# Documentation 
-
-[Technical overview](Documentation/Overview.md)
-
-[Hardware Architecture](Documentation/HardwareDesign.md)
-
-[Programmers Guide](https://github.com/ztachip/ztachip/raw/master/Documentation/ztachip_programmer_guide.pdf)
-
-[VisionAI Stack Programmers Guide](https://github.com/ztachip/ztachip/raw/master/Documentation/visionai_programmer_guide.pdf)
 
 # Contact
 
