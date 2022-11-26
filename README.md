@@ -193,7 +193,7 @@ Press button0 to switch between different AI/vision applications.
 
 Click [here](Documentation/PortProcedure.md) for procedure on how to port ztachip and its applications to other FPGA/ASIC and SOC.
 
-# Further reading
+# Documentation 
 
 [Technical overview](Documentation/Overview.md)
 
