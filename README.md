@@ -148,7 +148,8 @@ cp <ztachip installation folder>/tools/openocd/cpu0.yaml .
 
 ## Launch OpenOCD
 
-Launch OpenOCD to provide JTAG connectivity for GDB debugger
+Make sure the green led below the reset button (near USB connector) is on. This indicates that FPGA has been loaded correctly.
+Then launch OpenOCD to provide JTAG connectivity for GDB debugger
 
 ```
 cd <openocd_riscv installation folder>
