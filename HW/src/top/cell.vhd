@@ -34,6 +34,7 @@ ENTITY cell IS
         CID:integer
         );
     port(   clock_in                        : IN STD_LOGIC;
+            clock_x2_in                     : IN STD_LOGIC;
             reset_in                        : IN STD_LOGIC;
             -- DP interface
             SIGNAL dp_rd_vm_in              : IN STD_LOGIC;
@@ -239,6 +240,7 @@ pcore_i: pcore
         )
         port map(
         clock_in => clock_in,
+        clock_x2_in => clock_X2_in,
         reset_in => reset_in,
 
         -- Instruction interface

@@ -61,6 +61,7 @@
 // clk_out3__166.66667______0.000______50.0______118.758_____98.575
 // clk_out4__23.80952______0.000______50.0______177.091_____98.575
 // clk_out5__166.66667______0.000______50.0______118.758_____98.575
+// clk_out6__333.33333______0.000______50.0______104.542_____98.575
 //
 //----------------------------------------------------------------------------
 // Input Clock   Freq (MHz)    Input Jitter (UI)
@@ -69,7 +70,7 @@
 
 `timescale 1ps/1ps
 
-(* CORE_GENERATION_INFO = "clk_wiz_0,clk_wiz_v6_0_6_0_0,{component_name=clk_wiz_0,use_phase_alignment=true,use_min_o_jitter=false,use_max_i_jitter=false,use_dyn_phase_shift=false,use_inclk_switchover=false,use_dyn_reconfig=false,enable_axi=0,feedback_source=FDBK_AUTO,PRIMITIVE=MMCM,num_out_clk=5,clkin1_period=10.000,clkin2_period=10.000,use_power_down=false,use_reset=true,use_locked=true,use_inclk_stopped=false,feedback_type=SINGLE,CLOCK_MGR_TYPE=NA,manual_override=false}" *)
+(* CORE_GENERATION_INFO = "clk_wiz_0,clk_wiz_v6_0_6_0_0,{component_name=clk_wiz_0,use_phase_alignment=true,use_min_o_jitter=false,use_max_i_jitter=false,use_dyn_phase_shift=false,use_inclk_switchover=false,use_dyn_reconfig=false,enable_axi=0,feedback_source=FDBK_AUTO,PRIMITIVE=MMCM,num_out_clk=6,clkin1_period=10.000,clkin2_period=10.000,use_power_down=false,use_reset=true,use_locked=true,use_inclk_stopped=false,feedback_type=SINGLE,CLOCK_MGR_TYPE=NA,manual_override=false}" *)
 
 module clk_wiz_0 
  (
@@ -79,6 +80,7 @@ module clk_wiz_0
   output        clk_out3,
   output        clk_out4,
   output        clk_out5,
+  output        clk_out6,
   // Status and control signals
   input         resetn,
   output        locked,
@@ -94,6 +96,7 @@ module clk_wiz_0
   .clk_out3(clk_out3),
   .clk_out4(clk_out4),
   .clk_out5(clk_out5),
+  .clk_out6(clk_out6),
   // Status and control signals               
   .resetn(resetn), 
   .locked(locked),

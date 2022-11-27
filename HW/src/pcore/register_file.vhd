@@ -33,6 +33,7 @@ use work.ztachip_pkg.all;
 ENTITY register_file IS
    PORT( 
         SIGNAL clock_in                : IN STD_LOGIC;
+        SIGNAL clock_x2_in             : IN STD_LOGIC;
         SIGNAL reset_in                : IN STD_LOGIC;
 
         SIGNAL rd_en_in                : IN STD_LOGIC;
@@ -279,30 +280,54 @@ end process;
 -- Broadcast write commands to both register banks
 -----
 
-ram1_i : DPRAM_BE
-    GENERIC MAP (
-        numwords_a=>2**ACTUAL_DEPTH,
-        numwords_b=>2**ACTUAL_DEPTH,
-        widthad_a=>ACTUAL_DEPTH,
-        widthad_b=>ACTUAL_DEPTH,
-        width_a=>WIDTH,
-        width_b=>WIDTH
-    )
-    PORT MAP (
-        address_a => wr_addr(ACTUAL_DEPTH-1 downto 0),
-        byteena_a => byteena,
-        clock0 => clock_in,
-        data_a => wr_data2_ram,
-        wren_a => wr_en,
-        address_b => rd_x1_addr(ACTUAL_DEPTH-1 downto 0),
-        q_b => q1_ram
-    );
+--ram1_i : DPRAM_BE
+--    GENERIC MAP (
+--        numwords_a=>2**ACTUAL_DEPTH,
+--        numwords_b=>2**ACTUAL_DEPTH,
+--        widthad_a=>ACTUAL_DEPTH,
+--        widthad_b=>ACTUAL_DEPTH,
+--        width_a=>WIDTH,
+--        width_b=>WIDTH
+--    )
+--    PORT MAP (
+--        address_a => wr_addr(ACTUAL_DEPTH-1 downto 0),
+--        byteena_a => byteena,
+--        clock0 => clock_in,
+--        data_a => wr_data2_ram,
+--        wren_a => wr_en,
+--        address_b => rd_x1_addr(ACTUAL_DEPTH-1 downto 0),
+--        q_b => q1_ram
+--    );
 
 ------                                
 -- Broadcast write commands to both register banks
 -------
 
-ram2_i : DPRAM_BE
+--ram2_i : DPRAM_BE
+--    GENERIC MAP (
+--        numwords_a=>2**ACTUAL_DEPTH,
+--        numwords_b=>2**ACTUAL_DEPTH,
+--        widthad_a=>ACTUAL_DEPTH,
+--        widthad_b=>ACTUAL_DEPTH,
+--        width_a=>WIDTH,
+--        width_b=>WIDTH
+--    )
+--
+--    PORT MAP (
+--        address_a => wr_addr(ACTUAL_DEPTH-1 downto 0),
+--        byteena_a => byteena,
+--        clock0 => clock_in,
+--        data_a => wr_data2_ram,
+--        wren_a => wr_en,
+--        address_b => rd_x2_addr(ACTUAL_DEPTH-1 downto 0),
+--        q_b => q2_ram
+--    );
+
+-- 
+-- We need memory block with 2 READ port and 1 WRITE port.
+--
+
+ram3_i: ram2r1w
     GENERIC MAP (
         numwords_a=>2**ACTUAL_DEPTH,
         numwords_b=>2**ACTUAL_DEPTH,
@@ -313,12 +338,16 @@ ram2_i : DPRAM_BE
     )
 
     PORT MAP (
+        clock => clock_in,
+        clock_x2 => clock_x2_in,
         address_a => wr_addr(ACTUAL_DEPTH-1 downto 0),
         byteena_a => byteena,
-        clock0 => clock_in,
         data_a => wr_data2_ram,
         wren_a => wr_en,
-        address_b => rd_x2_addr(ACTUAL_DEPTH-1 downto 0),
-        q_b => q2_ram
+        address1_b => rd_x1_addr(ACTUAL_DEPTH-1 downto 0),
+        q1_b => q1_ram,
+        address2_b => rd_x2_addr(ACTUAL_DEPTH-1 downto 0),
+        q2_b => q2_ram
     );
+
 END behavior;

@@ -83,13 +83,13 @@ fifo_avail_out <= fifo_avail_r;
 full_out <= full_r;
 
 fifo_i:scfifow
-	generic map 
-	(
+   generic map 
+   (
         DATA_WIDTH=>dp_instruction_width_c,
         FIFO_DEPTH=>dp_fifo_depth_c
-	)
-	port map 
-	(
+   )
+   port map 
+   (
         clock_in=>clock_in,
         reset_in=>reset_in,
         data_in=>writedata_r,
@@ -98,7 +98,7 @@ fifo_i:scfifow
         q_out=>readdata_normal,
         wused_out=>wrusedw,
         empty_out=>empty_normal
-	);
+   );
 
 
 readdata1_out <= readdata1_r;

@@ -145,6 +145,7 @@ module main(
    wire               clk_mig_ref;
    wire               clk_mig_sysclk;
    wire               clk_main;
+   wire               clk_x2_main;
 
    // Resets
    wire               clk_resetn;
@@ -351,6 +352,7 @@ module main(
        .clk_out3(clk_mig_sysclk),
        .clk_out4(clk_camera),
        .clk_out5(clk_main),
+       .clk_out6(clk_x2_main),
        .resetn(sys_resetn),
        .locked(),
        .clk_in1(sys_clock));
@@ -716,6 +718,7 @@ module main(
    
    ztachip ztachip_inst( 
        .clock_in(clk_main),
+       .clock_x2_in(clk_x2_main),
        
        // For FPGA, we dont need reset since all register reset values
        // are initialized by signal declaration.

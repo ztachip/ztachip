@@ -30,6 +30,7 @@ use work.ztachip_pkg.all;
 
 ENTITY core IS
    PORT(SIGNAL clock_in                 : IN STD_LOGIC;
+        SIGNAL clock_x2_in              : IN STD_LOGIC;
         SIGNAL reset_in                 : IN STD_LOGIC;
        
         -- DP interface
@@ -1058,6 +1059,7 @@ cell_i: cell
             )
     port map(    
             clock_in => clock_in,
+            clock_x2_in => clock_X2_in,
             reset_in => reset_in,
 
             dp_rd_vm_in => dp_rd_vm_r,

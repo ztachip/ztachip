@@ -17,6 +17,7 @@ ENTITY pcore IS
         PID :integer
         );
    PORT(SIGNAL clock_in                : IN STD_LOGIC;
+        SIGNAL clock_x2_in             : IN STD_LOGIC;
         SIGNAL reset_in                : IN STD_LOGIC;    
                 
         -- Instruction interface
@@ -1168,6 +1169,7 @@ result_vector <= rd_x1_vector1 or rd_x2_vector1;
 
 register_bank_i: register_bank port map(
         clock_in => clock_in,
+        clock_x2_in => clock_x2_in,
         reset_in => reset_in,
 
         -- ALU interface

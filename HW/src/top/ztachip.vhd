@@ -31,6 +31,7 @@ use work.ztachip_pkg.all;
 ENTITY ztachip IS
     port(   
             clock_in                      : IN STD_LOGIC;
+            clock_x2_in                   : IN STD_LOGIC;
             reset_in                      : IN STD_LOGIC;                      
 
             axi_araddr_out                : OUT std_logic_vector(ddr_bus_width_c-1 downto 0);
@@ -748,6 +749,7 @@ dp_1_i: dp_core
 core_i: core 
    port map(
         clock_in => clock_in,
+        clock_x2_in => clock_x2_in,
         reset_in => reset_in,
 
         -- DP interface

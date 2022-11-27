@@ -978,6 +978,7 @@ constant register2_dp_burst_max_len_c   :integer:=34;   -- burst max length
 component ztachip IS
     port(   
             clock_in                      : IN STD_LOGIC;
+            clock_x2_in                   : IN STD_LOGIC;
             reset_in                      : IN STD_LOGIC;                       
                     
             axi_araddr_out                : OUT std_logic_vector(ddr_bus_width_c-1 downto 0);
@@ -1327,6 +1328,7 @@ END COMPONENT;
 
 COMPONENT core IS
     PORT(SIGNAL clock_in                : IN STD_LOGIC;
+        SIGNAL clock_x2_in              : IN STD_LOGIC;
         SIGNAL reset_in                 : IN STD_LOGIC;
         -- DP interface
         SIGNAL dp_rd_addr_in            : IN STD_LOGIC_VECTOR(local_bus_width_c-1 DOWNTO 0);
@@ -2235,6 +2237,7 @@ END COMPONENT;
 COMPONENT register_bank IS
    PORT( 
         SIGNAL clock_in               : IN STD_LOGIC;
+        SIGNAL clock_x2_in            : IN STD_LOGIC;
         SIGNAL reset_in               : IN STD_LOGIC;
 
         SIGNAL rd_en_in               : IN STD_LOGIC;
@@ -2291,6 +2294,7 @@ END COMPONENT;
 COMPONENT register_file IS
    PORT( 
         SIGNAL clock_in             : IN STD_LOGIC;
+        SIGNAL clock_x2_in          : IN STD_LOGIC;
         SIGNAL reset_in             : IN STD_LOGIC;
 
         SIGNAL rd_en_in             : IN STD_LOGIC;
@@ -2327,6 +2331,29 @@ COMPONENT register_file IS
         SIGNAL dp_readdata_out      : OUT STD_LOGIC_VECTOR(ddrx_data_width_c-1 DOWNTO 0);
         SIGNAL dp_readena_out       : OUT STD_LOGIC
         );
+END COMPONENT;
+
+COMPONENT ram2r1w IS
+   GENERIC(
+        numwords_a                      : NATURAL;
+        numwords_b                      : NATURAL;
+        widthad_a                       : NATURAL;
+        widthad_b                       : NATURAL;
+        width_a                         : NATURAL;
+        width_b                         : NATURAL
+    );
+    PORT(
+        clock      : IN STD_LOGIC ;
+        clock_x2   : IN STD_LOGIC ;
+        address_a  : IN STD_LOGIC_VECTOR (widthad_a-1 DOWNTO 0);
+        byteena_a  : IN STD_LOGIC_VECTOR (width_a/8-1 DOWNTO 0);
+        data_a     : IN STD_LOGIC_VECTOR (width_a-1 DOWNTO 0);
+        wren_a     : IN STD_LOGIC ;
+        address1_b : IN STD_LOGIC_VECTOR (widthad_b-1 DOWNTO 0);
+        q1_b       : OUT STD_LOGIC_VECTOR (width_b-1 DOWNTO 0);
+        address2_b : IN STD_LOGIC_VECTOR (widthad_b-1 DOWNTO 0);
+        q2_b       : OUT STD_LOGIC_VECTOR (width_b-1 DOWNTO 0)
+    );
 END COMPONENT;
 
 COMPONENT instr IS
@@ -2592,6 +2619,7 @@ COMPONENT pcore IS
         );
    PORT(
         SIGNAL clock_in                 : IN STD_LOGIC;
+        SIGNAL clock_x2_in              : IN STD_LOGIC;
         SIGNAL reset_in                 : IN STD_LOGIC;    
                 
         -- Instruction interface
@@ -2666,6 +2694,7 @@ COMPONENT cell IS
         );
     port(
         clock_in                     : IN STD_LOGIC;
+        clock_x2_in                  : IN STD_LOGIC;
         reset_in                     : IN STD_LOGIC;
 
         -- DP interface
@@ -3107,6 +3136,7 @@ COMPONENT DPRAM_BE IS
         address_b : IN STD_LOGIC_VECTOR (widthad_b-1 DOWNTO 0)
     );
 END COMPONENT;
+
 
 COMPONENT SPRAM IS
    GENERIC (

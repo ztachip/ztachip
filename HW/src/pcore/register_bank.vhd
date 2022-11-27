@@ -58,6 +58,7 @@ use work.ztachip_pkg.all;
 ENTITY register_bank IS
    PORT( 
         SIGNAL clock_in                   : IN STD_LOGIC;
+        SIGNAL clock_x2_in                : IN STD_LOGIC;
         SIGNAL reset_in                   : IN STD_LOGIC;
 
         SIGNAL rd_en_in                   : IN STD_LOGIC;
@@ -423,6 +424,7 @@ end process;
 
 register_file_i: register_file port map(
                                 clock_in =>clock_in,
+                                clock_x2_in =>clock_x2_in,
                                 reset_in =>reset_in,
                 
                                 rd_en_in => rd_en_vm1,
@@ -466,6 +468,7 @@ register_file_i: register_file port map(
 
 register_file_i2: register_file port map(
                                 clock_in =>clock_in,
+                                clock_x2_in =>clock_x2_in,
                                 reset_in =>reset_in,
                 
                                 rd_en_in => rd_en_vm2,
