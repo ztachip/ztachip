@@ -717,7 +717,15 @@ module main(
    //-----------------------
    
    ztachip ztachip_inst( 
+
+       // clk_main is the main clock for ztachip and riscv
+
        .clock_in(clk_main),
+
+       // clk_x2_main has to be exactly double of clk_main with edges aligned.
+       // x2 clock is used to achieve 2 read port RAM block by doubling the 
+       // clock of RAM block.
+
        .clock_x2_in(clk_x2_main),
        
        // For FPGA, we dont need reset since all register reset values
@@ -727,7 +735,11 @@ module main(
        // However, with ASIC, we should have a reset (active low)
        
        .reset_in(1), 
-       
+      
+       // Read bus from DDR memory.
+       // All tensor memory transfer from DDR memory to internal
+       // memory are via this bus
+ 
        .axi_araddr_out(ZTA_DATA_araddr),
        .axi_arlen_out(ZTA_DATA_arlen),
        .axi_arvalid_out(ZTA_DATA_arvalid),
@@ -743,6 +755,10 @@ module main(
        .axi_arprot_out(ZTA_DATA_arprot),   // Not used. Can be ignored
        .axi_arqos_out(ZTA_DATA_arqos),     // Not used. Can be ignored
        .axi_arsize_out(ZTA_DATA_arsize),
+
+       // Write bus to DDR memory
+       // All tensor memory transfer from internal memory to DDR memory
+       // are via this bus
             
        .axi_awaddr_out(ZTA_DATA_awaddr),
        .axi_awlen_out(ZTA_DATA_awlen),
@@ -764,6 +780,10 @@ module main(
        .axi_awsize_out(ZTA_DATA_awsize),
        .axi_bready_out(ZTA_DATA_bready),
 
+       // RISCV is communicating with ztachip via the bus below
+       // Tensor instructions are pushed from RISCV to ztachip's tensor
+       // processor via this bus.
+       
        .axilite_araddr_in(ZTA_CONTROL_araddr),
        .axilite_arvalid_in(ZTA_CONTROL_arvalid),
        .axilite_arready_out(ZTA_CONTROL_arready),
