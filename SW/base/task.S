@@ -16,7 +16,7 @@
 # limitations under the License.
 #------------------------------------------------------------------------------
 
-    STACK_SIZE=1024
+    STACK_SIZE=2048
     .file "task.s"
     .option nopic
     .attribute arch,"rv32i2p0_m2p0"
