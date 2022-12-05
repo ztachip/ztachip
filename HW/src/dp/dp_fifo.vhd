@@ -70,17 +70,15 @@ SIGNAL valid1_r:std_logic;
 SIGNAL valid2_r:std_logic;
 SIGNAL readdata1_r:STD_LOGIC_VECTOR(dp_instruction_width_c-1 downto 0);
 SIGNAL readdata2_r:STD_LOGIC_VECTOR(dp_instruction_width_c-1 downto 0);
-SIGNAL writedata_r:std_logic_vector(dp_instruction_width_c-1 downto 0);
-SIGNAL wreq_normal_r:STD_LOGIC;
 SIGNAL rdreq1_r:STD_LOGIC;
 SIGNAL rdreq2_r:STD_LOGIC;
 SIGNAL pause_r:STD_LOGIC;
-
+SIGNAL writeready:STD_LOGIC;
 BEGIN
 
 fifo_avail_out <= fifo_avail_r;
 
-full_out <= full_r;
+full_out <= full_r or (not writeready);
 
 fifo_i:scfifow
    generic map 
@@ -92,8 +90,9 @@ fifo_i:scfifow
    (
         clock_in=>clock_in,
         reset_in=>reset_in,
-        data_in=>writedata_r,
-        write_in=>wreq_normal_r,
+        data_in=>writedata_in,
+        write_in=>wreq_normal,
+        writeready_out=>writeready,
         read_in=>rdreq_normal,
         q_out=>readdata_normal,
         wused_out=>wrusedw,
@@ -213,14 +212,10 @@ begin
     if reset_in='0' then
         fifo_avail_r <= (others=>'0');
         full_r <= '0';
-        writedata_r <= (others=>'0');
-        wreq_normal_r <= '0';
     else
         if clock_in'event and clock_in='1' then
-            writedata_r <= writedata_in;
-            wreq_normal_r <= wreq_normal;
             fifo_avail_r <= (not wrusedw);
-            if(unsigned(not wrusedw) < to_unsigned(16,dp_fifo_depth_c)) then
+            if(unsigned(not wrusedw) < to_unsigned(4,dp_fifo_depth_c)) then
                full_r <= '1';
             else
                full_r <= '0';

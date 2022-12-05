@@ -40,6 +40,7 @@ entity scfifow is
         reset_in        : in std_logic;
         data_in         : in std_logic_vector(DATA_WIDTH-1 downto 0);
         write_in        : in std_logic;
+        writeready_out  : out STD_LOGIC;
         read_in         : in std_logic;
         q_out           : out std_logic_vector(DATA_WIDTH-1 downto 0);
         empty_out       : out std_logic;
@@ -49,12 +50,16 @@ end scfifow;
 
 architecture rtl of scfifow is
 
-constant width_c:integer:=(DATA_WIDTH+1)/2;
-signal wpending_r:std_logic;
+constant scalew_c:integer:=2;
+constant scale_c:integer:=(2**scalew_c);
+constant width_c:integer:=(DATA_WIDTH+scale_c-1)/scale_c;
+signal wpending_r:unsigned(scalew_c-1 downto 0);
+signal rpending_r:unsigned(scalew_c-1 downto 0);
 signal q_avail_r:std_logic;
-signal q_r:std_logic_vector(width_c-1 downto 0);
-signal data_r:std_logic_vector(width_c-1 downto 0);
-signal wused:std_logic_vector(FIFO_DEPTH downto 0);
+signal w_avail_r:std_logic;
+signal q_r:std_logic_vector(scale_c*width_c-1 downto 0);
+signal data_r:std_logic_vector(scale_c*width_c-1 downto 0);
+signal wused:std_logic_vector(FIFO_DEPTH+scalew_c-1 downto 0);
 signal write:std_logic;
 signal data:std_logic_vector(width_c-1 downto 0);
 signal read:std_logic;
@@ -63,12 +68,13 @@ signal q:std_logic_vector(width_c-1 downto 0);
 signal full:std_logic;
 signal almost_full:std_logic;
 begin
-      
+
+
 fifo_i : scfifo
 	generic map 
 	(
         DATA_WIDTH=>width_c,
-        FIFO_DEPTH=>FIFO_DEPTH+1,
+        FIFO_DEPTH=>FIFO_DEPTH+scalew_c,
         LOOKAHEAD=>TRUE,
         ALMOST_FULL=>4
 	)
@@ -87,44 +93,64 @@ fifo_i : scfifo
         almost_full_out=>almost_full
 	);
  
-q_out(width_c-1 downto 0) <= q_r;
 
-q_out(q_out'length-1 downto width_c) <= q(q_out'length-width_c-1 downto 0);
+-- Read signals
+q_out <= q_r(q_out'length-1 downto 0);
 
-empty_out <= not((not empty) and q_avail_r);
+empty_out <= (not q_avail_r);
 
-write <= wpending_r or write_in;
+read <= '1' when (empty='0' and q_avail_r='0') else '0';
 
-data <= data_in(width_c-1 downto 0) when write_in='1' else data_r;
+-- Write signals
+write <= w_avail_r;
 
-read <= '1' when (empty='0' and q_avail_r='0') or (read_in='1') else '0';
+writeready_out <= (not w_avail_r);
 
-wused_out <= wused(wused'length-1 downto 1);
+wused_out <= wused(wused'length-1 downto scalew_c);
+
+data <= data_r(width_c-1 downto 0);
+
 
 process(clock_in,reset_in)
 begin
    if(reset_in='0') then
-      wpending_r <= '0';
+      wpending_r <= (others=>'0');
+      rpending_r <= (others=>'0');
       q_avail_r <= '0';
       q_r <= (others=>'0');
       data_r <= (others=>'0');
+      w_avail_r <= '0';
    else
       if(rising_edge(clock_in)) then
-         -- Latch new entry as 2 FIFO entries
-         if wpending_r='1' then
-            wpending_r <= '0';
-         else 
-            wpending_r <= write_in;
-            data_r(data_in'length-width_c-1 downto 0) <= data_in(data_in'length-1 downto width_c);
+         -- Write to FIFO
+         if w_avail_r='0' then
+            if write_in='1' then
+               wpending_r <= to_unsigned(0,wpending_r'length);
+               data_r(data_in'length-1 downto 0) <= data_in;
+               w_avail_r <= '1';
+            end if;
+         else
+            if wpending_r=to_unsigned(scale_c-1,wpending_r'length) then
+               w_avail_r <= '0';
+            end if;
+            wpending_r <= wpending_r+1;
+            data_r((scale_c-1)*width_c-1 downto 0) <= data_r(scale_c*width_c-1 downto width_c);
          end if;
-         if empty='0' and q_avail_r='0' then
-            q_r <= q;
-            q_avail_r <= '1';
+         
+         -- Read FIFO
+         if q_avail_r='0' then
+            if empty='0' then
+               q_r((scale_c-1)*width_c-1 downto 0) <= q_r(scale_c*width_c-1 downto width_c);
+               q_r(scale_c*width_c-1 downto (scale_c-1)*width_c) <= q;
+               if(rpending_r=to_unsigned(scale_c-1,rpending_r'length)) then
+                  q_avail_r <= '1';
+               end if;
+               rpending_r <= rpending_r+1;
+            end if;
          elsif read_in='1' then
             q_avail_r <= '0'; 
          end if;
       end if;
    end if;
 end process;
-
 end rtl;

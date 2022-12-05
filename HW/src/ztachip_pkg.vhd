@@ -658,7 +658,7 @@ type stream_ids_t is array(natural range <>) of stream_id_t;
 -- DP instruction fifo depth. This fifo is where mcore is pushing instructions to
 ---------
 
-constant dp_fifo_depth_c :integer:=8;
+constant dp_fifo_depth_c :integer:=7;
 
 constant dp_fifo_max_c :integer:=(2**dp_fifo_depth_c-1);
 
@@ -2884,6 +2884,7 @@ COMPONENT scfifow is
         reset_in        : in std_logic;
         data_in         : in std_logic_vector(DATA_WIDTH-1 downto 0);
         write_in        : in std_logic;
+        writeready_out  : out std_logic;
         read_in         : in std_logic;
         q_out           : out std_logic_vector(DATA_WIDTH-1 downto 0);
         empty_out       : out std_logic;
