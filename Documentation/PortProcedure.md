@@ -7,6 +7,7 @@ The example provided with this repo is meant to be reference design and it is im
 
 - Depending on your FPGA/ASIC capacity, update pid_gen_max_c [here](../HW/src/config.vhd) to be 8 for large version or 4 for small version
 
+- Update min_mem_depth_c [here](../HW/src/config.vhd). This is the smallest depth that FPGA memory block can be configured to be. In the case that the minimum memory depth is too large, this will cause memory under utilization. When min_mem_depth_c is at least twice as large as the required depth, ztachip implementation will spread a word into 2 consecutive memory location and memory block will be running at twice clock speed. This optimization greatly improve FPGA memory utilization.
 
 - Compile all files under [here](../HW/src). They are generic VHDL codes without any special primitives so it is ready to be ported to any FPGA/ASIC
 
@@ -21,7 +22,6 @@ The example provided with this repo is meant to be reference design and it is im
 
 
 - Update NUM_PCORE [here](../SW/base/zta.h) to be 8 for large version and 4 for small version. This must be the same value as pid_gen_max_c configured above
-
 
 - Update MEM_MAP [here](../SW/base/zta.h) to be the memory map address that you map ztachip to on your AXI bus.
 
