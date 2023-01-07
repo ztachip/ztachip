@@ -28,6 +28,7 @@ LIBRARY ieee;
 USE ieee.std_logic_1164.all;
 use IEEE.numeric_std.all;
 use work.ztachip_pkg.all;
+use work.config.all;
 
 ENTITY dp_fetch IS
     GENERIC (
@@ -38,6 +39,7 @@ ENTITY dp_fetch IS
     port(
             -- Signal from Avalon bus...
             SIGNAL clock_in                 : IN STD_LOGIC;
+            SIGNAL clock_x2_in              : IN STD_LOGIC;
             SIGNAL reset_in                 : IN STD_LOGIC;    
             SIGNAL bus_waddr_in             : IN register_addr_t;
             SIGNAL bus_raddr_in             : IN register_addr_t;
@@ -1067,6 +1069,28 @@ fifo_i : dp_fifo
 -- MEM block to store template variables
 -----------
 
+GEN1: IF (2**dp_template_id_depth_c) <= (min_mem_depth_c/2) GENERATE
+ram_i:ramw2
+   GENERIC MAP (
+        numwords_a=>2**dp_template_id_depth_c,
+        numwords_b=>2**dp_template_id_depth_c,
+        widthad_a=>dp_template_id_depth_c,
+        widthad_b=>dp_template_id_depth_c,
+        width_a=>dp_template_width_c,
+        width_b=>dp_template_width_c
+    )
+    PORT MAP(
+        address_a=>dp_var_waddress,
+        clock=>clock_in,
+        clock_x2=>clock_x2_in,
+        data_a=>dp_var_write,
+        q_b=>dp_var_read,
+        wren_a=>dp_var_we,
+        address_b=>dp_var_raddress
+    );
+END GENERATE GEN1;
+
+GEN2: IF (2**dp_template_id_depth_c) > (min_mem_depth_c/2) GENERATE
 ram_i:DPRAM
    GENERIC MAP (
         numwords_a=>2**dp_template_id_depth_c,
@@ -1084,6 +1108,7 @@ ram_i:DPRAM
         wren_a=>dp_var_we,
         address_b=>dp_var_raddress
     );
+END GENERATE GEN2;
 
 dp_var_write <= pack_dp_template(template_r);
 dp_var_template <= unpack_dp_template(dp_var_read);

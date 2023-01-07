@@ -312,14 +312,26 @@ module main(
    wire               ZTA_DATA_wvalid;
     
    // APB AXI bus
-   wire [8:0]         apb_0_paddr;
-   wire               apb_0_penable;
-   wire [31:0]        apb_0_prdata;
-   wire [0:0]         apb_0_pready;
-   wire [0:0]         apb_0_psel;
-   wire [0:0]         apb_0_pslverr;
-   wire [31:0]        apb_0_pwdata;
-   wire               apb_0_pwrite; 
+   
+   wire [31:0]        PERIPHERAL_araddr;
+   wire [2:0]         PERIPHERAL_arprot;
+   wire               PERIPHERAL_arready;
+   wire               PERIPHERAL_arvalid;
+   wire [31:0]        PERIPHERAL_awaddr;
+   wire [2:0]         PERIPHERAL_awprot;
+   wire               PERIPHERAL_awready;
+   wire               PERIPHERAL_awvalid;
+   wire               PERIPHERAL_bready;
+   wire [1:0]         PERIPHERAL_bresp;
+   wire               PERIPHERAL_bvalid;
+   wire [31:0]        PERIPHERAL_rdata;
+   wire               PERIPHERAL_rready;
+   wire [1:0]         PERIPHERAL_rresp;
+   wire               PERIPHERAL_rvalid;
+   wire [31:0]        PERIPHERAL_wdata;
+   wire               PERIPHERAL_wready;
+   wire [3:0]         PERIPHERAL_wstrb;
+   wire               PERIPHERAL_wvalid;
 
    // Camera AXI streaming bus signals
      
@@ -339,9 +351,12 @@ module main(
    wire               VIDEO_tvalid;
    
    assign UART_TXD=0;
-   assign clk_resetn = !ui_clk_sync_rst;
-   assign clk_reset = ui_clk_sync_rst;
-
+//   assign clk_resetn = !ui_clk_sync_rst;
+//   assign clk_reset = ui_clk_sync_rst;
+   // FPGA design dont need reset
+   assign clk_resetn = 1;
+   assign clk_reset = 0;
+   
    // ------------------
    // Clock synthesizer
    // -------------------
@@ -433,16 +448,37 @@ module main(
     
        .SDRAM_CLOCK(ui_clk),
 
-       // Connection to GPIO block using AXI-APB (Advanced Peripheral Bus)
-           
-       .APB_0_paddr(apb_0_paddr),
-       .APB_0_penable(apb_0_penable),
-       .APB_0_prdata(apb_0_prdata),
-       .APB_0_pready(apb_0_pready),
-       .APB_0_psel(apb_0_psel),
-       .APB_0_pslverr(apb_0_pslverr),
-       .APB_0_pwdata(apb_0_pwdata),
-       .APB_0_pwrite(apb_0_pwrite),
+       .PERIPHERAL_araddr(PERIPHERAL_araddr),
+       .PERIPHERAL_arburst(),
+       .PERIPHERAL_arcache(),
+       .PERIPHERAL_arlen(),
+       .PERIPHERAL_arlock(),
+       .PERIPHERAL_arqos(),
+       .PERIPHERAL_arsize(),
+       .PERIPHERAL_arprot(PERIPHERAL_arprot),
+       .PERIPHERAL_arready(PERIPHERAL_arready),
+       .PERIPHERAL_arvalid(PERIPHERAL_arvalid),
+       .PERIPHERAL_awaddr(PERIPHERAL_awaddr),
+       .PERIPHERAL_awburst(),
+       .PERIPHERAL_awcache(),
+       .PERIPHERAL_awlen(),
+       .PERIPHERAL_awlock(),
+       .PERIPHERAL_awqos(),
+       .PERIPHERAL_awprot(PERIPHERAL_awprot),
+       .PERIPHERAL_awready(PERIPHERAL_awready),
+       .PERIPHERAL_awvalid(PERIPHERAL_awvalid),
+       .PERIPHERAL_bready(PERIPHERAL_bready),
+       .PERIPHERAL_bresp(PERIPHERAL_bresp),
+       .PERIPHERAL_bvalid(PERIPHERAL_bvalid),
+       .PERIPHERAL_rdata(PERIPHERAL_rdata),
+       .PERIPHERAL_rready(PERIPHERAL_rready),
+       .PERIPHERAL_rresp(PERIPHERAL_rresp),
+       .PERIPHERAL_rvalid(PERIPHERAL_rvalid),
+       .PERIPHERAL_rlast(PERIPHERAL_rvalid),
+       .PERIPHERAL_wdata(PERIPHERAL_wdata),
+       .PERIPHERAL_wready(PERIPHERAL_wready),
+       .PERIPHERAL_wstrb(PERIPHERAL_wstrb),
+       .PERIPHERAL_wvalid(PERIPHERAL_wvalid),
 
        // Connection to instruction bus of cpu block
                
@@ -848,16 +884,25 @@ module main(
    //-------------
                  
    gpio gpio_inst(
-       .clk_in(clk_main),
-       .paddr_in(apb_0_paddr),
-       .penable_in(apb_0_penable),
-       .prdata_out(apb_0_prdata),
-       .pready_out(apb_0_pready),
-       .psel_in(apb_0_psel),
-       .pslverr_out(apb_0_pslverr),
-       .pwdata_in(apb_0_pwdata),
-       .pwrite_in(apb_0_pwrite),
-
+       .clock_in(clk_main),
+       .reset_in(1),
+       .axilite_araddr_in(PERIPHERAL_araddr),
+       .axilite_arvalid_in(PERIPHERAL_arvalid),
+       .axilite_arready_out(PERIPHERAL_arready),
+       .axilite_rvalid_out(PERIPHERAL_rvalid),
+       .axilite_rlast_out(),
+       .axilite_rdata_out(PERIPHERAL_rdata),
+       .axilite_rready_in(PERIPHERAL_rready),
+       .axilite_rresp_out(PERIPHERAL_rresp),
+       .axilite_awaddr_in(PERIPHERAL_awaddr),
+       .axilite_awvalid_in(PERIPHERAL_awvalid),
+       .axilite_wvalid_in(PERIPHERAL_wvalid),
+       .axilite_wdata_in(PERIPHERAL_wdata),
+       .axilite_awready_out(PERIPHERAL_awready),
+       .axilite_wready_out(PERIPHERAL_wready),
+       .axilite_bvalid_out(PERIPHERAL_bvalid),
+       .axilite_bready_in(PERIPHERAL_bready),
+       .axilite_bresp_out(PERIPHERAL_bresp),
        .led_out(led),
        .button_in(pushbutton)
    );

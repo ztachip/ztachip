@@ -1,7 +1,7 @@
 {
   "design": {
     "design_info": {
-      "boundary_crc": "0xFB1465291F339800",
+      "boundary_crc": "0x9896C4B8451E1F27",
       "device": "xc7a100tcsg324-1",
       "gen_directory": "../../../../GHRD.gen/sources_1/bd/crossbar",
       "name": "crossbar",
@@ -12,8 +12,7 @@
     },
     "design_tree": {
       "smartconnect_0": "",
-      "axi_vdma_0": "",
-      "axi_apb_bridge_0": ""
+      "axi_vdma_0": ""
     },
     "interface_ports": {
       "IBUS": {
@@ -46,7 +45,7 @@
             "value": "32"
           },
           "FREQ_HZ": {
-            "value": "166000000"
+            "value": "125000000"
           },
           "HAS_BRESP": {
             "value": "1"
@@ -154,7 +153,7 @@
             "value": "32"
           },
           "FREQ_HZ": {
-            "value": "166000000"
+            "value": "125000000"
           },
           "HAS_BRESP": {
             "value": "1"
@@ -262,7 +261,7 @@
             "value": "64"
           },
           "FREQ_HZ": {
-            "value": "166000000"
+            "value": "125000000"
           },
           "HAS_BRESP": {
             "value": "1"
@@ -415,7 +414,7 @@
             "value": "64"
           },
           "FREQ_HZ": {
-            "value": "166000000"
+            "value": "166666666"
           },
           "HAS_BRESP": {
             "value": "1",
@@ -539,7 +538,7 @@
             "value": "32"
           },
           "FREQ_HZ": {
-            "value": "166000000"
+            "value": "125000000"
           },
           "HAS_BRESP": {
             "value": "1",
@@ -692,10 +691,128 @@
           }
         }
       },
-      "APB_0": {
+      "PERIPHERAL": {
         "mode": "Master",
-        "vlnv": "xilinx.com:interface:apb_rtl:1.0",
-        "memory_map_ref": "APB_0"
+        "vlnv": "xilinx.com:interface:aximm_rtl:1.0",
+        "memory_map_ref": "PERIPHERAL",
+        "parameters": {
+          "ADDR_WIDTH": {
+            "value": "32"
+          },
+          "ARUSER_WIDTH": {
+            "value": "0",
+            "value_src": "default"
+          },
+          "AWUSER_WIDTH": {
+            "value": "0",
+            "value_src": "default"
+          },
+          "BUSER_WIDTH": {
+            "value": "0",
+            "value_src": "default"
+          },
+          "CLK_DOMAIN": {
+            "value": "crossbar_CLOCK",
+            "value_src": "default"
+          },
+          "DATA_WIDTH": {
+            "value": "32"
+          },
+          "FREQ_HZ": {
+            "value": "125000000"
+          },
+          "HAS_BRESP": {
+            "value": "1",
+            "value_src": "default"
+          },
+          "HAS_BURST": {
+            "value": "1",
+            "value_src": "ip_prop"
+          },
+          "HAS_CACHE": {
+            "value": "1",
+            "value_src": "ip_prop"
+          },
+          "HAS_LOCK": {
+            "value": "1",
+            "value_src": "ip_prop"
+          },
+          "HAS_PROT": {
+            "value": "1",
+            "value_src": "ip_prop"
+          },
+          "HAS_QOS": {
+            "value": "1",
+            "value_src": "ip_prop"
+          },
+          "HAS_REGION": {
+            "value": "0"
+          },
+          "HAS_RRESP": {
+            "value": "1",
+            "value_src": "default"
+          },
+          "HAS_WSTRB": {
+            "value": "1"
+          },
+          "ID_WIDTH": {
+            "value": "0",
+            "value_src": "default"
+          },
+          "INSERT_VIP": {
+            "value": "0",
+            "value_src": "default"
+          },
+          "MAX_BURST_LENGTH": {
+            "value": "256",
+            "value_src": "user_prop"
+          },
+          "NUM_READ_OUTSTANDING": {
+            "value": "8"
+          },
+          "NUM_READ_THREADS": {
+            "value": "1",
+            "value_src": "default"
+          },
+          "NUM_WRITE_OUTSTANDING": {
+            "value": "8"
+          },
+          "NUM_WRITE_THREADS": {
+            "value": "1",
+            "value_src": "default"
+          },
+          "PHASE": {
+            "value": "0.000",
+            "value_src": "default"
+          },
+          "PROTOCOL": {
+            "value": "AXI4"
+          },
+          "READ_WRITE_MODE": {
+            "value": "READ_WRITE",
+            "value_src": "default"
+          },
+          "RUSER_BITS_PER_BYTE": {
+            "value": "0",
+            "value_src": "user_prop"
+          },
+          "RUSER_WIDTH": {
+            "value": "0",
+            "value_src": "default"
+          },
+          "SUPPORTS_NARROW_BURST": {
+            "value": "0",
+            "value_src": "user_prop"
+          },
+          "WUSER_BITS_PER_BYTE": {
+            "value": "0",
+            "value_src": "user_prop"
+          },
+          "WUSER_WIDTH": {
+            "value": "0",
+            "value_src": "default"
+          }
+        }
       }
     },
     "ports": {
@@ -704,7 +821,7 @@
         "direction": "I",
         "parameters": {
           "ASSOCIATED_BUSIF": {
-            "value": "IBUS:DBUS:ZTA_CONTROL:ZTA_DATA"
+            "value": "IBUS:DBUS:ZTA_CONTROL:ZTA_DATA:PERIPHERAL"
           },
           "ASSOCIATED_RESET": {
             "value": "ARESETN",
@@ -715,7 +832,7 @@
             "value_src": "default"
           },
           "FREQ_HZ": {
-            "value": "166000000"
+            "value": "125000000"
           },
           "FREQ_TOLERANCE_HZ": {
             "value": "0",
@@ -814,7 +931,7 @@
             "value": "crossbar_SDRAM_CLOCK"
           },
           "FREQ_HZ": {
-            "value": "166000000"
+            "value": "166666666"
           },
           "FREQ_TOLERANCE_HZ": {
             "value": "0",
@@ -968,7 +1085,7 @@
             "vlnv": "xilinx.com:interface:aximm_rtl:1.0",
             "parameters": {
               "MAX_BURST_LENGTH": {
-                "value": "1"
+                "value": "256"
               },
               "NUM_READ_OUTSTANDING": {
                 "value": "64"
@@ -1100,7 +1217,7 @@
             "value": "0"
           },
           "c_mm2s_linebuffer_depth": {
-            "value": "2048"
+            "value": "4096"
           },
           "c_mm2s_max_burst_length": {
             "value": "8"
@@ -1112,7 +1229,7 @@
             "value": "0"
           },
           "c_s2mm_linebuffer_depth": {
-            "value": "1024"
+            "value": "512"
           },
           "c_use_s2mm_fsync": {
             "value": "0"
@@ -1160,50 +1277,31 @@
             }
           }
         }
-      },
-      "axi_apb_bridge_0": {
-        "vlnv": "xilinx.com:ip:axi_apb_bridge:3.0",
-        "xci_name": "crossbar_axi_apb_bridge_0_0",
-        "xci_path": "ip\\crossbar_axi_apb_bridge_0_0\\crossbar_axi_apb_bridge_0_0.xci",
-        "inst_hier_path": "axi_apb_bridge_0",
-        "parameters": {
-          "C_APB_NUM_SLAVES": {
-            "value": "1"
-          }
-        },
-        "interface_ports": {
-          "AXI4_LITE": {
-            "mode": "Slave",
-            "bridges": [
-              "APB_M"
-            ]
-          }
-        }
       }
     },
     "interface_nets": {
-      "axi_vdma_0_M_AXI_S2MM": {
+      "axi_vdma_0_M_AXIS_MM2S": {
         "interface_ports": [
-          "axi_vdma_0/M_AXI_S2MM",
-          "smartconnect_0/S03_AXI"
+          "VIDEO_OUT",
+          "axi_vdma_0/M_AXIS_MM2S"
         ]
       },
-      "smartconnect_0_M02_AXI": {
+      "smartconnect_0_M03_AXI": {
         "interface_ports": [
-          "axi_vdma_0/S_AXI_LITE",
-          "smartconnect_0/M02_AXI"
+          "ZTA_CONTROL",
+          "smartconnect_0/M03_AXI"
+        ]
+      },
+      "DBUS_1": {
+        "interface_ports": [
+          "DBUS",
+          "smartconnect_0/S01_AXI"
         ]
       },
       "smartconnect_0_M01_AXI": {
         "interface_ports": [
-          "smartconnect_0/M01_AXI",
-          "axi_apb_bridge_0/AXI4_LITE"
-        ]
-      },
-      "CAMERA_IN_1": {
-        "interface_ports": [
-          "CAMERA_IN",
-          "axi_vdma_0/S_AXIS_S2MM"
+          "PERIPHERAL",
+          "smartconnect_0/M01_AXI"
         ]
       },
       "axi_vdma_0_M_AXI_MM2S": {
@@ -1218,40 +1316,34 @@
           "smartconnect_0/S04_AXI"
         ]
       },
-      "axi_apb_bridge_0_APB_M": {
-        "interface_ports": [
-          "APB_0",
-          "axi_apb_bridge_0/APB_M"
-        ]
-      },
-      "smartconnect_0_M03_AXI": {
-        "interface_ports": [
-          "ZTA_CONTROL",
-          "smartconnect_0/M03_AXI"
-        ]
-      },
-      "axi_vdma_0_M_AXIS_MM2S": {
-        "interface_ports": [
-          "VIDEO_OUT",
-          "axi_vdma_0/M_AXIS_MM2S"
-        ]
-      },
-      "DBUS_1": {
-        "interface_ports": [
-          "DBUS",
-          "smartconnect_0/S01_AXI"
-        ]
-      },
       "IBUS_1": {
         "interface_ports": [
           "IBUS",
           "smartconnect_0/S00_AXI"
         ]
       },
+      "CAMERA_IN_1": {
+        "interface_ports": [
+          "CAMERA_IN",
+          "axi_vdma_0/S_AXIS_S2MM"
+        ]
+      },
+      "smartconnect_0_M02_AXI": {
+        "interface_ports": [
+          "axi_vdma_0/S_AXI_LITE",
+          "smartconnect_0/M02_AXI"
+        ]
+      },
       "smartconnect_0_M00_AXI": {
         "interface_ports": [
           "SDRAM",
           "smartconnect_0/M00_AXI"
+        ]
+      },
+      "axi_vdma_0_M_AXI_S2MM": {
+        "interface_ports": [
+          "axi_vdma_0/M_AXI_S2MM",
+          "smartconnect_0/S03_AXI"
         ]
       }
     },
@@ -1262,8 +1354,7 @@
           "axi_vdma_0/s_axi_lite_aclk",
           "axi_vdma_0/m_axi_mm2s_aclk",
           "axi_vdma_0/m_axi_s2mm_aclk",
-          "smartconnect_0/aclk",
-          "axi_apb_bridge_0/s_axi_aclk"
+          "smartconnect_0/aclk"
         ]
       },
       "CAMERA_CLOCK_IN_1": {
@@ -1282,8 +1373,7 @@
         "ports": [
           "ARESETN",
           "axi_vdma_0/axi_resetn",
-          "smartconnect_0/aresetn",
-          "axi_apb_bridge_0/s_axi_aresetn"
+          "smartconnect_0/aresetn"
         ]
       },
       "SDRAM_CLOCK_1": {
@@ -1300,8 +1390,8 @@
             "range": "4G",
             "width": "32",
             "segments": {
-              "SEG_APB_0_Reg": {
-                "address_block": "/APB_0/Reg",
+              "SEG_PERIPHERAL_Reg": {
+                "address_block": "/PERIPHERAL/Reg",
                 "offset": "0xF4000000",
                 "range": "64K",
                 "is_excluded": "TRUE"
@@ -1329,8 +1419,8 @@
             "range": "4G",
             "width": "32",
             "segments": {
-              "SEG_APB_0_Reg": {
-                "address_block": "/APB_0/Reg",
+              "SEG_PERIPHERAL_Reg": {
+                "address_block": "/PERIPHERAL/Reg",
                 "offset": "0xF4000000",
                 "range": "64K"
               },
@@ -1355,8 +1445,8 @@
             "range": "4G",
             "width": "32",
             "segments": {
-              "SEG_APB_0_Reg": {
-                "address_block": "/APB_0/Reg",
+              "SEG_PERIPHERAL_Reg": {
+                "address_block": "/PERIPHERAL/Reg",
                 "offset": "0xF4000000",
                 "range": "64K",
                 "is_excluded": "TRUE"
@@ -1402,7 +1492,7 @@
               }
             }
           },
-          "APB_0": {
+          "PERIPHERAL": {
             "address_blocks": {
               "Reg": {
                 "base_address": "0",
@@ -1418,8 +1508,8 @@
         "address_spaces": {
           "Data_MM2S": {
             "segments": {
-              "SEG_APB_0_Reg": {
-                "address_block": "/APB_0/Reg",
+              "SEG_PERIPHERAL_Reg": {
+                "address_block": "/PERIPHERAL/Reg",
                 "offset": "0xF4000000",
                 "range": "64K",
                 "is_excluded": "TRUE"
@@ -1445,8 +1535,8 @@
           },
           "Data_S2MM": {
             "segments": {
-              "SEG_APB_0_Reg": {
-                "address_block": "/APB_0/Reg",
+              "SEG_PERIPHERAL_Reg": {
+                "address_block": "/PERIPHERAL/Reg",
                 "offset": "0xF4000000",
                 "range": "64K",
                 "is_excluded": "TRUE"

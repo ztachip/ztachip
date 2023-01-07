@@ -1,10 +1,10 @@
 // Copyright 1986-2020 Xilinx, Inc. All Rights Reserved.
 // --------------------------------------------------------------------------------
 // Tool Version: Vivado v.2020.2 (win64) Build 3064766 Wed Nov 18 09:12:45 MST 2020
-// Date        : Sat Nov 26 15:23:34 2022
+// Date        : Sun Dec  4 10:27:04 2022
 // Host        : LAPTOP-RM6TVNC2 running 64-bit major release  (build 9200)
-// Command     : write_verilog -force -mode synth_stub
-//               c:/Users/vuong/VM/ztachip/HW/examples/GHRD/GHRD.gen/sources_1/ip/mig_7series_0/mig_7series_0_stub.v
+// Command     : write_verilog -force -mode synth_stub -rename_top mig_7series_0 -prefix
+//               mig_7series_0_ mig_7series_0_stub.v
 // Design      : mig_7series_0
 // Purpose     : Stub declaration of top-level module interface
 // Device      : xc7a100tcsg324-1

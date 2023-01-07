@@ -105,7 +105,7 @@
 /timing/M01_Exit/REGSLICE/value=1;range=0,1;strength=0
 /config/M01_Exit/DATA_WIDTH/value=32
 /config/M01_Exit/ID_WIDTH/value=0
-/config/M01_Exit/PROTOCOL/value=AXI4LITE
+/config/M01_Exit/PROTOCOL/value=AXI4
 /config/M01_Exit/ADDR_WIDTH/value=32
 /timing/M02_Buffer/AR_SLR_PIPE/value=0;range=0..8;strength=0
 /timing/M02_Buffer/AW_SLR_PIPE/value=0;range=0..8;strength=0
@@ -148,7 +148,7 @@
 /config/ip/num_si/value=5
 /config/ip/num_mi/value=4
 /config/ip/num_clks/value=2
-/config/aclk/csk/value=crossbar_CLOCK:166:0.000
+/config/aclk/csk/value=crossbar_CLOCK:125:0.000
 /clocking/S00_Entry/ASSOCIATED_CLK/value=aclk;range=aclk;editable=0
 /clocking/S01_Entry/ASSOCIATED_CLK/value=aclk;range=aclk;editable=0
 /clocking/S02_Entry/ASSOCIATED_CLK/value=aclk;range=aclk;editable=0

@@ -42,6 +42,7 @@ ENTITY dp IS
     );
     port(
             SIGNAL clock_in                         : in STD_LOGIC;
+            SIGNAL clock_x2_in                      : in STD_LOGIC;
             SIGNAL reset_in                         : in STD_LOGIC;
             
             -- Bus interface for configuration        
@@ -421,6 +422,7 @@ dp_fetch_1_i: dp_fetch generic map(
                             )
                         port map(
                             clock_in=>clock_in,
+                            clock_x2_in=>clock_x2_in,
                             reset_in=>reset_in,
                             bus_waddr_in=>bus_waddr_in,
                             bus_raddr_in=>bus_raddr_in,

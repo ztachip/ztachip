@@ -916,7 +916,7 @@ proc create_hier_cell_s04_entry_pipeline { parentCell nameHier } {
   set_property -dict [ list \
    CONFIG.ADDR_WIDTH {32} \
    CONFIG.IS_CASCADED {0} \
-   CONFIG.MEP_IDENTIFIER {5} \
+   CONFIG.MEP_IDENTIFIER {7} \
    CONFIG.MEP_IDENTIFIER_WIDTH {3} \
    CONFIG.NUM_READ_OUTSTANDING {64} \
    CONFIG.NUM_WRITE_OUTSTANDING {64} \
@@ -2098,7 +2098,7 @@ proc create_hier_cell_s01_entry_pipeline { parentCell nameHier } {
    CONFIG.SEP002_PROTOCOL {AXI4} \
    CONFIG.SEP002_RDATA_WIDTH {32} \
    CONFIG.SEP002_WDATA_WIDTH {32} \
-   CONFIG.SEP003_PROTOCOL {AXI4LITE} \
+   CONFIG.SEP003_PROTOCOL {AXI4} \
    CONFIG.SEP003_RDATA_WIDTH {32} \
    CONFIG.SEP003_WDATA_WIDTH {32} \
    CONFIG.SUPPORTS_NARROW {1} \
@@ -2112,7 +2112,7 @@ proc create_hier_cell_s01_entry_pipeline { parentCell nameHier } {
   set_property -dict [ list \
    CONFIG.ADDR_WIDTH {32} \
    CONFIG.IS_CASCADED {0} \
-   CONFIG.MEP_IDENTIFIER {2} \
+   CONFIG.MEP_IDENTIFIER {6} \
    CONFIG.MEP_IDENTIFIER_WIDTH {3} \
    CONFIG.NUM_READ_OUTSTANDING {64} \
    CONFIG.NUM_READ_THREADS {1} \
@@ -2426,7 +2426,7 @@ proc create_hier_cell_s00_entry_pipeline { parentCell nameHier } {
   set_property -dict [ list \
    CONFIG.ADDR_WIDTH {32} \
    CONFIG.IS_CASCADED {0} \
-   CONFIG.MEP_IDENTIFIER {1} \
+   CONFIG.MEP_IDENTIFIER {5} \
    CONFIG.MEP_IDENTIFIER_WIDTH {3} \
    CONFIG.NUM_READ_OUTSTANDING {64} \
    CONFIG.NUM_WRITE_OUTSTANDING {64} \
@@ -2858,13 +2858,13 @@ proc create_hier_cell_m03_exit_pipeline { parentCell nameHier } {
    CONFIG.RDATA_WIDTH {32} \
    CONFIG.READ_WRITE_MODE {READ_WRITE} \
    CONFIG.SSC000_ROUTE {0b00000} \
-   CONFIG.SSC001_ROUTE {0b00001} \
-   CONFIG.SSC002_ROUTE {0b00010} \
+   CONFIG.SSC001_ROUTE {0b00000} \
+   CONFIG.SSC002_ROUTE {0b00000} \
    CONFIG.SSC003_ROUTE {0b00100} \
    CONFIG.SSC004_ROUTE {0b01000} \
-   CONFIG.SSC005_ROUTE {0b10000} \
-   CONFIG.SSC006_ROUTE {0b00000} \
-   CONFIG.SSC007_ROUTE {0b00000} \
+   CONFIG.SSC005_ROUTE {0b00001} \
+   CONFIG.SSC006_ROUTE {0b00010} \
+   CONFIG.SSC007_ROUTE {0b10000} \
    CONFIG.SSC_ROUTE_WIDTH {5} \
    CONFIG.S_ID_WIDTH {3} \
    CONFIG.WDATA_WIDTH {32} \
@@ -3277,13 +3277,13 @@ proc create_hier_cell_m02_exit_pipeline { parentCell nameHier } {
    CONFIG.RDATA_WIDTH {32} \
    CONFIG.READ_WRITE_MODE {READ_WRITE} \
    CONFIG.SSC000_ROUTE {0b00000} \
-   CONFIG.SSC001_ROUTE {0b00001} \
-   CONFIG.SSC002_ROUTE {0b00010} \
+   CONFIG.SSC001_ROUTE {0b00000} \
+   CONFIG.SSC002_ROUTE {0b00000} \
    CONFIG.SSC003_ROUTE {0b00100} \
    CONFIG.SSC004_ROUTE {0b01000} \
-   CONFIG.SSC005_ROUTE {0b10000} \
-   CONFIG.SSC006_ROUTE {0b00000} \
-   CONFIG.SSC007_ROUTE {0b00000} \
+   CONFIG.SSC005_ROUTE {0b00001} \
+   CONFIG.SSC006_ROUTE {0b00010} \
+   CONFIG.SSC007_ROUTE {0b10000} \
    CONFIG.SSC_ROUTE_WIDTH {5} \
    CONFIG.S_ID_WIDTH {3} \
    CONFIG.WDATA_WIDTH {32} \
@@ -3684,25 +3684,35 @@ proc create_hier_cell_m01_exit_pipeline { parentCell nameHier } {
   set m01_exit [ create_bd_cell -type ip -vlnv xilinx.com:ip:sc_exit:1.0 m01_exit ]
   set_property -dict [ list \
    CONFIG.ADDR_WIDTH {32} \
-   CONFIG.HAS_BURST {0} \
+   CONFIG.HAS_BURST {1} \
+   CONFIG.HAS_LOCK {0} \
    CONFIG.IS_CASCADED {0} \
+   CONFIG.MAX_RUSER_BITS_PER_BYTE {0} \
+   CONFIG.MAX_WUSER_BITS_PER_BYTE {0} \
    CONFIG.MEP_IDENTIFIER_WIDTH {3} \
+   CONFIG.M_ARUSER_WIDTH {0} \
+   CONFIG.M_AWUSER_WIDTH {0} \
+   CONFIG.M_BUSER_WIDTH {0} \
    CONFIG.M_ID_WIDTH {0} \
-   CONFIG.M_MAX_BURST_LENGTH {1} \
-   CONFIG.M_PROTOCOL {AXI4LITE} \
+   CONFIG.M_MAX_BURST_LENGTH {256} \
+   CONFIG.M_PROTOCOL {AXI4} \
+   CONFIG.M_RUSER_BITS_PER_BYTE {0} \
+   CONFIG.M_RUSER_WIDTH {0} \
+   CONFIG.M_WUSER_BITS_PER_BYTE {0} \
+   CONFIG.M_WUSER_WIDTH {0} \
    CONFIG.NUM_MSC {4} \
    CONFIG.NUM_READ_OUTSTANDING {64} \
    CONFIG.NUM_WRITE_OUTSTANDING {64} \
    CONFIG.RDATA_WIDTH {32} \
    CONFIG.READ_WRITE_MODE {READ_WRITE} \
    CONFIG.SSC000_ROUTE {0b00000} \
-   CONFIG.SSC001_ROUTE {0b00001} \
-   CONFIG.SSC002_ROUTE {0b00010} \
+   CONFIG.SSC001_ROUTE {0b00000} \
+   CONFIG.SSC002_ROUTE {0b00000} \
    CONFIG.SSC003_ROUTE {0b00100} \
    CONFIG.SSC004_ROUTE {0b01000} \
-   CONFIG.SSC005_ROUTE {0b10000} \
-   CONFIG.SSC006_ROUTE {0b00000} \
-   CONFIG.SSC007_ROUTE {0b00000} \
+   CONFIG.SSC005_ROUTE {0b00001} \
+   CONFIG.SSC006_ROUTE {0b00010} \
+   CONFIG.SSC007_ROUTE {0b10000} \
    CONFIG.SSC_ROUTE_WIDTH {5} \
    CONFIG.S_ID_WIDTH {3} \
    CONFIG.WDATA_WIDTH {32} \
@@ -4125,13 +4135,13 @@ proc create_hier_cell_m00_exit_pipeline { parentCell nameHier } {
    CONFIG.RDATA_WIDTH {64} \
    CONFIG.READ_WRITE_MODE {READ_WRITE} \
    CONFIG.SSC000_ROUTE {0b00000} \
-   CONFIG.SSC001_ROUTE {0b00001} \
-   CONFIG.SSC002_ROUTE {0b00010} \
+   CONFIG.SSC001_ROUTE {0b00000} \
+   CONFIG.SSC002_ROUTE {0b00000} \
    CONFIG.SSC003_ROUTE {0b00100} \
    CONFIG.SSC004_ROUTE {0b01000} \
-   CONFIG.SSC005_ROUTE {0b10000} \
-   CONFIG.SSC006_ROUTE {0b00000} \
-   CONFIG.SSC007_ROUTE {0b00000} \
+   CONFIG.SSC005_ROUTE {0b00001} \
+   CONFIG.SSC006_ROUTE {0b00010} \
+   CONFIG.SSC007_ROUTE {0b10000} \
    CONFIG.SSC_ROUTE_WIDTH {5} \
    CONFIG.S_ID_WIDTH {3} \
    CONFIG.WDATA_WIDTH {64} \
@@ -4236,8 +4246,8 @@ proc create_hier_cell_clk_map { parentCell nameHier } {
  ] $psr_aclk1
 
   # Create port connections
-  connect_bd_net -net clk_map_aclk1_net [get_bd_pins M00_ACLK] [get_bd_pins aclk1] [get_bd_pins psr0/slowest_sync_clk] [get_bd_pins psr_aclk1/slowest_sync_clk]
-  connect_bd_net -net clk_map_aclk_net [get_bd_pins M01_ACLK] [get_bd_pins M02_ACLK] [get_bd_pins M03_ACLK] [get_bd_pins S00_ACLK] [get_bd_pins S01_ACLK] [get_bd_pins S02_ACLK] [get_bd_pins S03_ACLK] [get_bd_pins S04_ACLK] [get_bd_pins aclk] [get_bd_pins swbd_aclk] [get_bd_pins psr_aclk/slowest_sync_clk]
+  connect_bd_net -net clk_map_aclk1_net [get_bd_pins M00_ACLK] [get_bd_pins aclk1] [get_bd_pins psr_aclk1/slowest_sync_clk]
+  connect_bd_net -net clk_map_aclk_net [get_bd_pins M01_ACLK] [get_bd_pins M02_ACLK] [get_bd_pins M03_ACLK] [get_bd_pins S00_ACLK] [get_bd_pins S01_ACLK] [get_bd_pins S02_ACLK] [get_bd_pins S03_ACLK] [get_bd_pins S04_ACLK] [get_bd_pins aclk] [get_bd_pins swbd_aclk] [get_bd_pins psr0/slowest_sync_clk] [get_bd_pins psr_aclk/slowest_sync_clk]
   connect_bd_net -net clk_map_aresetn_net [get_bd_pins aresetn] [get_bd_pins psr0/aux_reset_in] [get_bd_pins psr_aclk/aux_reset_in] [get_bd_pins psr_aclk1/aux_reset_in]
   connect_bd_net -net one_dout [get_bd_pins one/dout] [get_bd_pins psr0/ext_reset_in]
   connect_bd_net -net psr0_interconnect_aresetn [get_bd_pins psr0/interconnect_aresetn] [get_bd_pins psr_aclk/ext_reset_in] [get_bd_pins psr_aclk1/ext_reset_in]
@@ -4294,7 +4304,7 @@ proc create_root_design { parentCell } {
 
   set M01_AXI [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:aximm_rtl:1.0 M01_AXI ]
   set_property -dict [ list \
-   CONFIG.MAX_BURST_LENGTH {1} \
+   CONFIG.MAX_BURST_LENGTH {256} \
    CONFIG.NUM_READ_OUTSTANDING {64} \
    CONFIG.NUM_WRITE_OUTSTANDING {64} \
    CONFIG.RUSER_BITS_PER_BYTE {0} \

@@ -296,6 +296,8 @@ static void of_phase_1(void *_p,int pid) {
 
          ztaTaskYield();
 
+         >BARRIER;
+
          // Copy result tiles back to memory
          >DTYPE(INT16)MEM(req->x_vect,h,w)[y*dy:y*dy+OF1_TILE_DY_DIM*VECTOR_WIDTH-1][x*dx:x*dx+dx2-1] <= 
          >CONCURRENT FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:OF1_TILE_DY_DIM-1) FOR(II=0:NUM_PCORE-1) FOR(J=OF1_TILE_DX_DIM:OF1_TILE_DX_DIM+OF1_TILE_DX_DIM-1) DTYPE(INT16)PCORE(NUM_PCORE)[II].of1::x_gradient(OF1_TILE_DY_DIM,OF1_TILE_DX_IN_DIM,VECTOR_WIDTH)[I][J][K];

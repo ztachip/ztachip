@@ -595,6 +595,7 @@ ddr_tx_i: ddr_tx
 dp_1_i: dp_core
     port map(
         clock_in=>clock_in,
+        clock_x2_in=>clock_x2_in,
         reset_in=>reset_in,                
 
         -- Configuration bus

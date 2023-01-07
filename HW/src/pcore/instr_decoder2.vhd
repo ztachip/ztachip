@@ -135,6 +135,7 @@ SIGNAL got_imu_r:STD_LOGIC;
 SIGNAL got_imu_rr:STD_LOGIC;
 SIGNAL lane_r:iregister_t;
 SIGNAL lane_rr:iregister_t;
+SIGNAL lane_rrr:iregister_t;
 SIGNAL imu_lane_valid_r:STD_LOGIC;
 SIGNAL imu_lane_valid_rr:STD_LOGIC;
 SIGNAL imu_lane_valid_rrr:STD_LOGIC;
@@ -208,9 +209,10 @@ SIGNAL imu_opcode_rr:STD_LOGIC_VECTOR(imu_instruction_oc_width_c-1 DOWNTO 0);
 SIGNAL imu_x1_parm_rr:STD_LOGIC_VECTOR(imu_instruction_x1_width_c-1 DOWNTO 0);
 SIGNAL imu_x2_parm_rr:STD_LOGIC_VECTOR(imu_instruction_x2_width_c-1 DOWNTO 0);
 SIGNAL imu_y_parm_rr:STD_LOGIC_VECTOR(imu_instruction_y_width_c-1 DOWNTO 0);
+SIGNAL imu_x1_parm_rrr:STD_LOGIC_VECTOR(imu_instruction_x1_width_c-1 DOWNTO 0);
+SIGNAL imu_x2_parm_rrr:STD_LOGIC_VECTOR(imu_instruction_x2_width_c-1 DOWNTO 0);
 SIGNAL imu_const_rr:iregister_t;
-SIGNAL imu_x1_r:iregister_t;
-SIGNAL imu_x2_r:iregister_t;
+SIGNAL imu_const_rrr:iregister_t;
 SIGNAL imu_y_r:unsigned(iregister_addr_t'length-1 downto 0);
 SIGNAL imu_y_rr:unsigned(iregister_addr_t'length-1 downto 0);
 SIGNAL imu_y_rrr:unsigned(iregister_addr_t'length-1 downto 0);
@@ -222,6 +224,7 @@ SIGNAL imu_y_valid_rrr:STD_LOGIC;
 SIGNAL imu_y_valid_rrrr:STD_LOGIC;
 SIGNAL imu_y_valid_rrrrr:STD_LOGIC;
 SIGNAL imu_oc_r:STD_LOGIC_VECTOR(imu_instruction_oc_width_c-1 DOWNTO 0);
+
 
 --------
 -- IREGISTER variables
@@ -235,6 +238,8 @@ SIGNAL imu_x1_ireg_r:iregister_t;
 SIGNAL imu_x2_ireg_r:iregister_t;
 SIGNAL imu_x1_ireg_rr:iregister_t;
 SIGNAL imu_x2_ireg_rr:iregister_t;
+SIGNAL imu_x1_ireg_rrr:iregister_t;
+SIGNAL imu_x2_ireg_rrr:iregister_t;
 
 SIGNAL mu_x1_i0_1:iregister_t;
 SIGNAL mu_x2_i0_1:iregister_t;
@@ -261,6 +266,8 @@ SIGNAL mu_lane_rrrrrr:STD_LOGIC_VECTOR(vector_width_c-1 downto 0);
 SIGNAL result_raddr_r:STD_LOGIC_VECTOR(xreg_depth_c-1 downto 0);
 SIGNAL result_waddr_r:STD_LOGIC_VECTOR(xreg_depth_c-1 downto 0);
 SIGNAL xreg_waddr_r:STD_LOGIC_VECTOR(xreg_depth_c-1 downto 0);
+
+SIGNAL result_r:iregister_t;
 
 ------------ 
 -- Process MU parameter attribute
@@ -402,8 +409,8 @@ i_wr_addr_out <= imu_y_rrrr;
 i_wr_data_out <= i_y_in;
 -- IALU
 i_opcode_out <= imu_oc_r;
-i_x1_out <= imu_x1_r;
-i_x2_out <= imu_x2_r;
+i_x1_out <= encode_imu_parm(imu_x1_parm_rrr,imu_const_rrr,instruction_tid_rrr,imu_x1_ireg_rrr,lane_rrr,result_r);
+i_x2_out <= encode_imu_parm(imu_x2_parm_rrr,imu_const_rrr,instruction_tid_rrr,imu_x2_ireg_rrr,lane_rrr,result_r);
 -- LANE control
 wr_lane_out <= imu_lane_valid_rrrr;
 
@@ -500,6 +507,7 @@ if reset_in='0' then
     iregisters_r <= (others=>(others=>'0'));
     lane_r <= (others=>'0');
     lane_rr <= (others=>'0');
+    lane_rrr <= (others=>'0');
 else
     if clock_in'event and clock_in='1' then
         instruction_tid_r <= instruction_tid_in;
@@ -522,6 +530,7 @@ else
         end loop;
         lane_r <= lane_in;
         lane_rr <= lane_r;
+        lane_rrr <= lane_rr;
     end if;
 end if;
 end process;
@@ -550,8 +559,6 @@ process(clock_in,reset_in)
 variable index:integer;
 begin
 if reset_in='0' then
-    imu_x1_r <= (others=>'0');
-    imu_x2_r <= (others=>'0');
     imu_y_r <= (others=>'0');
     imu_y_rr <= (others=>'0');
     imu_y_rrr <= (others=>'0');
@@ -580,12 +587,17 @@ if reset_in='0' then
     imu_opcode_rr <= (others=>'0');
     imu_x1_parm_rr <= (others=>'0');
     imu_x2_parm_rr <= (others=>'0');
+    imu_x1_parm_rrr <= (others=>'0');
+    imu_x2_parm_rrr <= (others=>'0');
     imu_y_parm_rr <= (others=>'0');
     imu_const_rr <= (others=>'0');
+    imu_const_rrr <= (others=>'0');
     imu_x1_ireg_r <= (others=>'0');
     imu_x2_ireg_r <= (others=>'0');
     imu_x1_ireg_rr <= (others=>'0');
     imu_x2_ireg_rr <= (others=>'0');
+    imu_x1_ireg_rrr <= (others=>'0');
+    imu_x2_ireg_rrr <= (others=>'0');
     got_imu_rr <= '0';
     vm_r <= '0';
     vm_rr <= '0';
@@ -594,6 +606,7 @@ if reset_in='0' then
     vm_rrrrr <= '0';
     vm_rrrrrr <= '0';
     vm_rrrrrrr <= '0';
+    result_r <= (others=>'0');
 else
     if clock_in'event and clock_in='1' then
         -- Latch incoming IMU instructions to pipeline
@@ -617,6 +630,12 @@ else
         imu_const_rr <= imu_const_r;
         got_imu_rr <= got_imu_r;
 
+        imu_x1_parm_rrr <= imu_x1_parm_rr;
+        imu_x2_parm_rrr <= imu_x2_parm_rr;
+        imu_x1_ireg_rrr <= imu_x1_ireg_rr;
+        imu_x2_ireg_rrr <= imu_x2_ireg_rr;
+        imu_const_rrr <= imu_const_rr;
+
         vm_r <= instruction_vm_in;
         vm_rr <= vm_r;
         vm_rrr <= vm_rr;
@@ -624,12 +643,12 @@ else
         vm_rrrrr <= vm_rrrr;
         vm_rrrrrr <= vm_rrrrr;
         vm_rrrrrrr <= vm_rrrrrr;
+        
+        result_r <= result_in;
 
         --- Process the IMU instruction
         if got_imu_rr='1' then
             -- Retrieve X1 parameter
-            imu_x1_r <=  encode_imu_parm(imu_x1_parm_rr,imu_const_rr,instruction_tid_rr,imu_x1_ireg_rr,lane_rr,result_in);
-            imu_x2_r <= encode_imu_parm(imu_x2_parm_rr,imu_const_rr,instruction_tid_rr,imu_x2_ireg_rr,lane_rr,result_in);
             -- Retrieve Y parameter. The value for Y is the register bank index where the result is stored
             if imu_opcode_rr /= std_logic_vector(to_unsigned(0,imu_opcode_rr'length)) then
                 if unsigned(imu_y_parm_rr(imu_y_parm_rr'length-1 downto iregister_addr_t'length))=to_unsigned(0,imu_y_parm_rr'length-iregister_addr_t'length) then
@@ -651,8 +670,6 @@ else
             end if;
             imu_oc_r <= imu_opcode_rr;
         else
-            imu_x1_r <= (others=>'0');
-            imu_x2_r <= (others=>'0');
             imu_y_r <= (others=>'0');
             imu_y_valid_r <= '0';
             imu_oc_r <= (others=>'0');

@@ -1,10 +1,10 @@
 // Copyright 1986-2020 Xilinx, Inc. All Rights Reserved.
 // --------------------------------------------------------------------------------
 // Tool Version: Vivado v.2020.2 (win64) Build 3064766 Wed Nov 18 09:12:45 MST 2020
-// Date        : Fri Jul 29 00:07:37 2022
+// Date        : Sat Jan  7 00:00:54 2023
 // Host        : LAPTOP-RM6TVNC2 running 64-bit major release  (build 9200)
-// Command     : write_verilog -force -mode synth_stub -rename_top crossbar_axi_vdma_0_0 -prefix
-//               crossbar_axi_vdma_0_0_ crossbar_axi_vdma_0_0_stub.v
+// Command     : write_verilog -force -mode synth_stub
+//               c:/Users/vuong/VM/ztachip/HW/examples/GHRD/GHRD.gen/sources_1/bd/crossbar/ip/crossbar_axi_vdma_0_0/crossbar_axi_vdma_0_0_stub.v
 // Design      : crossbar_axi_vdma_0_0
 // Purpose     : Stub declaration of top-level module interface
 // Device      : xc7a100tcsg324-1

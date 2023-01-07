@@ -42,6 +42,7 @@ object RiscvConfig{
       new IBusCachedPlugin(
           resetVector = 0x00000000l,
           prediction = STATIC,
+          relaxedPcCalculation = true,
           config = InstructionCacheConfig(
             cacheSize = 4096*2,
             bytePerLine =64,
@@ -52,7 +53,7 @@ object RiscvConfig{
             catchIllegalAccess = true,
             catchAccessFault = true,
             asyncTagMemory = false,
-            twoCycleRam = false,
+            twoCycleRam = true,
             twoCycleCache = true
           )
       ),

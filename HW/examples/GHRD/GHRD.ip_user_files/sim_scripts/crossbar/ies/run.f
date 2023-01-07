@@ -196,12 +196,6 @@
 -makelib ies_lib/xil_defaultlib \
   "../../../bd/crossbar/ip/crossbar_axi_vdma_0_0/sim/crossbar_axi_vdma_0_0.vhd" \
 -endlib
--makelib ies_lib/axi_apb_bridge_v3_0_17 \
-  "../../../../GHRD.gen/sources_1/bd/crossbar/ipshared/c0b5/hdl/axi_apb_bridge_v3_0_vh_rfs.vhd" \
--endlib
--makelib ies_lib/xil_defaultlib \
-  "../../../bd/crossbar/ip/crossbar_axi_apb_bridge_0_0/sim/crossbar_axi_apb_bridge_0_0.vhd" \
--endlib
 -makelib ies_lib/xil_defaultlib \
   "../../../bd/crossbar/sim/crossbar.v" \
 -endlib

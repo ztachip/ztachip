@@ -19,7 +19,6 @@ vlib activehdl/lib_bmg_v1_0_13
 vlib activehdl/lib_srl_fifo_v1_0_2
 vlib activehdl/axi_datamover_v5_1_24
 vlib activehdl/axi_vdma_v6_3_10
-vlib activehdl/axi_apb_bridge_v3_0_17
 
 vmap xilinx_vip activehdl/xilinx_vip
 vmap xpm activehdl/xpm
@@ -39,7 +38,6 @@ vmap lib_bmg_v1_0_13 activehdl/lib_bmg_v1_0_13
 vmap lib_srl_fifo_v1_0_2 activehdl/lib_srl_fifo_v1_0_2
 vmap axi_datamover_v5_1_24 activehdl/axi_datamover_v5_1_24
 vmap axi_vdma_v6_3_10 activehdl/axi_vdma_v6_3_10
-vmap axi_apb_bridge_v3_0_17 activehdl/axi_apb_bridge_v3_0_17
 
 vlog -work xilinx_vip  -sv2k12 "+incdir+C:/Xilinx/Vivado/2020.2/data/xilinx_vip/include" \
 "C:/Xilinx/Vivado/2020.2/data/xilinx_vip/hdl/axi4stream_vip_axi4streampc.sv" \
@@ -238,12 +236,6 @@ vcom -work axi_vdma_v6_3_10 -93 \
 
 vcom -work xil_defaultlib -93 \
 "../../../bd/crossbar/ip/crossbar_axi_vdma_0_0/sim/crossbar_axi_vdma_0_0.vhd" \
-
-vcom -work axi_apb_bridge_v3_0_17 -93 \
-"../../../../GHRD.gen/sources_1/bd/crossbar/ipshared/c0b5/hdl/axi_apb_bridge_v3_0_vh_rfs.vhd" \
-
-vcom -work xil_defaultlib -93 \
-"../../../bd/crossbar/ip/crossbar_axi_apb_bridge_0_0/sim/crossbar_axi_apb_bridge_0_0.vhd" \
 
 vlog -work xil_defaultlib  -v2k5 "+incdir+../../../../GHRD.gen/sources_1/bd/crossbar/ipshared/25b7/hdl/verilog" "+incdir+../../../../GHRD.gen/sources_1/bd/crossbar/ipshared/896c/hdl/verilog" "+incdir+../../../../GHRD.gen/sources_1/bd/crossbar/ipshared/ec67/hdl" "+incdir+../../../../GHRD.gen/sources_1/bd/crossbar/ipshared/7860/hdl" "+incdir+C:/Xilinx/Vivado/2020.2/data/xilinx_vip/include" \
 "../../../bd/crossbar/sim/crossbar.v" \

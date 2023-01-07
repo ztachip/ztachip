@@ -30,6 +30,7 @@ use work.ztachip_pkg.all;
 ENTITY dp_core IS
     port(
             SIGNAL clock_in                         : in STD_LOGIC;
+            SIGNAL clock_x2_in                      : in STD_LOGIC;
             SIGNAL reset_in                         : in STD_LOGIC;
             
             -- Bus interface for configuration        
@@ -246,6 +247,7 @@ dp0_i: dp
     )
     port map(
         clock_in=>clock_in,
+        clock_x2_in=>clock_x2_in,
         reset_in=>reset_in,        
 		        
         -- Configuration bus

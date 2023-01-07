@@ -664,7 +664,7 @@ int cGraph::buildFunc(cInstruction *_func)
    // Allocate space for pointer variables
    if(allocateGraph(&M_pointerColor,&pointerSize,availPointerSize,false,-1,MAX_POINTER_SIZE-1,BOT2TOP) < 0)
    {
-      error(M_currFunc->m_lineNo,"out of memory");
+      error(M_currFunc->m_lineNo,"out of memory for pointer variables");
       return -1;
    }
 
@@ -678,7 +678,7 @@ int cGraph::buildFunc(cInstruction *_func)
    // Allocate using integer space for integer variables that can also be assigned to pointer space
    if(allocateGraph(&M_intColor,&intSize,availIntSize,false,-1,MAX_INT_SIZE-intParmSize-1,BOT2TOP) < 0)
    {
-      error(M_currFunc->m_lineNo,"out of memory");
+      error(M_currFunc->m_lineNo,"out of memory for integer variables");
       return -1;
    }
    // Allocate using integer space for integer variables that can only be assigned in integer space
@@ -713,10 +713,10 @@ int cGraph::buildFunc(cInstruction *_func)
          }
          // Try again...
          if(allocateGraph(&M_intColor,&intSize,availIntSize,true,-1,MAX_INT_SIZE-intParmSize-1,BOT2TOP) < 0)
-            error(M_currFunc->m_lineNo,"out of memory");
+            error(M_currFunc->m_lineNo,"out of memory for integer variables");
       }
       else
-         error(M_currFunc->m_lineNo,"out of memory");
+         error(M_currFunc->m_lineNo,"out of memory for integer variables");
    }
 
    // Stack variables have to alined to vector boundary
@@ -726,7 +726,7 @@ int cGraph::buildFunc(cInstruction *_func)
    {
       if(allocateGraph(&M_privateColor,&privateSize,MAX_PRIVATE_SIZE,false,v,0,TOP2BOT) < 0)
       {
-         error(M_currFunc->m_lineNo,"out of memory");
+         error(M_currFunc->m_lineNo,"out of memory for private memory space");
          return -1;
       }
    }
@@ -734,7 +734,7 @@ int cGraph::buildFunc(cInstruction *_func)
    // Allocate accumulator space
    if(allocateGraph(&M_exregColor,&exregSize,MAX_EXREG_SIZE,false,VECTOR_DEPTH,0,TOP2BOT) < 0)
    {
-      error(M_currFunc->m_lineNo,"out of memory");
+      error(M_currFunc->m_lineNo,"out of memory for accumulator space");
       return -1;
    }
 
@@ -788,7 +788,7 @@ int cGraph::buildFunc(cInstruction *_func)
    }
    if((_func->m_maxNumThreads*ROUND(privateSize,VECTOR_WIDTH)+ROUND(shareSize,VECTOR_WIDTH)) > (1<<REGISTER_ACTUAL_FILE_DEPTH))
    {
-      error(M_currFunc->m_lineNo,"out of memory");
+      error(M_currFunc->m_lineNo,"out of memory for pcore memory space");
       return -1;
    }
    return 0;

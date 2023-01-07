@@ -155,8 +155,6 @@ proc create_root_design { parentCell } {
 
 
   # Create interface ports
-  set APB_0 [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:apb_rtl:1.0 APB_0 ]
-
   set CAMERA_IN [ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:axis_rtl:1.0 CAMERA_IN ]
   set_property -dict [ list \
    CONFIG.FREQ_HZ {25000000} \
@@ -178,7 +176,7 @@ proc create_root_design { parentCell } {
    CONFIG.AWUSER_WIDTH {0} \
    CONFIG.BUSER_WIDTH {0} \
    CONFIG.DATA_WIDTH {32} \
-   CONFIG.FREQ_HZ {166000000} \
+   CONFIG.FREQ_HZ {125000000} \
    CONFIG.HAS_BRESP {1} \
    CONFIG.HAS_BURST {1} \
    CONFIG.HAS_CACHE {1} \
@@ -210,7 +208,7 @@ proc create_root_design { parentCell } {
    CONFIG.AWUSER_WIDTH {0} \
    CONFIG.BUSER_WIDTH {0} \
    CONFIG.DATA_WIDTH {32} \
-   CONFIG.FREQ_HZ {166000000} \
+   CONFIG.FREQ_HZ {125000000} \
    CONFIG.HAS_BRESP {1} \
    CONFIG.HAS_BURST {1} \
    CONFIG.HAS_CACHE {1} \
@@ -235,12 +233,24 @@ proc create_root_design { parentCell } {
    CONFIG.WUSER_WIDTH {0} \
    ] $IBUS
 
+  set PERIPHERAL [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:aximm_rtl:1.0 PERIPHERAL ]
+  set_property -dict [ list \
+   CONFIG.ADDR_WIDTH {32} \
+   CONFIG.DATA_WIDTH {32} \
+   CONFIG.FREQ_HZ {125000000} \
+   CONFIG.HAS_REGION {0} \
+   CONFIG.HAS_WSTRB {1} \
+   CONFIG.NUM_READ_OUTSTANDING {8} \
+   CONFIG.NUM_WRITE_OUTSTANDING {8} \
+   CONFIG.PROTOCOL {AXI4} \
+   ] $PERIPHERAL
+
   set SDRAM [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:aximm_rtl:1.0 SDRAM ]
   set_property -dict [ list \
    CONFIG.ADDR_WIDTH {32} \
    CONFIG.CLK_DOMAIN {crossbar_SDRAM_CLOCK} \
    CONFIG.DATA_WIDTH {64} \
-   CONFIG.FREQ_HZ {166000000} \
+   CONFIG.FREQ_HZ {166666666} \
    CONFIG.HAS_REGION {0} \
    CONFIG.NUM_READ_OUTSTANDING {64} \
    CONFIG.NUM_WRITE_OUTSTANDING {64} \
@@ -256,7 +266,7 @@ proc create_root_design { parentCell } {
   set_property -dict [ list \
    CONFIG.ADDR_WIDTH {32} \
    CONFIG.DATA_WIDTH {32} \
-   CONFIG.FREQ_HZ {166000000} \
+   CONFIG.FREQ_HZ {125000000} \
    CONFIG.HAS_REGION {0} \
    CONFIG.NUM_READ_OUTSTANDING {64} \
    CONFIG.NUM_WRITE_OUTSTANDING {64} \
@@ -270,7 +280,7 @@ proc create_root_design { parentCell } {
    CONFIG.AWUSER_WIDTH {0} \
    CONFIG.BUSER_WIDTH {0} \
    CONFIG.DATA_WIDTH {64} \
-   CONFIG.FREQ_HZ {166000000} \
+   CONFIG.FREQ_HZ {125000000} \
    CONFIG.HAS_BRESP {1} \
    CONFIG.HAS_BURST {1} \
    CONFIG.HAS_CACHE {1} \
@@ -299,22 +309,16 @@ proc create_root_design { parentCell } {
   # Create ports
   set ARESETN [ create_bd_port -dir I -type rst ARESETN ]
   set CAMERA_CLOCK_IN [ create_bd_port -dir I -type clk -freq_hz 25000000 CAMERA_CLOCK_IN ]
-  set CLOCK [ create_bd_port -dir I -type clk -freq_hz 166000000 CLOCK ]
+  set CLOCK [ create_bd_port -dir I -type clk -freq_hz 125000000 CLOCK ]
   set_property -dict [ list \
-   CONFIG.ASSOCIATED_BUSIF {IBUS:DBUS:ZTA_CONTROL:ZTA_DATA} \
+   CONFIG.ASSOCIATED_BUSIF {IBUS:DBUS:ZTA_CONTROL:ZTA_DATA:PERIPHERAL} \
  ] $CLOCK
-  set SDRAM_CLOCK [ create_bd_port -dir I -type clk -freq_hz 166000000 SDRAM_CLOCK ]
+  set SDRAM_CLOCK [ create_bd_port -dir I -type clk -freq_hz 166666666 SDRAM_CLOCK ]
   set_property -dict [ list \
    CONFIG.ASSOCIATED_BUSIF {SDRAM} \
    CONFIG.CLK_DOMAIN {crossbar_SDRAM_CLOCK} \
  ] $SDRAM_CLOCK
   set VIDEO_CLOCK [ create_bd_port -dir I -type clk -freq_hz 25000000 VIDEO_CLOCK ]
-
-  # Create instance: axi_apb_bridge_0, and set properties
-  set axi_apb_bridge_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_apb_bridge:3.0 axi_apb_bridge_0 ]
-  set_property -dict [ list \
-   CONFIG.C_APB_NUM_SLAVES {1} \
- ] $axi_apb_bridge_0
 
   # Create instance: axi_vdma_0, and set properties
   set axi_vdma_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_vdma:6.3 axi_vdma_0 ]
@@ -322,11 +326,11 @@ proc create_root_design { parentCell } {
    CONFIG.c_m_axi_mm2s_data_width {32} \
    CONFIG.c_m_axi_s2mm_data_width {32} \
    CONFIG.c_mm2s_genlock_mode {0} \
-   CONFIG.c_mm2s_linebuffer_depth {2048} \
+   CONFIG.c_mm2s_linebuffer_depth {4096} \
    CONFIG.c_mm2s_max_burst_length {8} \
    CONFIG.c_num_fstores {8} \
    CONFIG.c_s2mm_genlock_mode {0} \
-   CONFIG.c_s2mm_linebuffer_depth {1024} \
+   CONFIG.c_s2mm_linebuffer_depth {512} \
    CONFIG.c_use_s2mm_fsync {0} \
  ] $axi_vdma_0
 
@@ -343,26 +347,25 @@ proc create_root_design { parentCell } {
   connect_bd_intf_net -intf_net DBUS_1 [get_bd_intf_ports DBUS] [get_bd_intf_pins smartconnect_0/S01_AXI]
   connect_bd_intf_net -intf_net IBUS_1 [get_bd_intf_ports IBUS] [get_bd_intf_pins smartconnect_0/S00_AXI]
   connect_bd_intf_net -intf_net ZTA_DATA_1 [get_bd_intf_ports ZTA_DATA] [get_bd_intf_pins smartconnect_0/S04_AXI]
-  connect_bd_intf_net -intf_net axi_apb_bridge_0_APB_M [get_bd_intf_ports APB_0] [get_bd_intf_pins axi_apb_bridge_0/APB_M]
   connect_bd_intf_net -intf_net axi_vdma_0_M_AXIS_MM2S [get_bd_intf_ports VIDEO_OUT] [get_bd_intf_pins axi_vdma_0/M_AXIS_MM2S]
   connect_bd_intf_net -intf_net axi_vdma_0_M_AXI_MM2S [get_bd_intf_pins axi_vdma_0/M_AXI_MM2S] [get_bd_intf_pins smartconnect_0/S02_AXI]
   connect_bd_intf_net -intf_net axi_vdma_0_M_AXI_S2MM [get_bd_intf_pins axi_vdma_0/M_AXI_S2MM] [get_bd_intf_pins smartconnect_0/S03_AXI]
   connect_bd_intf_net -intf_net smartconnect_0_M00_AXI [get_bd_intf_ports SDRAM] [get_bd_intf_pins smartconnect_0/M00_AXI]
-  connect_bd_intf_net -intf_net smartconnect_0_M01_AXI [get_bd_intf_pins axi_apb_bridge_0/AXI4_LITE] [get_bd_intf_pins smartconnect_0/M01_AXI]
+  connect_bd_intf_net -intf_net smartconnect_0_M01_AXI [get_bd_intf_ports PERIPHERAL] [get_bd_intf_pins smartconnect_0/M01_AXI]
   connect_bd_intf_net -intf_net smartconnect_0_M02_AXI [get_bd_intf_pins axi_vdma_0/S_AXI_LITE] [get_bd_intf_pins smartconnect_0/M02_AXI]
   connect_bd_intf_net -intf_net smartconnect_0_M03_AXI [get_bd_intf_ports ZTA_CONTROL] [get_bd_intf_pins smartconnect_0/M03_AXI]
 
   # Create port connections
-  connect_bd_net -net ARESETN_1 [get_bd_ports ARESETN] [get_bd_pins axi_apb_bridge_0/s_axi_aresetn] [get_bd_pins axi_vdma_0/axi_resetn] [get_bd_pins smartconnect_0/aresetn]
+  connect_bd_net -net ARESETN_1 [get_bd_ports ARESETN] [get_bd_pins axi_vdma_0/axi_resetn] [get_bd_pins smartconnect_0/aresetn]
   connect_bd_net -net CAMERA_CLOCK_IN_1 [get_bd_ports CAMERA_CLOCK_IN] [get_bd_pins axi_vdma_0/s_axis_s2mm_aclk]
-  connect_bd_net -net CLOCK_1 [get_bd_ports CLOCK] [get_bd_pins axi_apb_bridge_0/s_axi_aclk] [get_bd_pins axi_vdma_0/m_axi_mm2s_aclk] [get_bd_pins axi_vdma_0/m_axi_s2mm_aclk] [get_bd_pins axi_vdma_0/s_axi_lite_aclk] [get_bd_pins smartconnect_0/aclk]
+  connect_bd_net -net CLOCK_1 [get_bd_ports CLOCK] [get_bd_pins axi_vdma_0/m_axi_mm2s_aclk] [get_bd_pins axi_vdma_0/m_axi_s2mm_aclk] [get_bd_pins axi_vdma_0/s_axi_lite_aclk] [get_bd_pins smartconnect_0/aclk]
   connect_bd_net -net SDRAM_CLOCK_1 [get_bd_ports SDRAM_CLOCK] [get_bd_pins smartconnect_0/aclk1]
   connect_bd_net -net VIDEO_CLOCK_1 [get_bd_ports VIDEO_CLOCK] [get_bd_pins axi_vdma_0/m_axis_mm2s_aclk]
 
   # Create address segments
   assign_bd_address -offset 0x00000000 -range 0x10000000 -target_address_space [get_bd_addr_spaces axi_vdma_0/Data_MM2S] [get_bd_addr_segs SDRAM/Reg] -force
   assign_bd_address -offset 0x00000000 -range 0x10000000 -target_address_space [get_bd_addr_spaces axi_vdma_0/Data_S2MM] [get_bd_addr_segs SDRAM/Reg] -force
-  assign_bd_address -offset 0xF4000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces DBUS] [get_bd_addr_segs APB_0/Reg] -force
+  assign_bd_address -offset 0xF4000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces DBUS] [get_bd_addr_segs PERIPHERAL/Reg] -force
   assign_bd_address -offset 0x00000000 -range 0x10000000 -target_address_space [get_bd_addr_spaces IBUS] [get_bd_addr_segs SDRAM/Reg] -force
   assign_bd_address -offset 0x00000000 -range 0x10000000 -target_address_space [get_bd_addr_spaces DBUS] [get_bd_addr_segs SDRAM/Reg] -force
   assign_bd_address -offset 0x00000000 -range 0x10000000 -target_address_space [get_bd_addr_spaces ZTA_DATA] [get_bd_addr_segs SDRAM/Reg] -force
@@ -370,16 +373,16 @@ proc create_root_design { parentCell } {
   assign_bd_address -offset 0xF1000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces DBUS] [get_bd_addr_segs axi_vdma_0/S_AXI_LITE/Reg] -force
 
   # Exclude Address Segments
-  exclude_bd_addr_seg -offset 0xF4000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces IBUS] [get_bd_addr_segs APB_0/Reg]
+  exclude_bd_addr_seg -offset 0xF4000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces IBUS] [get_bd_addr_segs PERIPHERAL/Reg]
   exclude_bd_addr_seg -offset 0xF2000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces IBUS] [get_bd_addr_segs ZTA_CONTROL/Reg]
   exclude_bd_addr_seg -offset 0xF1000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces IBUS] [get_bd_addr_segs axi_vdma_0/S_AXI_LITE/Reg]
-  exclude_bd_addr_seg -offset 0xF4000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ZTA_DATA] [get_bd_addr_segs APB_0/Reg]
+  exclude_bd_addr_seg -offset 0xF4000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ZTA_DATA] [get_bd_addr_segs PERIPHERAL/Reg]
   exclude_bd_addr_seg -offset 0xF2000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ZTA_DATA] [get_bd_addr_segs ZTA_CONTROL/Reg]
   exclude_bd_addr_seg -offset 0xF1000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ZTA_DATA] [get_bd_addr_segs axi_vdma_0/S_AXI_LITE/Reg]
-  exclude_bd_addr_seg -offset 0xF4000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces axi_vdma_0/Data_MM2S] [get_bd_addr_segs APB_0/Reg]
+  exclude_bd_addr_seg -offset 0xF4000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces axi_vdma_0/Data_MM2S] [get_bd_addr_segs PERIPHERAL/Reg]
   exclude_bd_addr_seg -offset 0xF2000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces axi_vdma_0/Data_MM2S] [get_bd_addr_segs ZTA_CONTROL/Reg]
   exclude_bd_addr_seg -offset 0xF1000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces axi_vdma_0/Data_MM2S] [get_bd_addr_segs axi_vdma_0/S_AXI_LITE/Reg]
-  exclude_bd_addr_seg -offset 0xF4000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces axi_vdma_0/Data_S2MM] [get_bd_addr_segs APB_0/Reg]
+  exclude_bd_addr_seg -offset 0xF4000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces axi_vdma_0/Data_S2MM] [get_bd_addr_segs PERIPHERAL/Reg]
   exclude_bd_addr_seg -offset 0xF2000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces axi_vdma_0/Data_S2MM] [get_bd_addr_segs ZTA_CONTROL/Reg]
   exclude_bd_addr_seg -offset 0xF1000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces axi_vdma_0/Data_S2MM] [get_bd_addr_segs axi_vdma_0/S_AXI_LITE/Reg]
 

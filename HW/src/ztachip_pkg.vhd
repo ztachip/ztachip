@@ -1403,6 +1403,7 @@ COMPONENT dp IS
     );
     port(   
         SIGNAL clock_in                        : IN STD_LOGIC;
+        SIGNAL clock_x2_in                     : IN STD_LOGIC;
         SIGNAL reset_in                        : IN STD_LOGIC;        
         SIGNAL bus_waddr_in                    : IN register_addr_t;
         SIGNAL bus_raddr_in                    : IN register_addr_t;
@@ -1580,6 +1581,7 @@ COMPONENT dp_fetch IS
             -- Signal from Avalon bus...
 
             SIGNAL clock_in                 : IN STD_LOGIC;
+            SIGNAL clock_x2_in              : IN STD_LOGIC;
             SIGNAL reset_in                 : IN STD_LOGIC;       
             SIGNAL bus_waddr_in             : IN register_addr_t;
             SIGNAL bus_raddr_in             : IN register_addr_t;
@@ -2087,6 +2089,7 @@ END COMPONENT;
 COMPONENT dp_core IS
     port(   
         SIGNAL clock_in                     : IN STD_LOGIC;
+        SIGNAL clock_x2_in                  : IN STD_LOGIC;
         SIGNAL reset_in                     : IN STD_LOGIC;               
 
         SIGNAL bus_waddr_in                 : IN register_addr_t;
@@ -2590,6 +2593,7 @@ COMPONENT xregister_file IS
     PORT(
         -- Global signal
         SIGNAL clock_in               : IN STD_LOGIC;
+        SIGNAL clock_x2_in            : IN STD_LOGIC;
         SIGNAL reset_in               : IN STD_LOGIC; 
 
         -- Flag enable input for MU
@@ -2891,6 +2895,47 @@ COMPONENT scfifow is
         wused_out       : out std_logic_vector(FIFO_DEPTH-1 downto 0)
 	);
 end COMPONENT;
+
+COMPONENT ramw IS
+   GENERIC(
+        numwords_a                      : NATURAL;
+        numwords_b                      : NATURAL;
+        widthad_a                       : NATURAL;
+        widthad_b                       : NATURAL;
+        width_a                         : NATURAL;
+        width_b                         : NATURAL
+    );
+    PORT(
+        clock     : IN STD_LOGIC ;
+        clock_x2  : IN STD_LOGIC ;
+        address_a : IN STD_LOGIC_VECTOR (widthad_a-1 DOWNTO 0);
+        byteena_a : IN STD_LOGIC_VECTOR (width_a/8-1 DOWNTO 0);
+        data_a    : IN STD_LOGIC_VECTOR (width_a-1 DOWNTO 0);
+        q_b       : OUT STD_LOGIC_VECTOR (width_b-1 DOWNTO 0);
+        wren_a    : IN STD_LOGIC ;
+        address_b : IN STD_LOGIC_VECTOR (widthad_b-1 DOWNTO 0)
+    );
+END COMPONENT;
+
+COMPONENT ramw2 IS
+   GENERIC(
+        numwords_a                      : NATURAL;
+        numwords_b                      : NATURAL;
+        widthad_a                       : NATURAL;
+        widthad_b                       : NATURAL;
+        width_a                         : NATURAL;
+        width_b                         : NATURAL
+    );
+    PORT(
+        clock     : IN STD_LOGIC ;
+        clock_x2  : IN STD_LOGIC ;
+        address_a : IN STD_LOGIC_VECTOR (widthad_a-1 DOWNTO 0);
+        data_a    : IN STD_LOGIC_VECTOR (width_a-1 DOWNTO 0);
+        q_b       : OUT STD_LOGIC_VECTOR (width_b-1 DOWNTO 0);
+        wren_a    : IN STD_LOGIC ;
+        address_b : IN STD_LOGIC_VECTOR (widthad_b-1 DOWNTO 0)
+    );
+END COMPONENT;
 
 COMPONENT multiplier is
 	generic 

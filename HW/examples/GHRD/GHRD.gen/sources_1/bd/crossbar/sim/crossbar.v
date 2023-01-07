@@ -1,7 +1,7 @@
 //Copyright 1986-2020 Xilinx, Inc. All Rights Reserved.
 //--------------------------------------------------------------------------------
 //Tool Version: Vivado v.2020.2 (win64) Build 3064766 Wed Nov 18 09:12:45 MST 2020
-//Date        : Thu Aug 25 01:22:08 2022
+//Date        : Fri Jan  6 23:59:17 2023
 //Host        : LAPTOP-RM6TVNC2 running 64-bit major release  (build 9200)
 //Command     : generate_target crossbar.bd
 //Design      : crossbar
@@ -9,17 +9,9 @@
 //--------------------------------------------------------------------------------
 `timescale 1 ps / 1 ps
 
-(* CORE_GENERATION_INFO = "crossbar,IP_Integrator,{x_ipVendor=xilinx.com,x_ipLibrary=BlockDiagram,x_ipName=crossbar,x_ipVersion=1.00.a,x_ipLanguage=VERILOG,numBlks=3,numReposBlks=3,numNonXlnxBlks=0,numHierBlks=0,maxHierDepth=0,numSysgenBlks=0,numHlsBlks=0,numHdlrefBlks=0,numPkgbdBlks=0,bdsource=USER,synth_mode=OOC_per_IP}" *) (* HW_HANDOFF = "crossbar.hwdef" *) 
+(* CORE_GENERATION_INFO = "crossbar,IP_Integrator,{x_ipVendor=xilinx.com,x_ipLibrary=BlockDiagram,x_ipName=crossbar,x_ipVersion=1.00.a,x_ipLanguage=VERILOG,numBlks=2,numReposBlks=2,numNonXlnxBlks=0,numHierBlks=0,maxHierDepth=0,numSysgenBlks=0,numHlsBlks=0,numHdlrefBlks=0,numPkgbdBlks=0,bdsource=USER,synth_mode=OOC_per_IP}" *) (* HW_HANDOFF = "crossbar.hwdef" *) 
 module crossbar
-   (APB_0_paddr,
-    APB_0_penable,
-    APB_0_prdata,
-    APB_0_pready,
-    APB_0_psel,
-    APB_0_pslverr,
-    APB_0_pwdata,
-    APB_0_pwrite,
-    ARESETN,
+   (ARESETN,
     CAMERA_CLOCK_IN,
     CAMERA_IN_tdata,
     CAMERA_IN_tkeep,
@@ -82,6 +74,39 @@ module crossbar
     IBUS_rready,
     IBUS_rresp,
     IBUS_rvalid,
+    PERIPHERAL_araddr,
+    PERIPHERAL_arburst,
+    PERIPHERAL_arcache,
+    PERIPHERAL_arlen,
+    PERIPHERAL_arlock,
+    PERIPHERAL_arprot,
+    PERIPHERAL_arqos,
+    PERIPHERAL_arready,
+    PERIPHERAL_arsize,
+    PERIPHERAL_arvalid,
+    PERIPHERAL_awaddr,
+    PERIPHERAL_awburst,
+    PERIPHERAL_awcache,
+    PERIPHERAL_awlen,
+    PERIPHERAL_awlock,
+    PERIPHERAL_awprot,
+    PERIPHERAL_awqos,
+    PERIPHERAL_awready,
+    PERIPHERAL_awsize,
+    PERIPHERAL_awvalid,
+    PERIPHERAL_bready,
+    PERIPHERAL_bresp,
+    PERIPHERAL_bvalid,
+    PERIPHERAL_rdata,
+    PERIPHERAL_rlast,
+    PERIPHERAL_rready,
+    PERIPHERAL_rresp,
+    PERIPHERAL_rvalid,
+    PERIPHERAL_wdata,
+    PERIPHERAL_wlast,
+    PERIPHERAL_wready,
+    PERIPHERAL_wstrb,
+    PERIPHERAL_wvalid,
     SDRAM_CLOCK,
     SDRAM_araddr,
     SDRAM_arburst,
@@ -193,14 +218,6 @@ module crossbar
     ZTA_DATA_wready,
     ZTA_DATA_wstrb,
     ZTA_DATA_wvalid);
-  (* X_INTERFACE_INFO = "xilinx.com:interface:apb:1.0 APB_0 PADDR" *) output [31:0]APB_0_paddr;
-  (* X_INTERFACE_INFO = "xilinx.com:interface:apb:1.0 APB_0 PENABLE" *) output APB_0_penable;
-  (* X_INTERFACE_INFO = "xilinx.com:interface:apb:1.0 APB_0 PRDATA" *) input [31:0]APB_0_prdata;
-  (* X_INTERFACE_INFO = "xilinx.com:interface:apb:1.0 APB_0 PREADY" *) input [0:0]APB_0_pready;
-  (* X_INTERFACE_INFO = "xilinx.com:interface:apb:1.0 APB_0 PSEL" *) output [0:0]APB_0_psel;
-  (* X_INTERFACE_INFO = "xilinx.com:interface:apb:1.0 APB_0 PSLVERR" *) input [0:0]APB_0_pslverr;
-  (* X_INTERFACE_INFO = "xilinx.com:interface:apb:1.0 APB_0 PWDATA" *) output [31:0]APB_0_pwdata;
-  (* X_INTERFACE_INFO = "xilinx.com:interface:apb:1.0 APB_0 PWRITE" *) output APB_0_pwrite;
   (* X_INTERFACE_INFO = "xilinx.com:signal:reset:1.0 RST.ARESETN RST" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME RST.ARESETN, INSERT_VIP 0, POLARITY ACTIVE_LOW" *) input ARESETN;
   (* X_INTERFACE_INFO = "xilinx.com:signal:clock:1.0 CLK.CAMERA_CLOCK_IN CLK" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME CLK.CAMERA_CLOCK_IN, ASSOCIATED_BUSIF CAMERA_IN, CLK_DOMAIN crossbar_CAMERA_CLOCK_IN, FREQ_HZ 25000000, FREQ_TOLERANCE_HZ 0, INSERT_VIP 0, PHASE 0.000" *) input CAMERA_CLOCK_IN;
   (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 CAMERA_IN TDATA" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME CAMERA_IN, CLK_DOMAIN crossbar_CAMERA_CLOCK_IN, FREQ_HZ 25000000, HAS_TKEEP 0, HAS_TLAST 1, HAS_TREADY 1, HAS_TSTRB 0, INSERT_VIP 0, LAYERED_METADATA undef, PHASE 0.000, TDATA_NUM_BYTES 4, TDEST_WIDTH 0, TID_WIDTH 0, TUSER_WIDTH 0" *) input [31:0]CAMERA_IN_tdata;
@@ -209,8 +226,8 @@ module crossbar
   (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 CAMERA_IN TREADY" *) output CAMERA_IN_tready;
   (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 CAMERA_IN TUSER" *) input [0:0]CAMERA_IN_tuser;
   (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 CAMERA_IN TVALID" *) input CAMERA_IN_tvalid;
-  (* X_INTERFACE_INFO = "xilinx.com:signal:clock:1.0 CLK.CLOCK CLK" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME CLK.CLOCK, ASSOCIATED_BUSIF IBUS:DBUS:ZTA_CONTROL:ZTA_DATA, ASSOCIATED_RESET ARESETN, CLK_DOMAIN crossbar_CLOCK, FREQ_HZ 166000000, FREQ_TOLERANCE_HZ 0, INSERT_VIP 0, PHASE 0.000" *) input CLOCK;
-  (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 DBUS ARADDR" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME DBUS, ADDR_WIDTH 32, ARUSER_WIDTH 0, AWUSER_WIDTH 0, BUSER_WIDTH 0, CLK_DOMAIN crossbar_CLOCK, DATA_WIDTH 32, FREQ_HZ 166000000, HAS_BRESP 1, HAS_BURST 1, HAS_CACHE 1, HAS_LOCK 1, HAS_PROT 1, HAS_QOS 1, HAS_REGION 1, HAS_RRESP 1, HAS_WSTRB 1, ID_WIDTH 1, INSERT_VIP 0, MAX_BURST_LENGTH 16, NUM_READ_OUTSTANDING 64, NUM_READ_THREADS 1, NUM_WRITE_OUTSTANDING 64, NUM_WRITE_THREADS 1, PHASE 0.000, PROTOCOL AXI4, READ_WRITE_MODE READ_WRITE, RUSER_BITS_PER_BYTE 0, RUSER_WIDTH 0, SUPPORTS_NARROW_BURST 1, WUSER_BITS_PER_BYTE 0, WUSER_WIDTH 0" *) input [31:0]DBUS_araddr;
+  (* X_INTERFACE_INFO = "xilinx.com:signal:clock:1.0 CLK.CLOCK CLK" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME CLK.CLOCK, ASSOCIATED_BUSIF IBUS:DBUS:ZTA_CONTROL:ZTA_DATA:PERIPHERAL, ASSOCIATED_RESET ARESETN, CLK_DOMAIN crossbar_CLOCK, FREQ_HZ 125000000, FREQ_TOLERANCE_HZ 0, INSERT_VIP 0, PHASE 0.000" *) input CLOCK;
+  (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 DBUS ARADDR" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME DBUS, ADDR_WIDTH 32, ARUSER_WIDTH 0, AWUSER_WIDTH 0, BUSER_WIDTH 0, CLK_DOMAIN crossbar_CLOCK, DATA_WIDTH 32, FREQ_HZ 125000000, HAS_BRESP 1, HAS_BURST 1, HAS_CACHE 1, HAS_LOCK 1, HAS_PROT 1, HAS_QOS 1, HAS_REGION 1, HAS_RRESP 1, HAS_WSTRB 1, ID_WIDTH 1, INSERT_VIP 0, MAX_BURST_LENGTH 16, NUM_READ_OUTSTANDING 64, NUM_READ_THREADS 1, NUM_WRITE_OUTSTANDING 64, NUM_WRITE_THREADS 1, PHASE 0.000, PROTOCOL AXI4, READ_WRITE_MODE READ_WRITE, RUSER_BITS_PER_BYTE 0, RUSER_WIDTH 0, SUPPORTS_NARROW_BURST 1, WUSER_BITS_PER_BYTE 0, WUSER_WIDTH 0" *) input [31:0]DBUS_araddr;
   (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 DBUS ARBURST" *) input [1:0]DBUS_arburst;
   (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 DBUS ARCACHE" *) input [3:0]DBUS_arcache;
   (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 DBUS ARID" *) input [0:0]DBUS_arid;
@@ -247,7 +264,7 @@ module crossbar
   (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 DBUS WREADY" *) output DBUS_wready;
   (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 DBUS WSTRB" *) input [3:0]DBUS_wstrb;
   (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 DBUS WVALID" *) input DBUS_wvalid;
-  (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 IBUS ARADDR" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME IBUS, ADDR_WIDTH 32, ARUSER_WIDTH 0, AWUSER_WIDTH 0, BUSER_WIDTH 0, CLK_DOMAIN crossbar_CLOCK, DATA_WIDTH 32, FREQ_HZ 166000000, HAS_BRESP 1, HAS_BURST 1, HAS_CACHE 1, HAS_LOCK 1, HAS_PROT 1, HAS_QOS 1, HAS_REGION 1, HAS_RRESP 1, HAS_WSTRB 1, ID_WIDTH 1, INSERT_VIP 0, MAX_BURST_LENGTH 16, NUM_READ_OUTSTANDING 64, NUM_READ_THREADS 1, NUM_WRITE_OUTSTANDING 64, NUM_WRITE_THREADS 1, PHASE 0.000, PROTOCOL AXI4, READ_WRITE_MODE READ_ONLY, RUSER_BITS_PER_BYTE 0, RUSER_WIDTH 0, SUPPORTS_NARROW_BURST 1, WUSER_BITS_PER_BYTE 0, WUSER_WIDTH 0" *) input [31:0]IBUS_araddr;
+  (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 IBUS ARADDR" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME IBUS, ADDR_WIDTH 32, ARUSER_WIDTH 0, AWUSER_WIDTH 0, BUSER_WIDTH 0, CLK_DOMAIN crossbar_CLOCK, DATA_WIDTH 32, FREQ_HZ 125000000, HAS_BRESP 1, HAS_BURST 1, HAS_CACHE 1, HAS_LOCK 1, HAS_PROT 1, HAS_QOS 1, HAS_REGION 1, HAS_RRESP 1, HAS_WSTRB 1, ID_WIDTH 1, INSERT_VIP 0, MAX_BURST_LENGTH 16, NUM_READ_OUTSTANDING 64, NUM_READ_THREADS 1, NUM_WRITE_OUTSTANDING 64, NUM_WRITE_THREADS 1, PHASE 0.000, PROTOCOL AXI4, READ_WRITE_MODE READ_ONLY, RUSER_BITS_PER_BYTE 0, RUSER_WIDTH 0, SUPPORTS_NARROW_BURST 1, WUSER_BITS_PER_BYTE 0, WUSER_WIDTH 0" *) input [31:0]IBUS_araddr;
   (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 IBUS ARBURST" *) input [1:0]IBUS_arburst;
   (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 IBUS ARCACHE" *) input [3:0]IBUS_arcache;
   (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 IBUS ARID" *) input [0:0]IBUS_arid;
@@ -264,8 +281,41 @@ module crossbar
   (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 IBUS RREADY" *) input IBUS_rready;
   (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 IBUS RRESP" *) output [1:0]IBUS_rresp;
   (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 IBUS RVALID" *) output IBUS_rvalid;
-  (* X_INTERFACE_INFO = "xilinx.com:signal:clock:1.0 CLK.SDRAM_CLOCK CLK" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME CLK.SDRAM_CLOCK, ASSOCIATED_BUSIF SDRAM, CLK_DOMAIN crossbar_SDRAM_CLOCK, FREQ_HZ 166000000, FREQ_TOLERANCE_HZ 0, INSERT_VIP 0, PHASE 0.000" *) input SDRAM_CLOCK;
-  (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 SDRAM ARADDR" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME SDRAM, ADDR_WIDTH 32, ARUSER_WIDTH 0, AWUSER_WIDTH 0, BUSER_WIDTH 0, CLK_DOMAIN crossbar_SDRAM_CLOCK, DATA_WIDTH 64, FREQ_HZ 166000000, HAS_BRESP 1, HAS_BURST 1, HAS_CACHE 1, HAS_LOCK 1, HAS_PROT 1, HAS_QOS 1, HAS_REGION 0, HAS_RRESP 1, HAS_WSTRB 1, ID_WIDTH 0, INSERT_VIP 0, MAX_BURST_LENGTH 256, NUM_READ_OUTSTANDING 64, NUM_READ_THREADS 1, NUM_WRITE_OUTSTANDING 64, NUM_WRITE_THREADS 1, PHASE 0.000, PROTOCOL AXI4, READ_WRITE_MODE READ_WRITE, RUSER_BITS_PER_BYTE 0, RUSER_WIDTH 0, SUPPORTS_NARROW_BURST 0, WUSER_BITS_PER_BYTE 0, WUSER_WIDTH 0" *) output [31:0]SDRAM_araddr;
+  (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 PERIPHERAL ARADDR" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME PERIPHERAL, ADDR_WIDTH 32, ARUSER_WIDTH 0, AWUSER_WIDTH 0, BUSER_WIDTH 0, CLK_DOMAIN crossbar_CLOCK, DATA_WIDTH 32, FREQ_HZ 125000000, HAS_BRESP 1, HAS_BURST 1, HAS_CACHE 1, HAS_LOCK 1, HAS_PROT 1, HAS_QOS 1, HAS_REGION 0, HAS_RRESP 1, HAS_WSTRB 1, ID_WIDTH 0, INSERT_VIP 0, MAX_BURST_LENGTH 256, NUM_READ_OUTSTANDING 8, NUM_READ_THREADS 1, NUM_WRITE_OUTSTANDING 8, NUM_WRITE_THREADS 1, PHASE 0.000, PROTOCOL AXI4, READ_WRITE_MODE READ_WRITE, RUSER_BITS_PER_BYTE 0, RUSER_WIDTH 0, SUPPORTS_NARROW_BURST 0, WUSER_BITS_PER_BYTE 0, WUSER_WIDTH 0" *) output [31:0]PERIPHERAL_araddr;
+  (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 PERIPHERAL ARBURST" *) output [1:0]PERIPHERAL_arburst;
+  (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 PERIPHERAL ARCACHE" *) output [3:0]PERIPHERAL_arcache;
+  (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 PERIPHERAL ARLEN" *) output [7:0]PERIPHERAL_arlen;
+  (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 PERIPHERAL ARLOCK" *) output [0:0]PERIPHERAL_arlock;
+  (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 PERIPHERAL ARPROT" *) output [2:0]PERIPHERAL_arprot;
+  (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 PERIPHERAL ARQOS" *) output [3:0]PERIPHERAL_arqos;
+  (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 PERIPHERAL ARREADY" *) input PERIPHERAL_arready;
+  (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 PERIPHERAL ARSIZE" *) output [2:0]PERIPHERAL_arsize;
+  (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 PERIPHERAL ARVALID" *) output PERIPHERAL_arvalid;
+  (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 PERIPHERAL AWADDR" *) output [31:0]PERIPHERAL_awaddr;
+  (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 PERIPHERAL AWBURST" *) output [1:0]PERIPHERAL_awburst;
+  (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 PERIPHERAL AWCACHE" *) output [3:0]PERIPHERAL_awcache;
+  (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 PERIPHERAL AWLEN" *) output [7:0]PERIPHERAL_awlen;
+  (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 PERIPHERAL AWLOCK" *) output [0:0]PERIPHERAL_awlock;
+  (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 PERIPHERAL AWPROT" *) output [2:0]PERIPHERAL_awprot;
+  (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 PERIPHERAL AWQOS" *) output [3:0]PERIPHERAL_awqos;
+  (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 PERIPHERAL AWREADY" *) input PERIPHERAL_awready;
+  (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 PERIPHERAL AWSIZE" *) output [2:0]PERIPHERAL_awsize;
+  (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 PERIPHERAL AWVALID" *) output PERIPHERAL_awvalid;
+  (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 PERIPHERAL BREADY" *) output PERIPHERAL_bready;
+  (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 PERIPHERAL BRESP" *) input [1:0]PERIPHERAL_bresp;
+  (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 PERIPHERAL BVALID" *) input PERIPHERAL_bvalid;
+  (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 PERIPHERAL RDATA" *) input [31:0]PERIPHERAL_rdata;
+  (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 PERIPHERAL RLAST" *) input PERIPHERAL_rlast;
+  (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 PERIPHERAL RREADY" *) output PERIPHERAL_rready;
+  (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 PERIPHERAL RRESP" *) input [1:0]PERIPHERAL_rresp;
+  (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 PERIPHERAL RVALID" *) input PERIPHERAL_rvalid;
+  (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 PERIPHERAL WDATA" *) output [31:0]PERIPHERAL_wdata;
+  (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 PERIPHERAL WLAST" *) output PERIPHERAL_wlast;
+  (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 PERIPHERAL WREADY" *) input PERIPHERAL_wready;
+  (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 PERIPHERAL WSTRB" *) output [3:0]PERIPHERAL_wstrb;
+  (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 PERIPHERAL WVALID" *) output PERIPHERAL_wvalid;
+  (* X_INTERFACE_INFO = "xilinx.com:signal:clock:1.0 CLK.SDRAM_CLOCK CLK" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME CLK.SDRAM_CLOCK, ASSOCIATED_BUSIF SDRAM, CLK_DOMAIN crossbar_SDRAM_CLOCK, FREQ_HZ 166666666, FREQ_TOLERANCE_HZ 0, INSERT_VIP 0, PHASE 0.000" *) input SDRAM_CLOCK;
+  (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 SDRAM ARADDR" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME SDRAM, ADDR_WIDTH 32, ARUSER_WIDTH 0, AWUSER_WIDTH 0, BUSER_WIDTH 0, CLK_DOMAIN crossbar_SDRAM_CLOCK, DATA_WIDTH 64, FREQ_HZ 166666666, HAS_BRESP 1, HAS_BURST 1, HAS_CACHE 1, HAS_LOCK 1, HAS_PROT 1, HAS_QOS 1, HAS_REGION 0, HAS_RRESP 1, HAS_WSTRB 1, ID_WIDTH 0, INSERT_VIP 0, MAX_BURST_LENGTH 256, NUM_READ_OUTSTANDING 64, NUM_READ_THREADS 1, NUM_WRITE_OUTSTANDING 64, NUM_WRITE_THREADS 1, PHASE 0.000, PROTOCOL AXI4, READ_WRITE_MODE READ_WRITE, RUSER_BITS_PER_BYTE 0, RUSER_WIDTH 0, SUPPORTS_NARROW_BURST 0, WUSER_BITS_PER_BYTE 0, WUSER_WIDTH 0" *) output [31:0]SDRAM_araddr;
   (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 SDRAM ARBURST" *) output [1:0]SDRAM_arburst;
   (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 SDRAM ARCACHE" *) output [3:0]SDRAM_arcache;
   (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 SDRAM ARLEN" *) output [7:0]SDRAM_arlen;
@@ -305,7 +355,7 @@ module crossbar
   (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 VIDEO_OUT TREADY" *) input VIDEO_OUT_tready;
   (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 VIDEO_OUT TUSER" *) output [0:0]VIDEO_OUT_tuser;
   (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 VIDEO_OUT TVALID" *) output VIDEO_OUT_tvalid;
-  (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 ZTA_CONTROL ARADDR" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME ZTA_CONTROL, ADDR_WIDTH 32, ARUSER_WIDTH 0, AWUSER_WIDTH 0, BUSER_WIDTH 0, CLK_DOMAIN crossbar_CLOCK, DATA_WIDTH 32, FREQ_HZ 166000000, HAS_BRESP 1, HAS_BURST 1, HAS_CACHE 1, HAS_LOCK 1, HAS_PROT 1, HAS_QOS 1, HAS_REGION 0, HAS_RRESP 1, HAS_WSTRB 1, ID_WIDTH 0, INSERT_VIP 0, MAX_BURST_LENGTH 256, NUM_READ_OUTSTANDING 64, NUM_READ_THREADS 1, NUM_WRITE_OUTSTANDING 64, NUM_WRITE_THREADS 1, PHASE 0.000, PROTOCOL AXI4, READ_WRITE_MODE READ_WRITE, RUSER_BITS_PER_BYTE 0, RUSER_WIDTH 0, SUPPORTS_NARROW_BURST 0, WUSER_BITS_PER_BYTE 0, WUSER_WIDTH 0" *) output [31:0]ZTA_CONTROL_araddr;
+  (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 ZTA_CONTROL ARADDR" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME ZTA_CONTROL, ADDR_WIDTH 32, ARUSER_WIDTH 0, AWUSER_WIDTH 0, BUSER_WIDTH 0, CLK_DOMAIN crossbar_CLOCK, DATA_WIDTH 32, FREQ_HZ 125000000, HAS_BRESP 1, HAS_BURST 1, HAS_CACHE 1, HAS_LOCK 1, HAS_PROT 1, HAS_QOS 1, HAS_REGION 0, HAS_RRESP 1, HAS_WSTRB 1, ID_WIDTH 0, INSERT_VIP 0, MAX_BURST_LENGTH 256, NUM_READ_OUTSTANDING 64, NUM_READ_THREADS 1, NUM_WRITE_OUTSTANDING 64, NUM_WRITE_THREADS 1, PHASE 0.000, PROTOCOL AXI4, READ_WRITE_MODE READ_WRITE, RUSER_BITS_PER_BYTE 0, RUSER_WIDTH 0, SUPPORTS_NARROW_BURST 0, WUSER_BITS_PER_BYTE 0, WUSER_WIDTH 0" *) output [31:0]ZTA_CONTROL_araddr;
   (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 ZTA_CONTROL ARBURST" *) output [1:0]ZTA_CONTROL_arburst;
   (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 ZTA_CONTROL ARCACHE" *) output [3:0]ZTA_CONTROL_arcache;
   (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 ZTA_CONTROL ARLEN" *) output [7:0]ZTA_CONTROL_arlen;
@@ -338,7 +388,7 @@ module crossbar
   (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 ZTA_CONTROL WREADY" *) input ZTA_CONTROL_wready;
   (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 ZTA_CONTROL WSTRB" *) output [3:0]ZTA_CONTROL_wstrb;
   (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 ZTA_CONTROL WVALID" *) output ZTA_CONTROL_wvalid;
-  (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 ZTA_DATA ARADDR" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME ZTA_DATA, ADDR_WIDTH 32, ARUSER_WIDTH 0, AWUSER_WIDTH 0, BUSER_WIDTH 0, CLK_DOMAIN crossbar_CLOCK, DATA_WIDTH 64, FREQ_HZ 166000000, HAS_BRESP 1, HAS_BURST 1, HAS_CACHE 1, HAS_LOCK 1, HAS_PROT 1, HAS_QOS 1, HAS_REGION 1, HAS_RRESP 1, HAS_WSTRB 1, ID_WIDTH 1, INSERT_VIP 0, MAX_BURST_LENGTH 256, NUM_READ_OUTSTANDING 64, NUM_READ_THREADS 1, NUM_WRITE_OUTSTANDING 64, NUM_WRITE_THREADS 1, PHASE 0.000, PROTOCOL AXI4, READ_WRITE_MODE READ_WRITE, RUSER_BITS_PER_BYTE 0, RUSER_WIDTH 0, SUPPORTS_NARROW_BURST 1, WUSER_BITS_PER_BYTE 0, WUSER_WIDTH 0" *) input [31:0]ZTA_DATA_araddr;
+  (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 ZTA_DATA ARADDR" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME ZTA_DATA, ADDR_WIDTH 32, ARUSER_WIDTH 0, AWUSER_WIDTH 0, BUSER_WIDTH 0, CLK_DOMAIN crossbar_CLOCK, DATA_WIDTH 64, FREQ_HZ 125000000, HAS_BRESP 1, HAS_BURST 1, HAS_CACHE 1, HAS_LOCK 1, HAS_PROT 1, HAS_QOS 1, HAS_REGION 1, HAS_RRESP 1, HAS_WSTRB 1, ID_WIDTH 1, INSERT_VIP 0, MAX_BURST_LENGTH 256, NUM_READ_OUTSTANDING 64, NUM_READ_THREADS 1, NUM_WRITE_OUTSTANDING 64, NUM_WRITE_THREADS 1, PHASE 0.000, PROTOCOL AXI4, READ_WRITE_MODE READ_WRITE, RUSER_BITS_PER_BYTE 0, RUSER_WIDTH 0, SUPPORTS_NARROW_BURST 1, WUSER_BITS_PER_BYTE 0, WUSER_WIDTH 0" *) input [31:0]ZTA_DATA_araddr;
   (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 ZTA_DATA ARBURST" *) input [1:0]ZTA_DATA_arburst;
   (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 ZTA_DATA ARCACHE" *) input [3:0]ZTA_DATA_arcache;
   (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 ZTA_DATA ARID" *) input [0:0]ZTA_DATA_arid;
@@ -478,14 +528,6 @@ module crossbar
   wire ZTA_DATA_1_WREADY;
   wire [7:0]ZTA_DATA_1_WSTRB;
   wire ZTA_DATA_1_WVALID;
-  wire [31:0]axi_apb_bridge_0_APB_M_PADDR;
-  wire axi_apb_bridge_0_APB_M_PENABLE;
-  wire [31:0]axi_apb_bridge_0_APB_M_PRDATA;
-  wire [0:0]axi_apb_bridge_0_APB_M_PREADY;
-  wire [0:0]axi_apb_bridge_0_APB_M_PSEL;
-  wire [0:0]axi_apb_bridge_0_APB_M_PSLVERR;
-  wire [31:0]axi_apb_bridge_0_APB_M_PWDATA;
-  wire axi_apb_bridge_0_APB_M_PWRITE;
   wire [31:0]axi_vdma_0_M_AXIS_MM2S_TDATA;
   wire [3:0]axi_vdma_0_M_AXIS_MM2S_TKEEP;
   wire axi_vdma_0_M_AXIS_MM2S_TLAST;
@@ -555,20 +597,37 @@ module crossbar
   wire [7:0]smartconnect_0_M00_AXI_WSTRB;
   wire smartconnect_0_M00_AXI_WVALID;
   wire [31:0]smartconnect_0_M01_AXI_ARADDR;
+  wire [1:0]smartconnect_0_M01_AXI_ARBURST;
+  wire [3:0]smartconnect_0_M01_AXI_ARCACHE;
+  wire [7:0]smartconnect_0_M01_AXI_ARLEN;
+  wire [0:0]smartconnect_0_M01_AXI_ARLOCK;
+  wire [2:0]smartconnect_0_M01_AXI_ARPROT;
+  wire [3:0]smartconnect_0_M01_AXI_ARQOS;
   wire smartconnect_0_M01_AXI_ARREADY;
+  wire [2:0]smartconnect_0_M01_AXI_ARSIZE;
   wire smartconnect_0_M01_AXI_ARVALID;
   wire [31:0]smartconnect_0_M01_AXI_AWADDR;
+  wire [1:0]smartconnect_0_M01_AXI_AWBURST;
+  wire [3:0]smartconnect_0_M01_AXI_AWCACHE;
+  wire [7:0]smartconnect_0_M01_AXI_AWLEN;
+  wire [0:0]smartconnect_0_M01_AXI_AWLOCK;
+  wire [2:0]smartconnect_0_M01_AXI_AWPROT;
+  wire [3:0]smartconnect_0_M01_AXI_AWQOS;
   wire smartconnect_0_M01_AXI_AWREADY;
+  wire [2:0]smartconnect_0_M01_AXI_AWSIZE;
   wire smartconnect_0_M01_AXI_AWVALID;
   wire smartconnect_0_M01_AXI_BREADY;
   wire [1:0]smartconnect_0_M01_AXI_BRESP;
   wire smartconnect_0_M01_AXI_BVALID;
   wire [31:0]smartconnect_0_M01_AXI_RDATA;
+  wire smartconnect_0_M01_AXI_RLAST;
   wire smartconnect_0_M01_AXI_RREADY;
   wire [1:0]smartconnect_0_M01_AXI_RRESP;
   wire smartconnect_0_M01_AXI_RVALID;
   wire [31:0]smartconnect_0_M01_AXI_WDATA;
+  wire smartconnect_0_M01_AXI_WLAST;
   wire smartconnect_0_M01_AXI_WREADY;
+  wire [3:0]smartconnect_0_M01_AXI_WSTRB;
   wire smartconnect_0_M01_AXI_WVALID;
   wire [8:0]smartconnect_0_M02_AXI_ARADDR;
   wire smartconnect_0_M02_AXI_ARREADY;
@@ -620,11 +679,6 @@ module crossbar
   wire [3:0]smartconnect_0_M03_AXI_WSTRB;
   wire smartconnect_0_M03_AXI_WVALID;
 
-  assign APB_0_paddr[31:0] = axi_apb_bridge_0_APB_M_PADDR;
-  assign APB_0_penable = axi_apb_bridge_0_APB_M_PENABLE;
-  assign APB_0_psel[0] = axi_apb_bridge_0_APB_M_PSEL;
-  assign APB_0_pwdata[31:0] = axi_apb_bridge_0_APB_M_PWDATA;
-  assign APB_0_pwrite = axi_apb_bridge_0_APB_M_PWRITE;
   assign ARESETN_1 = ARESETN;
   assign CAMERA_CLOCK_IN_1 = CAMERA_CLOCK_IN;
   assign CAMERA_IN_1_TDATA = CAMERA_IN_tdata[31:0];
@@ -688,6 +742,30 @@ module crossbar
   assign IBUS_rlast = IBUS_1_RLAST;
   assign IBUS_rresp[1:0] = IBUS_1_RRESP;
   assign IBUS_rvalid = IBUS_1_RVALID;
+  assign PERIPHERAL_araddr[31:0] = smartconnect_0_M01_AXI_ARADDR;
+  assign PERIPHERAL_arburst[1:0] = smartconnect_0_M01_AXI_ARBURST;
+  assign PERIPHERAL_arcache[3:0] = smartconnect_0_M01_AXI_ARCACHE;
+  assign PERIPHERAL_arlen[7:0] = smartconnect_0_M01_AXI_ARLEN;
+  assign PERIPHERAL_arlock[0] = smartconnect_0_M01_AXI_ARLOCK;
+  assign PERIPHERAL_arprot[2:0] = smartconnect_0_M01_AXI_ARPROT;
+  assign PERIPHERAL_arqos[3:0] = smartconnect_0_M01_AXI_ARQOS;
+  assign PERIPHERAL_arsize[2:0] = smartconnect_0_M01_AXI_ARSIZE;
+  assign PERIPHERAL_arvalid = smartconnect_0_M01_AXI_ARVALID;
+  assign PERIPHERAL_awaddr[31:0] = smartconnect_0_M01_AXI_AWADDR;
+  assign PERIPHERAL_awburst[1:0] = smartconnect_0_M01_AXI_AWBURST;
+  assign PERIPHERAL_awcache[3:0] = smartconnect_0_M01_AXI_AWCACHE;
+  assign PERIPHERAL_awlen[7:0] = smartconnect_0_M01_AXI_AWLEN;
+  assign PERIPHERAL_awlock[0] = smartconnect_0_M01_AXI_AWLOCK;
+  assign PERIPHERAL_awprot[2:0] = smartconnect_0_M01_AXI_AWPROT;
+  assign PERIPHERAL_awqos[3:0] = smartconnect_0_M01_AXI_AWQOS;
+  assign PERIPHERAL_awsize[2:0] = smartconnect_0_M01_AXI_AWSIZE;
+  assign PERIPHERAL_awvalid = smartconnect_0_M01_AXI_AWVALID;
+  assign PERIPHERAL_bready = smartconnect_0_M01_AXI_BREADY;
+  assign PERIPHERAL_rready = smartconnect_0_M01_AXI_RREADY;
+  assign PERIPHERAL_wdata[31:0] = smartconnect_0_M01_AXI_WDATA;
+  assign PERIPHERAL_wlast = smartconnect_0_M01_AXI_WLAST;
+  assign PERIPHERAL_wstrb[3:0] = smartconnect_0_M01_AXI_WSTRB;
+  assign PERIPHERAL_wvalid = smartconnect_0_M01_AXI_WVALID;
   assign SDRAM_CLOCK_1 = SDRAM_CLOCK;
   assign SDRAM_araddr[31:0] = smartconnect_0_M00_AXI_ARADDR;
   assign SDRAM_arburst[1:0] = smartconnect_0_M00_AXI_ARBURST;
@@ -780,9 +858,6 @@ module crossbar
   assign ZTA_DATA_rresp[1:0] = ZTA_DATA_1_RRESP;
   assign ZTA_DATA_rvalid = ZTA_DATA_1_RVALID;
   assign ZTA_DATA_wready = ZTA_DATA_1_WREADY;
-  assign axi_apb_bridge_0_APB_M_PRDATA = APB_0_prdata[31:0];
-  assign axi_apb_bridge_0_APB_M_PREADY = APB_0_pready[0];
-  assign axi_apb_bridge_0_APB_M_PSLVERR = APB_0_pslverr[0];
   assign axi_vdma_0_M_AXIS_MM2S_TREADY = VIDEO_OUT_tready;
   assign smartconnect_0_M00_AXI_ARREADY = SDRAM_arready;
   assign smartconnect_0_M00_AXI_AWREADY = SDRAM_awready;
@@ -793,6 +868,15 @@ module crossbar
   assign smartconnect_0_M00_AXI_RRESP = SDRAM_rresp[1:0];
   assign smartconnect_0_M00_AXI_RVALID = SDRAM_rvalid;
   assign smartconnect_0_M00_AXI_WREADY = SDRAM_wready;
+  assign smartconnect_0_M01_AXI_ARREADY = PERIPHERAL_arready;
+  assign smartconnect_0_M01_AXI_AWREADY = PERIPHERAL_awready;
+  assign smartconnect_0_M01_AXI_BRESP = PERIPHERAL_bresp[1:0];
+  assign smartconnect_0_M01_AXI_BVALID = PERIPHERAL_bvalid;
+  assign smartconnect_0_M01_AXI_RDATA = PERIPHERAL_rdata[31:0];
+  assign smartconnect_0_M01_AXI_RLAST = PERIPHERAL_rlast;
+  assign smartconnect_0_M01_AXI_RRESP = PERIPHERAL_rresp[1:0];
+  assign smartconnect_0_M01_AXI_RVALID = PERIPHERAL_rvalid;
+  assign smartconnect_0_M01_AXI_WREADY = PERIPHERAL_wready;
   assign smartconnect_0_M03_AXI_ARREADY = ZTA_CONTROL_arready;
   assign smartconnect_0_M03_AXI_AWREADY = ZTA_CONTROL_awready;
   assign smartconnect_0_M03_AXI_BRESP = ZTA_CONTROL_bresp[1:0];
@@ -802,33 +886,6 @@ module crossbar
   assign smartconnect_0_M03_AXI_RRESP = ZTA_CONTROL_rresp[1:0];
   assign smartconnect_0_M03_AXI_RVALID = ZTA_CONTROL_rvalid;
   assign smartconnect_0_M03_AXI_WREADY = ZTA_CONTROL_wready;
-  crossbar_axi_apb_bridge_0_0 axi_apb_bridge_0
-       (.m_apb_paddr(axi_apb_bridge_0_APB_M_PADDR),
-        .m_apb_penable(axi_apb_bridge_0_APB_M_PENABLE),
-        .m_apb_prdata(axi_apb_bridge_0_APB_M_PRDATA),
-        .m_apb_pready(axi_apb_bridge_0_APB_M_PREADY),
-        .m_apb_psel(axi_apb_bridge_0_APB_M_PSEL),
-        .m_apb_pslverr(axi_apb_bridge_0_APB_M_PSLVERR),
-        .m_apb_pwdata(axi_apb_bridge_0_APB_M_PWDATA),
-        .m_apb_pwrite(axi_apb_bridge_0_APB_M_PWRITE),
-        .s_axi_aclk(CLOCK_1),
-        .s_axi_araddr(smartconnect_0_M01_AXI_ARADDR),
-        .s_axi_aresetn(ARESETN_1),
-        .s_axi_arready(smartconnect_0_M01_AXI_ARREADY),
-        .s_axi_arvalid(smartconnect_0_M01_AXI_ARVALID),
-        .s_axi_awaddr(smartconnect_0_M01_AXI_AWADDR),
-        .s_axi_awready(smartconnect_0_M01_AXI_AWREADY),
-        .s_axi_awvalid(smartconnect_0_M01_AXI_AWVALID),
-        .s_axi_bready(smartconnect_0_M01_AXI_BREADY),
-        .s_axi_bresp(smartconnect_0_M01_AXI_BRESP),
-        .s_axi_bvalid(smartconnect_0_M01_AXI_BVALID),
-        .s_axi_rdata(smartconnect_0_M01_AXI_RDATA),
-        .s_axi_rready(smartconnect_0_M01_AXI_RREADY),
-        .s_axi_rresp(smartconnect_0_M01_AXI_RRESP),
-        .s_axi_rvalid(smartconnect_0_M01_AXI_RVALID),
-        .s_axi_wdata(smartconnect_0_M01_AXI_WDATA),
-        .s_axi_wready(smartconnect_0_M01_AXI_WREADY),
-        .s_axi_wvalid(smartconnect_0_M01_AXI_WVALID));
   crossbar_axi_vdma_0_0 axi_vdma_0
        (.axi_resetn(ARESETN_1),
         .m_axi_mm2s_aclk(CLOCK_1),
@@ -928,20 +985,37 @@ module crossbar
         .M00_AXI_wstrb(smartconnect_0_M00_AXI_WSTRB),
         .M00_AXI_wvalid(smartconnect_0_M00_AXI_WVALID),
         .M01_AXI_araddr(smartconnect_0_M01_AXI_ARADDR),
+        .M01_AXI_arburst(smartconnect_0_M01_AXI_ARBURST),
+        .M01_AXI_arcache(smartconnect_0_M01_AXI_ARCACHE),
+        .M01_AXI_arlen(smartconnect_0_M01_AXI_ARLEN),
+        .M01_AXI_arlock(smartconnect_0_M01_AXI_ARLOCK),
+        .M01_AXI_arprot(smartconnect_0_M01_AXI_ARPROT),
+        .M01_AXI_arqos(smartconnect_0_M01_AXI_ARQOS),
         .M01_AXI_arready(smartconnect_0_M01_AXI_ARREADY),
+        .M01_AXI_arsize(smartconnect_0_M01_AXI_ARSIZE),
         .M01_AXI_arvalid(smartconnect_0_M01_AXI_ARVALID),
         .M01_AXI_awaddr(smartconnect_0_M01_AXI_AWADDR),
+        .M01_AXI_awburst(smartconnect_0_M01_AXI_AWBURST),
+        .M01_AXI_awcache(smartconnect_0_M01_AXI_AWCACHE),
+        .M01_AXI_awlen(smartconnect_0_M01_AXI_AWLEN),
+        .M01_AXI_awlock(smartconnect_0_M01_AXI_AWLOCK),
+        .M01_AXI_awprot(smartconnect_0_M01_AXI_AWPROT),
+        .M01_AXI_awqos(smartconnect_0_M01_AXI_AWQOS),
         .M01_AXI_awready(smartconnect_0_M01_AXI_AWREADY),
+        .M01_AXI_awsize(smartconnect_0_M01_AXI_AWSIZE),
         .M01_AXI_awvalid(smartconnect_0_M01_AXI_AWVALID),
         .M01_AXI_bready(smartconnect_0_M01_AXI_BREADY),
         .M01_AXI_bresp(smartconnect_0_M01_AXI_BRESP),
         .M01_AXI_bvalid(smartconnect_0_M01_AXI_BVALID),
         .M01_AXI_rdata(smartconnect_0_M01_AXI_RDATA),
+        .M01_AXI_rlast(smartconnect_0_M01_AXI_RLAST),
         .M01_AXI_rready(smartconnect_0_M01_AXI_RREADY),
         .M01_AXI_rresp(smartconnect_0_M01_AXI_RRESP),
         .M01_AXI_rvalid(smartconnect_0_M01_AXI_RVALID),
         .M01_AXI_wdata(smartconnect_0_M01_AXI_WDATA),
+        .M01_AXI_wlast(smartconnect_0_M01_AXI_WLAST),
         .M01_AXI_wready(smartconnect_0_M01_AXI_WREADY),
+        .M01_AXI_wstrb(smartconnect_0_M01_AXI_WSTRB),
         .M01_AXI_wvalid(smartconnect_0_M01_AXI_WVALID),
         .M02_AXI_araddr(smartconnect_0_M02_AXI_ARADDR),
         .M02_AXI_arready(smartconnect_0_M02_AXI_ARREADY),

@@ -67,6 +67,9 @@ signal empty:std_logic;
 signal q:std_logic_vector(width_c-1 downto 0);
 signal full:std_logic;
 signal almost_full:std_logic;
+signal data_in_r:std_logic_vector(DATA_WIDTH-1 downto 0);
+signal write_in_r:std_logic;
+signal writeready:std_logic;
 begin
 
 
@@ -104,7 +107,9 @@ read <= '1' when (empty='0' and q_avail_r='0') else '0';
 -- Write signals
 write <= w_avail_r;
 
-writeready_out <= (not w_avail_r);
+writeready <= (not w_avail_r) and (not write_in_r);
+
+writeready_out <= writeready;
 
 wused_out <= wused(wused'length-1 downto scalew_c);
 
@@ -120,21 +125,30 @@ begin
       q_r <= (others=>'0');
       data_r <= (others=>'0');
       w_avail_r <= '0';
+      write_in_r <= '0';
+      data_in_r <= (others=>'0');
    else
       if(rising_edge(clock_in)) then
+         if writeready='1' then
+            write_in_r <= write_in;
+            data_in_r <= data_in;
+         end if;
          -- Write to FIFO
          if w_avail_r='0' then
-            if write_in='1' then
+            data_r(data_in'length-1 downto 0) <= data_in_r;
+            if write_in_r='1' then
                wpending_r <= to_unsigned(0,wpending_r'length);
-               data_r(data_in'length-1 downto 0) <= data_in;
                w_avail_r <= '1';
+               write_in_r <= '0';
             end if;
          else
+            FOR I in (scale_c-2) downto 0 loop 
+               data_r((scale_c-I-1)*width_c-1 downto (scale_c-I-2)*width_c) <= data_r((scale_c-I)*width_c-1 downto (scale_c-I-1)*width_c);
+            end loop;
             if wpending_r=to_unsigned(scale_c-1,wpending_r'length) then
                w_avail_r <= '0';
             end if;
             wpending_r <= wpending_r+1;
-            data_r((scale_c-1)*width_c-1 downto 0) <= data_r(scale_c*width_c-1 downto width_c);
          end if;
          
          -- Read FIFO

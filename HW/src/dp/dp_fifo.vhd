@@ -29,6 +29,7 @@ LIBRARY ieee;
 USE ieee.std_logic_1164.all;
 use IEEE.numeric_std.all;
 use work.ztachip_pkg.all;
+use work.config.all;
 
 ENTITY dp_fifo IS
     port(
@@ -80,6 +81,8 @@ fifo_avail_out <= fifo_avail_r;
 
 full_out <= full_r or (not writeready);
 
+GEN1: IF (2**dp_fifo_depth_c) <= (min_mem_depth_c/2) GENERATE
+
 fifo_i:scfifow
    generic map 
    (
@@ -99,6 +102,34 @@ fifo_i:scfifow
         empty_out=>empty_normal
    );
 
+END GENERATE GEN1;
+
+GEN2: IF (2**dp_fifo_depth_c) > (min_mem_depth_c/2) GENERATE
+
+fifo_i:scfifo
+   generic map 
+   (
+        DATA_WIDTH=>dp_instruction_width_c,
+        FIFO_DEPTH=>dp_fifo_depth_c,
+        LOOKAHEAD=>TRUE
+   )
+   port map 
+   (
+        clock_in=>clock_in,
+        reset_in=>reset_in,
+        data_in=>writedata_in,
+        write_in=>wreq_normal,
+        read_in=>rdreq_normal,
+        q_out=>readdata_normal,
+        ravail_out=>open,
+        wused_out=>wrusedw,
+        empty_out=>empty_normal,
+        full_out=>open,
+        almost_full_out=>open
+   );
+   writeready <= '1';
+
+END GENERATE GEN2;
 
 readdata1_out <= readdata1_r;
 

@@ -1,7 +1,7 @@
 //Copyright 1986-2020 Xilinx, Inc. All Rights Reserved.
 //--------------------------------------------------------------------------------
 //Tool Version: Vivado v.2020.2 (win64) Build 3064766 Wed Nov 18 09:12:45 MST 2020
-//Date        : Thu Aug 25 01:22:08 2022
+//Date        : Fri Jan  6 23:59:17 2023
 //Host        : LAPTOP-RM6TVNC2 running 64-bit major release  (build 9200)
 //Command     : generate_target crossbar_wrapper.bd
 //Design      : crossbar_wrapper
@@ -10,15 +10,7 @@
 `timescale 1 ps / 1 ps
 
 module crossbar_wrapper
-   (APB_0_paddr,
-    APB_0_penable,
-    APB_0_prdata,
-    APB_0_pready,
-    APB_0_psel,
-    APB_0_pslverr,
-    APB_0_pwdata,
-    APB_0_pwrite,
-    ARESETN,
+   (ARESETN,
     CAMERA_CLOCK_IN,
     CAMERA_IN_tdata,
     CAMERA_IN_tkeep,
@@ -81,6 +73,39 @@ module crossbar_wrapper
     IBUS_rready,
     IBUS_rresp,
     IBUS_rvalid,
+    PERIPHERAL_araddr,
+    PERIPHERAL_arburst,
+    PERIPHERAL_arcache,
+    PERIPHERAL_arlen,
+    PERIPHERAL_arlock,
+    PERIPHERAL_arprot,
+    PERIPHERAL_arqos,
+    PERIPHERAL_arready,
+    PERIPHERAL_arsize,
+    PERIPHERAL_arvalid,
+    PERIPHERAL_awaddr,
+    PERIPHERAL_awburst,
+    PERIPHERAL_awcache,
+    PERIPHERAL_awlen,
+    PERIPHERAL_awlock,
+    PERIPHERAL_awprot,
+    PERIPHERAL_awqos,
+    PERIPHERAL_awready,
+    PERIPHERAL_awsize,
+    PERIPHERAL_awvalid,
+    PERIPHERAL_bready,
+    PERIPHERAL_bresp,
+    PERIPHERAL_bvalid,
+    PERIPHERAL_rdata,
+    PERIPHERAL_rlast,
+    PERIPHERAL_rready,
+    PERIPHERAL_rresp,
+    PERIPHERAL_rvalid,
+    PERIPHERAL_wdata,
+    PERIPHERAL_wlast,
+    PERIPHERAL_wready,
+    PERIPHERAL_wstrb,
+    PERIPHERAL_wvalid,
     SDRAM_CLOCK,
     SDRAM_araddr,
     SDRAM_arburst,
@@ -192,14 +217,6 @@ module crossbar_wrapper
     ZTA_DATA_wready,
     ZTA_DATA_wstrb,
     ZTA_DATA_wvalid);
-  output [31:0]APB_0_paddr;
-  output APB_0_penable;
-  input [31:0]APB_0_prdata;
-  input [0:0]APB_0_pready;
-  output [0:0]APB_0_psel;
-  input [0:0]APB_0_pslverr;
-  output [31:0]APB_0_pwdata;
-  output APB_0_pwrite;
   input ARESETN;
   input CAMERA_CLOCK_IN;
   input [31:0]CAMERA_IN_tdata;
@@ -263,6 +280,39 @@ module crossbar_wrapper
   input IBUS_rready;
   output [1:0]IBUS_rresp;
   output IBUS_rvalid;
+  output [31:0]PERIPHERAL_araddr;
+  output [1:0]PERIPHERAL_arburst;
+  output [3:0]PERIPHERAL_arcache;
+  output [7:0]PERIPHERAL_arlen;
+  output [0:0]PERIPHERAL_arlock;
+  output [2:0]PERIPHERAL_arprot;
+  output [3:0]PERIPHERAL_arqos;
+  input PERIPHERAL_arready;
+  output [2:0]PERIPHERAL_arsize;
+  output PERIPHERAL_arvalid;
+  output [31:0]PERIPHERAL_awaddr;
+  output [1:0]PERIPHERAL_awburst;
+  output [3:0]PERIPHERAL_awcache;
+  output [7:0]PERIPHERAL_awlen;
+  output [0:0]PERIPHERAL_awlock;
+  output [2:0]PERIPHERAL_awprot;
+  output [3:0]PERIPHERAL_awqos;
+  input PERIPHERAL_awready;
+  output [2:0]PERIPHERAL_awsize;
+  output PERIPHERAL_awvalid;
+  output PERIPHERAL_bready;
+  input [1:0]PERIPHERAL_bresp;
+  input PERIPHERAL_bvalid;
+  input [31:0]PERIPHERAL_rdata;
+  input PERIPHERAL_rlast;
+  output PERIPHERAL_rready;
+  input [1:0]PERIPHERAL_rresp;
+  input PERIPHERAL_rvalid;
+  output [31:0]PERIPHERAL_wdata;
+  output PERIPHERAL_wlast;
+  input PERIPHERAL_wready;
+  output [3:0]PERIPHERAL_wstrb;
+  output PERIPHERAL_wvalid;
   input SDRAM_CLOCK;
   output [31:0]SDRAM_araddr;
   output [1:0]SDRAM_arburst;
@@ -375,14 +425,6 @@ module crossbar_wrapper
   input [7:0]ZTA_DATA_wstrb;
   input ZTA_DATA_wvalid;
 
-  wire [31:0]APB_0_paddr;
-  wire APB_0_penable;
-  wire [31:0]APB_0_prdata;
-  wire [0:0]APB_0_pready;
-  wire [0:0]APB_0_psel;
-  wire [0:0]APB_0_pslverr;
-  wire [31:0]APB_0_pwdata;
-  wire APB_0_pwrite;
   wire ARESETN;
   wire CAMERA_CLOCK_IN;
   wire [31:0]CAMERA_IN_tdata;
@@ -446,6 +488,39 @@ module crossbar_wrapper
   wire IBUS_rready;
   wire [1:0]IBUS_rresp;
   wire IBUS_rvalid;
+  wire [31:0]PERIPHERAL_araddr;
+  wire [1:0]PERIPHERAL_arburst;
+  wire [3:0]PERIPHERAL_arcache;
+  wire [7:0]PERIPHERAL_arlen;
+  wire [0:0]PERIPHERAL_arlock;
+  wire [2:0]PERIPHERAL_arprot;
+  wire [3:0]PERIPHERAL_arqos;
+  wire PERIPHERAL_arready;
+  wire [2:0]PERIPHERAL_arsize;
+  wire PERIPHERAL_arvalid;
+  wire [31:0]PERIPHERAL_awaddr;
+  wire [1:0]PERIPHERAL_awburst;
+  wire [3:0]PERIPHERAL_awcache;
+  wire [7:0]PERIPHERAL_awlen;
+  wire [0:0]PERIPHERAL_awlock;
+  wire [2:0]PERIPHERAL_awprot;
+  wire [3:0]PERIPHERAL_awqos;
+  wire PERIPHERAL_awready;
+  wire [2:0]PERIPHERAL_awsize;
+  wire PERIPHERAL_awvalid;
+  wire PERIPHERAL_bready;
+  wire [1:0]PERIPHERAL_bresp;
+  wire PERIPHERAL_bvalid;
+  wire [31:0]PERIPHERAL_rdata;
+  wire PERIPHERAL_rlast;
+  wire PERIPHERAL_rready;
+  wire [1:0]PERIPHERAL_rresp;
+  wire PERIPHERAL_rvalid;
+  wire [31:0]PERIPHERAL_wdata;
+  wire PERIPHERAL_wlast;
+  wire PERIPHERAL_wready;
+  wire [3:0]PERIPHERAL_wstrb;
+  wire PERIPHERAL_wvalid;
   wire SDRAM_CLOCK;
   wire [31:0]SDRAM_araddr;
   wire [1:0]SDRAM_arburst;
@@ -559,15 +634,7 @@ module crossbar_wrapper
   wire ZTA_DATA_wvalid;
 
   crossbar crossbar_i
-       (.APB_0_paddr(APB_0_paddr),
-        .APB_0_penable(APB_0_penable),
-        .APB_0_prdata(APB_0_prdata),
-        .APB_0_pready(APB_0_pready),
-        .APB_0_psel(APB_0_psel),
-        .APB_0_pslverr(APB_0_pslverr),
-        .APB_0_pwdata(APB_0_pwdata),
-        .APB_0_pwrite(APB_0_pwrite),
-        .ARESETN(ARESETN),
+       (.ARESETN(ARESETN),
         .CAMERA_CLOCK_IN(CAMERA_CLOCK_IN),
         .CAMERA_IN_tdata(CAMERA_IN_tdata),
         .CAMERA_IN_tkeep(CAMERA_IN_tkeep),
@@ -630,6 +697,39 @@ module crossbar_wrapper
         .IBUS_rready(IBUS_rready),
         .IBUS_rresp(IBUS_rresp),
         .IBUS_rvalid(IBUS_rvalid),
+        .PERIPHERAL_araddr(PERIPHERAL_araddr),
+        .PERIPHERAL_arburst(PERIPHERAL_arburst),
+        .PERIPHERAL_arcache(PERIPHERAL_arcache),
+        .PERIPHERAL_arlen(PERIPHERAL_arlen),
+        .PERIPHERAL_arlock(PERIPHERAL_arlock),
+        .PERIPHERAL_arprot(PERIPHERAL_arprot),
+        .PERIPHERAL_arqos(PERIPHERAL_arqos),
+        .PERIPHERAL_arready(PERIPHERAL_arready),
+        .PERIPHERAL_arsize(PERIPHERAL_arsize),
+        .PERIPHERAL_arvalid(PERIPHERAL_arvalid),
+        .PERIPHERAL_awaddr(PERIPHERAL_awaddr),
+        .PERIPHERAL_awburst(PERIPHERAL_awburst),
+        .PERIPHERAL_awcache(PERIPHERAL_awcache),
+        .PERIPHERAL_awlen(PERIPHERAL_awlen),
+        .PERIPHERAL_awlock(PERIPHERAL_awlock),
+        .PERIPHERAL_awprot(PERIPHERAL_awprot),
+        .PERIPHERAL_awqos(PERIPHERAL_awqos),
+        .PERIPHERAL_awready(PERIPHERAL_awready),
+        .PERIPHERAL_awsize(PERIPHERAL_awsize),
+        .PERIPHERAL_awvalid(PERIPHERAL_awvalid),
+        .PERIPHERAL_bready(PERIPHERAL_bready),
+        .PERIPHERAL_bresp(PERIPHERAL_bresp),
+        .PERIPHERAL_bvalid(PERIPHERAL_bvalid),
+        .PERIPHERAL_rdata(PERIPHERAL_rdata),
+        .PERIPHERAL_rlast(PERIPHERAL_rlast),
+        .PERIPHERAL_rready(PERIPHERAL_rready),
+        .PERIPHERAL_rresp(PERIPHERAL_rresp),
+        .PERIPHERAL_rvalid(PERIPHERAL_rvalid),
+        .PERIPHERAL_wdata(PERIPHERAL_wdata),
+        .PERIPHERAL_wlast(PERIPHERAL_wlast),
+        .PERIPHERAL_wready(PERIPHERAL_wready),
+        .PERIPHERAL_wstrb(PERIPHERAL_wstrb),
+        .PERIPHERAL_wvalid(PERIPHERAL_wvalid),
         .SDRAM_CLOCK(SDRAM_CLOCK),
         .SDRAM_araddr(SDRAM_araddr),
         .SDRAM_arburst(SDRAM_arburst),

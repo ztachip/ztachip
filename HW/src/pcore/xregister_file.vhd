@@ -27,12 +27,14 @@ use std.standard.all;
 LIBRARY ieee;
 USE ieee.std_logic_1164.all;
 use IEEE.numeric_std.all;
+use work.config.all;
 use work.ztachip_pkg.all;
 
 ENTITY xregister_file IS
     PORT(
         -- Global signal
         SIGNAL clock_in               : IN STD_LOGIC;
+        SIGNAL clock_x2_in            : IN STD_LOGIC;
         SIGNAL reset_in               : IN STD_LOGIC;    
 
         -- Flag enable input for MU
@@ -71,38 +73,6 @@ SIGNAL byteena:STD_LOGIC_VECTOR(byte_width_c-1 downto 0);
 SIGNAL iregister:iregister_t;
 SIGNAL read_xreg_r:STD_LOGIC_VECTOR(vaccumulator_width_c-1 downto 0);
 
-COMPONENT altsyncram
-GENERIC (
-        address_aclr_b                  : STRING;
-        address_reg_b                   : STRING;
-        clock_enable_input_a            : STRING;
-        clock_enable_input_b            : STRING;
-        clock_enable_output_b           : STRING;
-        intended_device_family          : STRING;
-        lpm_type                        : STRING;
-        numwords_a                      : NATURAL;
-        numwords_b                      : NATURAL;
-        operation_mode                  : STRING;
-        outdata_aclr_b                  : STRING;
-        outdata_reg_b                   : STRING;
-        power_up_uninitialized          : STRING;
-        read_during_write_mode_mixed_ports: STRING;
-        widthad_a                       : NATURAL;
-        widthad_b                       : NATURAL;
-        width_a                         : NATURAL;
-        width_b                         : NATURAL;
-        width_byteena_a                 : NATURAL
-    );
-    PORT (
-            address_a : IN STD_LOGIC_VECTOR (widthad_a-1 DOWNTO 0);
-            byteena_a : IN STD_LOGIC_VECTOR (width_byteena_a-1 DOWNTO 0);
-            clock0    : IN STD_LOGIC ;
-            data_a    : IN STD_LOGIC_VECTOR (width_a-1 DOWNTO 0);
-            q_b       : OUT STD_LOGIC_VECTOR (width_b-1 DOWNTO 0);
-            wren_a    : IN STD_LOGIC ;
-            address_b : IN STD_LOGIC_VECTOR (widthad_b-1 DOWNTO 0)
-    );
-END COMPONENT;
 BEGIN
 
 write_ena <= (write_result_ena_in or write_xreg_ena_in);
@@ -153,6 +123,7 @@ end process;
 
 wrdata(vaccumulator_width_c+iregister_width_c-1 downto vaccumulator_width_c) <= std_logic_vector(iregister); 
 
+GEN1: IF (2**(xreg_depth_c+1)) > (min_mem_depth_c/2) GENERATE
 altsyncram_i : DPRAM_BE
    GENERIC MAP (
         numwords_a=>2**(xreg_depth_c+1),
@@ -163,12 +134,36 @@ altsyncram_i : DPRAM_BE
         width_b=>width_c
     )
     PORT MAP (
+        clock0  => clock_in,
         address_a => wraddr,
         byteena_a => byteena,
-        clock0 => clock_in,
         data_a => wrdata,
         wren_a => write_ena,
         address_b => rdaddr,
         q_b => q
     );
+END GENERATE GEN1;
+
+GEN2: IF (2**(xreg_depth_c+1)) <= (min_mem_depth_c/2) GENERATE
+altsyncram_i : ramw
+   GENERIC MAP (
+        numwords_a=>2**(xreg_depth_c+1),
+        numwords_b=>2**(xreg_depth_c+1),
+        widthad_a=>xreg_depth_c+1,
+        widthad_b=>xreg_depth_c+1,
+        width_a=>width_c,
+        width_b=>width_c
+    )
+    PORT MAP (
+        clock  => clock_in,
+        clock_x2  => clock_x2_in,
+        address_a => wraddr,
+        byteena_a => byteena,
+        data_a => wrdata,
+        wren_a => write_ena,
+        address_b => rdaddr,
+        q_b => q
+    );
+END GENERATE GEN2;
+
 END behavior;

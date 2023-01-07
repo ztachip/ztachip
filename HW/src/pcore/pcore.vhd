@@ -946,6 +946,7 @@ result_write_addr <= wr_result_addr1;
 
 xregister_file_i: xregister_file port map(
         clock_in => clock_in,
+        clock_x2_in => clock_x2_in,
         reset_in => reset_in, 
         write_result_vector_in => wr_vector,
         write_result_lane_in => wr_vector_lane,
