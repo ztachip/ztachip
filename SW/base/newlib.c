@@ -25,6 +25,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>
+#ifdef ZTACHIP_UNIT_TEST
 #include "../fs/gen/optical_flow_1_in.c"
 #include "../fs/gen/optical_flow_2_in.c"
 #include "../fs/gen/optical_flow_It.c"
@@ -63,12 +64,13 @@
 #include "../fs/gen/ssd_input.c"
 #include "../fs/gen/detect_boxes.c"
 #include "../fs/gen/detect_classes.c"
+#endif
+#include "../fs/gen/alphabet.c"
+#include "../fs/gen/alphabet2.c"
 #include "../fs/gen/mobilenet_v2_1_0_224_quant.c"
 #include "../fs/gen/labels_mobilenet_quant_v1_224.c"
 #include "../fs/gen/detect.c"
 #include "../fs/gen/labelmap.c"
-#include "../fs/gen/alphabet.c"
-#include "../fs/gen/alphabet2.c"
 
 // This file implements functions required by newlib
 // Functions implement filesystem calls, task management and memory management
@@ -78,6 +80,8 @@
 
 extern void _heap_start();
 extern void _heap_end();
+
+static unsigned int heap=(unsigned int)_heap_start;
 
 // List of files opened
 
@@ -119,13 +123,22 @@ void _exit(int code) {
 // Allocate memory block from heap
 
 void *_sbrk (int nbytes) {
-   static unsigned int heap=(unsigned int)_heap_start;
    void *p;
    p=(void *)heap;
    heap += nbytes;
    if(heap >= (unsigned int)_heap_end)
       _exit(-1);
    return p;
+}
+
+// Return amount of heap that get used
+
+unsigned int heap_usage() {
+    return (unsigned int)heap-(unsigned int)_heap_start;
+}
+
+unsigned int heap_avail() {
+    return (unsigned int)_heap_end-(unsigned int)heap;
 }
 
 // Open a file
@@ -171,6 +184,7 @@ int _open(const char *name, int flags, int mode) {
       files[i].curr=0;
       files[i].len=sizeof(labelmap);
       files[i].body=labelmap;
+#ifdef ZTACHIP_UNIT_TEST
    } else if(strcmp(name,"optical_flow_1_in")==0) {
       files[i].status=true;
       files[i].curr=0;
@@ -361,6 +375,7 @@ int _open(const char *name, int flags, int mode) {
 	  files[i].curr=0;
       files[i].len=sizeof(detect_classes);
       files[i].body=detect_classes;
+#endif
    } else {
       errno = ENOENT;
       return -1;

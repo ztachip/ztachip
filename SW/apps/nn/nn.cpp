@@ -115,27 +115,22 @@ ZtaStatus NeuralNet::LoadEnd() {
    }
 
    // Assign output format type
-   bool cont=true;
-   while(cont) {
-   cont=false;
    for(int i=0;i < (int)m_operators.size();i++) {
       switch(m_operators[i]->GetIoType()) {
          // Check for output requirement
          case LayerIoTypeInInterleaveOutInterleave: {
             // Input must be interleaved
             for(int j=0;j < (int)m_operators[i]->m_def.input.size();j++) {
-               if(!BufferGetInterleave(m_operators[i]->m_def.input[j])) {
-                  BufferAllocate(m_operators[i]->m_def.input[j],m_operators[i]->m_def.input_type[j],
+               if(!BufferInterleavePresent(m_operators[i]->m_def.input[j])) {
+                  BufferAllocatePrepare(m_operators[i]->m_def.input[j],m_operators[i]->m_def.input_type[j],
                                  TENSOR::GetTensorSize(*m_operators[i]->m_def.input_shape[j]),false,true);
-                  cont=true;
                }
             }
             // Output must be interleaved
             for(int j=0;j < (int)m_operators[i]->m_def.output.size();j++) {
-               if(!BufferGetInterleave(m_operators[i]->m_def.output[j])) {
-                  BufferAllocate(m_operators[i]->m_def.output[j],m_operators[i]->m_def.output_type[j],
+               if(!BufferInterleavePresent(m_operators[i]->m_def.output[j])) {
+                  BufferAllocatePrepare(m_operators[i]->m_def.output[j],m_operators[i]->m_def.output_type[j],
                 		  TENSOR::GetTensorSize(*m_operators[i]->m_def.output_shape[j]),false,true);
-                  cont=true;
                }
             }
             break;
@@ -144,56 +139,50 @@ ZtaStatus NeuralNet::LoadEnd() {
             // Output and input must be the same
             if(BufferIsInit(m_operators[i]->m_def.input[0])) {
                if(!BufferIsInit(m_operators[i]->m_def.output[0])) {
-                  bool interleaveFmt=(BufferGetInterleave(m_operators[i]->m_def.input[0])!=0);
-                  bool flatFmt=(BufferGetFlat(m_operators[i]->m_def.input[0])!=0);
-                  BufferAllocate(m_operators[i]->m_def.output[0],m_operators[i]->m_def.output_type[0],
+                  bool interleaveFmt=BufferInterleavePresent(m_operators[i]->m_def.input[0]);
+                  bool flatFmt=BufferFlatPresent(m_operators[i]->m_def.input[0]);
+                  BufferAllocatePrepare(m_operators[i]->m_def.output[0],m_operators[i]->m_def.output_type[0],
                 		  TENSOR::GetTensorSize(*m_operators[i]->m_def.output_shape[0]),flatFmt,interleaveFmt);
-                  cont=true;
                }
             }
             if(BufferIsInit(m_operators[i]->m_def.output[0])) {
                if(!BufferIsInit(m_operators[i]->m_def.input[0])) {
-                  bool interleaveFmt=(BufferGetInterleave(m_operators[i]->m_def.output[0])!=0);
-                  bool flatFmt=(BufferGetFlat(m_operators[i]->m_def.output[0])!=0);
-                  BufferAllocate(m_operators[i]->m_def.input[0],m_operators[i]->m_def.input_type[0],
+                  bool interleaveFmt=BufferInterleavePresent(m_operators[i]->m_def.output[0]);
+                  bool flatFmt=BufferFlatPresent(m_operators[i]->m_def.output[0]);
+                  BufferAllocatePrepare(m_operators[i]->m_def.input[0],m_operators[i]->m_def.input_type[0],
                 		  TENSOR::GetTensorSize(*m_operators[i]->m_def.input_shape[0]),flatFmt,interleaveFmt);
-                  cont=true;
                }
             }
             break;
             }
          case LayerIoTypeInFlatOutInterleaveAndOrFlat: {
             // Input must be flat format
-            if(!BufferGetFlat(m_operators[i]->m_def.input[0])) {
-               BufferAllocate(m_operators[i]->m_def.input[0],m_operators[i]->m_def.input_type[0],
+            if(!BufferFlatPresent(m_operators[i]->m_def.input[0])) {
+               BufferAllocatePrepare(m_operators[i]->m_def.input[0],m_operators[i]->m_def.input_type[0],
             		   TENSOR::GetTensorSize(*m_operators[i]->m_def.input_shape[0]),true,false);
-               cont=true;
             }            
             break;
             }
          case LayerIoTypeInInterleaveOutInterleaveAndOrFlat: {
             // Input must be interleaved   
-            if(!BufferGetInterleave(m_operators[i]->m_def.input[0])) {
-               BufferAllocate(m_operators[i]->m_def.input[0],m_operators[i]->m_def.input_type[0],
+            if(!BufferInterleavePresent(m_operators[i]->m_def.input[0])) {
+               BufferAllocatePrepare(m_operators[i]->m_def.input[0],m_operators[i]->m_def.input_type[0],
             		   TENSOR::GetTensorSize(*m_operators[i]->m_def.input_shape[0]),false,true);
-               cont=true;
             }
             break;
             }
          case LayerIoTypeInFlatOutFlat: {
             // Input and output must be flat format
             for(int j=0;j < static_cast<int>(m_operators[i]->m_def.input.size());j++) {
-               if(!BufferGetFlat(m_operators[i]->m_def.input[j])) {
-                  BufferAllocate(m_operators[i]->m_def.input[j],m_operators[i]->m_def.input_type[j],
+               if(!BufferFlatPresent(m_operators[i]->m_def.input[j])) {
+                  BufferAllocatePrepare(m_operators[i]->m_def.input[j],m_operators[i]->m_def.input_type[j],
                 		  TENSOR::GetTensorSize(*m_operators[i]->m_def.input_shape[j]),true,false);
-                  cont=true;
                }
             }
             for(int j=0;j < static_cast<int>(m_operators[i]->m_def.output.size());j++) {
-               if(!BufferGetFlat(m_operators[i]->m_def.output[j])) {
-                  BufferAllocate(m_operators[i]->m_def.output[j],m_operators[i]->m_def.output_type[j],
+               if(!BufferFlatPresent(m_operators[i]->m_def.output[j])) {
+                  BufferAllocatePrepare(m_operators[i]->m_def.output[j],m_operators[i]->m_def.output_type[j],
                 		  TENSOR::GetTensorSize(*m_operators[i]->m_def.output_shape[j]),true,false);
-                  cont=true;
                }
             }
             break;
@@ -208,12 +197,12 @@ ZtaStatus NeuralNet::LoadEnd() {
             }
       }
    }
-   }
+
    for(int i=0;i < static_cast<int>(m_operators.size());i++) {
       for(int j=0;j < static_cast<int>(m_operators[i]->m_def.output.size());j++) {
-         if(!BufferGetFlat(m_operators[i]->m_def.output[j]) && !BufferGetInterleave(m_operators[i]->m_def.output[j])) { 
+         if(!BufferFlatPresent(m_operators[i]->m_def.output[j]) && !BufferInterleavePresent(m_operators[i]->m_def.output[j])) {
             // If no allocation yet then default to flat format
-            BufferAllocate(m_operators[i]->m_def.output[j],m_operators[i]->m_def.output_type[j],
+            BufferAllocatePrepare(m_operators[i]->m_def.output[j],m_operators[i]->m_def.output_type[j],
             		TENSOR::GetTensorSize(*m_operators[i]->m_def.output_shape[j]),true,false);
          }
       }
@@ -222,8 +211,54 @@ ZtaStatus NeuralNet::LoadEnd() {
    // Assign output tensors to application's supplied tensors
    if(AssignOutputTensors(true) != ZtaStatusOk)
       return ZtaStatusFail;
+
+   // Find last reference for every buffer
+   int lastFlatRef,lastInterleaveRef;
+   int firstFlatRef,firstInterleaveRef;
+   for(int i=0;i < (int)m_bufLst.size();i++) {
+      lastFlatRef=-1;
+      lastInterleaveRef=-1;
+      firstFlatRef=-1;
+      firstInterleaveRef=-1;
+      for(int j=0;j < static_cast<int>(m_operators.size());j++) {
+         for(int k=0;k < static_cast<int>(m_operators[j]->m_def.output.size());k++) {
+            if(m_operators[j]->m_def.output[k]==i) {
+     		   if(BufferInterleavePresent(m_operators[j]->m_def.output[k])) {
+                  lastInterleaveRef=j;
+                  if(firstInterleaveRef < 0)
+                     firstInterleaveRef=j;
+     		   }
+     		   if(BufferFlatPresent(m_operators[j]->m_def.output[k])) {
+                  lastFlatRef=j;
+                  if(firstFlatRef < 0)
+                     firstFlatRef=j;
+     		   }
+            }
+         }
+         for(int k=0;k < static_cast<int>(m_operators[j]->m_def.input.size());k++) {
+            if(m_operators[j]->m_def.input[k]==i) {
+     		   if(BufferInterleavePresent(m_operators[j]->m_def.input[k])) {
+                  lastInterleaveRef=j;
+                  if(firstInterleaveRef < 0)
+                     firstInterleaveRef=j;
+     		   }
+     		   if(BufferFlatPresent(m_operators[j]->m_def.input[k])) {
+                  lastFlatRef=j;
+                  if(firstFlatRef < 0)
+                     firstFlatRef=j;
+               }
+            }
+         }
+      }
+      m_bufLst[i].shmFlatLastUsed=lastFlatRef;
+      m_bufLst[i].shmInterleaveLastUsed=lastInterleaveRef;
+      m_bufLst[i].shmFlatFirstUsed=firstFlatRef;
+      m_bufLst[i].shmInterleaveFirstUsed=firstInterleaveRef;
+   }
+   BufferAllocateCommit();
    return ZtaStatusOk;
 }
+
 
 // Model is unload by derived class
 ZtaStatus NeuralNet::Unload() {
@@ -276,7 +311,7 @@ ZtaStatus NeuralNet::AssignOutputTensors(bool firstTime) {
       // Set format of output tensor
 
       if(m_operators[last]->m_def.op==NeuralNetOperatorReshape) {
-         if(BufferGetFlat(m_operators[last]->m_def.input[which])) {
+         if(BufferFlatPresent(m_operators[last]->m_def.input[which])) {
             tensorFmt=TensorFormatSplit;
             bufid=m_operators[last]->m_def.input[which];
          } else {
@@ -286,7 +321,7 @@ ZtaStatus NeuralNet::AssignOutputTensors(bool firstTime) {
          dataType=m_operators[last]->m_def.input_type[which];
          dim=m_operators[last]->m_def.input_shape[which];
       } else {
-         if(BufferGetFlat(m_operators[last]->m_def.output[which])) {
+         if(BufferFlatPresent(m_operators[last]->m_def.output[which])) {
             tensorFmt=TensorFormatSplit;
             bufid=m_operators[last]->m_def.output[which];
          } else {

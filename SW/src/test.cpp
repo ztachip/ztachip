@@ -16,6 +16,8 @@
 // limitations under the License.
 //------------------------------------------------------------------------------
 
+#ifdef ZTACHIP_UNIT_TEST
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -1172,4 +1174,6 @@ int test()
    test_color();
    return 0;
 }
+
+#endif
 

@@ -3,6 +3,7 @@ PROJ_NAME=ztachip
 DEBUG=no
 BENCH=no
 MULDIV=yes
+UNIT_TEST=no
 
 SRCS = 	base/newlib.c \
 	base/ztalib.c \
@@ -73,8 +74,6 @@ MARCH := rv32im
 CFLAGS += -Wall -Wno-unused-variable -Wno-misleading-indentation -march=$(MARCH) -mabi=$(MABI)
 LDFLAGS += -march=$(MARCH)  -mabi=$(MABI) 
 
-
-
 #include ../../../resources/subproject.mk
 
 
@@ -89,6 +88,10 @@ endif
 
 ifeq ($(BENCH),yes)
 	CFLAGS += -fno-inline
+endif
+
+ifeq ($(UNIT_TEST),yes)
+	CFLAGS += -DZTACHIP_UNIT_TEST
 endif
 
 ifeq ($(SIFIVE_GCC_PACK),yes)

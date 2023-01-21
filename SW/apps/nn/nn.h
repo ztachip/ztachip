@@ -85,8 +85,17 @@ typedef enum {
 struct NeuralNetBuffer {
    ZTA_SHARED_MEM shmFlat;
    bool shmFlatIsRef;
+   int shmFlatReused;
+   int shmFlatLastUsed;
+   int shmFlatFirstUsed;
+   bool shmFlatPresent;
    ZTA_SHARED_MEM shmInterleave;
    bool shmInterleaveIsRef;
+   int shmInterleaveReused;
+   int shmInterleaveFirstUsed;
+   int shmInterleaveLastUsed;
+   bool shmInterleavePresent;
+   bool reused;
    size_t sz;
 };
 
@@ -233,13 +242,15 @@ public:
 public:
    ZTA_SHARED_MEM BufferAllocate(size_t sz);
    void BufferAllocate(ZTA_SHARED_MEM shm);
-   ZtaStatus BufferAllocate(int bufid,NeuralNetTensorType type,size_t sz,bool flatFmt,bool interleaveFmt);
+   ZtaStatus BufferAllocatePrepare(int bufid,NeuralNetTensorType type,size_t sz,bool flatFmt,bool interleaveFmt);
+   ZtaStatus BufferAllocateCommit();
    ZtaStatus BufferAllocate(int bufid,TENSOR *_tensor);
    ZTA_SHARED_MEM BufferGetFlat(int bufid);
    ZTA_SHARED_MEM BufferGetInterleave(int bufid);
+   bool BufferFlatPresent(int bufid);
+   bool BufferInterleavePresent(int bufid);
    bool BufferIsInit(int bufid);
    void BufferFreeAll();
-   void BufferSetAsExternal(int bufid,bool flatFmt,bool interleaveFmt);
 private:
    ZtaStatus AssignInputTensor(bool firstTime);
    ZtaStatus AssignOutputTensors(bool firstTime);
