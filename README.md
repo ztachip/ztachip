@@ -180,6 +180,7 @@ riscv32-unknown-elf-gdb ../build/ztachip.elf
 From GDB debugger prompt, issue the commands below
 
 ```
+set pagination off
 target remote localhost:3333
 set remotetimeout 60
 set arch riscv:rv32
