@@ -129,7 +129,7 @@ power consumption.
 
 Memory requirements for ztachip are also much lower due to the efficient use of memory.
 
-### Future developments
+## Future developments
 
 ztachip current implementation operates on vector data types (8 x 8/12/16-bit).
 
