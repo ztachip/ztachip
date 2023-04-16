@@ -129,3 +129,14 @@ power consumption.
 
 Memory requirements for ztachip are also much lower due to the efficient use of memory.
 
+### Future developments
+
+ztachip current implementation operates on vector data types (8 x 8/12/16-bit).
+
+The logical next step is for native support of matrix data types (8 x 8 x 8/12/16-bit).
+
+ALU (Arithmetic Logical Units) sub-system is extended from a 8 unit wide vector of ALU units to a 8x8 matrix of ALU units. This will provide an 8x improvement in computing density when bus width is limited to 8 data elements. An improvement of 32x from current implementation is possible when bus width is extended to 16 data elements.
+
+To provide an intuitive programming syntax to support matrix data types.
+
+
