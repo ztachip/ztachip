@@ -4,9 +4,26 @@ Vivado WebPack edition is free IDE for the Artix7 FPGA family.
 
 [Installing Vivado WebPack edition](https://www.xilinx.com/support/download.html)
 
+# Create project file
+
+Launch Vivado
+
+On the TCL console command line, issuing the following commands
+
+```
+
+cd <ztachip installation folder>/HW/examples/GHRD
+
+source create_project.tcl
+
+```
+
+A project file ztachip.xpr should be created after the completion of the execution of create_project.tcl.
+
+
 # Build and flash procedure. 
 
-Open Vivado project file ztachip/HW/examples/GHRD/GHRD.xpr
+Open Vivado project file ztachip/HW/examples/GHRD/ztachip.xpr
 
 Then start with synthesis step as shown below
 
