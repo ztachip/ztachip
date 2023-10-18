@@ -29,19 +29,34 @@
 
 #define WEBCAM_HEIGHT       480
 
-#define NUM_CAMERA_CAPTURE  8
+#define NUM_CAMERA_CAPTURE  4
 
 #define NUM_VIDEO_FRAME     4
 
-#define BAR_LED ((volatile unsigned int *)0xf4000000)
+// Memory mapped of APB bus
 
-#define BAR_PB  ((volatile unsigned int *)0xf4000008)
+#define APB ((volatile unsigned int *)0xC0000000)
+
+// APB register map
+
+#define APB_LED               0
+#define APB_PB                2
+#define APB_VIDEO_BUFFER      11
+#define APB_VIDEO_ENABLE      9
+#define APB_CAMERA_BUFFER     5
+#define APB_CAMERA_ENABLE     3
+#define APB_CAMERA_CURR_FRAME 4
 
 static void *buffer_vga[NUM_VIDEO_FRAME];
 
 static void *buffer_camera[NUM_CAMERA_CAPTURE];
 
 static int curr_video=0;
+
+extern unsigned int *vgabuf;
+
+static int camera_last_read=0;
+
 
 //----------------------------
 // Initialize VGA display driver
@@ -56,14 +71,11 @@ ZtaStatus DisplayInit(int w,int h) {
    if(w!=WEBCAM_WIDTH || h!=WEBCAM_HEIGHT)
       return ZtaStatusFail;
    // Configure VGA display output stream
-   *((volatile unsigned int *)(0xF1000000+0)) = (*((unsigned int *)(0xF1000000+0)) & 0xfffffffc) | 1;
    for(r=0;r < NUM_VIDEO_FRAME;r++) {
       buffer_vga[r]=malloc(WEBCAM_WIDTH*3*(WEBCAM_HEIGHT+2));
-      *((volatile unsigned int *)(0xF1000000+0x5C+r*4))=(unsigned int)buffer_vga[r];
+      APB[APB_VIDEO_BUFFER+r]=(unsigned int)buffer_vga[r];
    }
-   *((volatile unsigned int *)(0xF1000000+0x58))=WEBCAM_WIDTH*3;
-   *((volatile unsigned int *)(0xF1000000+0x54))=WEBCAM_WIDTH*3;
-   *((volatile unsigned int *)(0xF1000000+0x50))=WEBCAM_HEIGHT;
+   APB[APB_VIDEO_ENABLE]=1;
    init=true;
    return ZtaStatusOk;
 }
@@ -83,7 +95,7 @@ uint8_t *DisplayGetBuffer() {
 //-----------------------------------
 
 ZtaStatus DisplayUpdateBuffer() {
-   *((volatile unsigned int *)(0xF1000000+0x28))=curr_video;
+   APB[APB_VIDEO_BUFFER]=(uint32_t)buffer_vga[curr_video];
    curr_video++;
    if(curr_video >= NUM_VIDEO_FRAME)
       curr_video=0;
@@ -103,16 +115,22 @@ ZtaStatus CameraInit(int w,int h) {
    if(w!=WEBCAM_WIDTH || h!=WEBCAM_HEIGHT)
       return ZtaStatusFail;
    // Configure camera input stream
-   *((volatile unsigned int *)(0xF1000000+0x30)) = *((unsigned int *)(0xF1000000+0x30)) | 3;
    for(r=0;r < NUM_CAMERA_CAPTURE;r++) {
       buffer_camera[r]=malloc(WEBCAM_WIDTH*3*(WEBCAM_HEIGHT+2));
-      *((volatile unsigned int *)(0xF1000000+0xAC+r*4))=(unsigned int)buffer_camera[r];
+      APB[APB_CAMERA_BUFFER+r]=(unsigned int)buffer_camera[r];
    }
-   *((volatile unsigned int *)(0xF1000000+0xA8))=WEBCAM_WIDTH*3;
-   *((volatile unsigned int *)(0xF1000000+0xA4))=WEBCAM_WIDTH*3;
-   *((volatile unsigned int *)(0xF1000000+0xA0))=WEBCAM_HEIGHT;
+   APB[APB_CAMERA_ENABLE]=1;
    init=true;
    return ZtaStatusOk;
+}
+
+// Check if capture from camera is ready
+
+bool CameraCaptureReady() {
+   int next_read;
+
+   next_read=APB[APB_CAMERA_CURR_FRAME];
+   return (next_read != camera_last_read);
 }
 
 //---------------------------------------
@@ -120,18 +138,13 @@ ZtaStatus CameraInit(int w,int h) {
 //---------------------------------------
 
 uint8_t *CameraGetCapture() {
-   static int last_read=0;
    int next_read,curr_read;
    unsigned int vv;
 
-   vv=*((volatile unsigned int *)(0xF1000000+0x34));
-   if(vv & 0x0000d000)
-      *((volatile unsigned int *)(0xF1000000+0x34))=0x0000d000;
-   vv=*((volatile unsigned int *)(0xF1000000+0x28));
-   next_read=(vv>>24)&0x1f;
-   if(next_read != last_read) {
-      last_read=next_read;
-      curr_read=(last_read==0)?(NUM_CAMERA_CAPTURE-1):last_read-1;
+   next_read=APB[APB_CAMERA_CURR_FRAME];
+   if(next_read != camera_last_read) {
+      camera_last_read=next_read;
+      curr_read=(camera_last_read==0)?(NUM_CAMERA_CAPTURE-1):camera_last_read-1;
       return (uint8_t *)buffer_camera[curr_read];
    }
    else
@@ -143,7 +156,7 @@ uint8_t *CameraGetCapture() {
 //----------------------------------------
 
 void LedSetState(uint32_t ledState) {
-   BAR_LED[0]=ledState;
+   APB[APB_LED]=ledState;
 }
 
 //-----------------------------------------
@@ -151,7 +164,7 @@ void LedSetState(uint32_t ledState) {
 //-----------------------------------------
 
 uint32_t PushButtonGetState() {
-   return BAR_PB[0];
+   return APB[APB_PB];
 }
 
 

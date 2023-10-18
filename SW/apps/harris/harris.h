@@ -32,7 +32,7 @@ public:
    virtual ~GraphNodeHarris();
    ZtaStatus Create(TENSOR *input,TENSOR *output);
    virtual ZtaStatus Verify();
-   virtual ZtaStatus Execute(int queue,bool stepMode);
+   virtual ZtaStatus Execute(int queue,int stepMode);
 private:
    void Cleanup();
 private:

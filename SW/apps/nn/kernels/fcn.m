@@ -259,7 +259,7 @@ void kernel_innerProduct_exe(
 )
 {
    RequestFcn req;
-   
+
    ztaInitPcore(zta_pcore_img);
    ztaInitStream(_stream);
 
@@ -300,7 +300,7 @@ void kernel_Pooling_exe(
 )
 {
    RequestPool req;
-   
+
    ztaInitPcore(zta_pcore_img);
    ztaInitStream(_stream);
 

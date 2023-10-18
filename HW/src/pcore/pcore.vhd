@@ -121,7 +121,7 @@ SIGNAL dp_mcast_addr: mcast_addr_t;
 SIGNAL rd_x1_addr1:std_logic_vector(register_file_depth_c-1 downto 0);
 SIGNAL rd_x2_addr1:std_logic_vector(register_file_depth_c-1 downto 0);
 SIGNAL wr_addr1:std_logic_vector(register_file_depth_c-1 downto 0);
-SIGNAL wr_result_addr1:std_logic_vector(xreg_depth_c-1 downto 0);
+SIGNAL wr_result_addr1:std_logic_vector(xreg_depth_c downto 0);
 
 SIGNAL dp_rd_pid:pid_t;
 SIGNAL dp_rd_cid:cid_t;
@@ -177,11 +177,10 @@ SIGNAL i_y_neg:std_logic;
 SIGNAL i_y_zero:std_logic;
 
 SIGNAL wr_vm:STD_LOGIC;           
-SIGNAL result_write_addr:xreg_addr_t;
+SIGNAL result_write_addr:std_logic_vector(xreg_depth_c downto 0);
 SIGNAL result_vector:STD_LOGIC;
-SIGNAL result_raddr1:xreg_addr_t;
-SIGNAL result_waddr1:xreg_addr_t;
-SIGNAL result_read_vm:std_logic;
+SIGNAL result_raddr1:std_logic_vector(xreg_depth_c downto 0);
+SIGNAL result_waddr1:std_logic_vector(xreg_depth_c downto 0);
 SIGNAL result_read:iregister_t;
 SIGNAL xreg_read:STD_LOGIC_VECTOR(vaccumulator_width_c-1 downto 0);
 
@@ -951,13 +950,11 @@ xregister_file_i: xregister_file port map(
         write_result_vector_in => wr_vector,
         write_result_lane_in => wr_vector_lane,
         write_addr_in => result_write_addr, 
-        write_vm_in =>wr_vm,
         write_result_ena_in => wr_flag1,
         write_xreg_ena_in => wr_xreg1,
         write_data_in => mu_y,
         write_result_in => mu_result,
         read_addr_in => result_raddr1,
-        read_vm_in => result_read_vm,
         read_result_out => result_read,
         read_xreg_out => xreg_read
         );
@@ -1299,7 +1296,6 @@ instr_decoder2_i: instr_decoder2 generic map(
                                             -- RESULT
                                             result_waddr_out => result_waddr1,
                                             result_raddr_out => result_raddr1,
-                                            result_vm_out => result_read_vm,
                                             result_in => result_read
                                             );
 

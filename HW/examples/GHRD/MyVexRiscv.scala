@@ -45,7 +45,7 @@ object RiscvConfig{
           relaxedPcCalculation = true,
           config = InstructionCacheConfig(
             cacheSize = 4096*2,
-            bytePerLine =64,
+            bytePerLine =32,
             wayCount = 2,
             addressWidth = 32,
             cpuDataWidth = 32,
@@ -60,7 +60,7 @@ object RiscvConfig{
       new DBusCachedPlugin(
           config = new DataCacheConfig(
             cacheSize         = 4096*2,
-            bytePerLine       = 64,
+            bytePerLine       = 32,
             wayCount          = 2,
             addressWidth      = 32,
             cpuDataWidth      = 32,
@@ -79,7 +79,7 @@ object RiscvConfig{
         catchIllegalInstruction = true 
       ),
       new StaticMemoryTranslatorPlugin(
-        ioRange      = _(31 downto 28) === 0xF
+        ioRange      = _(31 downto 31) === 0x1
       ),
       new RegFilePlugin(
         regFileReadyKind = plugin.ASYNC,
@@ -194,7 +194,7 @@ case class MyVexRiscv(config : RiscvConfig) extends Component{
       case plugin : IBusCachedPlugin =>
         iBus = plugin.iBus.toAxi4ReadOnly().toFullConfig()
       case plugin : DBusCachedPlugin =>
-        dBus = plugin.dBus.toAxi4Shared(pendingWritesMax=63).toAxi4().toFullConfig()
+        dBus = plugin.dBus.toAxi4Shared().toAxi4().toFullConfig()
       case plugin : CsrPlugin        => {
         plugin.externalInterrupt := externalInterrupt
         plugin.timerInterrupt := timerInterrupt
@@ -203,7 +203,7 @@ case class MyVexRiscv(config : RiscvConfig) extends Component{
         resetCtrl.systemReset setWhen(RegNext(plugin.io.resetOut))
         val jtagCtrl = JtagTapInstructionCtrl()
         val tap = jtagCtrl.fromXilinxBscane2(userId = 2)
-        jtagCtrl <> plugin.io.bus.fromJtagInstructionCtrl(ClockDomain(tap.TCK))
+        jtagCtrl <> plugin.io.bus.fromJtagInstructionCtrl(ClockDomain(tap.TCK),0)
       }
       case _ =>
     }
@@ -217,4 +217,3 @@ object MyVexRiscv{
     SpinalVerilog(MyVexRiscv(RiscvConfig.default.copy()))
   }
 }
-

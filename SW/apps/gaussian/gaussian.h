@@ -32,7 +32,7 @@ public:
    virtual ~GraphNodeGaussian();
    ZtaStatus Create(TENSOR *input,TENSOR *output);
    virtual ZtaStatus Verify();
-   virtual ZtaStatus Execute(int queue,bool stepMode);
+   virtual ZtaStatus Execute(int queue,int stepMode);
    void SetSigma(float _sigma);
    float GetSigma();
 private:

@@ -110,9 +110,8 @@ ENTITY instr_decoder2 IS
         SIGNAL i_y_in                           : IN iregister_t;
 
         -- RESULT
-        SIGNAL result_waddr_out                 : OUT STD_LOGIC_VECTOR(xreg_depth_c-1 downto 0);
-        SIGNAL result_raddr_out                 : OUT STD_LOGIC_VECTOR(xreg_depth_c-1 downto 0);
-        SIGNAL result_vm_out                    : OUT STD_LOGIC;
+        SIGNAL result_waddr_out                 : OUT STD_LOGIC_VECTOR(xreg_depth_c downto 0);
+        SIGNAL result_raddr_out                 : OUT STD_LOGIC_VECTOR(xreg_depth_c downto 0);
         SIGNAL result_in                        : IN iregister_t
     );
 END instr_decoder2;
@@ -263,9 +262,9 @@ SIGNAL mu_lane_rrrrr:STD_LOGIC_VECTOR(vector_width_c-1 downto 0);
 SIGNAL mu_lane_rrrrrr:STD_LOGIC_VECTOR(vector_width_c-1 downto 0);
 
 
-SIGNAL result_raddr_r:STD_LOGIC_VECTOR(xreg_depth_c-1 downto 0);
-SIGNAL result_waddr_r:STD_LOGIC_VECTOR(xreg_depth_c-1 downto 0);
-SIGNAL xreg_waddr_r:STD_LOGIC_VECTOR(xreg_depth_c-1 downto 0);
+SIGNAL result_raddr_r:STD_LOGIC_VECTOR(xreg_depth_c downto 0);
+SIGNAL result_waddr_r:STD_LOGIC_VECTOR(xreg_depth_c downto 0);
+SIGNAL xreg_waddr_r:STD_LOGIC_VECTOR(xreg_depth_c downto 0);
 
 SIGNAL result_r:iregister_t;
 
@@ -416,7 +415,6 @@ wr_lane_out <= imu_lane_valid_rrrr;
 
 result_waddr_out <= xreg_waddr_r when mu_xreg1_r='1' else result_waddr_r;
 result_raddr_out <= result_raddr_r;
-result_vm_out <= vm_r;
 
 mu_xreg1 <= instruction_mu_in(mu_instruction_type_save_c);
 
@@ -747,13 +745,13 @@ BEGIN
 
             if instruction_tid_valid_in='1' then
                 -- Decode the instruction
-                xreg_waddr_r <= mu_y_addr1(xreg_depth_c+vector_depth_c-1 downto vector_depth_c);
-                result_waddr_r <= std_logic_vector(to_unsigned(0,xreg_depth_c-tid_t'length)) & std_logic_vector(instruction_tid_in);
+                xreg_waddr_r <= instruction_vm_in & mu_y_addr1(xreg_depth_c+vector_depth_c-1 downto vector_depth_c);
+                result_waddr_r <= instruction_vm_in & std_logic_vector(to_unsigned(0,xreg_depth_c-tid_t'length)) & std_logic_vector(instruction_tid_in);
                 mu_opcode1_r <= mu_opcode1;
                 mu_x1_addr1_r <= mu_x1_addr1(mu_x1_addr1_r'length-1 downto 0);
                 mu_x2_addr1_r <= mu_x2_addr1(mu_x2_addr1_r'length-1 downto 0);
                 mu_y_addr1_r <= mu_y_addr1(mu_y_addr1_r'length-1 downto 0);
-                result_raddr_r <= mu_x3_addr1(xreg_depth_c+vector_depth_c-1 downto vector_depth_c);
+                result_raddr_r <= instruction_vm_in & mu_x3_addr1(xreg_depth_c+vector_depth_c-1 downto vector_depth_c);
                 mu_lane_r <= std_logic_vector(lane_in(vector_width_c-1 downto 0));
                 mu_en1_r <= '1';
                 mu_flag1_r <= mu_flag1;

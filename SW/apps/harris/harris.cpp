@@ -67,7 +67,7 @@ ZtaStatus GraphNodeHarris::Verify() {
    return ZtaStatusOk;
 }
 
-ZtaStatus GraphNodeHarris::Execute(int queue,bool stepMode) {
+ZtaStatus GraphNodeHarris::Execute(int queue,int stepMode) {
    kernel_harris_exe(
       (unsigned int)GetJobId(queue),
 	  (unsigned int)m_input->GetBuf(),

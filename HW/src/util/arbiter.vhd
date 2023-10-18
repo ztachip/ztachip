@@ -39,8 +39,7 @@ entity arbiter is
         SIGNAL reset_in         : IN STD_LOGIC;
         SIGNAL req_in           : IN STD_LOGIC_VECTOR(NUM_SIGNALS-1 downto 0);
         SIGNAL gnt_out          : OUT STD_LOGIC_VECTOR(NUM_SIGNALS-1 downto 0);
-        SIGNAL gnt_valid_out    : OUT STD_LOGIC;
-        SIGNAL gnt_signal_out   : OUT unsigned(SIGNAL_WIDTH-1 downto 0)
+        SIGNAL gnt_valid_out    : OUT STD_LOGIC
         );
 end arbiter;
             
@@ -68,62 +67,6 @@ gnt1 <= req and std_logic_vector(-signed(req));
 gnt2 <= gnt1 when req /= std_logic_vector(to_unsigned(0,req'length)) else gnt;
 gnt_out <= gnt2;
 gnt_valid_out <= '0' when req_in=std_logic_vector(to_unsigned(0,NUM_SIGNALS)) else '1';
-
-----------
---- Convert granted bit to a number represents granted bit position
-----------
-
-process(gnt2)
-variable signo_v:unsigned(SIGNAL_WIDTH-1 downto 0);
-variable bitfield_v:std_logic_vector(SIGNAL_WIDTH-1 downto 0);
-begin
-    if gnt2(7 downto 0) = "00000000" then
-       if gnt2(11 downto 8)="0000" then
-          if gnt2(12)='1' then
-             signo_v := to_unsigned(12,SIGNAL_WIDTH);
-          elsif gnt2(13)='1' then
-             signo_v := to_unsigned(13,SIGNAL_WIDTH);
-          elsif gnt2(14)='1' then
-             signo_v := to_unsigned(14,SIGNAL_WIDTH);
-          else 
-             signo_v := to_unsigned(15,SIGNAL_WIDTH);
-          end if;
-       else
-          if gnt2(8)='1' then
-             signo_v := to_unsigned(8,SIGNAL_WIDTH);
-          elsif gnt2(9)='1' then
-             signo_v := to_unsigned(9,SIGNAL_WIDTH);
-          elsif gnt2(10)='1' then
-             signo_v := to_unsigned(10,SIGNAL_WIDTH);
-          else
-             signo_v := to_unsigned(11,SIGNAL_WIDTH);
-          end if;
-       end if;
-    else
-       if gnt2(3 downto 0)="0000" then
-          if gnt2(4)='1' then
-             signo_v := to_unsigned(4,SIGNAL_WIDTH);
-          elsif gnt2(5)='1' then
-             signo_v := to_unsigned(5,SIGNAL_WIDTH);
-          elsif gnt2(6)='1' then
-             signo_v := to_unsigned(6,SIGNAL_WIDTH);
-          else
-             signo_v := to_unsigned(7,SIGNAL_WIDTH);
-          end if;
-       else
-          if gnt2(0)='1' then
-             signo_v := to_unsigned(0,SIGNAL_WIDTH);
-          elsif gnt2(1)='1' then
-             signo_v := to_unsigned(1,SIGNAL_WIDTH);
-          elsif gnt2(2)='1' then
-             signo_v := to_unsigned(2,SIGNAL_WIDTH);
-          else
-             signo_v := to_unsigned(3,SIGNAL_WIDTH);
-          end if;
-       end if;
-    end if;
-    gnt_signal_out <= signo_v;
-end process;
 
 ---------
 -- Perform round-robin arbitration

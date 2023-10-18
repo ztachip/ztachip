@@ -54,7 +54,7 @@ public:
                     int dst_w=0,
                     int dst_h=0);
    virtual ZtaStatus Verify();
-   virtual ZtaStatus Execute(int queue,bool stepMode);
+   virtual ZtaStatus Execute(int queue,int stepMode);
 private:
    static int16_t SpuCallback(int16_t input,void *pparm,uint32_t parm,uint32_t parm2);
    void Cleanup();

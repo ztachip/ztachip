@@ -46,7 +46,6 @@
 
 #define ARRAY_ELE(p,dx,dy,x,y,elesize,offset)  ((p)[(y)*(dx)*(elesize)+(x)*(elesize)+(offset)])
 
-
 // Show progress of the test using LED
 
 static void led() {
@@ -1084,11 +1083,14 @@ void test_mobinet_ssd()
    TF1.LabelLoad("labelmap.txt");
    graph.Add(&TF1);
    graph.Verify();
-
    FLUSH_DATA_CACHE();
+//for(;;)
+{
    graph.Prepare();
    graph.RunUntilCompletion();
    FLUSH_DATA_CACHE();
+//led();
+}
 
    // Check result
    {

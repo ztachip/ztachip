@@ -1102,7 +1102,7 @@ ram_i:DPRAM
     )
     PORT MAP(
         address_a=>dp_var_waddress,
-        clock0=>clock_in,
+        clock=>clock_in,
         data_a=>dp_var_write,
         q_b=>dp_var_read,
         wren_a=>dp_var_we,

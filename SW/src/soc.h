@@ -36,6 +36,8 @@ ZtaStatus DisplayUpdateBuffer(void);
 
 ZtaStatus CameraInit(int w,int h);
 
+bool CameraCaptureReady();
+
 uint8_t *CameraGetCapture(void);
 
 void LedSetState(uint32_t ledState);

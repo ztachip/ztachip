@@ -101,6 +101,8 @@ static void harris_phase_0(void *_p,int pid) {
             >DTYPE(INT8)PCORE(NUM_PCORE)[0].harris::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= INT8(0);
          }
 
+         >BARRIER;
+
          // Copy input to PCORE array...
          >CONCURRENT DTYPE(UINT8) FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM+2*pad-1) FOR(II=0:NUM_PCORE-1) FOR(J=pad:pad+TILE_DX_DIM-1) PCORE(NUM_PCORE)[II].harris::inbuf(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[I][J][K] <= 
          >DTYPE(UINT8)MEM(input,inputLen(h,TILE_DY_DIM+,req->src_w))[y*VECTOR_WIDTH:y*VECTOR_WIDTH+VECTOR_WIDTH-1][0:TILE_DY_DIM+2*pad-1][x*dx+x_off:x*dx+dx2+x_off-1];
@@ -198,6 +200,8 @@ static void harris_phase_1(void *_p,int pid) {
             >DTYPE(INT16)PCORE(NUM_PCORE)[0].harris1::y_gradient(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= INT16(0);
          }
 
+         > BARRIER;
+
          // Copy input to PCORE array...
          >CONCURRENT FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM+2*pad-1) FOR(II=0:NUM_PCORE-1) FOR(J=pad:pad+TILE_DX_DIM-1) DTYPE(INT16) PCORE(NUM_PCORE)[II].harris1::x_gradient(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[I][J][K] <= 
          >DTYPE(INT16)MEM(x_gradient,x_gradientLen(h2,TILE_DY_DIM+,w))[y*VECTOR_WIDTH:y*VECTOR_WIDTH+VECTOR_WIDTH-1][0:TILE_DY_DIM+2*pad-1][x*dx:x*dx+dx2-1];
@@ -293,6 +297,8 @@ static void harris_phase_2(void *_p,int pid) {
             // There is nothing at the left. So set it to zero...
             >DTYPE(INT16)PCORE(NUM_PCORE)[0].harris2::score(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[:][0:pad-1][:] <= INT16(0);
          }
+
+         >BARRIER;
 
          // Copy input to PCORE array...
          >CONCURRENT FOR(K=0:VECTOR_WIDTH-1) FOR(I=0:TILE_DY_DIM+2*pad-1) FOR(II=0:NUM_PCORE-1) FOR(J=pad:pad+TILE_DX_DIM-1) DTYPE(INT16) PCORE(NUM_PCORE)[II].harris2::score(TILE_DY_DIM+2*pad,TILE_DX_DIM+2*pad,VECTOR_WIDTH)[I][J][K] <= 

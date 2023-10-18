@@ -179,7 +179,7 @@ ZtaStatus GraphNodeColorAndReshape::Verify() {
 
 // Implement schedule function required by GraphNode base class
 
-ZtaStatus GraphNodeColorAndReshape::Execute(int queue,bool stepMode) {
+ZtaStatus GraphNodeColorAndReshape::Execute(int queue,int stepMode) {
    if(m_srcColorSpace==TensorObjTypeYUYV) {
       kernel_yuyv2rgb_exe(
          GetJobId(queue),

@@ -32,7 +32,7 @@ public:
    ZtaStatus Create(TENSOR *input,TENSOR *output,int w,int h);
    virtual ~GraphNodeResize();
    virtual ZtaStatus Verify();
-   virtual ZtaStatus Execute(int queue,bool stepMode);
+   virtual ZtaStatus Execute(int queue,int stepMode);
 private:
    void Cleanup();
    static int16_t spuCallback(int16_t input,void *pparm,uint32_t parm);

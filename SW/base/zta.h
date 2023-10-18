@@ -23,9 +23,9 @@
 #ifndef _ZTA_H_
 #define _ZTA_H_
 
-#define NUM_PCORE  8 // Number of PCORES: 4 or 8
+#define NUM_PCORE 8  // Number of PCORES: 4 or 8
 
-#define MEM_MAP  0xF2000000 // ztachip address as mapped on AXI bus.
+#define MEM_MAP  0x80000000 // ztachip address as mapped on AXI bus.
 
 #define CID_DEPTH  3
 

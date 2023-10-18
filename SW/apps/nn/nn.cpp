@@ -370,7 +370,7 @@ ZtaStatus NeuralNet::Verify() {
 
 // Implement Prepare virtual function required by based class GraphNode
 
-ZtaStatus NeuralNet::Execute(int queue,bool stepMode)
+ZtaStatus NeuralNet::Execute(int queue,int stepMode)
 {
    ZtaStatus rc;
    if(m_runningStep < 0) {
@@ -389,7 +389,9 @@ ZtaStatus NeuralNet::Execute(int queue,bool stepMode)
       if(rc != ZtaStatusOk)
          return ZtaStatusFail;
       m_runningStep++;
-      if(stepMode)
+      if(stepMode==0)
+         break;
+      if(stepMode > 0 && Graph::Poll())
          break;
    }
    if(m_runningStep >= (int)m_operators.size()) {

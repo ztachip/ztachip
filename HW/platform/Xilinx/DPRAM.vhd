@@ -39,7 +39,7 @@ ENTITY DPRAM IS
     );
     PORT (
         address_a : IN STD_LOGIC_VECTOR (widthad_a-1 DOWNTO 0);
-        clock0    : IN STD_LOGIC ;
+        clock     : IN STD_LOGIC;
         data_a    : IN STD_LOGIC_VECTOR (width_a-1 DOWNTO 0);
         q_b       : OUT STD_LOGIC_VECTOR (width_b-1 DOWNTO 0);
         wren_a    : IN STD_LOGIC ;
@@ -90,8 +90,8 @@ port map (
     sbiterrb => open,     -- 1-bit output: Status signal to indicate single bit error occurrence
     addra => address_a,   -- ADDR_WIDTH_A-bit input: Address for port A write operations.
     addrb => address_b,   -- ADDR_WIDTH_B-bit input: Address for port B read operations.
-    clka => clock0,       -- 1-bit input: Clock signal for port A. Also clocks port B when
-    clkb => clock0,       -- 1-bit input: Clock signal for port B when parameter CLOCKING_MODE is
+    clka => clock,        -- 1-bit input: Clock signal for port A. Also clocks port B when
+    clkb => clock,        -- 1-bit input: Clock signal for port B when parameter CLOCKING_MODE is
                           -- "independent_clock". Unused when parameter CLOCKING_MODE is
                           -- "common_clock".
     dina => data_a,       -- WRITE_DATA_WIDTH_A-bit input: Data input for port A write operations.

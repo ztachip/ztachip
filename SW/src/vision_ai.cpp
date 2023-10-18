@@ -38,7 +38,6 @@
 #include "../apps/equalize/equalize.h"
 #include "../apps/nn/tf.h"
 
-
 //---------------------------------------------------------------------
 // Example on how to use ztachip for vision AI applications
 // Input from webcam are processed by ztachip
@@ -251,8 +250,10 @@ int vision_ai() {
    uint8_t *cameraCapture;
    uint8_t *displayBuffer;
 
-    DisplayInit(WEBCAM_WIDTH,WEBCAM_HEIGHT);
-    CameraInit(WEBCAM_WIDTH,WEBCAM_HEIGHT);
+   DisplayInit(WEBCAM_WIDTH,WEBCAM_HEIGHT);
+   CameraInit(WEBCAM_WIDTH,WEBCAM_HEIGHT);
+
+   Graph::SetPoll(CameraCaptureReady);
 
     std::vector<int> dim={3,WEBCAM_HEIGHT,WEBCAM_WIDTH};
     rc=tensorInput.Create(TensorDataTypeUint8,TensorFormatInterleaved,TensorObjTypeRGB,dim);
@@ -584,7 +585,7 @@ int vision_ai() {
            // for AI processing.
            read_consecutive=0;
            if(testcase==TestCaseImageClassifier) {
-              graphNN.RunSingleStep();
+              graphNN.RunUntilInterrupt();
         	  if(!graphNN.IsRunning()) {
                  // Got new result from image classifier. Save it to display later
                  FLUSH_DATA_CACHE();
@@ -597,7 +598,7 @@ int vision_ai() {
               }
            } else if(testcase==TestCaseObjectDetection || testcase==TestCaseAll) {
               for(j=0;j < ((testcase==TestCaseAll)?8:1);j++) {
-              graphNN.RunSingleStep();
+              graphNN.RunUntilInterrupt();
         	  if(!graphNN.IsRunning())
               {
                  // Got new result from object detection. Save it to display later

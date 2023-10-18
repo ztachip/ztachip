@@ -99,7 +99,7 @@ ram_i: DPRAM
         width_b=>width_b/2
     )
     PORT MAP (
-        clock0=>clock_x2,
+        clock=>clock_x2,
         address_a=>waddress,
         data_a=>data,
         q_b=>q,

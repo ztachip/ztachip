@@ -24,6 +24,8 @@
 
 #define GRAPH_MAX_INSTANCE 8
 
+typedef bool (*GraphPollFunc)(void);
+
 typedef enum {
    GraphNodeTypeProcessing, // Node that do the processing
    GraphNodeTypeSource // Node to represent input, must be first node of the graph
@@ -42,7 +44,7 @@ public:
    GraphNode();
    virtual ~GraphNode(); 
    virtual ZtaStatus Verify()=0; // Verify input/output/parameter
-   virtual ZtaStatus Execute(int queue,bool stepMode)=0; // Schedule for execution.
+   virtual ZtaStatus Execute(int queue,int stepMode)=0; // Schedule for execution.
    virtual GraphNodeType GetType();
 public:
    static ZtaStatus CheckResponse();
@@ -61,6 +63,13 @@ public:
    ZtaStatus Add(GraphNode *node);
    ZtaStatus Verify();
    ZtaStatus Prepare();
+   inline static bool Poll() {
+      if(Graph::M_pollFunc)
+         return (*M_pollFunc)();
+      else
+         return false;
+   }
+   inline ZtaStatus RunUntilInterrupt() {return run(1);}
    inline ZtaStatus RunSingleStep() {return run(0);}
    inline ZtaStatus RunUntilCompletion() {
       ZtaStatus rc;
@@ -72,6 +81,7 @@ public:
             return ZtaStatusFail;
       }
    }
+   static void SetPoll(GraphPollFunc pollFunc) {M_pollFunc=pollFunc;}
    bool IsRunning() {return m_nextNodeToSchedule >= 0;}
    void *GetOutputBuf(int _idx);
    int GetOutputBufLen(int _idx);
@@ -85,6 +95,7 @@ private:
    int m_nextNodeToSchedule;
    uint32_t m_timeElapsed;
    int m_queue;
+   static GraphPollFunc M_pollFunc;
 public:
    uint32_t m_lastRequestId;
    uint32_t m_lastResponseId;

@@ -63,7 +63,7 @@ ZtaStatus GraphNodeEqualize::Verify() {
    return ZtaStatusOk;
 }
 
-ZtaStatus GraphNodeEqualize::Execute(int queue,bool stepMode) {
+ZtaStatus GraphNodeEqualize::Execute(int queue,int stepMode) {
    if(m_histogramAvail) {
       GenEqualizer();
    }

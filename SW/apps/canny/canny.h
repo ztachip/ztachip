@@ -32,7 +32,7 @@ public:
    virtual ~GraphNodeCanny();
    ZtaStatus Create(TENSOR *input,TENSOR *output);
    virtual ZtaStatus Verify();
-   virtual ZtaStatus Execute(int queue,bool stepMode);
+   virtual ZtaStatus Execute(int queue,int stepMode);
    void SetThreshold(int _loThreshold,int _hiThreshold);
    void GetThreshold(int *_loThreshold,int *_hiThreshold);
 private:

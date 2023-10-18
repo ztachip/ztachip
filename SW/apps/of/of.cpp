@@ -115,7 +115,7 @@ ZtaStatus GraphNodeOpticalFlow::Verify() {
    return ZtaStatusOk;
 }
 
-ZtaStatus GraphNodeOpticalFlow::Execute(int queue,bool stepMode) {
+ZtaStatus GraphNodeOpticalFlow::Execute(int queue,int stepMode) {
    unsigned int input[2];
    int curr=m_bufferHead;
    m_bufferHead=(m_bufferHead+1)%2;

@@ -46,7 +46,7 @@ ENTITY instr_dispatch2 IS
         SIGNAL x1_addr1_in          : IN STD_LOGIC_VECTOR(register_file_depth_c-1 DOWNTO 0);
         SIGNAL x2_addr1_in          : IN STD_LOGIC_VECTOR(register_file_depth_c-1 DOWNTO 0);
         SIGNAL y_addr1_in           : IN STD_LOGIC_VECTOR(register_file_depth_c-1 DOWNTO 0);
-        SIGNAL result_addr1_in      : IN STD_LOGIC_VECTOR(xreg_depth_c-1 downto 0);
+        SIGNAL result_addr1_in      : IN STD_LOGIC_VECTOR(xreg_depth_c downto 0);
 
         SIGNAL x1_vector_in         : IN STD_LOGIC;
         SIGNAL x2_vector_in         : IN STD_LOGIC;
@@ -73,7 +73,7 @@ ENTITY instr_dispatch2 IS
         SIGNAL wr_vm_out            : OUT STD_LOGIC;
         SIGNAL wr_vector_out        : OUT STD_LOGIC;
         SIGNAL wr_addr_out          : OUT STD_LOGIC_VECTOR(register_file_depth_c-1 DOWNTO 0); 
-        SIGNAL wr_result_addr_out   : OUT STD_LOGIC_VECTOR(xreg_depth_c-1 downto 0);
+        SIGNAL wr_result_addr_out   : OUT STD_LOGIC_VECTOR(xreg_depth_c downto 0);
 
         SIGNAL wr_data_out          : OUT STD_LOGIC_VECTOR(vregister_width_c-1 DOWNTO 0);
         SIGNAL wr_lane_out          : OUT STD_LOGIC_VECTOR(vector_width_c-1 DOWNTO 0);
@@ -103,8 +103,8 @@ SIGNAL wr_vm_delay:STD_LOGIC;
 SIGNAL wr_vm_delay_r:STD_LOGIC;
 SIGNAL wr_addr_delay:STD_LOGIC_VECTOR(register_file_depth_c-1 DOWNTO 0);
 SIGNAL wr_addr_delay_r:STD_LOGIC_VECTOR(register_file_depth_c-1 DOWNTO 0);
-SIGNAL wr_result_addr_delay:std_logic_vector(xreg_depth_c-1 downto 0);
-SIGNAL wr_result_addr_delay_r:std_logic_vector(xreg_depth_c-1 downto 0);
+SIGNAL wr_result_addr_delay:std_logic_vector(xreg_depth_c downto 0);
+SIGNAL wr_result_addr_delay_r:std_logic_vector(xreg_depth_c downto 0);
 SIGNAL vector_lane_delay:STD_LOGIC_VECTOR(vector_width_c-1 downto 0);
 SIGNAL vector_lane_delay_r:STD_LOGIC_VECTOR(vector_width_c-1 downto 0);
 SIGNAL wr_vector_delay:STD_LOGIC;
@@ -140,7 +140,7 @@ wr_vector_lane_fifo_i: delayv generic map(SIZE=>vector_width_c,DEPTH =>fu_latenc
 wr_addr_fifo_i: delayv generic map(SIZE=>register_file_depth_c,DEPTH =>fu_latency_c) 
             port map(clock_in => clock_in,reset_in => reset_in,in_in=>y_addr1_in,out_out=>wr_addr_delay,enable_in=>'1');
 
-wr_result_addr_fifo_i: delayv generic map(SIZE=>xreg_depth_c,DEPTH =>fu_latency_c) 
+wr_result_addr_fifo_i: delayv generic map(SIZE=>xreg_depth_c+1,DEPTH =>fu_latency_c) 
             port map(clock_in => clock_in,reset_in => reset_in,in_in=>result_addr1_in,out_out=>wr_result_addr_delay,enable_in=>'1');
 
 wr_flag_fifo_i: delay generic map(DEPTH =>fu_latency_c) 

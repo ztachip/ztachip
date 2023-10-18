@@ -75,7 +75,7 @@ ZtaStatus GraphNodeCanny::Verify() {
    return ZtaStatusOk;
 }
 
-ZtaStatus GraphNodeCanny::Execute(int queue,bool stepMode) {
+ZtaStatus GraphNodeCanny::Execute(int queue,int stepMode) {
    kernel_canny_exe(
       (unsigned int)GetJobId(queue),
       (unsigned int)m_input->GetBuf(),

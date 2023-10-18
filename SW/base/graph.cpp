@@ -28,6 +28,8 @@
 
 static Graph *M_graphLst[GRAPH_MAX_INSTANCE]={0,0};
 
+GraphPollFunc Graph::M_pollFunc=0;
+
 Graph::Graph() {
    int queue;
    for(queue=0;queue < GRAPH_MAX_INSTANCE;queue++) {
@@ -97,7 +99,7 @@ ZtaStatus Graph::run(int timeout) {
    if(m_nextNodeToSchedule < 0)
       return ZtaStatusOk;
    while(m_nextNodeToSchedule < (int)m_nodes.size()) {
-      rc=m_nodes[m_nextNodeToSchedule]->Execute(m_queue,(timeout>=0)?true:false);
+      rc=m_nodes[m_nextNodeToSchedule]->Execute(m_queue,timeout);
       if(rc==ZtaStatusPending)
          break;
       if(rc!=ZtaStatusOk)

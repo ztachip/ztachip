@@ -115,6 +115,7 @@ ZtaStatus NeuralNetLayerObjDetect::Evaluate(int queue) {
    float box_x,box_y;
    float anchor_x,anchor_y,anchor_w,anchor_h;
 
+//return ZtaStatusOk;
    score_threshold=op->u.detection.score_threshold;
    iou_threshold=op->u.detection.iou_threshold;
    boxes_shape=(op->input_shape)[0];

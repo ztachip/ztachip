@@ -44,7 +44,7 @@ public:
                     TENSOR *y_vect,
                     TENSOR *display);
    virtual ZtaStatus Verify();
-   virtual ZtaStatus Execute(int queue,bool stepMode);
+   virtual ZtaStatus Execute(int queue,int stepMode);
 private:
    void Cleanup();
    static int16_t SpuCallback(int16_t _in,void *pparm,uint32_t parm);

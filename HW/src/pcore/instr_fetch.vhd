@@ -271,6 +271,59 @@ end case;
 return mask_v;
 end function gen_task_mask;
 
+
+function mask2num(gnt:std_logic_vector(tid_max_c-1 downto 0))
+    return unsigned(tid_t'length-1 downto 0) is
+variable signo_v:unsigned(tid_t'length-1 downto 0);
+begin
+    if gnt(7 downto 0) = "00000000" then
+       if gnt(11 downto 8)="0000" then
+          if gnt(12)='1' then
+             signo_v := to_unsigned(12,tid_t'length);
+          elsif gnt(13)='1' then
+             signo_v := to_unsigned(13,tid_t'length);
+          elsif gnt(14)='1' then
+             signo_v := to_unsigned(14,tid_t'length);
+          else 
+             signo_v := to_unsigned(15,tid_t'length);
+          end if;
+       else
+          if gnt(8)='1' then
+             signo_v := to_unsigned(8,tid_t'length);
+          elsif gnt(9)='1' then
+             signo_v := to_unsigned(9,tid_t'length);
+          elsif gnt(10)='1' then
+             signo_v := to_unsigned(10,tid_t'length);
+          else
+             signo_v := to_unsigned(11,tid_t'length);
+          end if;
+       end if;
+    else
+       if gnt(3 downto 0)="0000" then
+          if gnt(4)='1' then
+             signo_v := to_unsigned(4,tid_t'length);
+          elsif gnt(5)='1' then
+             signo_v := to_unsigned(5,tid_t'length);
+          elsif gnt(6)='1' then
+             signo_v := to_unsigned(6,tid_t'length);
+          else
+             signo_v := to_unsigned(7,tid_t'length);
+          end if;
+       else
+          if gnt(0)='1' then
+             signo_v := to_unsigned(0,tid_t'length);
+          elsif gnt(1)='1' then
+             signo_v := to_unsigned(1,tid_t'length);
+          elsif gnt(2)='1' then
+             signo_v := to_unsigned(2,tid_t'length);
+          else
+             signo_v := to_unsigned(3,tid_t'length);
+          end if;
+       end if;
+    end if;
+    return signo_v;
+end function mask2num;
+
 BEGIN 
 
 --------
@@ -445,6 +498,8 @@ avail <= (avail_r);
 --- Using an arbiter to find next available TID to be executed
 ------
 
+next_tid2 <= mask2num(next_tid);
+
 arbiter_1_i: arbiter generic map(
                         NUM_SIGNALS=>tid_max_c,
                         PRIORITY_BASED=>FALSE,
@@ -455,8 +510,7 @@ arbiter_1_i: arbiter generic map(
                         reset_in=>reset_in,
                         req_in=>avail,
                         gnt_out=>next_tid,
-                        gnt_valid_out=>next_tid_valid,
-                        gnt_signal_out=>next_tid2);
+                        gnt_valid_out=>next_tid_valid);
 
 
 ----- 

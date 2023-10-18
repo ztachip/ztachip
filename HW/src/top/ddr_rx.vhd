@@ -157,6 +157,7 @@ SIGNAL read_burstlen_r:burstlen_t;
 SIGNAL next_read_burstlen:burstlen_t;
 SIGNAL burstbegin:std_logic;
 SIGNAL read_data_valid:STD_LOGIC;
+SIGNAL rvalid:STD_LOGIC;
 
 SIGNAL read_record_write:read_record_t;
 SIGNAL read_record_write_r:read_record_t;
@@ -179,6 +180,7 @@ SIGNAL read_wait_request:std_logic;
 
 SIGNAL read_data_read_r:std_logic_vector(2*ddr_data_width_c-1 downto 0);
 SIGNAL read_data_read_valid_r:std_logic_vector(1 downto 0);
+SIGNAL read_data_write_full:std_logic;
 
 SIGNAL read2:STD_LOGIC;
 
@@ -240,16 +242,18 @@ read_data_fifo_i:scfifo
         clock_in=>clock_in,
         reset_in=>reset_in,
         data_in=>ddr_rdata_in,
-        write_in=>ddr_rvalid_in,
+        write_in=>rvalid,
         read_in=>read_data_read_ena_2,
         q_out=>read_data_read,
         ravail_out=>open,
         wused_out=>open,
         empty_out=>read_data_read_empty,
-        full_out=>open,
+        full_out=>read_data_write_full,
         almost_full_out=>open
 	);
 
+
+rvalid <= '1' when (ddr_rvalid_in='1' and read_data_write_full='0') else '0';
 
 read_fifo_read_ena <= '1' when ((read_fifo_read_empty='0') and ddr_arready_in='1') else '0';
 
@@ -331,7 +335,7 @@ begin
    ddr_araddr_out <= read_fifo_read.addr;
    ddr_arlen_out <= read_fifo_read.burstlen;
    ddr_arvalid_out <= read_fifo_read.burstbegin and (not read_fifo_read_empty);
-   ddr_rready_out <= '1';
+   ddr_rready_out <= (not read_data_write_full);
 end process;
 
 -----
@@ -684,7 +688,7 @@ else
        if read_fifo_write_ena='1' then
           read_transaction_request_r <= read_transaction_request_r+to_unsigned(1,read_transaction_request_r'length);
        end if;
-       if ddr_rvalid_in='1' and ddr_rlast_in='1' then
+       if rvalid='1' and ddr_rlast_in='1' then
           read_transaction_complete_r <= read_transaction_complete_r+to_unsigned(1,read_transaction_complete_r'length);
        end if;
        if ((signed(read_request_r)-signed(read_complete_r)) >= to_signed(ddr_max_read_pend_c-ddr_max_burstlen_c-4,read_complete_r'length)) or

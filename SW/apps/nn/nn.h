@@ -230,7 +230,7 @@ public:
    // Verify virtual functions required by based class GraphNode
 
    virtual ZtaStatus Verify();
-   virtual ZtaStatus Execute(int queue,bool stepMode);
+   virtual ZtaStatus Execute(int queue,int stepMode);
 
    bool IsRunning() {return (m_runningStep >= 0);}
    NeuralNetLayer *CreateLayer(int layerId,NeuralNetOperatorDef* op_);

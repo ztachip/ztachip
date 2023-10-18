@@ -41,16 +41,14 @@ ENTITY xregister_file IS
 
         SIGNAL write_result_vector_in : IN STD_LOGIC;
         SIGNAL write_result_lane_in   : IN STD_LOGIC_VECTOR(vector_width_c-1 DOWNTO 0);
-        SIGNAL write_addr_in          : IN xreg_addr_t;
-        SIGNAL write_vm_in            : IN STD_LOGIC;
+        SIGNAL write_addr_in          : IN std_logic_vector(xreg_depth_c downto 0);
         SIGNAL write_result_ena_in    : IN STD_LOGIC;
         SIGNAL write_xreg_ena_in      : IN STD_LOGIC;
         SIGNAL write_data_in          : IN STD_LOGIC_VECTOR(vaccumulator_width_c-1 downto 0);
         SIGNAL write_result_in        : IN STD_LOGIC_VECTOR(vector_width_c-1 downto 0);
 
         -- Stored flag
-        SIGNAL read_addr_in           : IN xreg_addr_t;
-        SIGNAL read_vm_in             : IN STD_LOGIC;
+        SIGNAL read_addr_in           : IN std_logic_vector(xreg_depth_c downto 0);
         SIGNAL read_result_out        : OUT iregister_t;
         SIGNAL read_xreg_out          : OUT STD_LOGIC_VECTOR(vaccumulator_width_c-1 downto 0)
 
@@ -87,9 +85,9 @@ read_result_out <= unsigned(q(iregister_width_c+xreg_byte_width_c*8-1 downto xre
 
 read_xreg_out <= read_xreg_r;
 
-wraddr <= write_vm_in & std_logic_vector(write_addr_in);
+wraddr <= std_logic_vector(write_addr_in);
 
-rdaddr <= read_vm_in & std_logic_vector(read_addr_in);
+rdaddr <= std_logic_vector(read_addr_in);
 
 process(clock_in,reset_in)
 begin
