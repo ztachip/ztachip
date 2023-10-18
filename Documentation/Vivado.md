@@ -11,11 +11,9 @@ Launch Vivado
 On the TCL console command line, issuing the following commands
 
 ```
-
 cd <ztachip installation folder>/HW/examples/GHRD
 
 source create_project.tcl
-
 ```
 
 A project file ztachip.xpr should be created after the completion of the execution of create_project.tcl.
