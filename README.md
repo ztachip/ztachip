@@ -93,12 +93,8 @@ make clean all
 
 - Download Xilinx Vivado Webpack free edition.
 
-- With Vivado, open project ztachip/HW/examples/GHRD/GHRD.xpr
-
-- The target board used in this example is the [ArtyA7-100T](https://digilent.com/shop/arty-a7-artix-7-fpga-development-board/)
-
-- Build FPGA image and program it to flash as described in
-[Vivado User Guide](Documentation/Vivado.md)
+- Create the project file, build FPGA image and program it to flash as described in
+[FPGA build procedure](Documentation/Vivado.md)
 
 # Run reference design example
 
