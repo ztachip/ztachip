@@ -15,7 +15,7 @@ The example provided with this repo is meant to be reference design and it is im
 - Have a version of [wrapper library](../HW/platform) for your FPGA/ASIC. There are 4 components that you need to map to your FPGA/ASIC library. They are just some basic memory block primitives so any FPGA/ASIC toolchain would have them. There is also a [wrapper version for simulation](../HW/platform/simulation) that you can reference for expected behaviour.
 
 
-- ztachip is simply connected to your SOC as an AXI peripheral. Reference [here](../HW/examples/GHRD/main.v) as example on how to integrate ztachip to your design.
+- Reference [here](../HW/examples/GHRD/main.v) as example on how to integrate ztachip to your design.
 
 
 ## Porting Software stack
