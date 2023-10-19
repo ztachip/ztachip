@@ -45,11 +45,13 @@ From Hardware Manager, connect to target as shown below
 
 ![vivado step5](images/vivado_step5.bmp)
 
-In the Configuation Memory Device Properties panel, select the right flash chip for your board revision. Reference your Arty-A7 user manual for the information.
+On the left panel, click on "Add Configuration Memory Device" menu option and then choose to create the flash device as shown below
 
-![vivado step6](images/vivado_step6.bmp)
+![vivado step5](images/vivado_step5_1.bmp)
 
-Then program the board as shown below.
+Then program the board as shown below. The image to be flashed is ztachip/HW/examples/GHRD/ztachip.runs/impl_1/main.bin
+
+If the file is not there, verify that -bin option is selected under ProjectSettngs/BitStream and then rerun the BitStream Generation step.
 
 ![vivado step7](images/vivado_step7.bmp)
 
