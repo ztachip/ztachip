@@ -10,3 +10,9 @@ SW/compiler/Parser.tab.h
 SW/compiler/compiler
 SW/compiler/lex.yy.c
 SW/build
+HW/examples/GHRD/ztachip.cache
+HW/examples/GHRD/ztachip.gen
+HW/examples/GHRD/ztachip.hw
+HW/examples/GHRD/ztachip.runs
+HW/examples/GHRD/ztachip.srcs
+HW/examples/GHRD/ztachip.xpr
