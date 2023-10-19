@@ -12,7 +12,7 @@ The example provided with this repo is meant to be reference design and it is im
 - Compile all files under [here](../HW/src). They are generic VHDL codes without any special primitives so it is ready to be ported to any FPGA/ASIC
 
 
-- Have a version of [wrapper library](../HW/platform) for your FPGA/ASIC. There are 4 components that you need to map to your FPGA/ASIC library. They are just some basic memory block primitives so any FPGA/ASIC toolchain would have them. There is also a [wrapper version for simulation](../HW/platform/simulation) that you can reference for expected behaviour.
+- Have a version of [wrapper library](../HW/platform) for your FPGA/ASIC. There are 6 components that you need to map to your FPGA/ASIC library. They are mostly just some basic memory block primitives so any FPGA/ASIC toolchain would have them. There is also a [wrapper version for simulation](../HW/platform/simulation) that you can reference for expected behaviour.
 
 
 - Reference [here](../HW/examples/GHRD/main.v) as example on how to integrate ztachip to your design.
@@ -22,8 +22,6 @@ The example provided with this repo is meant to be reference design and it is im
 
 
 - Update NUM_PCORE [here](../SW/base/zta.h) to be 8 for large version and 4 for small version. This must be the same value as pid_gen_max_c configured above
-
-- Update MEM_MAP [here](../SW/base/zta.h) to be the memory map address that you map ztachip to on your AXI bus.
 
 
 - Update linker file [linker.ld](../SW/linker.ld) to match your SOC DDR memory size. The important parameters are RAM,_heap_size,_stack_size
