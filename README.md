@@ -214,9 +214,9 @@ cp ./build/ztachip_sim.hex <your_simulation_workspace>
 
 Then compile all RTL codes below for simulation
 ```
-HW/src/*
-HW/platform/simulation/*
-HW/simulation/main.vhd
+HW/src
+HW/platform/simulation
+HW/simulation
 ```
 The top component of your simulation is HW/simulation/main.vhd
 
