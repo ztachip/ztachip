@@ -203,7 +203,7 @@ Click [here](Documentation/PortProcedure.md) for procedure on how to port ztachi
 # Run ztachip in simulation
 
 First build example test program for simulation.
-The example test program is under SW/apps/test
+The example test program is under SW/apps/test and SW/sim
 
 ```
 cd <ztachip installation folder>/SW
