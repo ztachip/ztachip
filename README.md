@@ -220,6 +220,10 @@ HW/simulation
 ```
 The top component of your simulation is HW/simulation/main.vhd
 
+main:reset_in must be driven low for few clocks before going high.
+
+main:clk_x2_main must be twice the speed of main:clk_main and in phase.
+
 The main:led_out should blink everytime a test result is passed.
 
 
