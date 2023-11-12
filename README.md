@@ -200,6 +200,29 @@ Press button0 to switch between different AI/vision applications.
 
 Click [here](Documentation/PortProcedure.md) for procedure on how to port ztachip and its applications to other FPGA/ASIC and SOC.
 
+# Run ztachip in simulation
+
+First build example test program for simulation.
+The example test program is under SW/apps/test
+
+```
+cd <ztachip installation folder>/SW
+make clean all -f makefile.kernels
+make clean all -f makefile.sim
+cp ./build/ztachip_sim.hex <your_simulation_workspace>
+```
+
+Then compile all RTL codes below for simulation
+```
+HW/src/*
+HW/platform/simulation/*
+HW/simulation/main.vhd
+```
+The top component of your simulation is HW/simulation/main.vhd
+
+The main:led_out should blink everytime a test result is passed.
+
+
 # Contact
 
 This project is free to use. But for business consulting and support, please contact vuongdnguyen@hotmail.com
