@@ -134,10 +134,11 @@ module main(
    wire [0:0]         camera_tuser;
    wire               camera_tvalid;
 
-   soc_base soc_base_inst(
+   soc_base #(.SIMULATION(0)) soc_base_inst (
 
       .clk_main(clk_main),
       .clk_x2_main(clk_x2_main),
+      .clk_reset(1),
 
       .led(led),
       .pushbutton(pushbutton),

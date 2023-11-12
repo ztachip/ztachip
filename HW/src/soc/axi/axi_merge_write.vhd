@@ -445,7 +445,7 @@ end process;
     
 process(pend_master_empty, pend_master_read,
         master_bresp,master_bid,master_bvalid,slave_breadys,
-        slavew_bready,master_bid,slave_breadys)
+        slavew_bready)
 begin
    master_bready <= '0';
    pend_master_rd <= '0';
@@ -504,7 +504,7 @@ end process;
 
 process(pend_data_empty,pend_data_read,
         slave_wdatas,slave_wlasts,slave_wvalids,slave_wstrbs,
-        slavew_wvalid,slavew_wlast,slavew_wvalid,slavew_wdata,
+        slavew_wvalid,slavew_wlast,slavew_wdata,
         slavew_wstrb,
         master_wready,master_awready,curr)
 begin

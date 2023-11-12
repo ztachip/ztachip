@@ -49,14 +49,14 @@ begin
 
 output_out <= input_rrr;
 
-process(clock_in,reset_in)
+process(inclock_in,reset_in)
 begin
    if(reset_in='0') then
       input_r <= (others=>'0');
       input_rr <= (others=>'0');
       input_rrr <= (others=>'0');
    else
-      if(rising_edge(clock_in)) then 
+      if(rising_edge(inclock_in)) then 
          input_r <= input_in;
          input_rr <= input_r;
          input_rrr <= input_rr;     

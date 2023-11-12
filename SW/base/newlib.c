@@ -25,6 +25,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>
+#ifndef SIMULATION
 #ifdef ZTACHIP_UNIT_TEST
 #include "../fs/gen/optical_flow_1_in.c"
 #include "../fs/gen/optical_flow_2_in.c"
@@ -71,6 +72,7 @@
 #include "../fs/gen/labels_mobilenet_quant_v1_224.c"
 #include "../fs/gen/detect.c"
 #include "../fs/gen/labelmap.c"
+#endif
 
 // This file implements functions required by newlib
 // Functions implement filesystem calls, task management and memory management
@@ -154,6 +156,7 @@ int _open(const char *name, int flags, int mode) {
       errno = ENOENT;
       return -1;
    }
+#ifndef SIMULATION
    if(strcmp(name,"alphabet.bmp")==0) {
       files[i].status=true;
       files[i].curr=0;
@@ -381,6 +384,10 @@ int _open(const char *name, int flags, int mode) {
       return -1;
    }
    return i+FP_FIRST;
+#else
+   errno = ENOENT;
+   return -1;
+#endif
 }
 
 // Close a file

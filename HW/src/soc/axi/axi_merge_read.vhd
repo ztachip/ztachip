@@ -380,7 +380,7 @@ end process;
 
 process(master_rvalid,pend_master_empty, pend_master_read,
         master_rlast,master_rdata,master_rresp,slave_rreadys,
-        master_rid,align_r,slave_rreadys,slavew_rready)
+        master_rid,align_r,slavew_rready)
 begin
    master_rready <= '0';
    pend_master_rd <= '0';

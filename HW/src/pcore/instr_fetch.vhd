@@ -272,9 +272,10 @@ return mask_v;
 end function gen_task_mask;
 
 
+subtype mask2num_retval_t is unsigned(tid_t'length-1 downto 0);
 function mask2num(gnt:std_logic_vector(tid_max_c-1 downto 0))
-    return unsigned(tid_t'length-1 downto 0) is
-variable signo_v:unsigned(tid_t'length-1 downto 0);
+    return mask2num_retval_t is
+variable signo_v:mask2num_retval_t;
 begin
     if gnt(7 downto 0) = "00000000" then
        if gnt(11 downto 8)="0000" then

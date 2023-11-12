@@ -4124,12 +4124,16 @@ END COMPONENT;
 -------------------------------------------------------------------
 
 component soc_base is
+   generic (
+      SIMULATION : boolean
+   );
    port 
    (
    -- Reference clock/external reset
 
    clk_main        :IN STD_LOGIC;
    clk_x2_main     :IN STD_LOGIC;
+   clk_reset       :IN STD_LOGIC;
 
 
    -- SDRAM axi signals
@@ -4187,6 +4191,138 @@ component soc_base is
    UART_TXD        :OUT STD_LOGIC;
    UART_RXD        :IN STD_LOGIC
    );
+end component;
+
+-------------------------------------------------------------------
+-- VexRiscv
+-------------------------------------------------------------------
+
+component MyVexRiscv is
+    port(
+        io_asyncReset : in std_logic;
+        io_mainClk : in std_logic;
+        io_iBus_ar_valid : out std_logic;
+        io_iBus_ar_ready : in std_logic;
+        io_iBus_ar_payload_addr : out unsigned(31 downto 0);
+        io_iBus_ar_payload_id : out unsigned(0 downto 0);
+        io_iBus_ar_payload_region : out std_logic_vector(3 downto 0);
+        io_iBus_ar_payload_len : out unsigned(7 downto 0);
+        io_iBus_ar_payload_size : out unsigned(2 downto 0);
+        io_iBus_ar_payload_burst : out std_logic_vector(1 downto 0);
+        io_iBus_ar_payload_lock : out std_logic_vector(0 downto 0);
+        io_iBus_ar_payload_cache : out std_logic_vector(3 downto 0);
+        io_iBus_ar_payload_qos : out std_logic_vector(3 downto 0);
+        io_iBus_ar_payload_prot : out std_logic_vector(2 downto 0);
+        io_iBus_r_valid : in std_logic;
+        io_iBus_r_ready : out std_logic;
+        io_iBus_r_payload_data : in std_logic_vector(31 downto 0);
+        io_iBus_r_payload_id : in unsigned(0 downto 0);
+        io_iBus_r_payload_resp : in std_logic_vector(1 downto 0);
+        io_iBus_r_payload_last : in std_logic;
+        io_dBus_aw_valid : out std_logic;
+        io_dBus_aw_ready : in std_logic;
+        io_dBus_aw_payload_addr : out unsigned(31 downto 0);
+        io_dBus_aw_payload_id : out unsigned(0 downto 0);
+        io_dBus_aw_payload_region : out std_logic_vector(3 downto 0);
+        io_dBus_aw_payload_len : out unsigned(7 downto 0);
+        io_dBus_aw_payload_size : out unsigned(2 downto 0);
+        io_dBus_aw_payload_burst : out std_logic_vector(1 downto 0);
+        io_dBus_aw_payload_lock : out std_logic_vector(0 downto 0);
+        io_dBus_aw_payload_cache : out std_logic_vector(3 downto 0);
+        io_dBus_aw_payload_qos : out std_logic_vector(3 downto 0);
+        io_dBus_aw_payload_prot : out std_logic_vector(2 downto 0);
+        io_dBus_w_valid : out std_logic;
+        io_dBus_w_ready : in std_logic;
+        io_dBus_w_payload_data : out std_logic_vector(31 downto 0);
+        io_dBus_w_payload_strb : out std_logic_vector(3 downto 0);
+        io_dBus_w_payload_last : out std_logic;
+        io_dBus_b_valid : in std_logic;
+        io_dBus_b_ready : out std_logic;
+        io_dBus_b_payload_id : in unsigned(0 downto 0);
+        io_dBus_b_payload_resp : in std_logic_vector(1 downto 0);
+        io_dBus_ar_valid : out std_logic;
+        io_dBus_ar_ready : in std_logic;
+        io_dBus_ar_payload_addr : out unsigned(31 downto 0);
+        io_dBus_ar_payload_id : out unsigned(0 downto 0);
+        io_dBus_ar_payload_region : out std_logic_vector(3 downto 0);
+        io_dBus_ar_payload_len : out unsigned(7 downto 0);
+        io_dBus_ar_payload_size : out unsigned(2 downto 0);
+        io_dBus_ar_payload_burst : out std_logic_vector(1 downto 0);
+        io_dBus_ar_payload_lock : out std_logic_vector(0 downto 0);
+        io_dBus_ar_payload_cache : out std_logic_vector(3 downto 0);
+        io_dBus_ar_payload_qos : out std_logic_vector(3 downto 0);
+        io_dBus_ar_payload_prot : out std_logic_vector(2 downto 0);
+        io_dBus_r_valid : in std_logic;
+        io_dBus_r_ready : out std_logic;
+        io_dBus_r_payload_data : in std_logic_vector(31 downto 0);
+        io_dBus_r_payload_id : in unsigned(0 downto 0);
+        io_dBus_r_payload_resp : in std_logic_vector(1 downto 0);
+        io_dBus_r_payload_last : in std_logic
+    );
+end component;
+
+component MyVexRiscvForSim is
+    port(
+        io_asyncReset : in std_logic;
+        io_mainClk : in std_logic;
+        io_iBus_ar_valid : out std_logic;
+        io_iBus_ar_ready : in std_logic;
+        io_iBus_ar_payload_addr : out unsigned(31 downto 0);
+        io_iBus_ar_payload_id : out unsigned(0 downto 0);
+        io_iBus_ar_payload_region : out std_logic_vector(3 downto 0);
+        io_iBus_ar_payload_len : out unsigned(7 downto 0);
+        io_iBus_ar_payload_size : out unsigned(2 downto 0);
+        io_iBus_ar_payload_burst : out std_logic_vector(1 downto 0);
+        io_iBus_ar_payload_lock : out std_logic_vector(0 downto 0);
+        io_iBus_ar_payload_cache : out std_logic_vector(3 downto 0);
+        io_iBus_ar_payload_qos : out std_logic_vector(3 downto 0);
+        io_iBus_ar_payload_prot : out std_logic_vector(2 downto 0);
+        io_iBus_r_valid : in std_logic;
+        io_iBus_r_ready : out std_logic;
+        io_iBus_r_payload_data : in std_logic_vector(31 downto 0);
+        io_iBus_r_payload_id : in unsigned(0 downto 0);
+        io_iBus_r_payload_resp : in std_logic_vector(1 downto 0);
+        io_iBus_r_payload_last : in std_logic;
+        io_dBus_aw_valid : out std_logic;
+        io_dBus_aw_ready : in std_logic;
+        io_dBus_aw_payload_addr : out unsigned(31 downto 0);
+        io_dBus_aw_payload_id : out unsigned(0 downto 0);
+        io_dBus_aw_payload_region : out std_logic_vector(3 downto 0);
+        io_dBus_aw_payload_len : out unsigned(7 downto 0);
+        io_dBus_aw_payload_size : out unsigned(2 downto 0);
+        io_dBus_aw_payload_burst : out std_logic_vector(1 downto 0);
+        io_dBus_aw_payload_lock : out std_logic_vector(0 downto 0);
+        io_dBus_aw_payload_cache : out std_logic_vector(3 downto 0);
+        io_dBus_aw_payload_qos : out std_logic_vector(3 downto 0);
+        io_dBus_aw_payload_prot : out std_logic_vector(2 downto 0);
+        io_dBus_w_valid : out std_logic;
+        io_dBus_w_ready : in std_logic;
+        io_dBus_w_payload_data : out std_logic_vector(31 downto 0);
+        io_dBus_w_payload_strb : out std_logic_vector(3 downto 0);
+        io_dBus_w_payload_last : out std_logic;
+        io_dBus_b_valid : in std_logic;
+        io_dBus_b_ready : out std_logic;
+        io_dBus_b_payload_id : in unsigned(0 downto 0);
+        io_dBus_b_payload_resp : in std_logic_vector(1 downto 0);
+        io_dBus_ar_valid : out std_logic;
+        io_dBus_ar_ready : in std_logic;
+        io_dBus_ar_payload_addr : out unsigned(31 downto 0);
+        io_dBus_ar_payload_id : out unsigned(0 downto 0);
+        io_dBus_ar_payload_region : out std_logic_vector(3 downto 0);
+        io_dBus_ar_payload_len : out unsigned(7 downto 0);
+        io_dBus_ar_payload_size : out unsigned(2 downto 0);
+        io_dBus_ar_payload_burst : out std_logic_vector(1 downto 0);
+        io_dBus_ar_payload_lock : out std_logic_vector(0 downto 0);
+        io_dBus_ar_payload_cache : out std_logic_vector(3 downto 0);
+        io_dBus_ar_payload_qos : out std_logic_vector(3 downto 0);
+        io_dBus_ar_payload_prot : out std_logic_vector(2 downto 0);
+        io_dBus_r_valid : in std_logic;
+        io_dBus_r_ready : out std_logic;
+        io_dBus_r_payload_data : in std_logic_vector(31 downto 0);
+        io_dBus_r_payload_id : in unsigned(0 downto 0);
+        io_dBus_r_payload_resp : in std_logic_vector(1 downto 0);
+        io_dBus_r_payload_last : in std_logic
+    );
 end component;
 
 -------------------------------------------------------------------

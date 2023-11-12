@@ -3,47 +3,14 @@ PROJ_NAME=ztachip
 DEBUG=no
 BENCH=no
 MULDIV=yes
-UNIT_TEST=yes
 
-SRCS = 	base/newlib.c \
-	base/ztalib.c \
-	base/tensor.cpp \
-	base/util.c \
-	base/graph.cpp \
-	base/crt.S \
-	base/task.S \
-	src/test.cpp \
-	src/vision_ai.cpp \
-	apps/main/kernels/main.m.c \
-	apps/color/kernels/color.m.c \
-	apps/color/color.cpp \
-	apps/of/kernels/of.m.c \
-	apps/of/of.cpp \
-	apps/canny/kernels/canny.m.c \
-	apps/canny/canny.cpp \
-	apps/harris/kernels/harris.m.c \
-	apps/harris/harris.cpp \
-	apps/resize/kernels/resize.m.c \
-	apps/resize/resize.cpp \
-	apps/gaussian/kernels/gaussian.m.c \
-	apps/gaussian/gaussian.cpp \
-	apps/equalize/kernels/equalize.m.c \
-	apps/equalize/equalize.cpp \
-	apps/nn/nn_add.cpp \
-	apps/nn/nn_concat.cpp \
-	apps/nn/nn_conv2d.cpp \
-	apps/nn/nn.cpp \
-	apps/nn/nn_logistic.cpp \
-	apps/nn/nn_objdect.cpp \
-	apps/nn/nn_poolavg.cpp \
-	apps/nn/nn_reshape.cpp \
-	apps/nn/nn_util.cpp \
-	apps/nn/tf.cpp \
-	apps/nn/tf_util.cpp \
-	apps/nn/kernels/conv.m.c \
-	apps/nn/kernels/fcn.m.c \
-	src/soc.cpp \
-	src/main.cpp
+SRCS = 	../../../SW/base/newlib.c \
+	../../../SW/base/ztalib.c \
+	../../../SW/base/crt.S \
+	../../../SW/base/task.S \
+	../../../SW/apps/main/kernels/main.m.c \
+	kernels/test.m.c \
+	test.c
 
 OBJDIR = build
 
@@ -90,9 +57,7 @@ ifeq ($(BENCH),yes)
 	CFLAGS += -fno-inline
 endif
 
-ifeq ($(UNIT_TEST),yes)
-	CFLAGS += -DZTACHIP_UNIT_TEST
-endif
+CFLAGS += -DSIMULATION
 
 ifeq ($(SIFIVE_GCC_PACK),yes)
 	RISCV_CLIB=$(RISCV_PATH)/$(RISCV_NAME)/lib/$(MARCH)/$(MABI)/

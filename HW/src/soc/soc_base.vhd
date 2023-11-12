@@ -31,12 +31,16 @@ use IEEE.numeric_std.all;
 use work.ztachip_pkg.all;
 
 entity soc_base is
+   generic (
+      SIMULATION : boolean
+   );
    port 
    (
    -- Reference clock/external reset
 
    clk_main        :IN STD_LOGIC;
    clk_x2_main     :IN STD_LOGIC;
+   clk_reset       :IN STD_LOGIC;
 
 
    -- SDRAM axi signals
@@ -103,23 +107,23 @@ architecture rtl of soc_base is
 --                       IMPLEMENTATION
 ----------------------------------------------------------------------------   
             
-   SIGNAL clk_reset:STD_LOGIC;
+   SIGNAL resetn:STD_LOGIC;
    
    -- VexRiscv IBUS axi signals
       
-   SIGNAL ibus_araddr:STD_LOGIC_VECTOR(31 downto 0);
-   SIGNAL ibus_arlen:STD_LOGIC_VECTOR(7 downto 0);
-   SIGNAL ibus_arsize:STD_LOGIC_VECTOR(2 downto 0);
+   SIGNAL ibus_araddr:unsigned(31 downto 0);
+   SIGNAL ibus_arlen:unsigned(7 downto 0);
+   SIGNAL ibus_arsize:unsigned(2 downto 0);
    SIGNAL ibus_arburst:STD_LOGIC_VECTOR(1 downto 0);
    SIGNAL ibus_arvalid:STD_LOGIC;
    SIGNAL ibus_arready:STD_LOGIC;
-   SIGNAL ibus_arid:STD_LOGIC_VECTOR(0 downto 0);
+   SIGNAL ibus_arid:unsigned(0 downto 0);
    SIGNAL ibus_arlock:STD_LOGIC_VECTOR(0 downto 0);
    SIGNAL ibus_arcache:STD_LOGIC_VECTOR(3 downto 0);
    SIGNAL ibus_arprot:STD_LOGIC_VECTOR(2 downto 0);
    SIGNAL ibus_arqos:STD_LOGIC_VECTOR(3 downto 0);
    SIGNAL ibus_rready:STD_LOGIC;
-   SIGNAL ibus_rid:STD_LOGIC_VECTOR(0 downto 0);
+   SIGNAL ibus_rid:std_logic_vector(0 downto 0);
    SIGNAL ibus_rdata:STD_LOGIC_VECTOR(31 downto 0);
    SIGNAL ibus_rresp:STD_LOGIC_VECTOR(1 downto 0);
    SIGNAL ibus_rlast:STD_LOGIC;
@@ -128,13 +132,13 @@ architecture rtl of soc_base is
 
    -- VexRiscv DBUS axi signals
 
-   SIGNAL dbus_awaddr:STD_LOGIC_VECTOR(31 downto 0);
-   SIGNAL dbus_awlen:STD_LOGIC_VECTOR(7 downto 0);
-   SIGNAL dbus_awsize:STD_LOGIC_VECTOR(2 downto 0);
+   SIGNAL dbus_awaddr:unsigned(31 downto 0);
+   SIGNAL dbus_awlen:unsigned(7 downto 0);
+   SIGNAL dbus_awsize:unsigned(2 downto 0);
    SIGNAL dbus_awburst:STD_LOGIC_VECTOR(1 downto 0);
    SIGNAL dbus_awvalid:STD_LOGIC;
    SIGNAL dbus_awready:STD_LOGIC;
-   SIGNAL dbus_awid:STD_LOGIC_VECTOR(0 downto 0);
+   SIGNAL dbus_awid:unsigned(0 downto 0);
    SIGNAL dbus_awlock:STD_LOGIC_VECTOR(0 downto 0);
    SIGNAL dbus_awcache:STD_LOGIC_VECTOR(3 downto 0);
    SIGNAL dbus_awprot:STD_LOGIC_VECTOR(2 downto 0);
@@ -149,13 +153,13 @@ architecture rtl of soc_base is
    SIGNAL dbus_bvalid:STD_LOGIC;
    SIGNAL dbus_bid:STD_LOGIC_VECTOR(0 downto 0);
       
-   SIGNAL dbus_araddr:STD_LOGIC_VECTOR(31 downto 0);
-   SIGNAL dbus_arlen:STD_LOGIC_VECTOR(7 downto 0);
-   SIGNAL dbus_arsize:STD_LOGIC_VECTOR(2 downto 0);
+   SIGNAL dbus_araddr:unsigned(31 downto 0);
+   SIGNAL dbus_arlen:unsigned(7 downto 0);
+   SIGNAL dbus_arsize:unsigned(2 downto 0);
    SIGNAL dbus_arburst:STD_LOGIC_VECTOR(1 downto 0);
    SIGNAL dbus_arvalid:STD_LOGIC;
    SIGNAL dbus_arready:STD_LOGIC;
-   SIGNAL dbus_arid:STD_LOGIC_VECTOR(0 downto 0);
+   SIGNAL dbus_arid:unsigned(0 downto 0);
    SIGNAL dbus_arlock:STD_LOGIC_VECTOR(0 downto 0);
    SIGNAL dbus_arcache:STD_LOGIC_VECTOR(3 downto 0);
    SIGNAL dbus_arprot:STD_LOGIC_VECTOR(2 downto 0);
@@ -384,7 +388,7 @@ architecture rtl of soc_base is
       
 begin
 
-   clk_reset <= '0';  
+   resetn <= not clk_reset;  
 
    UART_TXD <= '0';
    
@@ -397,17 +401,18 @@ begin
    -- -----------------------------
    -- CPU. RISCV based on VexRiscv
    -- ------------------------------
-                    
-   cpu_inst : MyVexRiscv 
+
+GEN1:if SIMULATION=TRUE generate                    
+   cpu_inst : MyVexRiscvForSim
       port map 
       (
-         io_asyncReset=>clk_reset,
+         io_asyncReset=>resetn,
          io_mainClk=>clk_main,
 
          io_iBus_ar_valid=>ibus_arvalid,
          io_iBus_ar_ready=>ibus_arready,
          io_iBus_ar_payload_addr=>ibus_araddr,
-         io_iBus_ar_payload_id=>ibus_arid(0),
+         io_iBus_ar_payload_id=>ibus_arid,
          io_iBus_ar_payload_region=>open,
          io_iBus_ar_payload_len=>ibus_arlen,
          io_iBus_ar_payload_size=>ibus_arsize,
@@ -419,14 +424,14 @@ begin
          io_iBus_r_valid=>ibus_rvalid,
          io_iBus_r_ready=>ibus_rready,
          io_iBus_r_payload_data=>ibus_rdata,
-         io_iBus_r_payload_id=>ibus_rid(0),
+         io_iBus_r_payload_id=>unsigned(ibus_rid),
          io_iBus_r_payload_resp=>ibus_rresp,
          io_iBus_r_payload_last=>ibus_rlast, 
 
          io_dBus_aw_valid=>dbus_awvalid,
          io_dBus_aw_ready=>dbus_awready,
          io_dBus_aw_payload_addr=>dbus_awaddr,
-         io_dBus_aw_payload_id=>dbus_awid(0),
+         io_dBus_aw_payload_id=>dbus_awid,
          io_dBus_aw_payload_region=>open,
          io_dBus_aw_payload_len=>dbus_awlen,
          io_dBus_aw_payload_size=>dbus_awsize,
@@ -442,13 +447,13 @@ begin
          io_dBus_w_payload_last=>dbus_wlast,
          io_dBus_b_valid=>dbus_bvalid,
          io_dBus_b_ready=>dbus_bready,
-         io_dBus_b_payload_id=>dbus_bid(0),
+         io_dBus_b_payload_id=>unsigned(dbus_bid),
          io_dBus_b_payload_resp=>dbus_bresp,
 
          io_dBus_ar_valid=>dbus_arvalid,
          io_dBus_ar_ready=>dbus_arready,
          io_dBus_ar_payload_addr=>dbus_araddr,
-         io_dBus_ar_payload_id=>dbus_arid(0),
+         io_dBus_ar_payload_id=>dbus_arid,
          io_dBus_ar_payload_region=>open,
          io_dBus_ar_payload_len=>dbus_arlen,
          io_dBus_ar_payload_size=>dbus_arsize,
@@ -460,10 +465,80 @@ begin
          io_dBus_r_valid=>dbus_rvalid,
          io_dBus_r_ready=>dbus_rready,
          io_dBus_r_payload_data=>dbus_rdata,
-         io_dBus_r_payload_id=>dbus_rid(0),
+         io_dBus_r_payload_id=>unsigned(dbus_rid),
          io_dBus_r_payload_resp=>dbus_rresp,
          io_dBus_r_payload_last=>dbus_rlast
       );
+end generate GEN1;
+
+GEN2:if SIMULATION=FALSE generate
+   cpu_inst : MyVexRiscv 
+      port map 
+      (
+         io_asyncReset=>resetn,
+         io_mainClk=>clk_main,
+
+         io_iBus_ar_valid=>ibus_arvalid,
+         io_iBus_ar_ready=>ibus_arready,
+         io_iBus_ar_payload_addr=>ibus_araddr,
+         io_iBus_ar_payload_id=>ibus_arid,
+         io_iBus_ar_payload_region=>open,
+         io_iBus_ar_payload_len=>ibus_arlen,
+         io_iBus_ar_payload_size=>ibus_arsize,
+         io_iBus_ar_payload_burst=>ibus_arburst,
+         io_iBus_ar_payload_lock=>ibus_arlock,
+         io_iBus_ar_payload_cache=>ibus_arcache,
+         io_iBus_ar_payload_qos=>ibus_arqos,
+         io_iBus_ar_payload_prot=>ibus_arprot,
+         io_iBus_r_valid=>ibus_rvalid,
+         io_iBus_r_ready=>ibus_rready,
+         io_iBus_r_payload_data=>ibus_rdata,
+         io_iBus_r_payload_id=>unsigned(ibus_rid),
+         io_iBus_r_payload_resp=>ibus_rresp,
+         io_iBus_r_payload_last=>ibus_rlast, 
+
+         io_dBus_aw_valid=>dbus_awvalid,
+         io_dBus_aw_ready=>dbus_awready,
+         io_dBus_aw_payload_addr=>dbus_awaddr,
+         io_dBus_aw_payload_id=>dbus_awid,
+         io_dBus_aw_payload_region=>open,
+         io_dBus_aw_payload_len=>dbus_awlen,
+         io_dBus_aw_payload_size=>dbus_awsize,
+         io_dBus_aw_payload_burst=>dbus_awburst,
+         io_dBus_aw_payload_lock=>dbus_awlock,
+         io_dBus_aw_payload_cache=>dbus_awcache,
+         io_dBus_aw_payload_qos=>dbus_awqos,
+         io_dBus_aw_payload_prot=>dbus_awprot,
+         io_dBus_w_valid=>dbus_wvalid,
+         io_dBus_w_ready=>dbus_wready,
+         io_dBus_w_payload_data=>dbus_wdata,
+         io_dBus_w_payload_strb=>dbus_wstrb,
+         io_dBus_w_payload_last=>dbus_wlast,
+         io_dBus_b_valid=>dbus_bvalid,
+         io_dBus_b_ready=>dbus_bready,
+         io_dBus_b_payload_id=>unsigned(dbus_bid),
+         io_dBus_b_payload_resp=>dbus_bresp,
+
+         io_dBus_ar_valid=>dbus_arvalid,
+         io_dBus_ar_ready=>dbus_arready,
+         io_dBus_ar_payload_addr=>dbus_araddr,
+         io_dBus_ar_payload_id=>dbus_arid,
+         io_dBus_ar_payload_region=>open,
+         io_dBus_ar_payload_len=>dbus_arlen,
+         io_dBus_ar_payload_size=>dbus_arsize,
+         io_dBus_ar_payload_burst=>dbus_arburst,
+         io_dBus_ar_payload_lock=>dbus_arlock,
+         io_dBus_ar_payload_cache=>dbus_arcache,
+         io_dBus_ar_payload_qos=>dbus_arqos,
+         io_dBus_ar_payload_prot=>dbus_arprot,
+         io_dBus_r_valid=>dbus_rvalid,
+         io_dBus_r_ready=>dbus_rready,
+         io_dBus_r_payload_data=>dbus_rdata,
+         io_dBus_r_payload_id=>unsigned(dbus_rid),
+         io_dBus_r_payload_resp=>dbus_rresp,
+         io_dBus_r_payload_last=>dbus_rlast
+      );
+end generate GEN2;
 
 axi_split_i : axi_split
    GENERIC MAP (
@@ -475,12 +550,12 @@ axi_split_i : axi_split
    PORT MAP
    (
       clock_in=>clk_main,
-      reset_in=>'1',
+      reset_in=>clk_reset,
 
-      axislave_araddr_in=>dbus_araddr,
-      axislave_arlen_in=>dbus_arlen,
+      axislave_araddr_in=>std_logic_vector(dbus_araddr),
+      axislave_arlen_in=>std_logic_vector(dbus_arlen),
       axislave_arvalid_in=>dbus_arvalid,
-      axislave_arid_in=>dbus_arid,
+      axislave_arid_in=>std_logic_vector(dbus_arid),
       axislave_arlock_in=>dbus_arlock,
       axislave_arcache_in=>dbus_arcache,
       axislave_arprot_in=>dbus_arprot,
@@ -493,10 +568,10 @@ axi_split_i : axi_split
       axislave_arready_out=>dbus_arready,
       axislave_rready_in=>dbus_rready,
       axislave_arburst_in=>dbus_arburst,
-      axislave_arsize_in=>dbus_arsize,
+      axislave_arsize_in=>std_logic_vector(dbus_arsize),
 
-      axislave_awaddr_in=>dbus_awaddr,
-      axislave_awlen_in=>dbus_awlen,
+      axislave_awaddr_in=>std_logic_vector(dbus_awaddr),
+      axislave_awlen_in=>std_logic_vector(dbus_awlen),
       axislave_awvalid_in=>dbus_awvalid,
       axislave_wvalid_in=>dbus_wvalid,
       axislave_wdata_in=>dbus_wdata,
@@ -509,11 +584,11 @@ axi_split_i : axi_split
       axislave_bvalid_out=>dbus_bvalid,
       axislave_awburst_in=>dbus_awburst,
       axislave_awcache_in=>dbus_awcache,
-      axislave_awid_in=>dbus_awid,
+      axislave_awid_in=>std_logic_vector(dbus_awid),
       axislave_awlock_in=>dbus_awlock,
       axislave_awprot_in=>dbus_awprot,
       axislave_awqos_in=>dbus_awqos,
-      axislave_awsize_in=>dbus_awsize,
+      axislave_awsize_in=>std_logic_vector(dbus_awsize),
       axislave_bready_in=>dbus_bready,
                            
       aximaster0_araddr_out=>dbus2_araddr,
@@ -648,7 +723,7 @@ axi_merge_inst : axi_merge
    )
    PORT MAP (
       clock_in=>SDRAM_clk,
-      reset_in=>'1',
+      reset_in=>clk_reset,
 
       axislavew_clock_in=>clk_main,
       axislavew_araddr_in=>ZTA_DATA_araddr,
@@ -691,10 +766,10 @@ axi_merge_inst : axi_merge
       axislavew_bready_in=>ZTA_DATA_bready,
 
       axislave1_clock_in=>clk_main,
-      axislave1_araddr_in=>ibus_araddr,
-      axislave1_arlen_in=>ibus_arlen,
+      axislave1_araddr_in=>std_logic_vector(ibus_araddr),
+      axislave1_arlen_in=>std_logic_vector(ibus_arlen),
       axislave1_arvalid_in=>ibus_arvalid,
-      axislave1_arid_in=>ibus_arid,
+      axislave1_arid_in=>std_logic_vector(ibus_arid),
       axislave1_arlock_in=>ibus_arlock,
       axislave1_arcache_in=>ibus_arcache,
       axislave1_arprot_in=>ibus_arprot,
@@ -707,7 +782,7 @@ axi_merge_inst : axi_merge
       axislave1_arready_out=>ibus_arready,
       axislave1_rready_in=>ibus_rready,
       axislave1_arburst_in=>ibus_arburst,
-      axislave1_arsize_in=>ibus_arsize,
+      axislave1_arsize_in=>std_logic_vector(ibus_arsize),
 
       axislave1_awaddr_in=>(others=>'0'),
       axislave1_awlen_in=>(others=>'0'),
@@ -854,7 +929,7 @@ axi_apb_bridge_inst : axi_apb_bridge
    PORT MAP
    (
       clock_in=>clk_main,
-      reset_in=>'1',
+      reset_in=>clk_reset,
 
       axislave_araddr_in=>apb_araddr,
       axislave_arlen_in=>apb_arlen,
@@ -913,7 +988,7 @@ axi_stream_write_inst : axi_stream_write
    )
    PORT MAP (
       clock_in=>clk_main,
-      reset_in=>'1',
+      reset_in=>clk_reset,
 
       ddr_awaddr_out=>vdma_awaddr,
       ddr_awlen_out=>vdma_awlen,
@@ -962,7 +1037,7 @@ axi_stream_read_inst : axi_stream_read
    )
    PORT MAP (    
       clock_in=>clk_main,
-      reset_in=>'1',
+      reset_in=>clk_reset,
 
       ddr_araddr_out=>rvdma_araddr,
       ddr_arlen_out=>rvdma_arlen,
@@ -1004,7 +1079,7 @@ axi_stream_read_inst : axi_stream_read
    gpio_inst : gpio
       PORT MAP(
          clock_in=>clk_main,
-         reset_in=>'1',
+         reset_in=>clk_reset,
          apb_paddr=>APB_PADDR,
          apb_penable=>APB_PENABLE,
          apb_pready=>APB_PREADY,
@@ -1045,7 +1120,7 @@ axi_stream_read_inst : axi_stream_read
          -- download, so reset signal is not really required.
          -- However, with ASIC, we should have a reset (active low)
 
-         reset_in=>'1', 
+         reset_in=>clk_reset, 
 
          -- Read bus from DDR memory.
          -- All tensor memory transfer from DDR memory to internal

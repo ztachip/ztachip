@@ -76,7 +76,7 @@ SIGNAL q_latch:STD_LOGIC_VECTOR (width_b-1 DOWNTO 0);
 SIGNAL address_a_r:STD_LOGIC_VECTOR (widthad_a-1 DOWNTO 0);
 SIGNAL byteena_a_r:STD_LOGIC_VECTOR (width_a/8-1 DOWNTO 0);
 SIGNAL data_a_r:STD_LOGIC_VECTOR (width_a-1 DOWNTO 0);
-SIGNAL wren_a_r:STD_LOGIC;     
+SIGNAL wren_a_r:STD_LOGIC:='0';     
 begin
 
 q1_b <= q_latch;
@@ -95,7 +95,7 @@ BEGIN
    end if;
 end process;
 
-process(clock)
+process(clock,q_b)
 begin
 if clock='1' then
    q_latch <= q_b;

@@ -1,4 +1,4 @@
-package vexriscv.MyVexRiscv
+package vexriscv.MyVexRiscvForSim
 
 import spinal.core._
 import spinal.lib._
@@ -6,8 +6,6 @@ import vexriscv.ip.{DataCacheConfig, InstructionCacheConfig}
 import spinal.lib.bus.amba3.apb._
 import spinal.lib.bus.amba4.axi._
 import spinal.lib.bus.misc.SizeMapping
-import spinal.lib.com.jtag.Jtag
-import spinal.lib.com.spi.ddr.SpiXdrMaster
 import spinal.lib.io.{InOutWrapper, TriStateArray}
 import spinal.lib.misc.{InterruptCtrl, Prescaler, Timer}
 import spinal.lib.soc.pinsec.{PinsecTimerCtrl, PinsecTimerCtrlExternal}
@@ -16,28 +14,17 @@ import vexriscv.{VexRiscv, VexRiscvConfig, plugin}
 import spinal.lib.com.spi.ddr._
 import spinal.lib.bus.simple._
 import scala.collection.mutable.ArrayBuffer
-import spinal.lib.com.jtag.JtagTapInstructionCtrl
 
 
 case class RiscvConfig(
                        coreFrequency : HertzNumber,
-                       xipConfig               : SpiXdrMasterCtrl.MemoryMappingParameters,
-                       hardwareBreakpointCount : Int,
                        cpuPlugins              : ArrayBuffer[Plugin[VexRiscv]]){
-  val genXip = xipConfig != null
 }
 
 object RiscvConfig{
-   def default : RiscvConfig = default(false, false)
-   def default(withXip : Boolean = false, bigEndian : Boolean = false) =  RiscvConfig(
+   def default : RiscvConfig = default(false)
+   def default(bigEndian : Boolean = false) =  RiscvConfig(
    coreFrequency         = 166 MHz,
-   xipConfig = ifGen(withXip) (SpiXdrMasterCtrl.MemoryMappingParameters(
-      SpiXdrMasterCtrl.Parameters(8, 12, SpiXdrParameter(2, 2, 1)).addFullDuplex(0,1,false),
-      cmdFifoDepth = 32,
-      rspFifoDepth = 32,
-      xip = SpiXdrMasterCtrl.XipBusParameters(addressWidth = 24, lengthWidth = 2)
-    )),
-   hardwareBreakpointCount = if(withXip) 3 else 0,
    cpuPlugins = ArrayBuffer(
       new IBusCachedPlugin(
           resetVector = 0x00000000l,
@@ -74,7 +61,7 @@ object RiscvConfig{
           memoryTranslatorPortConfig = null
       ),
 
-      new CsrPlugin(CsrPluginConfig.smallest(mtvecInit = if(withXip) 0xE0040020l else 0x80000020l)),
+      new CsrPlugin(CsrPluginConfig.smallest(mtvecInit = 0x80000020l)),
       new DecoderSimplePlugin(
         catchIllegalInstruction = true 
       ),
@@ -124,7 +111,7 @@ object RiscvConfig{
 }
 
 
-case class MyVexRiscv(config : RiscvConfig) extends Component{
+case class MyVexRiscvForSim(config : RiscvConfig) extends Component{
   import config._
 
   val io = new Bundle {
@@ -168,12 +155,6 @@ case class MyVexRiscv(config : RiscvConfig) extends Component{
     frequency = FixedFrequency(coreFrequency)
   )
 
-  val debugClockDomain = ClockDomain(
-    clock = io.mainClk,
-    reset = resetCtrl.mainClkReset,
-    frequency = FixedFrequency(coreFrequency)
-  )
-
   val system = new ClockingArea(systemClockDomain) {
 
     val bigEndianDBus = config.cpuPlugins.exists(_ match{ case plugin : DBusSimplePlugin => plugin.bigEndian case _ => false})
@@ -181,7 +162,7 @@ case class MyVexRiscv(config : RiscvConfig) extends Component{
     //Instanciate the CPU
     val cpu = new VexRiscv(
       config = VexRiscvConfig(
-        plugins = cpuPlugins += new DebugPlugin(debugClockDomain, hardwareBreakpointCount)
+        plugins = cpuPlugins
       )
     )
 
@@ -199,12 +180,6 @@ case class MyVexRiscv(config : RiscvConfig) extends Component{
         plugin.externalInterrupt := externalInterrupt
         plugin.timerInterrupt := timerInterrupt
       }
-      case plugin : DebugPlugin         => plugin.debugClockDomain{
-        resetCtrl.systemReset setWhen(RegNext(plugin.io.resetOut))
-        val jtagCtrl = JtagTapInstructionCtrl()
-        val tap = jtagCtrl.fromXilinxBscane2(userId = 2)
-        jtagCtrl <> plugin.io.bus.fromJtagInstructionCtrl(ClockDomain(tap.TCK),0)
-      }
       case _ =>
     }
     io.iBus <> iBus;
@@ -212,8 +187,8 @@ case class MyVexRiscv(config : RiscvConfig) extends Component{
   }
 }
 
-object MyVexRiscv{
+object MyVexRiscvForSim{
   def main(args: Array[String]) {
-    SpinalVhdl(MyVexRiscv(RiscvConfig.default.copy()))
+    SpinalVhdl(MyVexRiscvForSim(RiscvConfig.default.copy()))
   }
 }

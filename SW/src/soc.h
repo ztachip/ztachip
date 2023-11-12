@@ -22,6 +22,27 @@
 #include <stdint.h>
 #include "../base/types.h"
 
+// Memory mapped of APB bus
+
+#define APB ((volatile unsigned int *)0xC0000000)
+
+// APB register map
+
+#define APB_LED               0
+
+#define APB_PB                2
+
+#define APB_VIDEO_BUFFER      11
+
+#define APB_VIDEO_ENABLE      9
+
+#define APB_CAMERA_BUFFER     5
+
+#define APB_CAMERA_ENABLE     3
+
+#define APB_CAMERA_CURR_FRAME 4
+
+
 // Flush data cache with VexRiscv
 // This is dependent on the Riscv implementation since flushing datacache
 // is not defined in official Riscv specs
