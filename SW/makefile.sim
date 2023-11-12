@@ -1,23 +1,23 @@
-PROJ_NAME=ztachip
+PROJ_NAME=ztachip_sim
 #DEBUG=yes
 DEBUG=no
 BENCH=no
 MULDIV=yes
 
-SRCS = 	../../../SW/base/newlib.c \
-	../../../SW/base/ztalib.c \
-	../../../SW/base/crt.S \
-	../../../SW/base/task.S \
-	../../../SW/apps/main/kernels/main.m.c \
-	kernels/test.m.c \
-	test.c
+SRCS = 	base/newlib.c \
+	base/ztalib.c \
+	base/crt.S \
+	base/task.S \
+	apps/main/kernels/main.m.c \
+	apps/test/kernels/test.m.c \
+	sim/test.c
 
 OBJDIR = build
 
 INC  =
 LIBS =
 LIBSINC = -L$(OBJDIR)
-LDSCRIPT = linker.ld
+LDSCRIPT = sim/linker.ld
 
 #include ../../../resources/gcc.mk
 # Set it to yes if you are using the sifive precompiled GCC pack

@@ -16,7 +16,7 @@
 // limitations under the License.
 //------------------------------------------------------------------------------
 
-#include "../../../../SW/base/zta.h"
+#include "../../../base/zta.h"
 
 vint16 test::_A;
 vint16 test::_Z;

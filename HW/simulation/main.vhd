@@ -186,7 +186,7 @@ begin
    return ram_v;
 end function;
 
-signal RAM : RamType := InitRamFromFile("SW\\build\\ztachip.hex");
+signal RAM : RamType := InitRamFromFile("ztachip_sim.hex");
 
 begin
 

@@ -8,7 +8,8 @@ SRCS = \
 	apps/gaussian/kernels/gaussian.m \
 	apps/equalize/kernels/equalize.m \
 	apps/nn/kernels/conv.m \
-	apps/nn/kernels/fcn.m
+	apps/nn/kernels/fcn.m \
+	apps/test/kernels/test.m
 
 KOBJS := $(SRCS)
 KOBJS := $(KOBJS:.m=.m.c)

@@ -1,5 +1,5 @@
-#include "../../../SW/base/ztalib.h"
-#include "../../../SW/src/soc.h"
+#include "../base/ztalib.h"
+#include "../src/soc.h"
 
 extern void kernel_test_exe();
 
