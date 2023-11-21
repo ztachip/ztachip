@@ -206,13 +206,13 @@ First build example test program for simulation.
 The example test program is under SW/apps/test and SW/sim
 
 ```
+export PATH=/opt/riscv/bin:$PATH
 cd ztachip
 cd SW/compiler
 make clean all
 cd ..
 make clean all -f makefile.kernels
 make clean all -f makefile.sim
-cp ./build/ztachip_sim.hex ../HW/simulation 
 ```
 
 Then compile all RTL codes below for simulation
