@@ -28,6 +28,7 @@ use std.standard.all;
 LIBRARY ieee;
 USE ieee.std_logic_1164.all;
 use IEEE.numeric_std.all;
+use work.config.all;
 use work.ztachip_pkg.all;
 
 entity soc_base is
@@ -46,6 +47,7 @@ entity soc_base is
    -- SDRAM axi signals
 
    SDRAM_clk       :IN STD_LOGIC;
+   SDRAM_reset     :IN STD_LOGIC;
    SDRAM_araddr    :OUT STD_LOGIC_VECTOR(31 downto 0);
    SDRAM_arburst   :OUT STD_LOGIC_VECTOR(1 downto 0);
    SDRAM_arlen     :OUT STD_LOGIC_VECTOR(7 downto 0);
@@ -61,15 +63,15 @@ entity soc_base is
    SDRAM_bready    :OUT STD_LOGIC;
    SDRAM_bresp     :IN STD_LOGIC_VECTOR(1 downto 0);
    SDRAM_bvalid    :IN STD_LOGIC;
-   SDRAM_rdata     :IN STD_LOGIC_VECTOR(63 downto 0);
+   SDRAM_rdata     :IN STD_LOGIC_VECTOR(exmem_data_width_c-1 downto 0);
    SDRAM_rlast     :IN STD_LOGIC;
    SDRAM_rready    :OUT STD_LOGIC;
    SDRAM_rresp     :IN STD_LOGIC_VECTOR(1 downto 0);
    SDRAM_rvalid    :IN STD_LOGIC;
-   SDRAM_wdata     :OUT STD_LOGIC_VECTOR(63 downto 0);
+   SDRAM_wdata     :OUT STD_LOGIC_VECTOR(exmem_data_width_c-1 downto 0);
    SDRAM_wlast     :OUT STD_LOGIC;
    SDRAM_wready    :IN STD_LOGIC;
-   SDRAM_wstrb     :OUT STD_LOGIC_VECTOR(7 downto 0);
+   SDRAM_wstrb     :OUT STD_LOGIC_VECTOR(exmem_data_width_c/8-1 downto 0);
    SDRAM_wvalid    :OUT STD_LOGIC;
 
    -- VIDEO streaming bus  
@@ -386,6 +388,35 @@ architecture rtl of soc_base is
    SIGNAL arlen:unsigned(2 downto 0);
    SIGNAL awlen:unsigned(2 downto 0);
       
+   -- SDRAM signals
+   SIGNAL SDRAM_araddr2:STD_LOGIC_VECTOR(31 downto 0);
+   SIGNAL SDRAM_arburst2:STD_LOGIC_VECTOR(1 downto 0);
+   SIGNAL SDRAM_arlen2:STD_LOGIC_VECTOR(7 downto 0);
+   SIGNAL SDRAM_arready2:STD_LOGIC;
+   SIGNAL SDRAM_arsize2:STD_LOGIC_VECTOR(2 downto 0);
+   SIGNAL SDRAM_arvalid2:STD_LOGIC;
+   SIGNAL SDRAM_awaddr2:STD_LOGIC_VECTOR(31 downto 0);
+   SIGNAL SDRAM_awburst2:STD_LOGIC_VECTOR(1 downto 0);
+   SIGNAL SDRAM_awlen2:STD_LOGIC_VECTOR(7 downto 0);
+   SIGNAL SDRAM_awready2:STD_LOGIC;
+   SIGNAL SDRAM_awsize2:STD_LOGIC_VECTOR(2 downto 0);
+   SIGNAL SDRAM_awvalid2:STD_LOGIC;
+   SIGNAL SDRAM_bready2:STD_LOGIC;
+   SIGNAL SDRAM_bresp2:STD_LOGIC_VECTOR(1 downto 0);
+   SIGNAL SDRAM_bvalid2:STD_LOGIC;
+   SIGNAL SDRAM_rdata2:STD_LOGIC_VECTOR(63 downto 0);
+   SIGNAL SDRAM_rdata_mask2:STD_LOGIC_VECTOR(1 downto 0);
+   SIGNAL SDRAM_rlast2:STD_LOGIC;
+   SIGNAL SDRAM_rready2:STD_LOGIC;
+   SIGNAL SDRAM_rresp2:STD_LOGIC_VECTOR(1 downto 0);
+   SIGNAL SDRAM_rvalid2:STD_LOGIC;
+   SIGNAL SDRAM_wdata2:STD_LOGIC_VECTOR(63 downto 0);
+   SIGNAL SDRAM_wdata_mask2:STD_LOGIC_VECTOR(1 downto 0);
+   SIGNAL SDRAM_wlast2:STD_LOGIC;
+   SIGNAL SDRAM_wready2:STD_LOGIC;
+   SIGNAL SDRAM_wstrb2:STD_LOGIC_VECTOR(7 downto 0);
+   SIGNAL SDRAM_wvalid2:STD_LOGIC;
+
 begin
 
    resetn <= not clk_reset;  
@@ -723,7 +754,7 @@ axi_merge_inst : axi_merge
    )
    PORT MAP (
       clock_in=>SDRAM_clk,
-      reset_in=>clk_reset,
+      reset_in=>SDRAM_reset,
 
       axislavew_clock_in=>clk_main,
       axislavew_araddr_in=>ZTA_DATA_araddr,
@@ -885,44 +916,46 @@ axi_merge_inst : axi_merge
       axislave0_awsize_in=>vdma_awsize,
       axislave0_bready_in=>vdma_bready,
                               
-      aximaster_araddr_out=>SDRAM_araddr,
-      aximaster_arlen_out=>SDRAM_arlen,
-      aximaster_arvalid_out=>SDRAM_arvalid,
+      aximaster_araddr_out=>SDRAM_araddr2,
+      aximaster_arlen_out=>SDRAM_arlen2,
+      aximaster_arvalid_out=>SDRAM_arvalid2,
       aximaster_arid_out=>open,
       aximaster_arlock_out=>open,
       aximaster_arcache_out=>open,
       aximaster_arprot_out=>open,
       aximaster_arqos_out=>open,
       aximaster_rid_in=>(others=>'0'), 
-      aximaster_rvalid_in=>SDRAM_rvalid,
-      aximaster_rlast_in=>SDRAM_rlast,
-      aximaster_rdata_in=>SDRAM_rdata,
-      aximaster_rresp_in=>SDRAM_rresp,
-      aximaster_arready_in=>SDRAM_arready,
-      aximaster_rready_out=>SDRAM_rready,
-      aximaster_arburst_out=>SDRAM_arburst,
-      aximaster_arsize_out=>SDRAM_arsize,
+      aximaster_rvalid_in=>SDRAM_rvalid2,
+      aximaster_rlast_in=>SDRAM_rlast2,
+      aximaster_rdata_in=>SDRAM_rdata2,
+      aximaster_rdata_mask_out=>SDRAM_rdata_mask2,
+      aximaster_rresp_in=>SDRAM_rresp2,
+      aximaster_arready_in=>SDRAM_arready2,
+      aximaster_rready_out=>SDRAM_rready2,
+      aximaster_arburst_out=>SDRAM_arburst2,
+      aximaster_arsize_out=>SDRAM_arsize2,
 
-      aximaster_awaddr_out=>SDRAM_awaddr,
-      aximaster_awlen_out=>SDRAM_awlen,
-      aximaster_awvalid_out=>SDRAM_awvalid,
-      aximaster_wvalid_out=>SDRAM_wvalid,
-      aximaster_wdata_out=>SDRAM_wdata,
-      aximaster_wlast_out=>SDRAM_wlast,
-      aximaster_wstrb_out=>SDRAM_wstrb,
-      aximaster_awready_in=>SDRAM_awready,
-      aximaster_wready_in=>SDRAM_wready,
-      aximaster_bresp_in=>SDRAM_bresp,
+      aximaster_awaddr_out=>SDRAM_awaddr2,
+      aximaster_awlen_out=>SDRAM_awlen2,
+      aximaster_awvalid_out=>SDRAM_awvalid2,
+      aximaster_wvalid_out=>SDRAM_wvalid2,
+      aximaster_wdata_out=>SDRAM_wdata2,
+      aximaster_wdata_mask_out=>SDRAM_wdata_mask2,
+      aximaster_wlast_out=>SDRAM_wlast2,
+      aximaster_wstrb_out=>SDRAM_wstrb2,
+      aximaster_awready_in=>SDRAM_awready2,
+      aximaster_wready_in=>SDRAM_wready2,
+      aximaster_bresp_in=>SDRAM_bresp2,
       aximaster_bid_in=>(others=>'0'),
-      aximaster_bvalid_in=>SDRAM_bvalid,
-      aximaster_awburst_out=>SDRAM_awburst,
+      aximaster_bvalid_in=>SDRAM_bvalid2,
+      aximaster_awburst_out=>SDRAM_awburst2,
       aximaster_awcache_out=>open,
       aximaster_awid_out=>open,
       aximaster_awlock_out=>open,
       aximaster_awprot_out=>open,
       aximaster_awqos_out=>open,
-      aximaster_awsize_out=>SDRAM_awsize,
-      aximaster_bready_out=>SDRAM_bready
+      aximaster_awsize_out=>SDRAM_awsize2,
+      aximaster_bready_out=>SDRAM_bready2
    );
 
 axi_apb_bridge_inst : axi_apb_bridge
@@ -1189,4 +1222,96 @@ axi_stream_read_inst : axi_stream_read
          axilite_bresp_out=>ZTA_CONTROL_bresp
    );
 
+GEN3: IF exmem_data_width_c=32 GENERATE
+axi_convert_64to32_inst:axi_convert_64to32
+   port map
+   (
+   clock_in=>SDRAM_clk,
+   reset_in=>SDRAM_reset,
+
+   -- Input bus in 64-bit
+   
+   SDRAM64_araddr=>SDRAM_araddr2,
+   SDRAM64_arburst=>SDRAM_arburst2,
+   SDRAM64_arlen =>SDRAM_arlen2,
+   SDRAM64_arready=>SDRAM_arready2,
+   SDRAM64_arsize=>SDRAM_arsize2,
+   SDRAM64_arvalid=>SDRAM_arvalid2,
+   SDRAM64_awaddr=>SDRAM_awaddr2,
+   SDRAM64_awburst=>SDRAM_awburst2,
+   SDRAM64_awlen =>SDRAM_awlen2,
+   SDRAM64_awready=>SDRAM_awready2,
+   SDRAM64_awsize=>SDRAM_awsize2,
+   SDRAM64_awvalid=>SDRAM_awvalid2,
+   SDRAM64_bready=>SDRAM_bready2,
+   SDRAM64_bresp=>SDRAM_bresp2,
+   SDRAM64_bvalid=>SDRAM_bvalid2,
+   SDRAM64_rdata=>SDRAM_rdata2,
+   SDRAM64_rdata_mask=>SDRAM_rdata_mask2,
+   SDRAM64_rlast=>SDRAM_rlast2,
+   SDRAM64_rready=>SDRAM_rready2,
+   SDRAM64_rresp=>SDRAM_rresp2,
+   SDRAM64_rvalid=>SDRAM_rvalid2,
+   SDRAM64_wdata=>SDRAM_wdata2,
+   SDRAM64_wdata_mask=>SDRAM_wdata_mask2,
+   SDRAM64_wlast=>SDRAM_wlast2,
+   SDRAM64_wready=>SDRAM_wready2,
+   SDRAM64_wstrb=>SDRAM_wstrb2,
+   SDRAM64_wvalid=>SDRAM_wvalid2,
+
+   SDRAM32_araddr=>SDRAM_araddr,
+   SDRAM32_arburst=>SDRAM_arburst,
+   SDRAM32_arlen=>SDRAM_arlen,
+   SDRAM32_arready=>SDRAM_arready,
+   SDRAM32_arsize=>SDRAM_arsize,
+   SDRAM32_arvalid=>SDRAM_arvalid,
+   SDRAM32_awaddr=>SDRAM_awaddr,
+   SDRAM32_awburst=>SDRAM_awburst,
+   SDRAM32_awlen=>SDRAM_awlen,
+   SDRAM32_awready=>SDRAM_awready,
+   SDRAM32_awsize=>SDRAM_awsize,
+   SDRAM32_awvalid=>SDRAM_awvalid,
+   SDRAM32_bready=>SDRAM_bready,
+   SDRAM32_bresp=>SDRAM_bresp,
+   SDRAM32_bvalid=>SDRAM_bvalid,
+   SDRAM32_rdata=>SDRAM_rdata,
+   SDRAM32_rlast=>SDRAM_rlast,
+   SDRAM32_rready=>SDRAM_rready,
+   SDRAM32_rresp=>SDRAM_rresp,
+   SDRAM32_rvalid=>SDRAM_rvalid,
+   SDRAM32_wdata=>SDRAM_wdata,
+   SDRAM32_wlast=>SDRAM_wlast,
+   SDRAM32_wready=>SDRAM_wready,
+   SDRAM32_wstrb=>SDRAM_wstrb,
+   SDRAM32_wvalid=>SDRAM_wvalid
+   );
+END GENERATE GEN3;
+
+GEN4:IF exmem_data_width_c=64 GENERATE
+   SDRAM_araddr <= SDRAM_araddr2;
+   SDRAM_arburst <= SDRAM_arburst2;
+   SDRAM_arlen <= SDRAM_arlen2;
+   SDRAM_arready2 <= SDRAM_arready;
+   SDRAM_arsize <= SDRAM_arsize2;
+   SDRAM_arvalid <= SDRAM_arvalid2;
+   SDRAM_awaddr <= SDRAM_awaddr2;
+   SDRAM_awburst <= SDRAM_awburst2;
+   SDRAM_awlen <= SDRAM_awlen2;
+   SDRAM_awready2 <= SDRAM_awready;
+   SDRAM_awsize <= SDRAM_awsize2;
+   SDRAM_awvalid <= SDRAM_awvalid2;
+   SDRAM_bready <= SDRAM_bready2;
+   SDRAM_bresp2 <= SDRAM_bresp;
+   SDRAM_bvalid2 <= SDRAM_bvalid;
+   SDRAM_rdata2 <= SDRAM_rdata;
+   SDRAM_rlast2 <= SDRAM_rlast;
+   SDRAM_rready <= SDRAM_rready2;
+   SDRAM_rresp2 <= SDRAM_rresp;
+   SDRAM_rvalid2 <= SDRAM_rvalid;
+   SDRAM_wdata <= SDRAM_wdata2;
+   SDRAM_wlast <= SDRAM_wlast2;
+   SDRAM_wready2 <= SDRAM_wready;
+   SDRAM_wstrb <= SDRAM_wstrb2;
+   SDRAM_wvalid <= SDRAM_wvalid2;
+END GENERATE GEN4;
 end rtl;

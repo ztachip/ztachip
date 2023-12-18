@@ -101,7 +101,6 @@ signal apb_rvdma_buf2_match:std_logic;
 signal apb_rvdma_buf3_match:std_logic;
 signal apb_rvdma_get_curr_match:std_logic;
 signal apb_match:std_logic;
-signal s_ready_r:std_logic;
 signal read_fifo_write:std_logic_vector(32 downto 0);
 signal read_fifo_read:std_logic_vector(32 downto 0);
 signal rlast_r:std_logic;
@@ -196,22 +195,10 @@ ddr_rready_out <= ddr_rready;
 
 read_fifo_wr <= ddr_rvalid_in and ddr_rready; 
 
-s_rvalid_out <= (not read_fifo_empty) and s_ready_r;
+s_rvalid_out <= (not read_fifo_empty);
 
 read_fifo_rd <= '1' when (read_fifo_empty='0' and s_rready_in='1') else '0';	
 
-process(s_rclk_in,reset_in)
-begin
-   if reset_in='0' then
-      s_ready_r <= '0';
-   else
-      if s_rclk_in'event and s_rclk_in='1' then
-         if(s_ready_r='0') then
-            s_ready_r <= read_fifo_full;
-         end if;
-      end if;
-   end if;
-end process;
 
 process(clock_in,reset_in)
 begin

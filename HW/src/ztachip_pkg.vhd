@@ -1605,6 +1605,7 @@ COMPONENT axi_merge_read is
         aximaster_rvalid_in     : IN axi_rvalid_t;
         aximaster_rlast_in      : IN axi_rlast_t;
         aximaster_rdata_in      : IN axi_rdata64_t;
+        aximaster_rdata_mask_out: OUT std_logic_vector(1 downto 0);
         aximaster_rresp_in      : IN axi_rresp_t;
         aximaster_arready_in    : IN axi_arready_t;
         aximaster_rready_out    : OUT axi_rready_t;
@@ -1675,6 +1676,7 @@ component axi_merge_write is
         aximaster_awvalid_out        : OUT axi_awvalid_t;
         aximaster_wvalid_out         : OUT axi_wvalid_t;
         aximaster_wdata_out          : OUT axi_wdata64_t;
+        aximaster_wdata_mask_out     : OUT std_logic_vector(1 downto 0);
         aximaster_wlast_out          : OUT axi_wlast_t;
         aximaster_wstrb_out          : OUT axi_wstrb8_t;
         aximaster_awready_in         : IN axi_awready_t;
@@ -2309,6 +2311,7 @@ component axi_merge is
         aximaster_rvalid_in     : IN axi_rvalid_t;
         aximaster_rlast_in      : IN axi_rlast_t;
         aximaster_rdata_in      : IN axi_rdata64_t;
+        aximaster_rdata_mask_out: OUT std_logic_vector(1 downto 0);
         aximaster_rresp_in      : IN axi_rresp_t;
         aximaster_arready_in    : IN axi_arready_t;
         aximaster_rready_out    : OUT axi_rready_t;
@@ -2320,6 +2323,7 @@ component axi_merge is
         aximaster_awvalid_out   : OUT axi_awvalid_t;
         aximaster_wvalid_out    : OUT axi_wvalid_t;
         aximaster_wdata_out     : OUT axi_wdata64_t;
+        aximaster_wdata_mask_out: OUT std_logic_vector(1 downto 0);
         aximaster_wlast_out     : OUT axi_wlast_t;
         aximaster_wstrb_out     : OUT axi_wstrb8_t;
         aximaster_awready_in    : IN axi_awready_t;
@@ -2337,6 +2341,72 @@ component axi_merge is
         aximaster_bready_out    : OUT axi_bready_t
 	);
 end component;
+
+COMPONENT axi_convert_64to32 is
+   port 
+   (
+   clock_in          :IN STD_LOGIC;
+   reset_in          :IN STD_LOGIC;
+
+   -- Input bus in 64-bit
+   
+   SDRAM64_araddr    :IN STD_LOGIC_VECTOR(31 downto 0);
+   SDRAM64_arburst   :IN STD_LOGIC_VECTOR(1 downto 0);
+   SDRAM64_arlen     :IN STD_LOGIC_VECTOR(7 downto 0);
+   SDRAM64_arready   :OUT STD_LOGIC;
+   SDRAM64_arsize    :IN STD_LOGIC_VECTOR(2 downto 0);
+   SDRAM64_arvalid   :IN STD_LOGIC;
+   SDRAM64_awaddr    :IN STD_LOGIC_VECTOR(31 downto 0);
+   SDRAM64_awburst   :IN STD_LOGIC_VECTOR(1 downto 0);
+   SDRAM64_awlen     :IN STD_LOGIC_VECTOR(7 downto 0);
+   SDRAM64_awready   :OUT STD_LOGIC;
+   SDRAM64_awsize    :IN STD_LOGIC_VECTOR(2 downto 0);
+   SDRAM64_awvalid   :IN STD_LOGIC;
+   SDRAM64_bready    :IN STD_LOGIC;
+   SDRAM64_bresp     :OUT STD_LOGIC_VECTOR(1 downto 0);
+   SDRAM64_bvalid    :OUT STD_LOGIC;
+   SDRAM64_rdata     :OUT STD_LOGIC_VECTOR(63 downto 0);
+   SDRAM64_rdata_mask:IN STD_LOGIC_VECTOR(1 downto 0);
+   SDRAM64_rlast     :OUT STD_LOGIC;
+   SDRAM64_rready    :IN STD_LOGIC;
+   SDRAM64_rresp     :OUT STD_LOGIC_VECTOR(1 downto 0);
+   SDRAM64_rvalid    :OUT STD_LOGIC;
+   SDRAM64_wdata     :IN STD_LOGIC_VECTOR(63 downto 0);
+   SDRAM64_wdata_mask:IN STD_LOGIC_VECTOR(1 downto 0);
+   SDRAM64_wlast     :IN STD_LOGIC;
+   SDRAM64_wready    :OUT STD_LOGIC;
+   SDRAM64_wstrb     :IN STD_LOGIC_VECTOR(7 downto 0);
+   SDRAM64_wvalid    :IN STD_LOGIC;
+
+   -- Output bus in 32-bit
+
+   SDRAM32_araddr    :OUT STD_LOGIC_VECTOR(31 downto 0);
+   SDRAM32_arburst   :OUT STD_LOGIC_VECTOR(1 downto 0);
+   SDRAM32_arlen     :OUT STD_LOGIC_VECTOR(7 downto 0);
+   SDRAM32_arready   :IN STD_LOGIC;
+   SDRAM32_arsize    :OUT STD_LOGIC_VECTOR(2 downto 0);
+   SDRAM32_arvalid   :OUT STD_LOGIC;
+   SDRAM32_awaddr    :OUT STD_LOGIC_VECTOR(31 downto 0);
+   SDRAM32_awburst   :OUT STD_LOGIC_VECTOR(1 downto 0);
+   SDRAM32_awlen     :OUT STD_LOGIC_VECTOR(7 downto 0);
+   SDRAM32_awready   :IN STD_LOGIC;
+   SDRAM32_awsize    :OUT STD_LOGIC_VECTOR(2 downto 0);
+   SDRAM32_awvalid   :OUT STD_LOGIC;
+   SDRAM32_bready    :OUT STD_LOGIC;
+   SDRAM32_bresp     :IN STD_LOGIC_VECTOR(1 downto 0);
+   SDRAM32_bvalid    :IN STD_LOGIC;
+   SDRAM32_rdata     :IN STD_LOGIC_VECTOR(31 downto 0);
+   SDRAM32_rlast     :IN STD_LOGIC;
+   SDRAM32_rready    :OUT STD_LOGIC;
+   SDRAM32_rresp     :IN STD_LOGIC_VECTOR(1 downto 0);
+   SDRAM32_rvalid    :IN STD_LOGIC;
+   SDRAM32_wdata     :OUT STD_LOGIC_VECTOR(31 downto 0);
+   SDRAM32_wlast     :OUT STD_LOGIC;
+   SDRAM32_wready    :IN STD_LOGIC;
+   SDRAM32_wstrb     :OUT STD_LOGIC_VECTOR(3 downto 0);
+   SDRAM32_wvalid    :OUT STD_LOGIC
+   );
+end COMPONENT;
 
 COMPONENT core IS
     PORT(SIGNAL clock_in                : IN STD_LOGIC;
@@ -4139,6 +4209,7 @@ component soc_base is
    -- SDRAM axi signals
 
    SDRAM_clk       :IN STD_LOGIC;
+   SDRAM_reset     :IN STD_LOGIC;
    SDRAM_araddr    :OUT STD_LOGIC_VECTOR(31 downto 0);
    SDRAM_arburst   :OUT STD_LOGIC_VECTOR(1 downto 0);
    SDRAM_arlen     :OUT STD_LOGIC_VECTOR(7 downto 0);
@@ -4154,15 +4225,15 @@ component soc_base is
    SDRAM_bready    :OUT STD_LOGIC;
    SDRAM_bresp     :IN STD_LOGIC_VECTOR(1 downto 0);
    SDRAM_bvalid    :IN STD_LOGIC;
-   SDRAM_rdata     :IN STD_LOGIC_VECTOR(63 downto 0);
+   SDRAM_rdata     :IN STD_LOGIC_VECTOR(exmem_data_width_c-1 downto 0);
    SDRAM_rlast     :IN STD_LOGIC;
    SDRAM_rready    :OUT STD_LOGIC;
    SDRAM_rresp     :IN STD_LOGIC_VECTOR(1 downto 0);
    SDRAM_rvalid    :IN STD_LOGIC;
-   SDRAM_wdata     :OUT STD_LOGIC_VECTOR(63 downto 0);
+   SDRAM_wdata     :OUT STD_LOGIC_VECTOR(exmem_data_width_c-1 downto 0);
    SDRAM_wlast     :OUT STD_LOGIC;
    SDRAM_wready    :IN STD_LOGIC;
-   SDRAM_wstrb     :OUT STD_LOGIC_VECTOR(7 downto 0);
+   SDRAM_wstrb     :OUT STD_LOGIC_VECTOR(exmem_data_width_c/8-1 downto 0);
    SDRAM_wvalid    :OUT STD_LOGIC;
 
    -- VIDEO streaming bus  
@@ -4454,6 +4525,72 @@ COMPONENT CCD_SYNC
       SIGNAL outclock_in : in std_logic;
       SIGNAL input_in    : in std_logic_vector(WIDTH-1 downto 0);
       SIGNAL output_out  : out std_logic_vector(WIDTH-1 downto 0)
+   );
+end component;
+
+--- For simulation ---
+
+component mem64 is
+   port(   
+      SDRAM_clk       :IN STD_LOGIC;
+      SDRAM_reset     :IN STD_LOGIC;
+      SDRAM_araddr    :IN STD_LOGIC_VECTOR(31 downto 0);
+      SDRAM_arburst   :IN STD_LOGIC_VECTOR(1 downto 0);
+      SDRAM_arlen     :IN STD_LOGIC_VECTOR(7 downto 0);
+      SDRAM_arready   :OUT STD_LOGIC;
+      SDRAM_arsize    :IN STD_LOGIC_VECTOR(2 downto 0);
+      SDRAM_arvalid   :IN STD_LOGIC;
+      SDRAM_awaddr    :IN STD_LOGIC_VECTOR(31 downto 0);
+      SDRAM_awburst   :IN STD_LOGIC_VECTOR(1 downto 0);
+      SDRAM_awlen     :IN STD_LOGIC_VECTOR(7 downto 0);
+      SDRAM_awready   :OUT STD_LOGIC;
+      SDRAM_awsize    :IN STD_LOGIC_VECTOR(2 downto 0);
+      SDRAM_awvalid   :IN STD_LOGIC;
+      SDRAM_bready    :IN STD_LOGIC;
+      SDRAM_bresp     :OUT STD_LOGIC_VECTOR(1 downto 0);
+      SDRAM_bvalid    :OUT STD_LOGIC;
+      SDRAM_rdata     :OUT STD_LOGIC_VECTOR(63 downto 0);
+      SDRAM_rlast     :OUT STD_LOGIC;
+      SDRAM_rready    :IN STD_LOGIC;
+      SDRAM_rresp     :OUT STD_LOGIC_VECTOR(1 downto 0);
+      SDRAM_rvalid    :OUT STD_LOGIC;
+      SDRAM_wdata     :IN STD_LOGIC_VECTOR(63 downto 0);
+      SDRAM_wlast     :IN STD_LOGIC;
+      SDRAM_wready    :OUT STD_LOGIC;
+      SDRAM_wstrb     :IN STD_LOGIC_VECTOR(7 downto 0);
+      SDRAM_wvalid    :IN STD_LOGIC
+   );
+end component;
+
+component mem32 is
+   port(   
+      SDRAM_clk       :IN STD_LOGIC;
+      SDRAM_reset     :IN STD_LOGIC;
+      SDRAM_araddr    :IN STD_LOGIC_VECTOR(31 downto 0);
+      SDRAM_arburst   :IN STD_LOGIC_VECTOR(1 downto 0);
+      SDRAM_arlen     :IN STD_LOGIC_VECTOR(7 downto 0);
+      SDRAM_arready   :OUT STD_LOGIC;
+      SDRAM_arsize    :IN STD_LOGIC_VECTOR(2 downto 0);
+      SDRAM_arvalid   :IN STD_LOGIC;
+      SDRAM_awaddr    :IN STD_LOGIC_VECTOR(31 downto 0);
+      SDRAM_awburst   :IN STD_LOGIC_VECTOR(1 downto 0);
+      SDRAM_awlen     :IN STD_LOGIC_VECTOR(7 downto 0);
+      SDRAM_awready   :OUT STD_LOGIC;
+      SDRAM_awsize    :IN STD_LOGIC_VECTOR(2 downto 0);
+      SDRAM_awvalid   :IN STD_LOGIC;
+      SDRAM_bready    :IN STD_LOGIC;
+      SDRAM_bresp     :OUT STD_LOGIC_VECTOR(1 downto 0);
+      SDRAM_bvalid    :OUT STD_LOGIC;
+      SDRAM_rdata     :OUT STD_LOGIC_VECTOR(31 downto 0);
+      SDRAM_rlast     :OUT STD_LOGIC;
+      SDRAM_rready    :IN STD_LOGIC;
+      SDRAM_rresp     :OUT STD_LOGIC_VECTOR(1 downto 0);
+      SDRAM_rvalid    :OUT STD_LOGIC;
+      SDRAM_wdata     :IN STD_LOGIC_VECTOR(31 downto 0);
+      SDRAM_wlast     :IN STD_LOGIC;
+      SDRAM_wready    :OUT STD_LOGIC;
+      SDRAM_wstrb     :IN STD_LOGIC_VECTOR(3 downto 0);
+      SDRAM_wvalid    :IN STD_LOGIC
    );
 end component;
 

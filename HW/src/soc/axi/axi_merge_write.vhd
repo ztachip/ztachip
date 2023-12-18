@@ -92,6 +92,7 @@ entity axi_merge_write is
       aximaster_awvalid_out        : OUT axi_awvalid_t;
       aximaster_wvalid_out         : OUT axi_wvalid_t;
       aximaster_wdata_out          : OUT axi_wdata64_t;
+      aximaster_wdata_mask_out     : OUT std_logic_vector(1 downto 0);
       aximaster_wlast_out          : OUT axi_wlast_t;
       aximaster_wstrb_out          : OUT axi_wstrb8_t;
       aximaster_awready_in         : IN axi_awready_t;
@@ -163,6 +164,7 @@ SIGNAL master_awlen:axi_awlen_t;
 SIGNAL master_awvalid:axi_awvalid_t;
 SIGNAL master_wvalid:axi_wvalid_t;
 SIGNAL master_wdata:axi_wdata64_t;
+SIGNAL master_wdata_mask:std_logic_vector(1 downto 0);
 SIGNAL master_wlast:axi_wlast_t;
 SIGNAL master_wstrb:axi_wstrb8_t;
 SIGNAL master_awready:axi_awready_t;
@@ -210,6 +212,7 @@ aximaster_awlen_out <= master_awlen;
 aximaster_awvalid_out <= master_awvalid and (not congest);
 aximaster_wvalid_out <= master_wvalid;
 aximaster_wdata_out <= master_wdata;
+aximaster_wdata_mask_out <= master_wdata_mask;
 aximaster_wlast_out <= master_wlast;
 aximaster_wstrb_out <= master_wstrb;
 master_awready <= aximaster_awready_in and (not congest);
@@ -518,9 +521,13 @@ begin
       if(pend_data_read(MAX_SLAVE_PORT+1)='0') then
          master_wstrb(3 downto 0) <= slave_wstrbs(S0);
          master_wstrb(7 downto 4) <= (others=>'0');
+         master_wdata_mask(0) <= '1';
+         master_wdata_mask(1) <= '0';
       else
          master_wstrb(3 downto 0) <= (others=>'0');
          master_wstrb(7 downto 4) <= slave_wstrbs(S0);
+         master_wdata_mask(0) <= '0';
+         master_wdata_mask(1) <= '1';
       end if;
       slave_wreadys(S0) <= master_wready;
       pend_data_rd <= master_wready;
@@ -532,9 +539,13 @@ begin
       if(pend_data_read(MAX_SLAVE_PORT+1)='0') then
          master_wstrb(3 downto 0) <= slave_wstrbs(S1);
          master_wstrb(7 downto 4) <= (others=>'0');
+         master_wdata_mask(0) <= '1';
+         master_wdata_mask(1) <= '0';
       else
          master_wstrb(3 downto 0) <= (others=>'0');
          master_wstrb(7 downto 4) <= slave_wstrbs(S1);
+         master_wdata_mask(0) <= '0';
+         master_wdata_mask(1) <= '1';
       end if;
       slave_wreadys(S1) <= master_wready; 
       pend_data_rd <= master_wready; 
@@ -546,9 +557,13 @@ begin
       if(pend_data_read(MAX_SLAVE_PORT+1)='0') then
          master_wstrb(3 downto 0) <= slave_wstrbs(S2);
          master_wstrb(7 downto 4) <= (others=>'0');
+         master_wdata_mask(0) <= '1';
+         master_wdata_mask(1) <= '0';
       else
          master_wstrb(3 downto 0) <= (others=>'0');
          master_wstrb(7 downto 4) <= slave_wstrbs(S2);
+         master_wdata_mask(0) <= '0';
+         master_wdata_mask(1) <= '1';
       end if;
       slave_wreadys(S2) <= master_wready; 
       pend_data_rd <= master_wready; 
@@ -558,13 +573,17 @@ begin
       master_wdata <= slavew_wdata;
       master_wstrb <= slavew_wstrb;
       slavew_wready <= master_wready; 
-      pend_data_rd <= master_wready; 
+      pend_data_rd <= master_wready;
+      master_wdata_mask(0) <= '1';
+      master_wdata_mask(1) <= '1'; 
    else
       master_wstrb <= (others=>'0');
       master_wdata <= (others=>'0');
       master_wlast <= '0';
       master_wvalid <= '0';
       pend_data_rd <= '0';
+      master_wdata_mask(0) <= '0';
+      master_wdata_mask(1) <= '0'; 
    end if;
 end process;
 

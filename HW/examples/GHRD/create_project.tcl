@@ -39,6 +39,7 @@ read_vhdl ../../src/soc/axi/axi_split_write.vhd
 read_vhdl ../../src/soc/axi/axi_stream_read.vhd
 read_vhdl ../../src/soc/axi/axi_stream_write.vhd
 read_vhdl ../../src/soc/axi/axi_write.vhd
+read_vhdl ../../src/soc/axi/axi_convert_64to32.vhd
 read_vhdl ../../src/soc/peripherals/camera.vhd
 read_vhdl ../../src/soc/peripherals/gpio.vhd
 read_vhdl ../../src/soc/peripherals/vga.vhd

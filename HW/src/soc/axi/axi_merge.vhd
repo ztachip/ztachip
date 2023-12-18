@@ -220,6 +220,7 @@ entity axi_merge is
       aximaster_rvalid_in     : IN axi_rvalid_t;
       aximaster_rlast_in      : IN axi_rlast_t;
       aximaster_rdata_in      : IN axi_rdata64_t;
+      aximaster_rdata_mask_out: OUT std_logic_vector(1 downto 0);
       aximaster_rresp_in      : IN axi_rresp_t;
       aximaster_arready_in    : IN axi_arready_t;
       aximaster_rready_out    : OUT axi_rready_t;
@@ -231,6 +232,7 @@ entity axi_merge is
       aximaster_awvalid_out        : OUT axi_awvalid_t;
       aximaster_wvalid_out         : OUT axi_wvalid_t;
       aximaster_wdata_out          : OUT axi_wdata64_t;
+      aximaster_wdata_mask_out     : OUT std_logic_vector(1 downto 0);
       aximaster_wlast_out          : OUT axi_wlast_t;
       aximaster_wstrb_out          : OUT axi_wstrb8_t;
       aximaster_awready_in         : IN axi_awready_t;
@@ -291,6 +293,7 @@ SIGNAL aximaster_rid:axi_rid_t;
 SIGNAL aximaster_rready:axi_rready_t;
 SIGNAL aximaster_arburst:axi_arburst_t;
 SIGNAL aximaster_arsize:axi_arsize_t;
+SIGNAL aximaster_rdata_mask:std_logic_vector(1 downto 0);
 
 SIGNAL axislave_awaddrs:axi_awaddrs_t(MAX_SLAVE_PORT-1 downto 0);
 SIGNAL axislave_awlens:axi_awlens_t(MAX_SLAVE_PORT-1 downto 0);
@@ -347,6 +350,7 @@ aximaster_arqos_out <= aximaster_arqos;
 aximaster_rready_out <= aximaster_rready;
 aximaster_arburst_out <= aximaster_arburst;
 aximaster_arsize_out <= aximaster_arsize;
+aximaster_rdata_mask_out <= aximaster_rdata_mask;
 
 axislave_clocks(0) <= axislave0_clock_in;
 axislave_araddrs(0) <= axislave0_araddr_in;
@@ -527,6 +531,8 @@ axi_merge_read_i: axi_merge_read
       aximaster_rvalid_in =>aximaster_rvalid,
       aximaster_rlast_in=>aximaster_rlast,
       aximaster_rdata_in =>aximaster_rdata,
+      aximaster_rdata_mask_out=>aximaster_rdata_mask,
+
       aximaster_arready_in =>aximaster_arready,
       aximaster_rready_out=>aximaster_rready, 
       aximaster_arburst_out=>aximaster_arburst,
@@ -596,6 +602,7 @@ axi_merge_write_i:axi_merge_write
       aximaster_awvalid_out=>aximaster_awvalid_out,
       aximaster_wvalid_out=>aximaster_wvalid_out,
       aximaster_wdata_out=>aximaster_wdata_out,
+      aximaster_wdata_mask_out=>aximaster_wdata_mask_out,
       aximaster_wlast_out=>aximaster_wlast_out,
       aximaster_wstrb_out=>aximaster_wstrb_out,
       aximaster_awready_in=>aximaster_awready_in,

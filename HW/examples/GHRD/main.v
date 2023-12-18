@@ -42,6 +42,11 @@
                               
 module main(
    
+   // Data width for external memory bus
+   // This should match with exmem_data_width_c defined in HW/src/config.vhd
+   
+   `define EXMEM_DATA_WIDTH 64 
+     
    // Reference clock/external reset
    
    input          sys_resetn,
@@ -112,17 +117,18 @@ module main(
    wire               SDRAM_bready;
    wire [1:0]         SDRAM_bresp;
    wire               SDRAM_bvalid;
-   wire [63:0]        SDRAM_rdata;
    wire               SDRAM_rlast;
    wire               SDRAM_rready;
    wire [1:0]         SDRAM_rresp;
    wire               SDRAM_rvalid;
-   wire [63:0]        SDRAM_wdata;
    wire               SDRAM_wlast;
    wire               SDRAM_wready;
-   wire [7:0]         SDRAM_wstrb;
    wire               SDRAM_wvalid;
 
+   wire [`EXMEM_DATA_WIDTH-1:0] SDRAM_rdata;
+   wire [`EXMEM_DATA_WIDTH-1:0] SDRAM_wdata;
+   wire [`EXMEM_DATA_WIDTH/8-1:0] SDRAM_wstrb;
+      
    wire [31:0]        VIDEO_tdata;
    wire               VIDEO_tlast;
    wire               VIDEO_tready;
@@ -138,7 +144,7 @@ module main(
 
       .clk_main(clk_main),
       .clk_x2_main(clk_x2_main),
-      .clk_reset(1),
+      .clk_reset(1), // Dont need reset for FPGA design. Register already initialized after programming.
 
       .led(led),
       .pushbutton(pushbutton),
@@ -159,6 +165,7 @@ module main(
       .camera_tvalid(camera_tvalid),
 
       .SDRAM_clk(SDRAM_clk),
+      .SDRAM_reset(1), // Dont need reset for FPGA design. Register already intialized after programming. 
       .SDRAM_araddr(SDRAM_araddr),
       .SDRAM_arburst(SDRAM_arburst),
       .SDRAM_arlen(SDRAM_arlen),

@@ -93,6 +93,7 @@ entity axi_merge_read is
       aximaster_rvalid_in     : IN axi_rvalid_t;
       aximaster_rlast_in      : IN axi_rlast_t;
       aximaster_rdata_in      : IN axi_rdata64_t;
+      aximaster_rdata_mask_out: OUT std_logic_vector(1 downto 0);
       aximaster_rresp_in      : IN axi_rresp_t;
       aximaster_arready_in    : IN axi_arready_t;
       aximaster_rready_out   : OUT axi_rready_t;
@@ -188,6 +189,8 @@ SIGNAL rsp_r:signed(read_pending_depth_c-1 downto 0);
 SIGNAL congest_r:std_logic;
 SIGNAL congest:std_logic;
 
+SIGNAL master_rdata_mask:std_logic_vector(1 downto 0);
+
 begin
 
 aximaster_araddr_out <= master_araddr;
@@ -207,6 +210,7 @@ master_arready <= aximaster_arready_in and (not congest);
 aximaster_rready_out <= master_rready;
 aximaster_arburst_out <= master_arburst;
 aximaster_arsize_out <= master_arsize;
+aximaster_rdata_mask_out <= master_rdata_mask;
 
 congest <= '1' when (congest_r='1' or pend_master_full='1' or aximaster_arready_in='0') else '0';
 
@@ -467,6 +471,28 @@ begin
       slavew_rdata <= (others=>'0');
       slavew_rresp <= (others=>'0');
    end if;
+end process;
+
+process(pend_master_empty,pend_master_read,align_r)
+begin
+if(pend_master_empty='0') then
+   if pend_master_read(SW)='1' then
+      master_rdata_mask(0) <= '1';
+      master_rdata_mask(1) <= '1';
+   else
+      if((align_r='0' and pend_master_read(MAX_SLAVE_PORT+1)='0') or
+         (align_r='1' and pend_master_read(MAX_SLAVE_PORT+1)='1')) then
+         master_rdata_mask(0) <= '1';
+         master_rdata_mask(1) <= '0';
+      else
+         master_rdata_mask(0) <= '0';
+         master_rdata_mask(1) <= '1';
+      end if; 
+   end if;
+else
+   master_rdata_mask(0) <= '0';
+   master_rdata_mask(1) <= '0';
+end if;
 end process;
 
 process(clock_in,reset_in)

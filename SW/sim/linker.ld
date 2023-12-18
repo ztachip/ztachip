@@ -11,7 +11,7 @@ OUTPUT_ARCH(riscv)
 ENTRY(crtStart)
 
 MEMORY {
-  RAM      (rwx): ORIGIN = 0x00000000, LENGTH = 32k 
+  RAM      (rwx): ORIGIN = 0x00000000, LENGTH = 128k 
 }
 
 _stack_size = 8000;
