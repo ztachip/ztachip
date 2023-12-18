@@ -15,23 +15,13 @@ The example provided with this repo is meant to be reference design and it is im
 
 ## Porting Software stack
 
+- Update NUM_PCORE in [SW/base/zta.h](../SW/base/zta.h) to be 8 for large version and 4 for small version. This must be the same value as pid_gen_max_c configured in [HW/src/config.vhd](../HW/src/config.vhd) 
 
-- Update NUM_PCORE [here](../SW/base/zta.h) to be 8 for large version and 4 for small version. This must be the same value as pid_gen_max_c configured above
+- Update linker file [SW/linker.ld](../SW/linker.ld) to match your SOC DDR memory size. The important parameters are RAM,_heap_size,_stack_size
 
+- Update boot-loader [SW/base/crt.S](../SW/base/crt.S) if your SOC has any special bootloading method. In the provided example, the boot loader is simple since it expects code/data to be already loaded by JTAG before execution begins.
 
-- Update linker file [linker.ld](../SW/linker.ld) to match your SOC DDR memory size. The important parameters are RAM,_heap_size,_stack_size
-
-
-- Update [boot loader](../SW/base/crt.S) if your SOC has any special bootloading method. In the provided example, the boot loader is simple since it expected code/data to be loaded via JTAG already.
-
-
-- Update [FLUSH_DATA_CACHE macro](../SW/src/soc.h) if you were to use other Riscv implementation besides [VexRiscv](https://github.com/SpinalHDL/VexRiscv). This macro is required occassionally to keep ztachip memory coherent with riscv. Unfortunately cache flushing is not well defined in riscv specs and different riscv implementation
-may have different method.
+- Your SOC may have different peripherals with new drivers to be implemented. All peripheral drivers are implemented in [SW/src/soc.cpp](../SW/src/soc.cpp)
 
 
-- Your SOC may have different peripherals with new drivers to be implemented. All peripheral interfaces to be implemented are [here](../SW/src/soc.cpp)
-
-
-- Recompile everything including compiler
- 
 
