@@ -29,6 +29,7 @@ USE std.textio.all;
 USE ieee.std_logic_textio.all;
 use IEEE.numeric_std.all;
 use work.ztachip_pkg.all;
+use work.config.all;
 
 entity main is
    port(   
@@ -45,8 +46,6 @@ end main;
 
 architecture rtl of main is
 
-constant SDRAM_WIDTH: integer:=32;
-
 signal SDRAM_araddr:std_logic_vector(31 downto 0);
 signal SDRAM_arburst:std_logic_vector(1 downto 0);
 signal SDRAM_arlen:std_logic_vector(7 downto 0);
@@ -62,15 +61,15 @@ signal SDRAM_awvalid:std_logic;
 signal SDRAM_bready:std_logic;
 signal SDRAM_bresp:std_logic_vector(1 downto 0);
 signal SDRAM_bvalid:std_logic;
-signal SDRAM_rdata:std_logic_vector(SDRAM_WIDTH-1 downto 0);
+signal SDRAM_rdata:std_logic_vector(exmem_data_width_c-1 downto 0);
 signal SDRAM_rlast:std_logic;
 signal SDRAM_rready:std_logic;
 signal SDRAM_rresp:std_logic_vector(1 downto 0);
 signal SDRAM_rvalid:std_logic;
-signal SDRAM_wdata:std_logic_vector(SDRAM_WIDTH-1 downto 0);
+signal SDRAM_wdata:std_logic_vector(exmem_data_width_c-1 downto 0);
 signal SDRAM_wlast:std_logic;
 signal SDRAM_wready:std_logic;
-signal SDRAM_wstrb:std_logic_vector(SDRAM_WIDTH/8-1 downto 0);
+signal SDRAM_wstrb:std_logic_vector(exmem_data_width_c/8-1 downto 0);
 signal SDRAM_wvalid:std_logic;
 
 signal led:std_logic_vector(3 downto 0);
@@ -95,8 +94,7 @@ camera_tvalid <= '0';
 
 soc_base_inst: soc_base 
    GENERIC MAP(
-      SIMULATION=>TRUE,
-      SDRAM_WIDTH=>SDRAM_WIDTH
+      SIMULATION=>TRUE
    )
    PORT MAP(
 
@@ -151,7 +149,7 @@ soc_base_inst: soc_base
       SDRAM_wvalid=>SDRAM_wvalid
    );
 
-GEN1:IF SDRAM_WIDTH=32 GENERATE
+GEN1:IF exmem_data_width_c=32 GENERATE
 mem32_inst:mem32
    port map(   
       SDRAM_clk=>clk_main,
@@ -184,7 +182,7 @@ mem32_inst:mem32
    );
 END GENERATE GEN1;
 
-GEN2:IF SDRAM_WIDTH=64 GENERATE
+GEN2:IF exmem_data_width_c=64 GENERATE
 mem64_inst:mem64
    port map(   
       SDRAM_clk=>clk_main,

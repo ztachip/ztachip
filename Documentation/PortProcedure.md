@@ -4,13 +4,13 @@ The example provided with this repo is meant to be reference design and it is im
 
 ## Porting Hardware stack
 
-- Update HW/src/config.vhd to match your platform/FPGA capabilties such as resource availability, memory block size, SDRAM bus width.
+- Update [HW/src/config.vhd](../HW/src/config.vhd) to match your platform/FPGA capabilties such as resource availability, memory block size, SDRAM bus width.
 
-- Compile all files under [here](../HW/src). They are generic VHDL codes without any special primitives so it is ready to be ported to any FPGA/ASIC
+- Compile all files under [HW/src](../HW/src). They are generic VHDL codes without any special primitives so it is ready to be ported to any FPGA/ASIC
 
 - Have a version of [wrapper library](../HW/platform) for your FPGA/ASIC. There are 6 components that you need to map to your FPGA/ASIC library. They are mostly just some basic memory block primitives so any FPGA/ASIC toolchain would have them. There is also a [wrapper version for simulation](../HW/platform/simulation) that you can reference for expected behaviour.
 
-- Reference [here](../HW/examples/GHRD/main.v) as example on how to integrate ztachip to your design.
+- Reference [HW/examples/GHRD/main.v](../HW/examples/GHRD/main.v). This is the top component of the reference design. Base on this example to implement the top component for your design. 
 
 
 ## Porting Software stack
