@@ -4,16 +4,11 @@ The example provided with this repo is meant to be reference design and it is im
 
 ## Porting Hardware stack
 
-
-- Depending on your FPGA/ASIC capacity, update pid_gen_max_c [here](../HW/src/config.vhd) to be 8 for large version or 4 for small version
-
-- Update min_mem_depth_c [here](../HW/src/config.vhd). This is the smallest depth that FPGA memory block can be configured to be. In the case that the minimum memory depth is too large, this will cause memory under utilization. When min_mem_depth_c is at least twice as large as the required depth, ztachip implementation will spread a word into 2 consecutive memory location but at half memory width and memory block will be running at twice clock speed since now an access will required twice as many accesses. This optimization greatly improve FPGA memory utilization.
+- Update HW/src/config.vhd to match your platform/FPGA capabilties such as resource availability, memory block size, SDRAM bus width.
 
 - Compile all files under [here](../HW/src). They are generic VHDL codes without any special primitives so it is ready to be ported to any FPGA/ASIC
 
-
 - Have a version of [wrapper library](../HW/platform) for your FPGA/ASIC. There are 6 components that you need to map to your FPGA/ASIC library. They are mostly just some basic memory block primitives so any FPGA/ASIC toolchain would have them. There is also a [wrapper version for simulation](../HW/platform/simulation) that you can reference for expected behaviour.
-
 
 - Reference [here](../HW/examples/GHRD/main.v) as example on how to integrate ztachip to your design.
 
