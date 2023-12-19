@@ -1,5 +1,5 @@
 -- Generator : SpinalHDL v1.9.3    git head : 029104c77a54c53f1edda327a3bea333f7d65fd9
--- Component : MyVexRiscv
+-- Component : VexRiscvForXilinxBscan2Jtag
 -- Git hash  : 5ef1bc775fdbe942875dd7906f22aa98e6cffaaf
 
 library IEEE;
@@ -7242,7 +7242,7 @@ use work.all;
 use work.pkg_enum.all;
 
 
-entity MyVexRiscv is
+entity VexRiscvForXilinxBscan2Jtag is
   port(
     io_asyncReset : in std_logic;
     io_mainClk : in std_logic;
@@ -7304,9 +7304,9 @@ entity MyVexRiscv is
     io_dBus_r_payload_resp : in std_logic_vector(1 downto 0);
     io_dBus_r_payload_last : in std_logic
   );
-end MyVexRiscv;
+end VexRiscvForXilinxBscan2Jtag;
 
-architecture arch of MyVexRiscv is
+architecture arch of VexRiscvForXilinxBscan2Jtag is
   signal system_cpu_dBus_cmd_ready : std_logic;
   signal system_cpu_dBus_rsp_payload_last : std_logic;
   signal system_cpu_dBus_rsp_payload_error : std_logic;
@@ -7375,9 +7375,9 @@ architecture arch of MyVexRiscv is
 
   signal resetCtrl_mainClkResetUnbuffered : std_logic;
   signal resetCtrl_systemClkResetCounter : unsigned(5 downto 0) := pkg_unsigned("000000");
-  signal zz_when_MyVexRiscv_l151 : unsigned(5 downto 0);
-  signal when_MyVexRiscv_l151 : std_logic;
-  signal when_MyVexRiscv_l155 : std_logic;
+  signal zz_when_VexRiscvForXilinxBscan2Jtag_l151 : unsigned(5 downto 0);
+  signal when_VexRiscvForXilinxBscan2Jtag_l151 : std_logic;
+  signal when_VexRiscvForXilinxBscan2Jtag_l155 : std_logic;
   signal resetCtrl_mainClkReset : std_logic;
   signal resetCtrl_systemReset : std_logic;
   signal system_timerInterrupt : std_logic;
@@ -7542,17 +7542,17 @@ begin
       io_mainClk => io_mainClk,
       resetCtrl_mainClkReset => resetCtrl_mainClkReset 
     );
-  process(when_MyVexRiscv_l151)
+  process(when_VexRiscvForXilinxBscan2Jtag_l151)
   begin
     resetCtrl_mainClkResetUnbuffered <= pkg_toStdLogic(false);
-    if when_MyVexRiscv_l151 = '1' then
+    if when_VexRiscvForXilinxBscan2Jtag_l151 = '1' then
       resetCtrl_mainClkResetUnbuffered <= pkg_toStdLogic(true);
     end if;
   end process;
 
-  zz_when_MyVexRiscv_l151(5 downto 0) <= pkg_unsigned("111111");
-  when_MyVexRiscv_l151 <= pkg_toStdLogic(resetCtrl_systemClkResetCounter /= zz_when_MyVexRiscv_l151);
-  when_MyVexRiscv_l155 <= io_asyncReset_buffercc_io_dataOut;
+  zz_when_VexRiscvForXilinxBscan2Jtag_l151(5 downto 0) <= pkg_unsigned("111111");
+  when_VexRiscvForXilinxBscan2Jtag_l151 <= pkg_toStdLogic(resetCtrl_systemClkResetCounter /= zz_when_VexRiscvForXilinxBscan2Jtag_l151);
+  when_VexRiscvForXilinxBscan2Jtag_l155 <= io_asyncReset_buffercc_io_dataOut;
   system_timerInterrupt <= pkg_toStdLogic(false);
   system_externalInterrupt <= pkg_toStdLogic(false);
   system_cpu_iBus_rsp_payload_error <= (not pkg_toStdLogic(io_iBus_r_payload_resp = pkg_stdLogicVector("00")));
@@ -7717,10 +7717,10 @@ begin
   process(io_mainClk)
   begin
     if rising_edge(io_mainClk) then
-      if when_MyVexRiscv_l151 = '1' then
+      if when_VexRiscvForXilinxBscan2Jtag_l151 = '1' then
         resetCtrl_systemClkResetCounter <= (resetCtrl_systemClkResetCounter + pkg_unsigned("000001"));
       end if;
-      if when_MyVexRiscv_l155 = '1' then
+      if when_VexRiscvForXilinxBscan2Jtag_l155 = '1' then
         resetCtrl_systemClkResetCounter <= pkg_unsigned("000000");
       end if;
     end if;

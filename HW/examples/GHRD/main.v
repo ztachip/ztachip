@@ -41,11 +41,23 @@
 //--------------------------------------------------------------------------
                               
 module main(
-   
-   // Data width for external memory bus
+
+   // External memory data bus is 64-bit wide
    // This should match with exmem_data_width_c defined in HW/src/config.vhd
-   
-   `define EXMEM_DATA_WIDTH 64 
+   `define EXMEM_DATA_WIDTH 64
+
+   // External memory data bus is 32-bit wide
+   // This should match with exmem_data_width_c defined in HW/src/config.vhd
+   //`define EXMEM_DATA_WIDTH 32
+
+   // RISCV is booted using Xilinx built-in JTAG
+   `define RISCV_MODE "RISCV_XILINX_BSCAN2_JTAG" 
+
+   // RISCV is booted using an external JTAG adapter
+   // `define RISCV_MODE "RISCV_JTAG" 
+
+   // RISCV is running in simulation mode.
+   // `define RISCV_MODE "RISCV_SIM" 
      
    // Reference clock/external reset
    
@@ -140,11 +152,22 @@ module main(
    wire [0:0]         camera_tuser;
    wire               camera_tvalid;
 
-   soc_base #(.SIMULATION(0)) soc_base_inst (
+   soc_base #(.RISCV(`RISCV_MODE)) soc_base_inst (
 
       .clk_main(clk_main),
       .clk_x2_main(clk_x2_main),
       .clk_reset(1), // Dont need reset for FPGA design. Register already initialized after programming.
+
+      // With this example, JTAG is using Xilinx built-in JTAG. So no external 
+      // JTAG adapter is required
+      // To boot with an external JTAG, TMS/TMO/TDO/TCLK need to be routed
+      // to GPIO pins that in turn connect to an external JTAG adapter
+      // To enable booting using external JTAG, set RISCV_MODE="RISCV_JTAG" above
+
+      .TMS(0),
+      .TDI(0),
+      .TDO(),
+      .TCK(0),
 
       .led(led),
       .pushbutton(pushbutton),

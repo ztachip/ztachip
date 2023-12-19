@@ -94,7 +94,7 @@ camera_tvalid <= '0';
 
 soc_base_inst: soc_base 
    GENERIC MAP(
-      SIMULATION=>TRUE
+      RISCV=>"RISCV_SIM"
    )
    PORT MAP(
 

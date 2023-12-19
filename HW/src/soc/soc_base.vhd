@@ -33,7 +33,7 @@ use work.ztachip_pkg.all;
 
 entity soc_base is
    generic (
-      SIMULATION : boolean
+      RISCV : string
    );
    port 
    (
@@ -43,6 +43,12 @@ entity soc_base is
    clk_x2_main     :IN STD_LOGIC;
    clk_reset       :IN STD_LOGIC;
 
+   -- JTAG signals
+   
+   TMS             :IN std_logic:='0';
+   TDI             :IN std_logic:='0';
+   TDO             :OUT std_logic;
+   TCK             :IN std_logic:='0';
 
    -- SDRAM axi signals
 
@@ -433,8 +439,8 @@ begin
    -- CPU. RISCV based on VexRiscv
    -- ------------------------------
 
-GEN1:if SIMULATION=TRUE generate                    
-   cpu_inst : MyVexRiscvForSim
+GEN1:if RISCV="RISCV_SIM" generate                    
+   cpu_inst : VexRiscvForSim
       port map 
       (
          io_asyncReset=>resetn,
@@ -500,10 +506,11 @@ GEN1:if SIMULATION=TRUE generate
          io_dBus_r_payload_resp=>dbus_rresp,
          io_dBus_r_payload_last=>dbus_rlast
       );
+      TDO <= '0';
 end generate GEN1;
 
-GEN2:if SIMULATION=FALSE generate
-   cpu_inst : MyVexRiscv 
+GEN2:if RISCV="RISCV_XILINX_BSCAN2_JTAG" generate
+   cpu_inst : VexRiscvForXilinxBscan2Jtag 
       port map 
       (
          io_asyncReset=>resetn,
@@ -569,7 +576,81 @@ GEN2:if SIMULATION=FALSE generate
          io_dBus_r_payload_resp=>dbus_rresp,
          io_dBus_r_payload_last=>dbus_rlast
       );
+      TDO <= '0';
 end generate GEN2;
+
+GEN3:if RISCV="RISCV_JTAG" generate
+   cpu_inst : VexRiscvForJtag 
+      port map 
+      (
+         io_asyncReset=>resetn,
+         io_mainClk=>clk_main,
+
+         io_iBus_ar_valid=>ibus_arvalid,
+         io_iBus_ar_ready=>ibus_arready,
+         io_iBus_ar_payload_addr=>ibus_araddr,
+         io_iBus_ar_payload_id=>ibus_arid,
+         io_iBus_ar_payload_region=>open,
+         io_iBus_ar_payload_len=>ibus_arlen,
+         io_iBus_ar_payload_size=>ibus_arsize,
+         io_iBus_ar_payload_burst=>ibus_arburst,
+         io_iBus_ar_payload_lock=>ibus_arlock,
+         io_iBus_ar_payload_cache=>ibus_arcache,
+         io_iBus_ar_payload_qos=>ibus_arqos,
+         io_iBus_ar_payload_prot=>ibus_arprot,
+         io_iBus_r_valid=>ibus_rvalid,
+         io_iBus_r_ready=>ibus_rready,
+         io_iBus_r_payload_data=>ibus_rdata,
+         io_iBus_r_payload_id=>unsigned(ibus_rid),
+         io_iBus_r_payload_resp=>ibus_rresp,
+         io_iBus_r_payload_last=>ibus_rlast, 
+
+         io_dBus_aw_valid=>dbus_awvalid,
+         io_dBus_aw_ready=>dbus_awready,
+         io_dBus_aw_payload_addr=>dbus_awaddr,
+         io_dBus_aw_payload_id=>dbus_awid,
+         io_dBus_aw_payload_region=>open,
+         io_dBus_aw_payload_len=>dbus_awlen,
+         io_dBus_aw_payload_size=>dbus_awsize,
+         io_dBus_aw_payload_burst=>dbus_awburst,
+         io_dBus_aw_payload_lock=>dbus_awlock,
+         io_dBus_aw_payload_cache=>dbus_awcache,
+         io_dBus_aw_payload_qos=>dbus_awqos,
+         io_dBus_aw_payload_prot=>dbus_awprot,
+         io_dBus_w_valid=>dbus_wvalid,
+         io_dBus_w_ready=>dbus_wready,
+         io_dBus_w_payload_data=>dbus_wdata,
+         io_dBus_w_payload_strb=>dbus_wstrb,
+         io_dBus_w_payload_last=>dbus_wlast,
+         io_dBus_b_valid=>dbus_bvalid,
+         io_dBus_b_ready=>dbus_bready,
+         io_dBus_b_payload_id=>unsigned(dbus_bid),
+         io_dBus_b_payload_resp=>dbus_bresp,
+
+         io_dBus_ar_valid=>dbus_arvalid,
+         io_dBus_ar_ready=>dbus_arready,
+         io_dBus_ar_payload_addr=>dbus_araddr,
+         io_dBus_ar_payload_id=>dbus_arid,
+         io_dBus_ar_payload_region=>open,
+         io_dBus_ar_payload_len=>dbus_arlen,
+         io_dBus_ar_payload_size=>dbus_arsize,
+         io_dBus_ar_payload_burst=>dbus_arburst,
+         io_dBus_ar_payload_lock=>dbus_arlock,
+         io_dBus_ar_payload_cache=>dbus_arcache,
+         io_dBus_ar_payload_qos=>dbus_arqos,
+         io_dBus_ar_payload_prot=>dbus_arprot,
+         io_dBus_r_valid=>dbus_rvalid,
+         io_dBus_r_ready=>dbus_rready,
+         io_dBus_r_payload_data=>dbus_rdata,
+         io_dBus_r_payload_id=>unsigned(dbus_rid),
+         io_dBus_r_payload_resp=>dbus_rresp,
+         io_dBus_r_payload_last=>dbus_rlast,
+         io_jtag_tms=>TMS,
+         io_jtag_tdi=>TDI,
+         io_jtag_tdo=>TDO,
+         io_jtag_tck=>TCK
+      );
+end generate GEN3;
 
 axi_split_i : axi_split
    GENERIC MAP (
@@ -1222,7 +1303,7 @@ axi_stream_read_inst : axi_stream_read
          axilite_bresp_out=>ZTA_CONTROL_bresp
    );
 
-GEN3: IF exmem_data_width_c=32 GENERATE
+GEN4: IF exmem_data_width_c=32 GENERATE
 axi_convert_64to32_inst:axi_convert_64to32
    port map
    (
@@ -1285,9 +1366,9 @@ axi_convert_64to32_inst:axi_convert_64to32
    SDRAM32_wstrb=>SDRAM_wstrb,
    SDRAM32_wvalid=>SDRAM_wvalid
    );
-END GENERATE GEN3;
+END GENERATE GEN4;
 
-GEN4:IF exmem_data_width_c=64 GENERATE
+GEN5:IF exmem_data_width_c=64 GENERATE
    SDRAM_araddr <= SDRAM_araddr2;
    SDRAM_arburst <= SDRAM_arburst2;
    SDRAM_arlen <= SDRAM_arlen2;
@@ -1313,5 +1394,5 @@ GEN4:IF exmem_data_width_c=64 GENERATE
    SDRAM_wready2 <= SDRAM_wready;
    SDRAM_wstrb <= SDRAM_wstrb2;
    SDRAM_wvalid <= SDRAM_wvalid2;
-END GENERATE GEN4;
+END GENERATE GEN5;
 end rtl;
