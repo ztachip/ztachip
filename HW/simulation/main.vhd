@@ -94,7 +94,8 @@ camera_tvalid <= '0';
 
 soc_base_inst: soc_base 
    GENERIC MAP(
-      RISCV=>"RISCV_SIM"
+      RISCV=>"RISCV_SIM",
+      TCM_DEPTH=>14
    )
    PORT MAP(
 

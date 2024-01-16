@@ -1695,280 +1695,331 @@ component axi_merge_write is
 	);
 end component;
 
-component axi_split_write is
-    generic (
-        NUM_MASTER_PORT     : integer:=3;
-        BAR_LO_BIT          : integer_array(2 downto 0);
-        BAR_HI_BIT          : integer_array(2 downto 0);
-        BAR                 : integer_array(2 downto 0)
-    );
-	port 
-	(
-        clock_in                   : in std_logic;
-        reset_in                   : in std_logic;
-            
-        axislave_awaddr_in         : IN axi_awaddr_t;
-        axislave_awlen_in          : IN axi_awlen_t;
-        axislave_awvalid_in        : IN axi_awvalid_t;
-        axislave_wvalid_in         : IN axi_wvalid_t;
-        axislave_wdata_in          : IN axi_wdata_t;
-        axislave_wlast_in          : IN axi_wlast_t;
-        axislave_wstrb_in          : IN axi_wstrb_t;
-        axislave_awready_out       : OUT axi_awready_t;
-        axislave_wready_out        : OUT axi_wready_t;
-        axislave_bresp_out         : OUT axi_bresp_t;
-        axislave_bid_out           : OUT axi_bid_t;
-        axislave_bvalid_out        : OUT axi_bvalid_t;
-        axislave_awburst_in        : IN axi_awburst_t;
-        axislave_awcache_in        : IN axi_awcache_t;
-        axislave_awid_in           : IN axi_awid_t;
-        axislave_awlock_in         : IN axi_awlock_t;
-        axislave_awprot_in         : IN axi_awprot_t;
-        axislave_awqos_in          : IN axi_awqos_t;
-        axislave_awsize_in         : IN axi_awsize_t;
-        axislave_bready_in         : IN axi_bready_t;
+component axi_split_read is
+   generic (
+      NUM_MASTER_PORT     : integer:=4;
+      NUM_MASTER_PORT_USED: integer:=4;
+      BAR_LO_BIT          : integer_array(3 downto 0);
+      BAR_HI_BIT          : integer_array(3 downto 0);
+      BAR                 : integer_array(3 downto 0)
+   );
+   port 
+   (
+      clock_in                : in std_logic;
+      reset_in                : in std_logic;
+               
+      -- Slave port 
+      axislave_araddr_in      : IN axi_araddr_t;
+      axislave_arlen_in       : IN axi_arlen_t;
+      axislave_arvalid_in     : IN axi_arvalid_t;
+      axislave_arid_in        : IN axi_arid_t;
+      axislave_arlock_in      : IN axi_arlock_t;
+      axislave_arcache_in     : IN axi_arcache_t;
+      axislave_arprot_in      : IN axi_arprot_t;
+      axislave_arqos_in       : IN axi_arqos_t;
+      axislave_rid_out        : OUT axi_rid_t;          
+      axislave_rvalid_out     : OUT axi_rvalid_t;
+      axislave_rlast_out      : OUT axi_rlast_t;
+      axislave_rdata_out      : OUT axi_rdata_t;
+      axislave_rresp_out      : OUT axi_rresp_t;
+      axislave_arready_out    : OUT axi_arready_t;
+      axislave_rready_in      : IN axi_rready_t;
+      axislave_arburst_in     : IN axi_arburst_t;
+      axislave_arsize_in      : IN axi_arsize_t;
 
-        aximaster_awaddrs_out      : OUT axi_awaddrs_t(NUM_MASTER_PORT-1 downto 0);
-        aximaster_awlens_out       : OUT axi_awlens_t(NUM_MASTER_PORT-1 downto 0);
-        aximaster_awvalids_out     : OUT axi_awvalids_t(NUM_MASTER_PORT-1 downto 0);
-        aximaster_wvalids_out      : OUT axi_wvalids_t(NUM_MASTER_PORT-1 downto 0);
-        aximaster_wdatas_out       : OUT axi_wdatas_t(NUM_MASTER_PORT-1 downto 0);
-        aximaster_wlasts_out       : OUT axi_wlasts_t(NUM_MASTER_PORT-1 downto 0);
-        aximaster_wstrbs_out       : OUT axi_wstrbs_t(NUM_MASTER_PORT-1 downto 0);
-        aximaster_awreadys_in      : IN axi_awreadys_t(NUM_MASTER_PORT-1 downto 0);
-        aximaster_wreadys_in       : IN axi_wreadys_t(NUM_MASTER_PORT-1 downto 0);
-        aximaster_bresps_in        : IN axi_bresps_t(NUM_MASTER_PORT-1 downto 0);
-        aximaster_bids_in          : IN axi_bids_t(NUM_MASTER_PORT-1 downto 0);
-        aximaster_bvalids_in       : IN axi_bvalids_t(NUM_MASTER_PORT-1 downto 0);
-        aximaster_awbursts_out     : OUT axi_awbursts_t(NUM_MASTER_PORT-1 downto 0);
-        aximaster_awcaches_out     : OUT axi_awcaches_t(NUM_MASTER_PORT-1 downto 0);
-        aximaster_awids_out        : OUT axi_awids_t(NUM_MASTER_PORT-1 downto 0);
-        aximaster_awlocks_out      : OUT axi_awlocks_t(NUM_MASTER_PORT-1 downto 0);
-        aximaster_awprots_out      : OUT axi_awprots_t(NUM_MASTER_PORT-1 downto 0);
-        aximaster_awqoss_out       : OUT axi_awqoss_t(NUM_MASTER_PORT-1 downto 0);
-        aximaster_awsizes_out      : OUT axi_awsizes_t(NUM_MASTER_PORT-1 downto 0);
-        aximaster_breadys_out      : OUT axi_breadys_t(NUM_MASTER_PORT-1 downto 0)        
-	);
+      -- Master ports
+      aximaster_araddrs_out   : OUT axi_araddrs_t(NUM_MASTER_PORT-1 downto 0);
+      aximaster_arlens_out    : OUT axi_arlens_t(NUM_MASTER_PORT-1 downto 0);
+      aximaster_arvalids_out  : OUT axi_arvalids_t(NUM_MASTER_PORT-1 downto 0);    
+      aximaster_arids_out     : OUT axi_arids_t(NUM_MASTER_PORT-1 downto 0);
+      aximaster_arlocks_out   : OUT axi_arlocks_t(NUM_MASTER_PORT-1 downto 0);
+      aximaster_arcaches_out  : OUT axi_arcaches_t(NUM_MASTER_PORT-1 downto 0);
+      aximaster_arprots_out   : OUT axi_arprots_t(NUM_MASTER_PORT-1 downto 0);
+      aximaster_arqoss_out    : OUT axi_arqoss_t(NUM_MASTER_PORT-1 downto 0);
+      aximaster_rids_in       : IN axi_rids_t(NUM_MASTER_PORT-1 downto 0):=(others=>(others=>'0'));
+      aximaster_rvalids_in    : IN axi_rvalids_t(NUM_MASTER_PORT-1 downto 0):=(others=>'0');
+      aximaster_rlasts_in     : IN axi_rlasts_t(NUM_MASTER_PORT-1 downto 0):=(others=>'0');
+      aximaster_rdatas_in     : IN axi_rdatas_t(NUM_MASTER_PORT-1 downto 0):=(others=>(others=>'0'));
+      aximaster_rresps_in     : IN axi_rresps_t(NUM_MASTER_PORT-1 downto 0):=(others=>(others=>'0'));
+      aximaster_arreadys_in   : IN axi_arreadys_t(NUM_MASTER_PORT-1 downto 0):=(others=>'0');
+      aximaster_rreadys_out   : OUT axi_rreadys_t(NUM_MASTER_PORT-1 downto 0);
+      aximaster_arbursts_out  : OUT axi_arbursts_t(NUM_MASTER_PORT-1 downto 0);
+      aximaster_arsizes_out   : OUT axi_arsizes_t(NUM_MASTER_PORT-1 downto 0)
+   );
 end component;
 
-component axi_split_read is
-    generic (
-        NUM_MASTER_PORT     : integer:=3;
-        BAR_LO_BIT          : integer_array(2 downto 0);
-        BAR_HI_BIT          : integer_array(2 downto 0);
-        BAR                 : integer_array(2 downto 0)
-    );
-	port 
-	(
-        clock_in                : in std_logic;
-        reset_in                : in std_logic;
-         
-        axislave_araddr_in      : IN axi_araddr_t;
-        axislave_arlen_in       : IN axi_arlen_t;
-        axislave_arvalid_in     : IN axi_arvalid_t;
-        axislave_arid_in        : IN axi_arid_t;
-        axislave_arlock_in      : IN axi_arlock_t;
-        axislave_arcache_in     : IN axi_arcache_t;
-        axislave_arprot_in      : IN axi_arprot_t;
-        axislave_arqos_in       : IN axi_arqos_t;
-        axislave_rid_out        : OUT axi_rid_t;          
-        axislave_rvalid_out     : OUT axi_rvalid_t;
-        axislave_rlast_out      : OUT axi_rlast_t;
-        axislave_rdata_out      : OUT axi_rdata_t;
-        axislave_rresp_out      : OUT axi_rresp_t;
-        axislave_arready_out    : OUT axi_arready_t;
-        axislave_rready_in      : IN axi_rready_t;
-        axislave_arburst_in     : IN axi_arburst_t;
-        axislave_arsize_in      : IN axi_arsize_t;
+component axi_split_write is
+   generic (
+      NUM_MASTER_PORT     : integer:=4;
+      NUM_MASTER_PORT_USED: integer:=4;
+      BAR_LO_BIT          : integer_array(3 downto 0);
+      BAR_HI_BIT          : integer_array(3 downto 0);
+      BAR                 : integer_array(3 downto 0)
+   );
+   port 
+   (
+      clock_in                   : in std_logic;
+      reset_in                   : in std_logic;
+            
+      axislave_awaddr_in         : IN axi_awaddr_t;
+      axislave_awlen_in          : IN axi_awlen_t;
+      axislave_awvalid_in        : IN axi_awvalid_t;
+      axislave_wvalid_in         : IN axi_wvalid_t;
+      axislave_wdata_in          : IN axi_wdata_t;
+      axislave_wlast_in          : IN axi_wlast_t;
+      axislave_wstrb_in          : IN axi_wstrb_t;
+      axislave_awready_out       : OUT axi_awready_t;
+      axislave_wready_out        : OUT axi_wready_t;
+      axislave_bresp_out         : OUT axi_bresp_t;
+      axislave_bid_out           : OUT axi_bid_t;
+      axislave_bvalid_out        : OUT axi_bvalid_t;
+      axislave_awburst_in        : IN axi_awburst_t;
+      axislave_awcache_in        : IN axi_awcache_t;
+      axislave_awid_in           : IN axi_awid_t;
+      axislave_awlock_in         : IN axi_awlock_t;
+      axislave_awprot_in         : IN axi_awprot_t;
+      axislave_awqos_in          : IN axi_awqos_t;
+      axislave_awsize_in         : IN axi_awsize_t;
+      axislave_bready_in         : IN axi_bready_t;
 
-        aximaster_araddrs_out   : OUT axi_araddrs_t(NUM_MASTER_PORT-1 downto 0);
-        aximaster_arlens_out    : OUT axi_arlens_t(NUM_MASTER_PORT-1 downto 0);
-        aximaster_arvalids_out  : OUT axi_arvalids_t(NUM_MASTER_PORT-1 downto 0);    
-        aximaster_arids_out     : OUT axi_arids_t(NUM_MASTER_PORT-1 downto 0);
-        aximaster_arlocks_out   : OUT axi_arlocks_t(NUM_MASTER_PORT-1 downto 0);
-        aximaster_arcaches_out  : OUT axi_arcaches_t(NUM_MASTER_PORT-1 downto 0);
-        aximaster_arprots_out   : OUT axi_arprots_t(NUM_MASTER_PORT-1 downto 0);
-        aximaster_arqoss_out    : OUT axi_arqoss_t(NUM_MASTER_PORT-1 downto 0);
-        aximaster_rids_in       : IN axi_rids_t(NUM_MASTER_PORT-1 downto 0);
-        aximaster_rvalids_in    : IN axi_rvalids_t(NUM_MASTER_PORT-1 downto 0);
-        aximaster_rlasts_in     : IN axi_rlasts_t(NUM_MASTER_PORT-1 downto 0);
-        aximaster_rdatas_in     : IN axi_rdatas_t(NUM_MASTER_PORT-1 downto 0);
-        aximaster_rresps_in     : IN axi_rresps_t(NUM_MASTER_PORT-1 downto 0);
-        aximaster_arreadys_in   : IN axi_arreadys_t(NUM_MASTER_PORT-1 downto 0);
-        aximaster_rreadys_out   : OUT axi_rreadys_t(NUM_MASTER_PORT-1 downto 0);
-        aximaster_arbursts_out  : OUT axi_arbursts_t(NUM_MASTER_PORT-1 downto 0);
-        aximaster_arsizes_out   : OUT axi_arsizes_t(NUM_MASTER_PORT-1 downto 0)
-	);
+      -- Slave port
+      aximaster_awaddrs_out      : OUT axi_awaddrs_t(NUM_MASTER_PORT-1 downto 0);
+      aximaster_awlens_out       : OUT axi_awlens_t(NUM_MASTER_PORT-1 downto 0);
+      aximaster_awvalids_out     : OUT axi_awvalids_t(NUM_MASTER_PORT-1 downto 0);
+      aximaster_wvalids_out      : OUT axi_wvalids_t(NUM_MASTER_PORT-1 downto 0);
+      aximaster_wdatas_out       : OUT axi_wdatas_t(NUM_MASTER_PORT-1 downto 0);
+      aximaster_wlasts_out       : OUT axi_wlasts_t(NUM_MASTER_PORT-1 downto 0);
+      aximaster_wstrbs_out       : OUT axi_wstrbs_t(NUM_MASTER_PORT-1 downto 0);
+      aximaster_awreadys_in      : IN axi_awreadys_t(NUM_MASTER_PORT-1 downto 0):=(others=>'0');
+      aximaster_wreadys_in       : IN axi_wreadys_t(NUM_MASTER_PORT-1 downto 0):=(others=>'0');
+      aximaster_bresps_in        : IN axi_bresps_t(NUM_MASTER_PORT-1 downto 0):=(others=>(others=>'0'));
+      aximaster_bids_in          : IN axi_bids_t(NUM_MASTER_PORT-1 downto 0):=(others=>(others=>'0'));
+      aximaster_bvalids_in       : IN axi_bvalids_t(NUM_MASTER_PORT-1 downto 0):=(others=>'0');
+      aximaster_awbursts_out     : OUT axi_awbursts_t(NUM_MASTER_PORT-1 downto 0);
+      aximaster_awcaches_out     : OUT axi_awcaches_t(NUM_MASTER_PORT-1 downto 0);
+      aximaster_awids_out        : OUT axi_awids_t(NUM_MASTER_PORT-1 downto 0);
+      aximaster_awlocks_out      : OUT axi_awlocks_t(NUM_MASTER_PORT-1 downto 0);
+      aximaster_awprots_out      : OUT axi_awprots_t(NUM_MASTER_PORT-1 downto 0);
+      aximaster_awqoss_out       : OUT axi_awqoss_t(NUM_MASTER_PORT-1 downto 0);
+      aximaster_awsizes_out      : OUT axi_awsizes_t(NUM_MASTER_PORT-1 downto 0);
+      aximaster_breadys_out      : OUT axi_breadys_t(NUM_MASTER_PORT-1 downto 0)        
+   );
 end component;
 
 component axi_split is
-    generic (
-        NUM_MASTER_PORT     : integer:=3;
-        BAR_LO_BIT          : integer_array(2 downto 0);
-        BAR_HI_BIT          : integer_array(2 downto 0);
-        BAR                 : integer_array(2 downto 0)
-    );
-	port 
-	(
-        clock_in               : in std_logic;
-        reset_in               : in std_logic;
+   generic (
+      NUM_MASTER_PORT       : integer:=4;
+      NUM_MASTER_READ_PORT  : integer:=4;
+      NUM_MASTER_WRITE_PORT : integer:=4;
+      BAR_LO_BIT            : integer_array(3 downto 0);
+      BAR_HI_BIT            : integer_array(3 downto 0);
+      BAR                   : integer_array(3 downto 0)
+   );
+   port 
+   (
+      clock_in               : in std_logic;
+      reset_in               : in std_logic;
 
-        axislave_araddr_in     : IN axi_araddr_t;
-        axislave_arlen_in      : IN axi_arlen_t;
-        axislave_arvalid_in    : IN axi_arvalid_t;     
-        axislave_arid_in       : IN axi_arid_t;
-        axislave_arlock_in     : IN axi_arlock_t;
-        axislave_arcache_in    : IN axi_arcache_t;
-        axislave_arprot_in     : IN axi_arprot_t;
-        axislave_arqos_in      : IN axi_arqos_t;
-        axislave_rid_out       : OUT axi_rid_t;
-        axislave_rvalid_out    : OUT axi_rvalid_t;
-        axislave_rlast_out     : OUT axi_rlast_t;
-        axislave_rdata_out     : OUT axi_rdata_t;
-        axislave_rresp_out     : OUT axi_rresp_t;
-        axislave_arready_out   : OUT axi_arready_t;
-        axislave_rready_in     : IN axi_rready_t;
-        axislave_arburst_in    : IN axi_arburst_t;
-        axislave_arsize_in     : IN axi_arsize_t;
-        
-        axislave_awaddr_in     : IN axi_awaddr_t;
-        axislave_awlen_in      : IN axi_awlen_t;
-        axislave_awvalid_in    : IN axi_awvalid_t;
-        axislave_wvalid_in     : IN axi_wvalid_t;
-        axislave_wdata_in      : IN axi_wdata_t;
-        axislave_wlast_in      : IN axi_wlast_t;
-        axislave_wstrb_in      : IN axi_wstrb_t;
-        axislave_awready_out   : OUT axi_awready_t;
-        axislave_wready_out    : OUT axi_wready_t;
-        axislave_bresp_out     : OUT axi_bresp_t;
-        axislave_bid_out       : OUT axi_bid_t;
-        axislave_bvalid_out    : OUT axi_bvalid_t;
-        axislave_awburst_in    : IN axi_awburst_t;
-        axislave_awcache_in    : IN axi_awcache_t;
-        axislave_awid_in       : IN axi_awid_t;
-        axislave_awlock_in     : IN axi_awlock_t;
-        axislave_awprot_in     : IN axi_awprot_t;
-        axislave_awqos_in      : IN axi_awqos_t;
-        axislave_awsize_in     : IN axi_awsize_t;
-        axislave_bready_in     : IN axi_bready_t;
-                             
-        aximaster0_araddr_out  : OUT axi_araddr_t;
-        aximaster0_arlen_out   : OUT axi_arlen_t;
-        aximaster0_arvalid_out : OUT axi_arvalid_t;
-        aximaster0_arid_out    : OUT axi_arid_t;
-        aximaster0_arlock_out  : OUT axi_arlock_t;
-        aximaster0_arcache_out : OUT axi_arcache_t;
-        aximaster0_arprot_out  : OUT axi_arprot_t;
-        aximaster0_arqos_out   : OUT axi_arqos_t;
-        aximaster0_rid_in      : IN axi_rid_t;              
-        aximaster0_rvalid_in   : IN axi_rvalid_t;
-        aximaster0_rlast_in    : IN axi_rlast_t;
-        aximaster0_rdata_in    : IN axi_rdata_t;
-        aximaster0_rresp_in    : IN axi_rresp_t;
-        aximaster0_arready_in  : IN axi_arready_t;
-        aximaster0_rready_out  : OUT axi_rready_t;
-        aximaster0_arburst_out : OUT axi_arburst_t;
-        aximaster0_arsize_out  : OUT axi_arsize_t;
-        
-        aximaster0_awaddr_out  : OUT axi_awaddr_t;
-        aximaster0_awlen_out   : OUT axi_awlen_t;
-        aximaster0_awvalid_out : OUT axi_awvalid_t;
-        aximaster0_wvalid_out  : OUT axi_wvalid_t;
-        aximaster0_wdata_out   : OUT axi_wdata_t;
-        aximaster0_wlast_out   : OUT axi_wlast_t;
-        aximaster0_wstrb_out   : OUT axi_wstrb_t;
-        aximaster0_awready_in  : IN axi_awready_t;
-        aximaster0_wready_in   : IN axi_wready_t;
-        aximaster0_bresp_in    : IN axi_bresp_t;
-        aximaster0_bid_in      : IN axi_bid_t;
-        aximaster0_bvalid_in   : IN axi_bvalid_t;
-        aximaster0_awburst_out : OUT axi_awburst_t;
-        aximaster0_awcache_out : OUT axi_awcache_t;
-        aximaster0_awid_out    : OUT axi_awid_t;
-        aximaster0_awlock_out  : OUT axi_awlock_t;
-        aximaster0_awprot_out  : OUT axi_awprot_t;
-        aximaster0_awqos_out   : OUT axi_awqos_t;
-        aximaster0_awsize_out  : OUT axi_awsize_t;
-        aximaster0_bready_out  : OUT axi_bready_t;
-        
-        aximaster1_araddr_out  : OUT axi_araddr_t;
-        aximaster1_arlen_out   : OUT axi_arlen_t;
-        aximaster1_arvalid_out : OUT axi_arvalid_t;
-        aximaster1_arid_out    : OUT axi_arid_t;
-        aximaster1_arlock_out  : OUT axi_arlock_t;
-        aximaster1_arcache_out : OUT axi_arcache_t;
-        aximaster1_arprot_out  : OUT axi_arprot_t;
-        aximaster1_arqos_out   : OUT axi_arqos_t;
-        aximaster1_rid_in      : IN axi_rid_t;              
-        aximaster1_rvalid_in   : IN axi_rvalid_t;
-        aximaster1_rlast_in    : IN axi_rlast_t;
-        aximaster1_rdata_in    : IN axi_rdata_t;
-        aximaster1_rresp_in    : IN axi_rresp_t;
-        aximaster1_arready_in  : IN axi_arready_t;
-        aximaster1_rready_out  : OUT axi_rready_t;
-        aximaster1_arburst_out : OUT axi_arburst_t;
-        aximaster1_arsize_out  : OUT axi_arsize_t;
-        
-        aximaster1_awaddr_out  : OUT axi_awaddr_t;
-        aximaster1_awlen_out   : OUT axi_awlen_t;
-        aximaster1_awvalid_out : OUT axi_awvalid_t;
-        aximaster1_wvalid_out  : OUT axi_wvalid_t;
-        aximaster1_wdata_out   : OUT axi_wdata_t;
-        aximaster1_wlast_out   : OUT axi_wlast_t;
-        aximaster1_wstrb_out   : OUT axi_wstrb_t;
-        aximaster1_awready_in  : IN axi_awready_t;
-        aximaster1_wready_in   : IN axi_wready_t;
-        aximaster1_bresp_in    : IN axi_bresp_t;
-        aximaster1_bid_in      : IN axi_bid_t;
-        aximaster1_bvalid_in   : IN axi_bvalid_t;
-        aximaster1_awburst_out : OUT axi_awburst_t;
-        aximaster1_awcache_out : OUT axi_awcache_t;
-        aximaster1_awid_out    : OUT axi_awid_t;
-        aximaster1_awlock_out  : OUT axi_awlock_t;
-        aximaster1_awprot_out  : OUT axi_awprot_t;
-        aximaster1_awqos_out   : OUT axi_awqos_t;
-        aximaster1_awsize_out  : OUT axi_awsize_t;
-        aximaster1_bready_out  : OUT axi_bready_t;
-        
-        aximaster2_araddr_out  : OUT axi_araddr_t;
-        aximaster2_arlen_out   : OUT axi_arlen_t;
-        aximaster2_arvalid_out : OUT axi_arvalid_t;
-        aximaster2_arid_out    : OUT axi_arid_t;
-        aximaster2_arlock_out  : OUT axi_arlock_t;
-        aximaster2_arcache_out : OUT axi_arcache_t;
-        aximaster2_arprot_out  : OUT axi_arprot_t;
-        aximaster2_arqos_out   : OUT axi_arqos_t;
-        aximaster2_rid_in      : IN axi_rid_t;              
-        aximaster2_rvalid_in   : IN axi_rvalid_t;
-        aximaster2_rlast_in    : IN axi_rlast_t;
-        aximaster2_rdata_in    : IN axi_rdata_t;
-        aximaster2_rresp_in    : IN axi_rresp_t;
-        aximaster2_arready_in  : IN axi_arready_t;
-        aximaster2_rready_out  : OUT axi_rready_t;
-        aximaster2_arburst_out : OUT axi_arburst_t;
-        aximaster2_arsize_out  : OUT axi_arsize_t;
-        
-        aximaster2_awaddr_out  : OUT axi_awaddr_t;
-        aximaster2_awlen_out   : OUT axi_awlen_t;
-        aximaster2_awvalid_out : OUT axi_awvalid_t;
-        aximaster2_wvalid_out  : OUT axi_wvalid_t;
-        aximaster2_wdata_out   : OUT axi_wdata_t;
-        aximaster2_wlast_out   : OUT axi_wlast_t;
-        aximaster2_wstrb_out   : OUT axi_wstrb_t;
-        aximaster2_awready_in  : IN axi_awready_t;
-        aximaster2_wready_in   : IN axi_wready_t;
-        aximaster2_bresp_in    : IN axi_bresp_t;
-        aximaster2_bid_in      : IN axi_bid_t;
-        aximaster2_bvalid_in   : IN axi_bvalid_t;
-        aximaster2_awburst_out : OUT axi_awburst_t;
-        aximaster2_awcache_out : OUT axi_awcache_t;
-        aximaster2_awid_out    : OUT axi_awid_t;
-        aximaster2_awlock_out  : OUT axi_awlock_t;
-        aximaster2_awprot_out  : OUT axi_awprot_t;
-        aximaster2_awqos_out   : OUT axi_awqos_t;
-        aximaster2_awsize_out  : OUT axi_awsize_t;
-        aximaster2_bready_out  : OUT axi_bready_t
-	);
+      -- Slave port
+      axislave_araddr_in     : IN axi_araddr_t;
+      axislave_arlen_in      : IN axi_arlen_t;
+      axislave_arvalid_in    : IN axi_arvalid_t;     
+      axislave_arid_in       : IN axi_arid_t;
+      axislave_arlock_in     : IN axi_arlock_t;
+      axislave_arcache_in    : IN axi_arcache_t;
+      axislave_arprot_in     : IN axi_arprot_t;
+      axislave_arqos_in      : IN axi_arqos_t;
+      axislave_rid_out       : OUT axi_rid_t;
+      axislave_rvalid_out    : OUT axi_rvalid_t;
+      axislave_rlast_out     : OUT axi_rlast_t;
+      axislave_rdata_out     : OUT axi_rdata_t;
+      axislave_rresp_out     : OUT axi_rresp_t;
+      axislave_arready_out   : OUT axi_arready_t;
+      axislave_rready_in     : IN axi_rready_t;
+      axislave_arburst_in    : IN axi_arburst_t;
+      axislave_arsize_in     : IN axi_arsize_t;
+
+      axislave_awaddr_in     : IN axi_awaddr_t:=(others=>'0');
+      axislave_awlen_in      : IN axi_awlen_t:=(others=>'0');
+      axislave_awvalid_in    : IN axi_awvalid_t:='0';
+      axislave_wvalid_in     : IN axi_wvalid_t:='0';
+      axislave_wdata_in      : IN axi_wdata_t:=(others=>'0');
+      axislave_wlast_in      : IN axi_wlast_t:='0';
+      axislave_wstrb_in      : IN axi_wstrb_t:=(others=>'0');
+      axislave_awready_out   : OUT axi_awready_t;
+      axislave_wready_out    : OUT axi_wready_t;
+      axislave_bresp_out     : OUT axi_bresp_t;
+      axislave_bid_out       : OUT axi_bid_t;
+      axislave_bvalid_out    : OUT axi_bvalid_t;
+      axislave_awburst_in    : IN axi_awburst_t:=(others=>'0');
+      axislave_awcache_in    : IN axi_awcache_t:=(others=>'0');
+      axislave_awid_in       : IN axi_awid_t:=(others=>'0');
+      axislave_awlock_in     : IN axi_awlock_t:=(others=>'0');
+      axislave_awprot_in     : IN axi_awprot_t:=(others=>'0');
+      axislave_awqos_in      : IN axi_awqos_t:=(others=>'0');
+      axislave_awsize_in     : IN axi_awsize_t:=(others=>'0');
+      axislave_bready_in     : IN axi_bready_t:='0';
+                           
+      -- Master port #0
+      aximaster0_araddr_out  : OUT axi_araddr_t;
+      aximaster0_arlen_out   : OUT axi_arlen_t;
+      aximaster0_arvalid_out : OUT axi_arvalid_t;
+      aximaster0_arid_out    : OUT axi_arid_t;
+      aximaster0_arlock_out  : OUT axi_arlock_t;
+      aximaster0_arcache_out : OUT axi_arcache_t;
+      aximaster0_arprot_out  : OUT axi_arprot_t;
+      aximaster0_arqos_out   : OUT axi_arqos_t;
+      aximaster0_rid_in      : IN axi_rid_t:=(others=>'0');              
+      aximaster0_rvalid_in   : IN axi_rvalid_t:='0';
+      aximaster0_rlast_in    : IN axi_rlast_t:='0';
+      aximaster0_rdata_in    : IN axi_rdata_t:=(others=>'0');
+      aximaster0_rresp_in    : IN axi_rresp_t:=(others=>'0');
+      aximaster0_arready_in  : IN axi_arready_t:='0';
+      aximaster0_rready_out  : OUT axi_rready_t;
+      aximaster0_arburst_out : OUT axi_arburst_t;
+      aximaster0_arsize_out  : OUT axi_arsize_t;
+
+      aximaster0_awaddr_out  : OUT axi_awaddr_t;
+      aximaster0_awlen_out   : OUT axi_awlen_t;
+      aximaster0_awvalid_out : OUT axi_awvalid_t;
+      aximaster0_wvalid_out  : OUT axi_wvalid_t;
+      aximaster0_wdata_out   : OUT axi_wdata_t;
+      aximaster0_wlast_out   : OUT axi_wlast_t;
+      aximaster0_wstrb_out   : OUT axi_wstrb_t;
+      aximaster0_awready_in  : IN axi_awready_t:='0';
+      aximaster0_wready_in   : IN axi_wready_t:='0';
+      aximaster0_bresp_in    : IN axi_bresp_t:=(others=>'0');
+      aximaster0_bid_in      : IN axi_bid_t:=(others=>'0');
+      aximaster0_bvalid_in   : IN axi_bvalid_t:='0';
+      aximaster0_awburst_out : OUT axi_awburst_t;
+      aximaster0_awcache_out : OUT axi_awcache_t;
+      aximaster0_awid_out    : OUT axi_awid_t;
+      aximaster0_awlock_out  : OUT axi_awlock_t;
+      aximaster0_awprot_out  : OUT axi_awprot_t;
+      aximaster0_awqos_out   : OUT axi_awqos_t;
+      aximaster0_awsize_out  : OUT axi_awsize_t;
+      aximaster0_bready_out  : OUT axi_bready_t;
+
+      -- Master port #1
+      aximaster1_araddr_out  : OUT axi_araddr_t;
+      aximaster1_arlen_out   : OUT axi_arlen_t;
+      aximaster1_arvalid_out : OUT axi_arvalid_t;
+      aximaster1_arid_out    : OUT axi_arid_t;
+      aximaster1_arlock_out  : OUT axi_arlock_t;
+      aximaster1_arcache_out : OUT axi_arcache_t;
+      aximaster1_arprot_out  : OUT axi_arprot_t;
+      aximaster1_arqos_out   : OUT axi_arqos_t;
+      aximaster1_rid_in      : IN axi_rid_t:=(others=>'0');              
+      aximaster1_rvalid_in   : IN axi_rvalid_t:='0';
+      aximaster1_rlast_in    : IN axi_rlast_t:='0';
+      aximaster1_rdata_in    : IN axi_rdata_t:=(others=>'0');
+      aximaster1_rresp_in    : IN axi_rresp_t:=(others=>'0');
+      aximaster1_arready_in  : IN axi_arready_t:='0';
+      aximaster1_rready_out  : OUT axi_rready_t;
+      aximaster1_arburst_out : OUT axi_arburst_t;
+      aximaster1_arsize_out  : OUT axi_arsize_t;
+
+      aximaster1_awaddr_out  : OUT axi_awaddr_t;
+      aximaster1_awlen_out   : OUT axi_awlen_t;
+      aximaster1_awvalid_out : OUT axi_awvalid_t;
+      aximaster1_wvalid_out  : OUT axi_wvalid_t;
+      aximaster1_wdata_out   : OUT axi_wdata_t;
+      aximaster1_wlast_out   : OUT axi_wlast_t;
+      aximaster1_wstrb_out   : OUT axi_wstrb_t;
+      aximaster1_awready_in  : IN axi_awready_t:='0';
+      aximaster1_wready_in   : IN axi_wready_t:='0';
+      aximaster1_bresp_in    : IN axi_bresp_t:=(others=>'0');
+      aximaster1_bid_in      : IN axi_bid_t:=(others=>'0');
+      aximaster1_bvalid_in   : IN axi_bvalid_t:='0';
+      aximaster1_awburst_out : OUT axi_awburst_t;
+      aximaster1_awcache_out : OUT axi_awcache_t;
+      aximaster1_awid_out    : OUT axi_awid_t;
+      aximaster1_awlock_out  : OUT axi_awlock_t;
+      aximaster1_awprot_out  : OUT axi_awprot_t;
+      aximaster1_awqos_out   : OUT axi_awqos_t;
+      aximaster1_awsize_out  : OUT axi_awsize_t;
+      aximaster1_bready_out  : OUT axi_bready_t;
+
+      -- Master port #2
+      aximaster2_araddr_out  : OUT axi_araddr_t;
+      aximaster2_arlen_out   : OUT axi_arlen_t;
+      aximaster2_arvalid_out : OUT axi_arvalid_t;
+      aximaster2_arid_out    : OUT axi_arid_t;
+      aximaster2_arlock_out  : OUT axi_arlock_t;
+      aximaster2_arcache_out : OUT axi_arcache_t;
+      aximaster2_arprot_out  : OUT axi_arprot_t;
+      aximaster2_arqos_out   : OUT axi_arqos_t;
+      aximaster2_rid_in      : IN axi_rid_t:=(others=>'0');              
+      aximaster2_rvalid_in   : IN axi_rvalid_t:='0';
+      aximaster2_rlast_in    : IN axi_rlast_t:='0';
+      aximaster2_rdata_in    : IN axi_rdata_t:=(others=>'0');
+      aximaster2_rresp_in    : IN axi_rresp_t:=(others=>'0');
+      aximaster2_arready_in  : IN axi_arready_t:='0';
+      aximaster2_rready_out  : OUT axi_rready_t;
+      aximaster2_arburst_out : OUT axi_arburst_t;
+      aximaster2_arsize_out  : OUT axi_arsize_t;
+
+      aximaster2_awaddr_out  : OUT axi_awaddr_t;
+      aximaster2_awlen_out   : OUT axi_awlen_t;
+      aximaster2_awvalid_out : OUT axi_awvalid_t;
+      aximaster2_wvalid_out  : OUT axi_wvalid_t;
+      aximaster2_wdata_out   : OUT axi_wdata_t;
+      aximaster2_wlast_out   : OUT axi_wlast_t;
+      aximaster2_wstrb_out   : OUT axi_wstrb_t;
+      aximaster2_awready_in  : IN axi_awready_t:='0';
+      aximaster2_wready_in   : IN axi_wready_t:='0';
+      aximaster2_bresp_in    : IN axi_bresp_t:=(others=>'0');
+      aximaster2_bid_in      : IN axi_bid_t:=(others=>'0');
+      aximaster2_bvalid_in   : IN axi_bvalid_t:='0';
+      aximaster2_awburst_out : OUT axi_awburst_t;
+      aximaster2_awcache_out : OUT axi_awcache_t;
+      aximaster2_awid_out    : OUT axi_awid_t;
+      aximaster2_awlock_out  : OUT axi_awlock_t;
+      aximaster2_awprot_out  : OUT axi_awprot_t;
+      aximaster2_awqos_out   : OUT axi_awqos_t;
+      aximaster2_awsize_out  : OUT axi_awsize_t;
+      aximaster2_bready_out  : OUT axi_bready_t;
+
+      -- Master port #3
+      aximaster3_araddr_out  : OUT axi_araddr_t;
+      aximaster3_arlen_out   : OUT axi_arlen_t;
+      aximaster3_arvalid_out : OUT axi_arvalid_t;
+      aximaster3_arid_out    : OUT axi_arid_t;
+      aximaster3_arlock_out  : OUT axi_arlock_t;
+      aximaster3_arcache_out : OUT axi_arcache_t;
+      aximaster3_arprot_out  : OUT axi_arprot_t;
+      aximaster3_arqos_out   : OUT axi_arqos_t;
+      aximaster3_rid_in      : IN axi_rid_t:=(others=>'0');              
+      aximaster3_rvalid_in   : IN axi_rvalid_t:='0';
+      aximaster3_rlast_in    : IN axi_rlast_t:='0';
+      aximaster3_rdata_in    : IN axi_rdata_t:=(others=>'0');
+      aximaster3_rresp_in    : IN axi_rresp_t:=(others=>'0');
+      aximaster3_arready_in  : IN axi_arready_t:='0';
+      aximaster3_rready_out  : OUT axi_rready_t;
+      aximaster3_arburst_out : OUT axi_arburst_t;
+      aximaster3_arsize_out  : OUT axi_arsize_t;
+
+      aximaster3_awaddr_out  : OUT axi_awaddr_t;
+      aximaster3_awlen_out   : OUT axi_awlen_t;
+      aximaster3_awvalid_out : OUT axi_awvalid_t;
+      aximaster3_wvalid_out  : OUT axi_wvalid_t;
+      aximaster3_wdata_out   : OUT axi_wdata_t;
+      aximaster3_wlast_out   : OUT axi_wlast_t;
+      aximaster3_wstrb_out   : OUT axi_wstrb_t;
+      aximaster3_awready_in  : IN axi_awready_t:='0';
+      aximaster3_wready_in   : IN axi_wready_t:='0';
+      aximaster3_bresp_in    : IN axi_bresp_t:=(others=>'0');
+      aximaster3_bid_in      : IN axi_bid_t:=(others=>'0');
+      aximaster3_bvalid_in   : IN axi_bvalid_t:='0';
+      aximaster3_awburst_out : OUT axi_awburst_t;
+      aximaster3_awcache_out : OUT axi_awcache_t;
+      aximaster3_awid_out    : OUT axi_awid_t;
+      aximaster3_awlock_out  : OUT axi_awlock_t;
+      aximaster3_awprot_out  : OUT axi_awprot_t;
+      aximaster3_awqos_out   : OUT axi_awqos_t;
+      aximaster3_awsize_out  : OUT axi_awsize_t;
+      aximaster3_bready_out  : OUT axi_bready_t
+   );
 end component;
 
 component axi_apb_bridge is
@@ -4189,85 +4240,190 @@ COMPONENT ialu IS
     );
 END COMPONENT;
 
+COMPONENT TCM_read is
+   generic(
+      RAM_DEPTH:integer
+   );
+   port(   
+      TCM_clk       :IN STD_LOGIC;
+      TCM_reset     :IN STD_LOGIC;
+      TCM_araddr    :IN STD_LOGIC_VECTOR(31 downto 0);
+      TCM_arburst   :IN STD_LOGIC_VECTOR(1 downto 0);
+      TCM_arlen     :IN STD_LOGIC_VECTOR(7 downto 0);
+      TCM_arready   :OUT STD_LOGIC;
+      TCM_arsize    :IN STD_LOGIC_VECTOR(2 downto 0);
+      TCM_arvalid   :IN STD_LOGIC;
+      TCM_rdata     :OUT STD_LOGIC_VECTOR(31 downto 0);
+      TCM_rlast     :OUT STD_LOGIC;
+      TCM_rready    :IN STD_LOGIC;
+      TCM_rresp     :OUT STD_LOGIC_VECTOR(1 downto 0);
+      TCM_rvalid    :OUT STD_LOGIC;
+
+      ram_q         :IN std_logic_vector(31 downto 0);
+      ram_raddr     :OUT std_logic_vector(RAM_DEPTH-3 downto 0)
+   );
+END COMPONENT;
+
+COMPONENT TCM_write is
+   generic(
+      RAM_DEPTH:integer
+   );
+   port(   
+      TCM_clk       :IN STD_LOGIC;
+      TCM_reset     :IN STD_LOGIC;
+
+      TCM_awaddr    :IN STD_LOGIC_VECTOR(31 downto 0);
+      TCM_awburst   :IN STD_LOGIC_VECTOR(1 downto 0);
+      TCM_awlen     :IN STD_LOGIC_VECTOR(7 downto 0);
+      TCM_awready   :OUT STD_LOGIC;
+      TCM_awsize    :IN STD_LOGIC_VECTOR(2 downto 0);
+      TCM_awvalid   :IN STD_LOGIC;
+      TCM_bready    :IN STD_LOGIC;
+      TCM_bresp     :OUT STD_LOGIC_VECTOR(1 downto 0);
+      TCM_bvalid    :OUT STD_LOGIC;
+      TCM_wdata     :IN STD_LOGIC_VECTOR(31 downto 0);
+      TCM_wlast     :IN STD_LOGIC;
+      TCM_wready    :OUT STD_LOGIC;
+      TCM_wstrb     :IN STD_LOGIC_VECTOR(3 downto 0);
+      TCM_wvalid    :IN STD_LOGIC;
+
+      ram_waddr     :OUT std_logic_vector(RAM_DEPTH-3 downto 0);
+      ram_wdata     :OUT std_logic_vector(31 downto 0);
+      ram_wren      :OUT std_logic;
+      ram_be        :OUT std_logic_vector(3 downto 0)
+   );
+END COMPONENT;
+
+COMPONENT TCM is
+   generic(
+      RAM_DEPTH:integer
+   );
+   port(   
+      TCM_clk       :IN STD_LOGIC;
+      TCM_clk_x2    :IN STD_LOGIC;
+      TCM_reset     :IN STD_LOGIC;
+
+      TCM_araddr1   :IN STD_LOGIC_VECTOR(31 downto 0);
+      TCM_arburst1  :IN STD_LOGIC_VECTOR(1 downto 0);
+      TCM_arlen1    :IN STD_LOGIC_VECTOR(7 downto 0);
+      TCM_arready1  :OUT STD_LOGIC;
+      TCM_arsize1   :IN STD_LOGIC_VECTOR(2 downto 0);
+      TCM_arvalid1  :IN STD_LOGIC;
+      TCM_rdata1    :OUT STD_LOGIC_VECTOR(31 downto 0);
+      TCM_rlast1    :OUT STD_LOGIC;
+      TCM_rready1   :IN STD_LOGIC;
+      TCM_rresp1    :OUT STD_LOGIC_VECTOR(1 downto 0);
+      TCM_rvalid1   :OUT STD_LOGIC;
+
+      TCM_araddr2   :IN STD_LOGIC_VECTOR(31 downto 0);
+      TCM_arburst2  :IN STD_LOGIC_VECTOR(1 downto 0);
+      TCM_arlen2    :IN STD_LOGIC_VECTOR(7 downto 0);
+      TCM_arready2  :OUT STD_LOGIC;
+      TCM_arsize2   :IN STD_LOGIC_VECTOR(2 downto 0);
+      TCM_arvalid2  :IN STD_LOGIC;
+      TCM_rdata2    :OUT STD_LOGIC_VECTOR(31 downto 0);
+      TCM_rlast2    :OUT STD_LOGIC;
+      TCM_rready2   :IN STD_LOGIC;
+      TCM_rresp2    :OUT STD_LOGIC_VECTOR(1 downto 0);
+      TCM_rvalid2   :OUT STD_LOGIC;
+
+      TCM_awaddr    :IN STD_LOGIC_VECTOR(31 downto 0);
+      TCM_awburst   :IN STD_LOGIC_VECTOR(1 downto 0);
+      TCM_awlen     :IN STD_LOGIC_VECTOR(7 downto 0);
+      TCM_awready   :OUT STD_LOGIC;
+      TCM_awsize    :IN STD_LOGIC_VECTOR(2 downto 0);
+      TCM_awvalid   :IN STD_LOGIC;
+      TCM_bready    :IN STD_LOGIC;
+      TCM_bresp     :OUT STD_LOGIC_VECTOR(1 downto 0);
+      TCM_bvalid    :OUT STD_LOGIC;
+      TCM_wdata     :IN STD_LOGIC_VECTOR(31 downto 0);
+      TCM_wlast     :IN STD_LOGIC;
+      TCM_wready    :OUT STD_LOGIC;
+      TCM_wstrb     :IN STD_LOGIC_VECTOR(3 downto 0);
+      TCM_wvalid    :IN STD_LOGIC
+   );
+END COMPONENT;
+
 -------------------------------------------------------------------
 -- soc_base
 -------------------------------------------------------------------
 
 component soc_base is
-   generic (
-        RISCV : string
-   );
-   port 
-   (
-   -- Reference clock/external reset
+    generic (
+        RISCV : string;
+        TCM_DEPTH : integer:=14 -- TCM size=2**TCM_DEPTH bytes
+    );
+    port 
+    (
+        -- Reference clock/external reset
 
-   clk_main        :IN STD_LOGIC;
-   clk_x2_main     :IN STD_LOGIC;
-   clk_reset       :IN STD_LOGIC;
+        clk_main        :IN STD_LOGIC;
+        clk_x2_main     :IN STD_LOGIC;
+        clk_reset       :IN STD_LOGIC;
 
-   -- JTAG signals
-   
-   TMS             :IN std_logic:='0';
-   TDI             :IN std_logic:='0';
-   TDO             :OUT std_logic;
-   TCK             :IN std_logic:='0';
+        -- JTAG signals
 
-   -- SDRAM axi signals
+        TMS             :IN std_logic:='0';
+        TDI             :IN std_logic:='0';
+        TDO             :OUT std_logic;
+        TCK             :IN std_logic:='0';
 
-   SDRAM_clk       :IN STD_LOGIC;
-   SDRAM_reset     :IN STD_LOGIC;
-   SDRAM_araddr    :OUT STD_LOGIC_VECTOR(31 downto 0);
-   SDRAM_arburst   :OUT STD_LOGIC_VECTOR(1 downto 0);
-   SDRAM_arlen     :OUT STD_LOGIC_VECTOR(7 downto 0);
-   SDRAM_arready   :IN STD_LOGIC;
-   SDRAM_arsize    :OUT STD_LOGIC_VECTOR(2 downto 0);
-   SDRAM_arvalid   :OUT STD_LOGIC;
-   SDRAM_awaddr    :OUT STD_LOGIC_VECTOR(31 downto 0);
-   SDRAM_awburst   :OUT STD_LOGIC_VECTOR(1 downto 0);
-   SDRAM_awlen     :OUT STD_LOGIC_VECTOR(7 downto 0);
-   SDRAM_awready   :IN STD_LOGIC;
-   SDRAM_awsize    :OUT STD_LOGIC_VECTOR(2 downto 0);
-   SDRAM_awvalid   :OUT STD_LOGIC;
-   SDRAM_bready    :OUT STD_LOGIC;
-   SDRAM_bresp     :IN STD_LOGIC_VECTOR(1 downto 0);
-   SDRAM_bvalid    :IN STD_LOGIC;
-   SDRAM_rdata     :IN STD_LOGIC_VECTOR(exmem_data_width_c-1 downto 0);
-   SDRAM_rlast     :IN STD_LOGIC;
-   SDRAM_rready    :OUT STD_LOGIC;
-   SDRAM_rresp     :IN STD_LOGIC_VECTOR(1 downto 0);
-   SDRAM_rvalid    :IN STD_LOGIC;
-   SDRAM_wdata     :OUT STD_LOGIC_VECTOR(exmem_data_width_c-1 downto 0);
-   SDRAM_wlast     :OUT STD_LOGIC;
-   SDRAM_wready    :IN STD_LOGIC;
-   SDRAM_wstrb     :OUT STD_LOGIC_VECTOR(exmem_data_width_c/8-1 downto 0);
-   SDRAM_wvalid    :OUT STD_LOGIC;
+        -- SDRAM axi signals
 
-   -- VIDEO streaming bus  
+        SDRAM_clk       :IN STD_LOGIC;
+        SDRAM_reset     :IN STD_LOGIC;
+        SDRAM_araddr    :OUT STD_LOGIC_VECTOR(31 downto 0);
+        SDRAM_arburst   :OUT STD_LOGIC_VECTOR(1 downto 0);
+        SDRAM_arlen     :OUT STD_LOGIC_VECTOR(7 downto 0);
+        SDRAM_arready   :IN STD_LOGIC;
+        SDRAM_arsize    :OUT STD_LOGIC_VECTOR(2 downto 0);
+        SDRAM_arvalid   :OUT STD_LOGIC;
+        SDRAM_awaddr    :OUT STD_LOGIC_VECTOR(31 downto 0);
+        SDRAM_awburst   :OUT STD_LOGIC_VECTOR(1 downto 0);
+        SDRAM_awlen     :OUT STD_LOGIC_VECTOR(7 downto 0);
+        SDRAM_awready   :IN STD_LOGIC;
+        SDRAM_awsize    :OUT STD_LOGIC_VECTOR(2 downto 0);
+        SDRAM_awvalid   :OUT STD_LOGIC;
+        SDRAM_bready    :OUT STD_LOGIC;
+        SDRAM_bresp     :IN STD_LOGIC_VECTOR(1 downto 0);
+        SDRAM_bvalid    :IN STD_LOGIC;
+        SDRAM_rdata     :IN STD_LOGIC_VECTOR(exmem_data_width_c-1 downto 0);
+        SDRAM_rlast     :IN STD_LOGIC;
+        SDRAM_rready    :OUT STD_LOGIC;
+        SDRAM_rresp     :IN STD_LOGIC_VECTOR(1 downto 0);
+        SDRAM_rvalid    :IN STD_LOGIC;
+        SDRAM_wdata     :OUT STD_LOGIC_VECTOR(exmem_data_width_c-1 downto 0);
+        SDRAM_wlast     :OUT STD_LOGIC;
+        SDRAM_wready    :IN STD_LOGIC;
+        SDRAM_wstrb     :OUT STD_LOGIC_VECTOR(exmem_data_width_c/8-1 downto 0);
+        SDRAM_wvalid    :OUT STD_LOGIC;
 
-   VIDEO_clk       :IN STD_LOGIC;
-   VIDEO_tdata     :OUT STD_LOGIC_VECTOR(31 downto 0);
-   VIDEO_tlast     :OUT STD_LOGIC;
-   VIDEO_tready    :IN STD_LOGIC;
-   VIDEO_tvalid    :OUT STD_LOGIC;
+        -- VIDEO streaming bus  
 
-   -- Camera streaming bus
+        VIDEO_clk       :IN STD_LOGIC;
+        VIDEO_tdata     :OUT STD_LOGIC_VECTOR(31 downto 0);
+        VIDEO_tlast     :OUT STD_LOGIC;
+        VIDEO_tready    :IN STD_LOGIC;
+        VIDEO_tvalid    :OUT STD_LOGIC;
 
-   camera_clk      :IN STD_LOGIC;
-   camera_tdata    :IN STD_LOGIC_VECTOR(31 downto 0);
-   camera_tlast    :IN STD_LOGIC;
-   camera_tready   :OUT STD_LOGIC;
-   camera_tvalid   :IN STD_LOGIC;
+        -- Camera streaming bus
 
-   -- GPIO signals
-   
-   led             :OUT STD_LOGIC_VECTOR(3 downto 0);
-   pushbutton      :IN STD_LOGIC_VECTOR(3 downto 0);
+        camera_clk      :IN STD_LOGIC;
+        camera_tdata    :IN STD_LOGIC_VECTOR(31 downto 0);
+        camera_tlast    :IN STD_LOGIC;
+        camera_tready   :OUT STD_LOGIC;
+        camera_tvalid   :IN STD_LOGIC;
 
-   -- UART Signals
-   
-   UART_TXD        :OUT STD_LOGIC;
-   UART_RXD        :IN STD_LOGIC
-   );
+        -- GPIO signals
+
+        led             :OUT STD_LOGIC_VECTOR(3 downto 0);
+        pushbutton      :IN STD_LOGIC_VECTOR(3 downto 0);
+
+        -- UART Signals
+
+        UART_TXD        :OUT STD_LOGIC;
+        UART_RXD        :IN STD_LOGIC
+    );
 end component;
 
 -------------------------------------------------------------------

@@ -33,7 +33,8 @@ use work.ztachip_pkg.all;
 
 entity soc_base is
    generic (
-      RISCV : string
+      RISCV : string;
+      TCM_DEPTH : integer:=14 -- TCM size=2**TCM_DEPTH bytes
    );
    port 
    (
@@ -137,6 +138,23 @@ architecture rtl of soc_base is
    SIGNAL ibus_rlast:STD_LOGIC;
    SIGNAL ibus_rvalid:STD_LOGIC;
 
+   SIGNAL ibus2_araddr:std_logic_vector(31 downto 0);
+   SIGNAL ibus2_arlen:std_logic_vector(7 downto 0);
+   SIGNAL ibus2_arsize:std_logic_vector(2 downto 0);
+   SIGNAL ibus2_arburst:STD_LOGIC_VECTOR(1 downto 0);
+   SIGNAL ibus2_arvalid:STD_LOGIC;
+   SIGNAL ibus2_arready:STD_LOGIC;
+   SIGNAL ibus2_arid:std_logic_vector(0 downto 0);
+   SIGNAL ibus2_arlock:STD_LOGIC_VECTOR(0 downto 0);
+   SIGNAL ibus2_arcache:STD_LOGIC_VECTOR(3 downto 0);
+   SIGNAL ibus2_arprot:STD_LOGIC_VECTOR(2 downto 0);
+   SIGNAL ibus2_arqos:STD_LOGIC_VECTOR(3 downto 0);
+   SIGNAL ibus2_rready:STD_LOGIC;
+   SIGNAL ibus2_rid:std_logic_vector(0 downto 0);
+   SIGNAL ibus2_rdata:STD_LOGIC_VECTOR(31 downto 0);
+   SIGNAL ibus2_rresp:STD_LOGIC_VECTOR(1 downto 0);
+   SIGNAL ibus2_rlast:STD_LOGIC;
+   SIGNAL ibus2_rvalid:STD_LOGIC;
 
    -- VexRiscv DBUS axi signals
 
@@ -335,7 +353,66 @@ architecture rtl of soc_base is
    SIGNAL ZTA_CONTROL_rlast:STD_LOGIC;
    SIGNAL ZTA_CONTROL_rvalid:STD_LOGIC;
    SIGNAL ZTA_CONTROL_rid:STD_LOGIC_VECTOR(0 downto 0);
-   
+
+   -- TCM bus
+
+   SIGNAL TCM_awaddr:STD_LOGIC_VECTOR(31 downto 0);
+   SIGNAL TCM_awlen:STD_LOGIC_VECTOR(7 downto 0);
+   SIGNAL TCM_awsize:STD_LOGIC_VECTOR(2 downto 0);
+   SIGNAL TCM_awburst:STD_LOGIC_VECTOR(1 downto 0);
+   SIGNAL TCM_awvalid:STD_LOGIC;
+   SIGNAL TCM_awready:STD_LOGIC;
+   SIGNAL TCM_awid:STD_LOGIC_VECTOR(0 downto 0);
+   SIGNAL TCM_awlock:STD_LOGIC_VECTOR(0 downto 0);
+   SIGNAL TCM_awcache:STD_LOGIC_VECTOR(3 downto 0);
+   SIGNAL TCM_awprot:STD_LOGIC_VECTOR(2 downto 0);
+   SIGNAL TCM_awqos:STD_LOGIC_VECTOR(3 downto 0);
+   SIGNAL TCM_wdata:STD_LOGIC_VECTOR(31 downto 0);
+   SIGNAL TCM_wstrb:STD_LOGIC_VECTOR(3 downto 0);
+   SIGNAL TCM_wlast:STD_LOGIC;
+   SIGNAL TCM_wvalid:STD_LOGIC;
+   SIGNAL TCM_wready:STD_LOGIC;
+   SIGNAL TCM_bready:STD_LOGIC;
+   SIGNAL TCM_bresp:STD_LOGIC_VECTOR(1 downto 0);
+   SIGNAL TCM_bvalid:STD_LOGIC;
+   SIGNAL TCM_bid:STD_LOGIC_VECTOR(0 downto 0);
+      
+   SIGNAL TCM_araddr1:STD_LOGIC_VECTOR(31 downto 0);
+   SIGNAL TCM_arlen1:STD_LOGIC_VECTOR(7 downto 0);
+   SIGNAL TCM_arsize1:STD_LOGIC_VECTOR(2 downto 0);
+   SIGNAL TCM_arburst1:STD_LOGIC_VECTOR(1 downto 0);
+   SIGNAL TCM_arvalid1:STD_LOGIC;
+   SIGNAL TCM_arready1:STD_LOGIC;
+   SIGNAL TCM_arid1:STD_LOGIC_VECTOR(0 downto 0);
+   SIGNAL TCM_arlock1:STD_LOGIC_VECTOR(0 downto 0);
+   SIGNAL TCM_arcache1:STD_LOGIC_VECTOR(3 downto 0);
+   SIGNAL TCM_arprot1:STD_LOGIC_VECTOR(2 downto 0);
+   SIGNAL TCM_arqos1:STD_LOGIC_VECTOR(3 downto 0);
+   SIGNAL TCM_rready1:STD_LOGIC;
+   SIGNAL TCM_rdata1:STD_LOGIC_VECTOR(31 downto 0);
+   SIGNAL TCM_rresp1:STD_LOGIC_VECTOR(1 downto 0);
+   SIGNAL TCM_rlast1:STD_LOGIC;
+   SIGNAL TCM_rvalid1:STD_LOGIC;
+   SIGNAL TCM_rid1:STD_LOGIC_VECTOR(0 downto 0);   
+
+   SIGNAL TCM_araddr2:STD_LOGIC_VECTOR(31 downto 0);
+   SIGNAL TCM_arlen2:STD_LOGIC_VECTOR(7 downto 0);
+   SIGNAL TCM_arsize2:STD_LOGIC_VECTOR(2 downto 0);
+   SIGNAL TCM_arburst2:STD_LOGIC_VECTOR(1 downto 0);
+   SIGNAL TCM_arvalid2:STD_LOGIC;
+   SIGNAL TCM_arready2:STD_LOGIC;
+   SIGNAL TCM_arid2:STD_LOGIC_VECTOR(0 downto 0);
+   SIGNAL TCM_arlock2:STD_LOGIC_VECTOR(0 downto 0);
+   SIGNAL TCM_arcache2:STD_LOGIC_VECTOR(3 downto 0);
+   SIGNAL TCM_arprot2:STD_LOGIC_VECTOR(2 downto 0);
+   SIGNAL TCM_arqos2:STD_LOGIC_VECTOR(3 downto 0);
+   SIGNAL TCM_rready2:STD_LOGIC;
+   SIGNAL TCM_rdata2:STD_LOGIC_VECTOR(31 downto 0);
+   SIGNAL TCM_rresp2:STD_LOGIC_VECTOR(1 downto 0);
+   SIGNAL TCM_rlast2:STD_LOGIC;
+   SIGNAL TCM_rvalid2:STD_LOGIC;
+   SIGNAL TCM_rid2:STD_LOGIC_VECTOR(0 downto 0);  
+
    -- ztachip data axi bus
       
    SIGNAL ZTA_DATA_araddr:STD_LOGIC_VECTOR(31 downto 0);
@@ -434,7 +511,8 @@ begin
    ZTA_CONTROL_rid <= (others=>'0');
    
    ZTA_CONTROL_bid <= (others=>'0');
-   
+
+
    -- -----------------------------
    -- CPU. RISCV based on VexRiscv
    -- ------------------------------
@@ -652,12 +730,83 @@ GEN3:if RISCV="RISCV_JTAG" generate
       );
 end generate GEN3;
 
-axi_split_i : axi_split
+axi_split_ibus_i : axi_split
    GENERIC MAP (
-      NUM_MASTER_PORT=>3,
-      BAR_LO_BIT=>(30,30,31),
-      BAR_HI_BIT=>(31,31,31),
-      BAR=>(2,3,0)
+      NUM_MASTER_PORT=>4,
+      NUM_MASTER_READ_PORT=>2,
+      NUM_MASTER_WRITE_PORT=>0,
+      BAR_LO_BIT=>(0,0,31,TCM_DEPTH),
+      BAR_HI_BIT=>(0,0,31,31),
+      BAR=>(0,0,0,0)
+   )
+   PORT MAP
+   (
+      clock_in=>clk_main,
+      reset_in=>clk_reset,
+
+      axislave_araddr_in=>std_logic_vector(ibus_araddr),
+      axislave_arlen_in=>std_logic_vector(ibus_arlen),
+      axislave_arvalid_in=>ibus_arvalid,
+      axislave_arid_in=>std_logic_vector(ibus_arid),
+      axislave_arlock_in=>ibus_arlock,
+      axislave_arcache_in=>ibus_arcache,
+      axislave_arprot_in=>ibus_arprot,
+      axislave_arqos_in=>ibus_arqos,
+      axislave_rid_out=>ibus_rid,
+      axislave_rvalid_out=>ibus_rvalid,
+      axislave_rlast_out=>ibus_rlast,
+      axislave_rdata_out=>ibus_rdata,
+      axislave_rresp_out=>ibus_rresp,
+      axislave_arready_out=>ibus_arready,
+      axislave_rready_in=>ibus_rready,
+      axislave_arburst_in=>ibus_arburst,
+      axislave_arsize_in=>std_logic_vector(ibus_arsize),
+                           
+      aximaster1_araddr_out=>ibus2_araddr,
+      aximaster1_arlen_out=>ibus2_arlen,
+      aximaster1_arvalid_out=>ibus2_arvalid,
+      aximaster1_arid_out=>ibus2_arid,
+      aximaster1_arlock_out=>ibus2_arlock,
+      aximaster1_arcache_out=>ibus2_arcache,
+      aximaster1_arprot_out=>ibus2_arprot,
+      aximaster1_arqos_out=>ibus2_arqos,
+      aximaster1_rid_in=>ibus2_rid,
+      aximaster1_rvalid_in=>ibus2_rvalid,
+      aximaster1_rlast_in=>ibus2_rlast,
+      aximaster1_rdata_in=>ibus2_rdata,
+      aximaster1_rresp_in=>ibus2_rresp,
+      aximaster1_arready_in=>ibus2_arready,
+      aximaster1_rready_out=>ibus2_rready,
+      aximaster1_arburst_out=>ibus2_arburst,
+      aximaster1_arsize_out=>ibus2_arsize,
+
+      aximaster0_araddr_out=>TCM_araddr2,
+      aximaster0_arlen_out=>TCM_arlen2,
+      aximaster0_arvalid_out=>TCM_arvalid2,
+      aximaster0_arid_out=>open,
+      aximaster0_arlock_out=>open,
+      aximaster0_arcache_out=>open,
+      aximaster0_arprot_out=>open,
+      aximaster0_arqos_out=>open,
+      aximaster0_rid_in=>(others=>'0'),
+      aximaster0_rvalid_in=>TCM_rvalid2,
+      aximaster0_rlast_in=>TCM_rlast2,
+      aximaster0_rdata_in=>TCM_rdata2,
+      aximaster0_rresp_in=>TCM_rresp2,
+      aximaster0_arready_in=>TCM_arready2,
+      aximaster0_rready_out=>TCM_rready2,
+      aximaster0_arburst_out=>TCM_arburst2,
+      aximaster0_arsize_out=>TCM_arsize2
+   );
+
+axi_split_dbus_i : axi_split
+   GENERIC MAP (
+      NUM_MASTER_PORT=>4,
+      NUM_MASTER_READ_PORT=>4,
+      NUM_MASTER_WRITE_PORT=>4,
+      BAR_LO_BIT=>(30,30,30,TCM_DEPTH),
+      BAR_HI_BIT=>(31,31,31,31),
+      BAR=>(0,2,3,0)
    )
    PORT MAP
    (
@@ -703,44 +852,44 @@ axi_split_i : axi_split
       axislave_awsize_in=>std_logic_vector(dbus_awsize),
       axislave_bready_in=>dbus_bready,
                            
-      aximaster0_araddr_out=>dbus2_araddr,
-      aximaster0_arlen_out=>dbus2_arlen,
-      aximaster0_arvalid_out=>dbus2_arvalid,
-      aximaster0_arid_out=>dbus2_arid,
-      aximaster0_arlock_out=>dbus2_arlock,
-      aximaster0_arcache_out=>dbus2_arcache,
-      aximaster0_arprot_out=>dbus2_arprot,
-      aximaster0_arqos_out=>dbus2_arqos,
-      aximaster0_rid_in=>dbus2_rid,
-      aximaster0_rvalid_in=>dbus2_rvalid,
-      aximaster0_rlast_in=>dbus2_rlast,
-      aximaster0_rdata_in=>dbus2_rdata,
-      aximaster0_rresp_in=>dbus2_rresp,
-      aximaster0_arready_in=>dbus2_arready,
-      aximaster0_rready_out=>dbus2_rready,
-      aximaster0_arburst_out=>dbus2_arburst,
-      aximaster0_arsize_out=>dbus2_arsize,
+      aximaster3_araddr_out=>dbus2_araddr,
+      aximaster3_arlen_out=>dbus2_arlen,
+      aximaster3_arvalid_out=>dbus2_arvalid,
+      aximaster3_arid_out=>dbus2_arid,
+      aximaster3_arlock_out=>dbus2_arlock,
+      aximaster3_arcache_out=>dbus2_arcache,
+      aximaster3_arprot_out=>dbus2_arprot,
+      aximaster3_arqos_out=>dbus2_arqos,
+      aximaster3_rid_in=>dbus2_rid,
+      aximaster3_rvalid_in=>dbus2_rvalid,
+      aximaster3_rlast_in=>dbus2_rlast,
+      aximaster3_rdata_in=>dbus2_rdata,
+      aximaster3_rresp_in=>dbus2_rresp,
+      aximaster3_arready_in=>dbus2_arready,
+      aximaster3_rready_out=>dbus2_rready,
+      aximaster3_arburst_out=>dbus2_arburst,
+      aximaster3_arsize_out=>dbus2_arsize,
 
-      aximaster0_awaddr_out=>dbus2_awaddr,
-      aximaster0_awlen_out=>dbus2_awlen,
-      aximaster0_awvalid_out=>dbus2_awvalid,
-      aximaster0_wvalid_out=>dbus2_wvalid,
-      aximaster0_wdata_out=>dbus2_wdata,
-      aximaster0_wlast_out=>dbus2_wlast,
-      aximaster0_wstrb_out=>dbus2_wstrb,
-      aximaster0_awready_in=>dbus2_awready,
-      aximaster0_wready_in=>dbus2_wready,
-      aximaster0_bresp_in=>dbus2_bresp,
-      aximaster0_bid_in=>dbus2_bid,
-      aximaster0_bvalid_in=>dbus2_bvalid,
-      aximaster0_awburst_out=>dbus2_awburst,
-      aximaster0_awcache_out=>dbus2_awcache,
-      aximaster0_awid_out=>dbus2_awid,
-      aximaster0_awlock_out=>dbus2_awlock,
-      aximaster0_awprot_out=>dbus2_awprot,
-      aximaster0_awqos_out=>dbus2_awqos,
-      aximaster0_awsize_out=>dbus2_awsize,
-      aximaster0_bready_out=>dbus2_bready,
+      aximaster3_awaddr_out=>dbus2_awaddr,
+      aximaster3_awlen_out=>dbus2_awlen,
+      aximaster3_awvalid_out=>dbus2_awvalid,
+      aximaster3_wvalid_out=>dbus2_wvalid,
+      aximaster3_wdata_out=>dbus2_wdata,
+      aximaster3_wlast_out=>dbus2_wlast,
+      aximaster3_wstrb_out=>dbus2_wstrb,
+      aximaster3_awready_in=>dbus2_awready,
+      aximaster3_wready_in=>dbus2_wready,
+      aximaster3_bresp_in=>dbus2_bresp,
+      aximaster3_bid_in=>dbus2_bid,
+      aximaster3_bvalid_in=>dbus2_bvalid,
+      aximaster3_awburst_out=>dbus2_awburst,
+      aximaster3_awcache_out=>dbus2_awcache,
+      aximaster3_awid_out=>dbus2_awid,
+      aximaster3_awlock_out=>dbus2_awlock,
+      aximaster3_awprot_out=>dbus2_awprot,
+      aximaster3_awqos_out=>dbus2_awqos,
+      aximaster3_awsize_out=>dbus2_awsize,
+      aximaster3_bready_out=>dbus2_bready,
 
       aximaster1_araddr_out=>apb_araddr,
       aximaster1_arlen_out=>apb_arlen,
@@ -818,7 +967,46 @@ axi_split_i : axi_split
       aximaster2_awprot_out=>ZTA_CONTROL_awprot,
       aximaster2_awqos_out=>ZTA_CONTROL_awqos,
       aximaster2_awsize_out=>ZTA_CONTROL_awsize,
-      aximaster2_bready_out=>ZTA_CONTROL_bready        
+      aximaster2_bready_out=>ZTA_CONTROL_bready,
+
+      aximaster0_araddr_out=>TCM_araddr1,
+      aximaster0_arlen_out=>TCM_arlen1,
+      aximaster0_arvalid_out=>TCM_arvalid1,
+      aximaster0_arid_out=>open,
+      aximaster0_arlock_out=>open,
+      aximaster0_arcache_out=>open,
+      aximaster0_arprot_out=>open,
+      aximaster0_arqos_out=>open,
+      aximaster0_rid_in=>(others=>'0'),
+      aximaster0_rvalid_in=>TCM_rvalid1,
+      aximaster0_rlast_in=>TCM_rlast1,
+      aximaster0_rdata_in=>TCM_rdata1,
+      aximaster0_rresp_in=>TCM_rresp1,
+      aximaster0_arready_in=>TCM_arready1,
+      aximaster0_rready_out=>TCM_rready1,
+      aximaster0_arburst_out=>TCM_arburst1,
+      aximaster0_arsize_out=>TCM_arsize1,
+
+      aximaster0_awaddr_out=>TCM_awaddr,
+      aximaster0_awlen_out=>TCM_awlen,
+      aximaster0_awvalid_out=>TCM_awvalid,
+      aximaster0_wvalid_out=>TCM_wvalid,
+      aximaster0_wdata_out=>TCM_wdata,
+      aximaster0_wlast_out=>TCM_wlast,
+      aximaster0_wstrb_out=>TCM_wstrb,
+      aximaster0_awready_in=>TCM_awready,
+      aximaster0_wready_in=>TCM_wready,
+      aximaster0_bresp_in=>TCM_bresp,
+      aximaster0_bid_in=>(others=>'0'),
+      aximaster0_bvalid_in=>TCM_bvalid,
+      aximaster0_awburst_out=>TCM_awburst,
+      aximaster0_awcache_out=>open,
+      aximaster0_awid_out=>open,
+      aximaster0_awlock_out=>open,
+      aximaster0_awprot_out=>open,
+      aximaster0_awqos_out=>open,
+      aximaster0_awsize_out=>TCM_awsize,
+      aximaster0_bready_out=>TCM_bready    
    );
 
 axi_merge_inst : axi_merge 
@@ -878,23 +1066,23 @@ axi_merge_inst : axi_merge
       axislavew_bready_in=>ZTA_DATA_bready,
 
       axislave1_clock_in=>clk_main,
-      axislave1_araddr_in=>std_logic_vector(ibus_araddr),
-      axislave1_arlen_in=>std_logic_vector(ibus_arlen),
-      axislave1_arvalid_in=>ibus_arvalid,
-      axislave1_arid_in=>std_logic_vector(ibus_arid),
-      axislave1_arlock_in=>ibus_arlock,
-      axislave1_arcache_in=>ibus_arcache,
-      axislave1_arprot_in=>ibus_arprot,
-      axislave1_arqos_in=>ibus_arqos,
-      axislave1_rid_out=>ibus_rid,
-      axislave1_rvalid_out=>ibus_rvalid,
-      axislave1_rlast_out=>ibus_rlast,
-      axislave1_rdata_out=>ibus_rdata,
-      axislave1_rresp_out=>ibus_rresp,
-      axislave1_arready_out=>ibus_arready,
-      axislave1_rready_in=>ibus_rready,
-      axislave1_arburst_in=>ibus_arburst,
-      axislave1_arsize_in=>std_logic_vector(ibus_arsize),
+      axislave1_araddr_in=>std_logic_vector(ibus2_araddr),
+      axislave1_arlen_in=>std_logic_vector(ibus2_arlen),
+      axislave1_arvalid_in=>ibus2_arvalid,
+      axislave1_arid_in=>std_logic_vector(ibus2_arid),
+      axislave1_arlock_in=>ibus2_arlock,
+      axislave1_arcache_in=>ibus2_arcache,
+      axislave1_arprot_in=>ibus2_arprot,
+      axislave1_arqos_in=>ibus2_arqos,
+      axislave1_rid_out=>ibus2_rid,
+      axislave1_rvalid_out=>ibus2_rvalid,
+      axislave1_rlast_out=>ibus2_rlast,
+      axislave1_rdata_out=>ibus2_rdata,
+      axislave1_rresp_out=>ibus2_rresp,
+      axislave1_arready_out=>ibus2_arready,
+      axislave1_rready_in=>ibus2_rready,
+      axislave1_arburst_in=>ibus2_arburst,
+      axislave1_arsize_in=>std_logic_vector(ibus2_arsize),
 
       axislave1_awaddr_in=>(others=>'0'),
       axislave1_awlen_in=>(others=>'0'),
@@ -1395,4 +1583,56 @@ GEN5:IF exmem_data_width_c=64 GENERATE
    SDRAM_wstrb <= SDRAM_wstrb2;
    SDRAM_wvalid <= SDRAM_wvalid2;
 END GENERATE GEN5;
+
+--- Instantiate tigh coupling memory block
+
+TCM_i: TCM
+   generic map(
+      RAM_DEPTH=>TCM_DEPTH
+   )
+   port map(   
+      TCM_clk=>clk_main,
+      TCM_clk_x2=>clk_x2_main,
+      TCM_reset=>clk_reset,
+
+      TCM_araddr1=>TCM_araddr1,
+      TCM_arburst1=>TCM_arburst1,
+      TCM_arlen1=>TCM_arlen1,
+      TCM_arready1=>TCM_arready1,
+      TCM_arsize1=>TCM_arsize1,
+      TCM_arvalid1=>TCM_arvalid1,
+      TCM_rdata1=>TCM_rdata1,
+      TCM_rlast1=>TCM_rlast1,
+      TCM_rready1=>TCM_rready1,
+      TCM_rresp1=>TCM_rresp1,
+      TCM_rvalid1=>TCM_rvalid1,
+
+      TCM_araddr2=>TCM_araddr2,
+      TCM_arburst2=>TCM_arburst2,
+      TCM_arlen2=>TCM_arlen2,
+      TCM_arready2=>TCM_arready2,
+      TCM_arsize2=>TCM_arsize2,
+      TCM_arvalid2=>TCM_arvalid2,
+      TCM_rdata2=>TCM_rdata2,
+      TCM_rlast2=>TCM_rlast2,
+      TCM_rready2=>TCM_rready2,
+      TCM_rresp2=>TCM_rresp2,
+      TCM_rvalid2=>TCM_rvalid2,
+
+      TCM_awaddr=>TCM_awaddr,
+      TCM_awburst=>TCM_awburst,
+      TCM_awlen=>TCM_awlen,
+      TCM_awready=>TCM_awready,
+      TCM_awsize=>TCM_awsize,
+      TCM_awvalid=>TCM_awvalid,
+      TCM_bready=>TCM_bready,
+      TCM_bresp=>TCM_bresp,
+      TCM_bvalid=>TCM_bvalid,
+      TCM_wdata=>TCM_wdata,
+      TCM_wlast=>TCM_wlast,
+      TCM_wready=>TCM_wready,
+      TCM_wstrb=>TCM_wstrb,
+      TCM_wvalid=>TCM_wvalid
+   );
+
 end rtl;

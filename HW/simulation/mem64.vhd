@@ -106,7 +106,9 @@ signal write_busy_r:std_logic;
 
 constant RAM_BYTE_WIDTH:integer:=8;
 
-type RamType is array(0 to 16000) of std_logic_vector(RAM_BYTE_WIDTH*8-1 downto 0);
+constant RAM_SIZE:integer:=16000;
+
+type RamType is array(0 to RAM_SIZE) of std_logic_vector(RAM_BYTE_WIDTH*8-1 downto 0);
 
 --
 -- Initialize RAM memory with content from HEX file
@@ -148,7 +150,9 @@ begin
                hread(line_in,DATA_v);
                bytepos_v := (curraddr_v mod RAM_BYTE_WIDTH);
                wordpos_v := (curraddr_v / RAM_BYTE_WIDTH);
-               ram_v(wordpos_v)(8*(bytepos_v+1)-1 downto 8*bytepos_v) := DATA_v;
+               if(wordpos_v < RAM_SIZE) then
+                  ram_v(wordpos_v)(8*(bytepos_v+1)-1 downto 8*bytepos_v) := DATA_v;
+               end if;
                curraddr_v := curraddr_v+1;
             end loop;
             hread(line_in,CHECKSUM_v);

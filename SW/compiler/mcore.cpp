@@ -433,6 +433,15 @@ int cMcoreTerm::GenDef(FILE *out)
             fprintf(out, ",");
          fprintf(out, "t%d%d=(%s)", i, j, m_index[i].m_item[j].c_str());
       }
+      fprintf(out, ",");
+      if(m_index[i].m_item[0]=="0" && m_index[i].m_item[1]=="1")
+         fprintf(out,"t%d=t%d2",i,i);
+      else if(m_index[i].m_item[1]=="1")
+         fprintf(out,"t%d=(t%d2-t%d0)", 
+                     i,i,i);
+      else
+         fprintf(out,"t%d=((t%d2-t%d0+t%d1)/t%d1)-1", 
+                     i,i,i,i,i);
    }
    fprintf(out, ";");
    return 0;
@@ -1052,7 +1061,7 @@ int cMcoreTerm::GenPcoreTensor(FILE *out, int _parm, cMcoreRange *_parmRange, ch
          {
             sprintf(temp, "(%s)*t%d1", m_dim[idx].c_str(), idx);
             GEN(out, STR_DPREG_STRIDE[getStrideRegisterIndex(idx, m_dim.size() + parmSize, m_concurrent.size()>0)], dp_template, 0, temp);
-            sprintf(temp, "((t%d2-t%d0+t%d1)/t%d1)-1", idx, idx, idx, idx);
+            sprintf(temp, "(t%d)", idx);
             GEN(out, STR_DPREG_STRIDE_COUNT[getStrideRegisterIndex(idx, m_dim.size() + parmSize, m_concurrent.size() > 0)], dp_template, 0, temp);
 
             sprintf(temp, "((%s)-t%d0)*(%s)-1", (idx == 0) ? m_specifier[SPECIFIER_PCORE_DIM].m_v.c_str() : m_dim[idx].c_str(), idx, m_dim[idx].c_str());
@@ -1192,7 +1201,7 @@ int cMcoreTerm::GenPcoreTensor(FILE *out, int _parm, cMcoreRange *_parmRange, ch
       temp[0] = 0;
       for (idx = 0; idx < (int)m_dim.size(); idx++)
       {
-         sprintf(&temp[strlen(temp)], "%s((t%d2-t%d0+t%d1)/t%d1)", (idx>0) ? "*" : "(", idx, idx, idx, idx);
+         sprintf(&temp[strlen(temp)], "%s(t%d+1)", (idx>0) ? "*" : "(", idx);
       }
       sprintf(&temp[strlen(temp)], "*((%s)+1))", varLen);
       GEN(out, DPREG_TOTALCOUNT, dp_template, 0, temp);
@@ -1263,7 +1272,7 @@ int cMcoreTerm::GenSramDDRTensor(FILE *out, int _parm, cMcoreRange *_parmRange)
          {
             sprintf(temp, "(%s)*t%d1", m_dim[idx].c_str(), idx);
             GEN(out, STR_DPREG_STRIDE[getStrideRegisterIndex(idx, m_dim.size(), false)], dp_template, 0, temp);
-            sprintf(temp, "((t%d2-t%d0+t%d1)/t%d1)-1", idx, idx, idx, idx);
+            sprintf(temp, "(t%d)", idx);
             GEN(out, STR_DPREG_STRIDE_COUNT[getStrideRegisterIndex(idx, m_dim.size(), false)], dp_template, 0, temp);
 
             if (m_specifier[(m_id == cMcoreTerm::eMcoreTermTypeSRAM) ? SPECIFIER_SRAM_DIM + idx : SPECIFIER_DDR_DIM + idx].m_plus)
@@ -1293,7 +1302,7 @@ int cMcoreTerm::GenSramDDRTensor(FILE *out, int _parm, cMcoreRange *_parmRange)
       {
          sprintf(temp, "((%s)*t%d1)", m_dim[idx].c_str(), idx);
          GEN(out, STR_DPREG_STRIDE[getStrideRegisterIndex(m_dim.size() - 1, m_dim.size(), false)], dp_template, 0, temp);
-         sprintf(temp, "((t%d2-t%d0+t%d1)/t%d1)-1", idx, idx, idx, idx);
+         sprintf(temp, "(t%d)", idx);
          GEN(out, STR_DPREG_STRIDE_COUNT[getStrideRegisterIndex(m_dim.size() - 1, m_dim.size(), false)], dp_template, 0, temp);
 
          if (m_specifier[(m_id == cMcoreTerm::eMcoreTermTypeSRAM) ? SPECIFIER_SRAM_DIM + idx : SPECIFIER_DDR_DIM + idx].m_plus)
@@ -1408,7 +1417,7 @@ int cMcoreTerm::GenSramDDRTensor(FILE *out, int _parm, cMcoreRange *_parmRange)
       temp[0] = 0;
       for (idx = 0; idx < (int)m_dim.size(); idx++)
       {
-         sprintf(&temp[strlen(temp)], "%s((t%d2-t%d0+t%d1)/t%d1)", (idx>0) ? "*" : "(", idx, idx, idx, idx);
+         sprintf(&temp[strlen(temp)], "%s(t%d+1)", (idx>0) ? "*" : "(", idx);
       }
       sprintf(&temp[strlen(temp)], "*((%s)+1))", varLen);
       GEN(out, DPREG_TOTALCOUNT, dp_template, 0, temp);
@@ -1672,7 +1681,12 @@ void cMcoreTerm::ScratchCreate(cMcoreTerm *term, char *dtype, char *_scratchAddr
       index -= (MAX_DP_STRIDE - dimSize);
       m_index[index].m_item.push_back("0");
       m_index[index].m_item.push_back("1");
-      sprintf(buf, "((((%s)-(%s))/(%s)))", term->m_index[i].m_item[2].c_str(), term->m_index[i].m_item[0].c_str(), term->m_index[i].m_item[1].c_str());
+      if(term->m_index[i].m_item[0]=="0" && term->m_index[i].m_item[1]=="1")
+         sprintf(buf, "(%s)", term->m_index[i].m_item[2].c_str());
+      else if(term->m_index[i].m_item[1]=="1")
+         sprintf(buf, "((%s)-(%s))", term->m_index[i].m_item[2].c_str(), term->m_index[i].m_item[0].c_str());
+      else
+         sprintf(buf, "((((%s)-(%s))/(%s)))", term->m_index[i].m_item[2].c_str(), term->m_index[i].m_item[0].c_str(), term->m_index[i].m_item[1].c_str());
       m_index[index].m_item.push_back(buf);
       strcat(buf, "+1");
       m_specifier[index + SPECIFIER_SRAM_DIM + (fork ? 1 : 0)].m_v = buf;
@@ -1688,7 +1702,12 @@ void cMcoreTerm::ScratchCreate(cMcoreTerm *term, char *dtype, char *_scratchAddr
          index -= (MAX_DP_STRIDE - dimSize);
          m_index[index].m_item.push_back("0");
          m_index[index].m_item.push_back("1");
-         sprintf(buf, "((((%s)-(%s))/(%s)))", term->m_parm[i].m_item[2].c_str(), term->m_parm[i].m_item[0].c_str(), term->m_parm[i].m_item[1].c_str());
+         if(term->m_parm[i].m_item[0]=="0" && term->m_parm[i].m_item[1]=="1")
+            sprintf(buf, "(%s)", term->m_parm[i].m_item[2].c_str());
+         else if(term->m_parm[i].m_item[1]=="1")
+            sprintf(buf, "((%s)-(%s))", term->m_parm[i].m_item[2].c_str(), term->m_parm[i].m_item[0].c_str());
+         else
+            sprintf(buf, "((((%s)-(%s))/(%s)))", term->m_parm[i].m_item[2].c_str(), term->m_parm[i].m_item[0].c_str(), term->m_parm[i].m_item[1].c_str());
          m_index[index].m_item.push_back(buf);
          strcat(buf, "+1");
          m_specifier[index + SPECIFIER_SRAM_DIM + (fork ? 1 : 0)].m_v = buf;

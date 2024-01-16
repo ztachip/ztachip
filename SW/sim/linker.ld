@@ -20,6 +20,7 @@ _heap_size = 4000;
 SECTIONS {
 
   ._vector ORIGIN(RAM): {
+    . = 0x4000;
     *crt.o(.start_jump);
     *crt.o(.text);
   } > RAM

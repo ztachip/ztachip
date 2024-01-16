@@ -11,7 +11,8 @@ OUTPUT_ARCH(riscv)
 ENTRY(crtStart)
 
 MEMORY {
-  RAM      (rwx): ORIGIN = 0x00000000, LENGTH = 256m
+  RAM      (rwx): ORIGIN = 0x00004000, LENGTH = 255m
+  TCM      (rwx): ORIGIN = 0x00000000, LENGTH = 16k
 }
 
 _stack_size = 8000;
@@ -19,10 +20,33 @@ _heap_size = 200000000;
 
 SECTIONS {
 
-  ._vector ORIGIN(RAM): {
+  ._vector ORIGIN(TCM): {
     *crt.o(.start_jump);
     *crt.o(.text);
-  } > RAM
+    *task.o(.text);
+  } > TCM 
+
+  ._stack (NOLOAD):
+  {
+    . = ALIGN(16);
+    PROVIDE (_stack_end = .);
+    . = . + _stack_size;
+    . = ALIGN(16);
+    PROVIDE (_stack_start = .);
+  } > TCM 
+
+  .bss (NOLOAD) : {
+    . = ALIGN(4);
+    /* This is used by the startup in order to initialize the .bss secion */
+    _bss_start = .;
+    *(.sbss*)
+    *(.gnu.linkonce.sb.*)
+    *(.bss .bss.*)
+    *(.gnu.linkonce.b.*)
+    *(COMMON)
+    . = ALIGN(4);
+    _bss_end = .;
+  } > RAM 
 
   ._user_heap (NOLOAD):
   {
@@ -33,15 +57,6 @@ SECTIONS {
     . = . + _heap_size;
     . = ALIGN(8);
     PROVIDE ( _heap_end = .);
-  } > RAM
-
-._stack (NOLOAD):
-  {
-    . = ALIGN(16);
-    PROVIDE (_stack_end = .);
-    . = . + _stack_size;
-    . = ALIGN(16);
-    PROVIDE (_stack_start = .);
   } > RAM
 
   .data :
@@ -62,20 +77,6 @@ SECTIONS {
     *(.srodata.cst2)
     *(.srodata .srodata.*)
   } > RAM
-
-  .bss (NOLOAD) : {
-    . = ALIGN(4);
-    /* This is used by the startup in order to initialize the .bss secion */
-    _bss_start = .;
-    *(.sbss*)
-    *(.gnu.linkonce.sb.*)
-    *(.bss .bss.*)
-    *(.gnu.linkonce.b.*)
-    *(COMMON)
-    . = ALIGN(4);
-    _bss_end = .;
-  } > RAM
-
 
   .rodata         :
   {

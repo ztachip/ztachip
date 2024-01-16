@@ -5859,7 +5859,7 @@ begin
   process(io_mainClk, resetCtrl_systemReset)
   begin
     if resetCtrl_systemReset = '1' then
-      IBusCachedPlugin_fetchPc_pcReg <= pkg_unsigned("00000000000000000000000000000000");
+      IBusCachedPlugin_fetchPc_pcReg <= pkg_unsigned("00000000000000000100000000000000");
       IBusCachedPlugin_fetchPc_correctionReg <= pkg_toStdLogic(false);
       IBusCachedPlugin_fetchPc_booted <= pkg_toStdLogic(false);
       IBusCachedPlugin_fetchPc_inc <= pkg_toStdLogic(false);

@@ -27,7 +27,7 @@ object RiscvConfig{
    coreFrequency         = 166 MHz,
    cpuPlugins = ArrayBuffer(
       new IBusCachedPlugin(
-          resetVector = 0x00000000l,
+          resetVector = 0x00004000l,
           prediction = STATIC,
           relaxedPcCalculation = true,
           config = InstructionCacheConfig(

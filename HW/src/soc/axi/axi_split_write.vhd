@@ -30,10 +30,11 @@ use work.ztachip_pkg.all;
 
 entity axi_split_write is
    generic (
-      NUM_MASTER_PORT     : integer:=3;
-      BAR_LO_BIT          : integer_array(2 downto 0);
-      BAR_HI_BIT          : integer_array(2 downto 0);
-      BAR                 : integer_array(2 downto 0)
+      NUM_MASTER_PORT     : integer:=4;
+      NUM_MASTER_PORT_USED: integer:=4;
+      BAR_LO_BIT          : integer_array(3 downto 0);
+      BAR_HI_BIT          : integer_array(3 downto 0);
+      BAR                 : integer_array(3 downto 0)
    );
    port 
    (
@@ -69,11 +70,11 @@ entity axi_split_write is
       aximaster_wdatas_out       : OUT axi_wdatas_t(NUM_MASTER_PORT-1 downto 0);
       aximaster_wlasts_out       : OUT axi_wlasts_t(NUM_MASTER_PORT-1 downto 0);
       aximaster_wstrbs_out       : OUT axi_wstrbs_t(NUM_MASTER_PORT-1 downto 0);
-      aximaster_awreadys_in      : IN axi_awreadys_t(NUM_MASTER_PORT-1 downto 0);
-      aximaster_wreadys_in       : IN axi_wreadys_t(NUM_MASTER_PORT-1 downto 0);
-      aximaster_bresps_in        : IN axi_bresps_t(NUM_MASTER_PORT-1 downto 0);
-      aximaster_bids_in          : IN axi_bids_t(NUM_MASTER_PORT-1 downto 0);
-      aximaster_bvalids_in       : IN axi_bvalids_t(NUM_MASTER_PORT-1 downto 0);
+      aximaster_awreadys_in      : IN axi_awreadys_t(NUM_MASTER_PORT-1 downto 0):=(others=>'0');
+      aximaster_wreadys_in       : IN axi_wreadys_t(NUM_MASTER_PORT-1 downto 0):=(others=>'0');
+      aximaster_bresps_in        : IN axi_bresps_t(NUM_MASTER_PORT-1 downto 0):=(others=>(others=>'0'));
+      aximaster_bids_in          : IN axi_bids_t(NUM_MASTER_PORT-1 downto 0):=(others=>(others=>'0'));
+      aximaster_bvalids_in       : IN axi_bvalids_t(NUM_MASTER_PORT-1 downto 0):=(others=>'0');
       aximaster_awbursts_out     : OUT axi_awbursts_t(NUM_MASTER_PORT-1 downto 0);
       aximaster_awcaches_out     : OUT axi_awcaches_t(NUM_MASTER_PORT-1 downto 0);
       aximaster_awids_out        : OUT axi_awids_t(NUM_MASTER_PORT-1 downto 0);
@@ -107,6 +108,27 @@ SIGNAL aximaster_awqoss:axi_awqoss_t(NUM_MASTER_PORT-1 downto 0);
 SIGNAL aximaster_awsizes:axi_awsizes_t(NUM_MASTER_PORT-1 downto 0);
 SIGNAL aximaster_breadys:axi_breadys_t(NUM_MASTER_PORT-1 downto 0);       
  
+SIGNAL awaddr:axi_awaddr_t;
+SIGNAL awlen:axi_awlen_t;
+SIGNAL awvalid:axi_awvalid_t;
+SIGNAL wvalid:axi_wvalid_t;
+SIGNAL wdata:axi_wdata_t;
+SIGNAL wlast:axi_wlast_t;
+SIGNAL wstrb:axi_wstrb_t;
+SIGNAL awready:axi_awready_t;
+SIGNAL wready:axi_wready_t;
+SIGNAL bresp:axi_bresp_t;
+SIGNAL bid:axi_bid_t;
+SIGNAL bvalid:axi_bvalid_t;
+SIGNAL awburst:axi_awburst_t;
+SIGNAL awcache:axi_awcache_t;
+SIGNAL awid:axi_awid_t;
+SIGNAL awlock:axi_awlock_t;
+SIGNAL awprot:axi_awprot_t;
+SIGNAL awqos:axi_awqos_t;
+SIGNAL awsize:axi_awsize_t;
+SIGNAL bready:axi_bready_t;
+
 SIGNAL pending_write:STD_LOGIC;
 SIGNAL pending_write_rec:STD_LOGIC_VECTOR(NUM_MASTER_PORT-1 DOWNTO 0);
 
@@ -134,14 +156,15 @@ SIGNAL axislave_wstrb_r:axi_wstrb_t;
 constant M0:integer:=0;
 constant M1:integer:=1;
 constant M2:integer:=2;
+constant M3:integer:=3;
 
 begin
 
-axislave_awready_out <= axislave_awready;
-axislave_wready_out <= (not axislave_wvalid_r) or axislave_wready;
-axislave_bresp_out <= axislave_bresp_r;
-axislave_bid_out <= axislave_bid_r;
-axislave_bvalid_out <= axislave_bvalid_r;
+awready <= axislave_awready;
+wready <= (not axislave_wvalid_r) or axislave_wready;
+bresp <= axislave_bresp_r;
+bid <= axislave_bid_r;
+bvalid <= axislave_bvalid_r;
 aximaster_awaddrs_out <= aximaster_awaddrs;
 aximaster_awlens_out <= aximaster_awlens;
 aximaster_awvalids_out <= aximaster_awvalids;
@@ -161,6 +184,63 @@ aximaster_breadys_out <= aximaster_breadys;
 pending_resp_read <= axislave_bvalid and axislave_bready; 
 
 pending_data_read <= axislave_wvalid_r and axislave_wlast_r and axislave_wready; 
+
+write_fifo_i: axi_write
+   generic map(
+      FIFO_DEPTH=>5,
+      FIFO_DATA_DEPTH=>5,
+      CCD=>FALSE
+   )
+   port map
+   (
+      clock_in=>clock_in,
+      reset_in=>reset_in,
+
+      -- Slace port
+      axislave_clock_in=>clock_in,
+      axislave_awaddr_in=>axislave_awaddr_in,
+      axislave_awlen_in=>axislave_awlen_in,
+      axislave_awvalid_in=>axislave_awvalid_in,
+      axislave_wvalid_in=>axislave_wvalid_in,
+      axislave_wdata_in=>axislave_wdata_in,
+      axislave_wlast_in=>axislave_wlast_in,
+      axislave_wstrb_in=>axislave_wstrb_in,
+      axislave_awready_out=>axislave_awready_out,
+      axislave_wready_out=>axislave_wready_out,
+      axislave_bresp_out=>axislave_bresp_out,
+      axislave_bid_out=>axislave_bid_out,
+      axislave_bvalid_out=>axislave_bvalid_out,
+      axislave_awburst_in=>axislave_awburst_in,
+      axislave_awcache_in=>axislave_awcache_in,
+      axislave_awid_in=>axislave_awid_in,
+      axislave_awlock_in=>axislave_awlock_in,
+      axislave_awprot_in=>axislave_awprot_in,
+      axislave_awqos_in=>axislave_awqos_in,
+      axislave_awsize_in=>axislave_awsize_in,
+      axislave_bready_in=>axislave_bready_in,
+      
+      aximaster_clock_in=>clock_in,
+      aximaster_awaddr_out=>awaddr,
+      aximaster_awlen_out=>awlen,
+      aximaster_awvalid_out=>awvalid,
+      aximaster_wvalid_out=>wvalid,
+      aximaster_wdata_out=>wdata,
+      aximaster_wlast_out=>wlast,
+      aximaster_wstrb_out=>wstrb,
+      aximaster_awready_in=>awready,
+      aximaster_wready_in=>wready,
+      aximaster_bresp_in=>bresp,
+      aximaster_bid_in=>bid,
+      aximaster_bvalid_in=>bvalid,
+      aximaster_awburst_out=>awburst,
+      aximaster_awcache_out=>awcache,
+      aximaster_awid_out=>awid,
+      aximaster_awlock_out=>awlock,
+      aximaster_awprot_out=>awprot,
+      aximaster_awqos_out=>awqos,
+      aximaster_awsize_out=>awsize,
+      aximaster_bready_out=>bready
+   );
 
 pending_resp_fifo:scfifo
    generic map
@@ -207,13 +287,13 @@ pending_data_fifo:scfifo
    );
     
 process(pending_resp_write_full,pending_data_write_full,
-   axislave_awvalid_in,axislave_awaddr_in,aximaster_awreadys_in,
+   awvalid,awaddr,aximaster_awreadys_in,
    pending_resp_read_empty,pending_resp_read_rec,aximaster_bids_in,
    aximaster_bvalids_in,
    aximaster_bresps_in,axislave_bready,
-   axislave_awlen_in,axislave_awid_in,axislave_awlock_in,
-   axislave_awcache_in,axislave_awprot_in,axislave_awqos_in,axislave_awburst_in,
-   axislave_awsize_in,
+   awlen,awid,awlock,
+   awcache,awprot,awqos,awburst,
+   awsize,
    pending_data_read_empty,pending_data_read_rec,axislave_wvalid_r,
    axislave_wdata_r,axislave_wlast_r,axislave_wstrb_r,aximaster_wreadys_in)
 
@@ -227,22 +307,31 @@ begin
    axislave_awready <= '1';
    if(pending_resp_write_full='1' or pending_data_write_full='1') then
       axislave_awready <= '0';
-   elsif(axislave_awvalid_in='1') then
-      if(axislave_awaddr_in(BAR_HI_BIT(M0) downto BAR_LO_BIT(M0))=std_logic_vector(to_unsigned(BAR(M0),BAR_HI_BIT(M0)-BAR_LO_BIT(M0)+1))) then
+   elsif(awvalid='1') then
+      if((M0 < NUM_MASTER_PORT_USED) and
+         awaddr(BAR_HI_BIT(M0) downto BAR_LO_BIT(M0))=std_logic_vector(to_unsigned(BAR(M0),BAR_HI_BIT(M0)-BAR_LO_BIT(M0)+1))) then
          aximaster_awvalids(M0) <= '1';
          pending_write_rec(M0) <= '1';
          pending_write <= aximaster_awreadys_in(M0);
          axislave_awready <= aximaster_awreadys_in(M0);
-      elsif(axislave_awaddr_in(BAR_HI_BIT(M1) downto BAR_LO_BIT(M1))=std_logic_vector(to_unsigned(BAR(M1),BAR_HI_BIT(M1)-BAR_LO_BIT(M1)+1))) then
+      elsif((M1 < NUM_MASTER_PORT_USED) and
+         awaddr(BAR_HI_BIT(M1) downto BAR_LO_BIT(M1))=std_logic_vector(to_unsigned(BAR(M1),BAR_HI_BIT(M1)-BAR_LO_BIT(M1)+1))) then
          aximaster_awvalids(M1) <= '1';
          pending_write_rec(M1) <= '1';
          pending_write <= aximaster_awreadys_in(M1);
          axislave_awready <= aximaster_awreadys_in(M1);
-      elsif(axislave_awaddr_in(BAR_HI_BIT(M2) downto BAR_LO_BIT(M2))=std_logic_vector(to_unsigned(BAR(M2),BAR_HI_BIT(M2)-BAR_LO_BIT(M2)+1))) then
+      elsif((M2 < NUM_MASTER_PORT_USED) and
+            awaddr(BAR_HI_BIT(M2) downto BAR_LO_BIT(M2))=std_logic_vector(to_unsigned(BAR(M2),BAR_HI_BIT(M2)-BAR_LO_BIT(M2)+1))) then
          aximaster_awvalids(M2) <= '1';
          pending_write_rec(M2) <= '1';
          pending_write <= aximaster_awreadys_in(M2);
          axislave_awready <= aximaster_awreadys_in(M2);
+      elsif((M3 < NUM_MASTER_PORT_USED) and
+            awaddr(BAR_HI_BIT(M3) downto BAR_LO_BIT(M3))=std_logic_vector(to_unsigned(BAR(M3),BAR_HI_BIT(M3)-BAR_LO_BIT(M3)+1))) then
+         aximaster_awvalids(M3) <= '1';
+         pending_write_rec(M3) <= '1';
+         pending_write <= aximaster_awreadys_in(M3);
+         axislave_awready <= aximaster_awreadys_in(M3);
       end if;
    end if;
 
@@ -252,36 +341,52 @@ begin
    axislave_bvalid <= '0';
    axislave_bresp <= (others=>'0');
    aximaster_breadys <= (others=>'0');
-   if(pending_resp_read_empty='0' and pending_resp_read_rec(M0)='1') then
+   if((M0 < NUM_MASTER_PORT_USED) and
+      pending_resp_read_empty='0' and pending_resp_read_rec(M0)='1') then
       axislave_bid <= aximaster_bids_in(M0);      
       axislave_bvalid <= aximaster_bvalids_in(M0);
       axislave_bresp <= aximaster_bresps_in(M0);
       aximaster_breadys(M0) <= axislave_bready;
-   elsif(pending_resp_read_empty='0' and pending_resp_read_rec(M1)='1') then
+   elsif((M1 < NUM_MASTER_PORT_USED) and
+         pending_resp_read_empty='0' and pending_resp_read_rec(M1)='1') then
       axislave_bid <= aximaster_bids_in(M1);      
       axislave_bvalid <= aximaster_bvalids_in(M1);
       axislave_bresp <= aximaster_bresps_in(M1);
       aximaster_breadys(M1) <= axislave_bready;
-   elsif(pending_resp_read_empty='0' and pending_resp_read_rec(M2)='1') then
+   elsif((M2 < NUM_MASTER_PORT_USED) and
+         pending_resp_read_empty='0' and pending_resp_read_rec(M2)='1') then
       axislave_bid <= aximaster_bids_in(M2);      
       axislave_bvalid <= aximaster_bvalids_in(M2);
       axislave_bresp <= aximaster_bresps_in(M2);
       aximaster_breadys(M2) <= axislave_bready;
+   elsif((M3 < NUM_MASTER_PORT_USED) and
+         pending_resp_read_empty='0' and pending_resp_read_rec(M3)='1') then
+      axislave_bid <= aximaster_bids_in(M3);      
+      axislave_bvalid <= aximaster_bvalids_in(M3);
+      axislave_bresp <= aximaster_bresps_in(M3);
+      aximaster_breadys(M3) <= axislave_bready;
    end if;
 
    -- Route data transfer to correct masters
 
    aximaster_wvalids <= (others=>'0');
    axislave_wready <= '0';
-   if(pending_data_read_empty='0' and pending_data_read_rec(M0)='1') then
+   if((M0 < NUM_MASTER_PORT_USED) and
+      pending_data_read_empty='0' and pending_data_read_rec(M0)='1') then
       aximaster_wvalids(M0) <= axislave_wvalid_r;    
       axislave_wready <= aximaster_wreadys_in(M0); 
-   elsif(pending_data_read_empty='0' and pending_data_read_rec(M1)='1') then
+   elsif((M1 < NUM_MASTER_PORT_USED) and
+         pending_data_read_empty='0' and pending_data_read_rec(M1)='1') then
       aximaster_wvalids(M1) <= axislave_wvalid_r;  
       axislave_wready <= aximaster_wreadys_in(M1);   
-   elsif(pending_data_read_empty='0' and pending_data_read_rec(M2)='1') then
+   elsif((M2 < NUM_MASTER_PORT_USED) and
+         pending_data_read_empty='0' and pending_data_read_rec(M2)='1') then
       aximaster_wvalids(M2) <= axislave_wvalid_r;  
       axislave_wready <= aximaster_wreadys_in(M2);
+   elsif((M3 < NUM_MASTER_PORT_USED) and
+         pending_data_read_empty='0' and pending_data_read_rec(M3)='1') then
+      aximaster_wvalids(M3) <= axislave_wvalid_r;  
+      axislave_wready <= aximaster_wreadys_in(M3);
    end if;
 
    FOR I IN 0 TO NUM_MASTER_PORT-1 LOOP
@@ -293,19 +398,19 @@ begin
    -- Route common slave signals to all master ports
 
    FOR I IN 0 TO NUM_MASTER_PORT-1 LOOP
-      aximaster_awaddrs(I) <= axislave_awaddr_in;
-      aximaster_awlens(I) <= axislave_awlen_in;
-      aximaster_awids(I) <= axislave_awid_in;
-      aximaster_awlocks(I) <= axislave_awlock_in;
-      aximaster_awcaches(I) <= axislave_awcache_in;
-      aximaster_awprots(I) <= axislave_awprot_in;
-      aximaster_awqoss(I) <= axislave_awqos_in;
-      aximaster_awbursts(I) <= axislave_awburst_in;
-      aximaster_awsizes(I) <= axislave_awsize_in;
+      aximaster_awaddrs(I) <= awaddr;
+      aximaster_awlens(I) <= awlen;
+      aximaster_awids(I) <= awid;
+      aximaster_awlocks(I) <= awlock;
+      aximaster_awcaches(I) <= awcache;
+      aximaster_awprots(I) <= awprot;
+      aximaster_awqoss(I) <= awqos;
+      aximaster_awbursts(I) <= awburst;
+      aximaster_awsizes(I) <= awsize;
    END LOOP;
 end process;
 
-axislave_bready <= (not axislave_bvalid_r) or axislave_bready_in;
+axislave_bready <= (not axislave_bvalid_r) or bready;
 
 process(clock_in,reset_in)
 begin
@@ -325,10 +430,10 @@ begin
             axislave_bvalid_r <= axislave_bvalid;
          end if;
          if(axislave_wvalid_r='0' or axislave_wready='1') then
-            axislave_wvalid_r <= axislave_wvalid_in;
-            axislave_wdata_r <= axislave_wdata_in;
-            axislave_wlast_r <= axislave_wlast_in;
-            axislave_wstrb_r <= axislave_wstrb_in;
+            axislave_wvalid_r <= wvalid;
+            axislave_wdata_r <= wdata;
+            axislave_wlast_r <= wlast;
+            axislave_wstrb_r <= wstrb;
          end if;
       end if;
    end if;
