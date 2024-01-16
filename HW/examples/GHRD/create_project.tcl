@@ -28,6 +28,9 @@ read_vhdl ../../src/pcore/rom.vhd
 read_vhdl ../../src/pcore/stream.vhd
 read_vhdl ../../src/pcore/xregister_file.vhd
 read_vhdl ../../src/soc/soc_base.vhd
+read_vhdl ../../src/soc/tcm.vhd
+read_vhdl ../../src/soc/tcm_read.vhd
+read_vhdl ../../src/soc/tcm_write.vhd
 read_vhdl ../../src/soc/axi/axi_apb_bridge.vhd
 read_vhdl ../../src/soc/axi/axi_merge.vhd
 read_vhdl ../../src/soc/axi/axi_merge_read.vhd
