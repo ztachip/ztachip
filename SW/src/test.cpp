@@ -963,8 +963,8 @@ int test_histogram()
 {
    uint8_t *input;
    int src_w, src_h;
-   uint8_t pict_in[HISTOGRAM_W*HISTOGRAM_H*HISTOGRAM_CHANNEL];
-   uint8_t pict_out[HISTOGRAM_W*HISTOGRAM_H*HISTOGRAM_CHANNEL];
+   static uint8_t pict_in[HISTOGRAM_W*HISTOGRAM_H*HISTOGRAM_CHANNEL];
+   static uint8_t pict_out[HISTOGRAM_W*HISTOGRAM_H*HISTOGRAM_CHANNEL];
    FILE *fp;
    int dst_w,dst_h;
    int nchannels;
