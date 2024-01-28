@@ -39,10 +39,13 @@ object RiscvConfig{
     )),
    hardwareBreakpointCount = if(withXip) 3 else 0,
    cpuPlugins = ArrayBuffer(
-      new IBusCachedPlugin(
+        new PcManagerSimplePlugin(
           resetVector = 0x00000000l,
-          prediction = STATIC,
-          relaxedPcCalculation = true,
+          relaxedPcCalculation = false
+        ),
+        new IBusCachedPlugin(
+          prediction = DYNAMIC_TARGET,
+          historyRamSizeLog2 = 8,
           config = InstructionCacheConfig(
             cacheSize = 4096*2,
             bytePerLine =32,
@@ -53,11 +56,11 @@ object RiscvConfig{
             catchIllegalAccess = true,
             catchAccessFault = true,
             asyncTagMemory = false,
-            twoCycleRam = true,
+            twoCycleRam = false,
             twoCycleCache = true
           )
-      ),
-      new DBusCachedPlugin(
+        ),
+        new DBusCachedPlugin(
           config = new DataCacheConfig(
             cacheSize         = 4096*2,
             bytePerLine       = 32,
@@ -67,12 +70,9 @@ object RiscvConfig{
             memDataWidth      = 32,
             catchAccessError  = true,
             catchIllegal      = true,
-            catchUnaligned    = true,
-            withLrSc          = true,
-            withAmo           = true
-          ),
-          memoryTranslatorPortConfig = null
-      ),
+            catchUnaligned    = true
+          )
+        ),
 
       new CsrPlugin(CsrPluginConfig.smallest(mtvecInit = if(withXip) 0xE0040020l else 0x80000020l)),
       new DecoderSimplePlugin(
@@ -82,7 +82,7 @@ object RiscvConfig{
         ioRange      = _(31 downto 31) === 0x1
       ),
       new RegFilePlugin(
-        regFileReadyKind = plugin.ASYNC,
+        regFileReadyKind = plugin.SYNC,
         zeroBoot = false
       ),
       new IntAluPlugin,
@@ -90,7 +90,7 @@ object RiscvConfig{
         separatedAddSub = false,
         executeInsertion = true 
       ),
-      new FullBarrelShifterPlugin,
+      new FullBarrelShifterPlugin(earlyInjection = true),
       new HazardSimplePlugin(
         bypassExecute           = true,
         bypassMemory            = true,
@@ -103,7 +103,7 @@ object RiscvConfig{
       new MulPlugin,
       new DivPlugin,
       new BranchPlugin(
-        earlyBranch = true,
+        earlyBranch = false,
         catchAddressMisaligned = true 
       ),
       new YamlPlugin("cpu0.yaml")
@@ -117,7 +117,10 @@ object RiscvConfig{
       bypassExecute = true,
       bypassMemory = true,
       bypassWriteBack = true,
-      bypassWriteBackBuffer = true
+      bypassWriteBackBuffer = true,
+      pessimisticUseSrc       = false,
+      pessimisticWriteRegFile = false,
+      pessimisticAddressMatch = false
     )
     config
   }
