@@ -64,7 +64,7 @@ object RiscvConfig{
           config = new DataCacheConfig(
             cacheSize         = 4096*2,
             bytePerLine       = 32,
-            wayCount          = 2,
+            wayCount          = 1,
             addressWidth      = 32,
             cpuDataWidth      = 32,
             memDataWidth      = 32,

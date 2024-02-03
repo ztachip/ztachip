@@ -982,7 +982,7 @@ int cMcoreTerm::GenVariableTensor(FILE *out, int _parm, cMcoreRange *_parmRange)
    assert(m_var >= 0);
    assert(_parm < 0);
    sprintf(temp, "(%d)", m_var);
-   GEN(out, 0, REG_DP_RESTORE, 0, temp);
+   GEN(out, m_var, REG_DP_RESTORE, 0, "0");
 
    // Override with variable parameter...
 

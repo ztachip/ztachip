@@ -92,6 +92,7 @@ ENTITY dp_source IS
         SIGNAL gen_data_type_source_in  : IN dp_data_type_t;
         SIGNAL gen_data_model_source_in : IN dp_data_model_t;
         SIGNAL gen_bus_id_dest_in       : IN dp_bus_id_t;
+        SIGNAL gen_busy_dest_in         : IN std_logic;
         SIGNAL gen_data_type_dest_in    : IN dp_data_type_t;
         SIGNAL gen_data_model_dest_in   : IN dp_data_model_t;
         SIGNAL gen_src_burstlen_in      : IN burstlen_t;
@@ -154,11 +155,9 @@ SIGNAL gen_src_data2:STD_LOGIC_VECTOR(ddr_data_width_c-1 downto 0);
 SIGNAL gen_valid:STD_LOGIC;
 SIGNAL bus_readdata:STD_LOGIC_VECTOR(ddr_data_width_c*FORK-1 DOWNTO 0);
 SIGNAL bus_readdata2:STD_LOGIC_VECTOR(ddr_data_width_c*FORK-1 DOWNTO 0);
-
 BEGIN
 
-gen_valid <= gen_valid_in and (not wr_full_in(to_integer(gen_bus_id_dest_in)));
-
+gen_valid <= gen_valid_in and (not gen_busy_dest_in);
 
 bus_readdata <= bus_readdata_in when bus_readdatavalid_in='1' else (others=>'0');
  

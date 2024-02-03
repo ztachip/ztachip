@@ -2826,6 +2826,7 @@ COMPONENT dp_gen_core IS
        SIGNAL gen_pcore_data_type_source_out: out dp_data_type_t;
        SIGNAL gen_pcore_data_model_source_out: out dp_data_model_t;
        SIGNAL gen_pcore_bus_id_dest_out: out dp_bus_id_t;
+       SIGNAL gen_pcore_busy_dest_out: out std_logic;
        SIGNAL gen_pcore_data_type_dest_out: out dp_data_type_t;
        SIGNAL gen_pcore_data_model_dest_out: out dp_data_model_t;
        SIGNAL gen_pcore_src_burstlen_out: out burstlen_t;
@@ -2860,6 +2861,7 @@ COMPONENT dp_gen_core IS
        SIGNAL gen_sram_data_type_source_out:out dp_data_type_t;
        SIGNAL gen_sram_data_model_source_out:out dp_data_model_t;
        SIGNAL gen_sram_bus_id_dest_out:out dp_bus_id_t;
+       SIGNAL gen_sram_busy_dest_out:out std_logic;
        SIGNAL gen_sram_data_type_dest_out:out dp_data_type_t;
        SIGNAL gen_sram_data_model_dest_out:out dp_data_model_t;
        SIGNAL gen_sram_src_burstlen_out:out burstlen_t;
@@ -2893,6 +2895,7 @@ COMPONENT dp_gen_core IS
        SIGNAL gen_ddr_data_type_source_out:out dp_data_type_t;
        SIGNAL gen_ddr_data_model_source_out:out dp_data_model_t;
        SIGNAL gen_ddr_bus_id_dest_out:out dp_bus_id_t;
+       SIGNAL gen_ddr_busy_dest_out:out std_logic;
        SIGNAL gen_ddr_data_type_dest_out:out dp_data_type_t;
        SIGNAL gen_ddr_data_model_dest_out:out dp_data_model_t;
        SIGNAL gen_ddr_src_burstlen_out:out burstlen_t;
@@ -2969,6 +2972,7 @@ COMPONENT dp_gen IS
         SIGNAL gen_data_type_source_out         : OUT dp_data_type_t;
         SIGNAL gen_data_model_source_out        : OUT dp_data_model_t;
         SIGNAL gen_bus_id_dest_out              : OUT dp_bus_id_t;
+        SIGNAL gen_busy_dest_out                : OUT std_logic;
         SIGNAL gen_data_type_dest_out           : OUT dp_data_type_t;
         SIGNAL gen_data_model_dest_out          : OUT dp_data_model_t;
         SIGNAL gen_burstlen_source_out          : OUT burstlen_t;
@@ -3115,6 +3119,7 @@ COMPONENT dp_source IS
         SIGNAL gen_data_type_source_in  : IN dp_data_type_t;
         SIGNAL gen_data_model_source_in : IN dp_data_model_t;
         SIGNAL gen_bus_id_dest_in       : IN dp_bus_id_t;
+        SIGNAL gen_busy_dest_in         : IN std_logic;
         SIGNAL gen_data_type_dest_in    : IN dp_data_type_t;
         SIGNAL gen_data_model_dest_in   : IN dp_data_model_t;
         SIGNAL gen_src_burstlen_in      : IN burstlen_t;

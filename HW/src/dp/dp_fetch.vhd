@@ -894,6 +894,8 @@ end function opcode_generic_decode;
 
 SIGNAL wregno2: register2_t;
 SIGNAL rregno2: register2_t;
+SIGNAL wregno2_r: register2_t;
+SIGNAL rregno2_r: register2_t;
 SIGNAL src_template_r: dp_template_t:=((others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'1'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),'0', (others=>'0'),'0',(others=>'0'),(others=>'1'),(others=>'0'),'0',(others=>'0'),(others=>'0'),(others=>'1'),(others=>'0'));
 SIGNAL dest_template_r: dp_template_t:=((others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'1'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),'0',(others=>'0'),'0',(others=>'0'),(others=>'1'),(others=>'0'),'0',(others=>'0'),(others=>'0'),(others=>'1'),(others=>'0'));
 SIGNAL template_r:dp_template_t:=((others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'1'),(others=>'0'),(others=>'0'),(others=>'0'),(others=>'0'),'0',(others=>'0'),'0',(others=>'0'),(others=>'1'),(others=>'0'),'0',(others=>'0'),(others=>'0'),(others=>'1'),(others=>'0'));
@@ -950,7 +952,7 @@ waitrequest <= '1' when bus_write_in='1' and
 bus_writewait_out <= waitrequest;
 bus_readwait_out <= '0';
 
-load <= '1' when bus_write_r='1' and wregno=register_dp_template_c and wregno2=to_unsigned(register2_dp_mode_c,wregno2'length) else '0';
+load <= '1' when bus_write_r='1' and wregno=register_dp_template_c and wregno2_r=to_unsigned(register2_dp_mode_c,wregno2_r'length) else '0';
 
 process(log_time_r,log1_valid_in,log1_in,log2_valid_in,log2_in,task_busy_in,pcore_source_busy_r,sram_source_busy_r,ddr_source_busy_r,
         log_status_last_r,print_indication_rr,print_param_rr)
@@ -1114,9 +1116,9 @@ dp_var_write <= pack_dp_template(template_r);
 dp_var_template <= unpack_dp_template(dp_var_read);
 dp_var_waddress <= std_logic_vector(load_busid_r);
 dp_var_we <= load_r;
-dp_var_raddress <= bus_writedata_in(dp_template_id_t'length-1 downto 0) when (bus_writedata_in(dp_template_id_t'length-1)='1')
+dp_var_raddress <= std_logic_vector(wregno2(dp_template_id_t'length-1 downto 0)) when (wregno2(dp_template_id_t'length-1)='1')
                    else
-                   (bus_writedata_in(dp_template_id_t'length-2 downto 0) & curr_vm_r);
+                   (std_logic_vector(wregno2(dp_template_id_t'length-2 downto 0)) & curr_vm_r);
 
 -------
 -- FIFO to store indication messages to be sent out to mcore
@@ -1159,11 +1161,15 @@ bus_readdatavalid_out <= rden_r;
 
 wregno <= unsigned(bus_waddr_r(register_t'length-1 downto 0));
 
-wregno2 <= unsigned(bus_waddr_r(register2_t'length+register_t'length-1 downto register_t'length));
+wregno2 <= unsigned(bus_waddr_in(register2_t'length+register_t'length-1 downto register_t'length));
+
+wregno2_r <= unsigned(bus_waddr_r(register2_t'length+register_t'length-1 downto register_t'length));
 
 rregno <= unsigned(bus_raddr_r(register_t'length-1 downto 0));
 
-rregno2 <= unsigned(bus_raddr_r(register2_t'length+register_t'length-1 downto register_t'length));
+rregno2 <= unsigned(bus_raddr_in(register2_t'length+register_t'length-1 downto register_t'length));
+
+rregno2_r <= unsigned(bus_raddr_r(register2_t'length+register_t'length-1 downto register_t'length));
 
 match <= '1';
 
@@ -1362,85 +1368,85 @@ begin
             if bus_write_r='1' then
                 if wregno=register_dp_template_c then
                     -- Set source address information for subsequent dp_opcode_transfer_c instruction.
-                    if wregno2=to_unsigned(register2_dp_stride0_c,wregno2'length) then
+                    if wregno2_r=to_unsigned(register2_dp_stride0_c,wregno2_r'length) then
                         template_r.stride0 <= unsigned(bus_writedata_r(dp_addr_width_c-1 downto 0));
                     end if;
-                    if wregno2=to_unsigned(register2_dp_stride0_count_c,wregno2'length) then
+                    if wregno2_r=to_unsigned(register2_dp_stride0_count_c,wregno2_r'length) then
                         template_r.stride0_count <= unsigned(bus_writedata_r(dp_addr_width_c-1 downto 0));                        
                     end if;
-                    if wregno2=to_unsigned(register2_dp_stride0_max_c,wregno2'length) then
+                    if wregno2_r=to_unsigned(register2_dp_stride0_max_c,wregno2_r'length) then
                         template_r.stride0_max <= unsigned(bus_writedata_r(dp_addr_width_c downto 0));                        
                     end if;
-                    if wregno2=to_unsigned(register2_dp_stride1_c,wregno2'length) then
+                    if wregno2_r=to_unsigned(register2_dp_stride1_c,wregno2_r'length) then
                         template_r.stride1 <= unsigned(bus_writedata_r(dp_addr_width_c-1 downto 0));
                     end if;
-                    if wregno2=to_unsigned(register2_dp_stride1_count_c,wregno2'length) then
+                    if wregno2_r=to_unsigned(register2_dp_stride1_count_c,wregno2_r'length) then
                         template_r.stride1_count <= unsigned(bus_writedata_r(dp_addr_width_c-1 downto 0));
                     end if;
-                    if wregno2=to_unsigned(register2_dp_stride1_max_c,wregno2'length) then
+                    if wregno2_r=to_unsigned(register2_dp_stride1_max_c,wregno2_r'length) then
                         template_r.stride1_max <= unsigned(bus_writedata_r(dp_addr_width_c downto 0));                        
                     end if;
-                    if wregno2=to_unsigned(register2_dp_stride2_c,wregno2'length) then
+                    if wregno2_r=to_unsigned(register2_dp_stride2_c,wregno2_r'length) then
                         template_r.stride2 <= unsigned(bus_writedata_r(dp_addr_width_c-1 downto 0));
                     end if;
-                    if wregno2=to_unsigned(register2_dp_stride2_count_c,wregno2'length) then
+                    if wregno2_r=to_unsigned(register2_dp_stride2_count_c,wregno2_r'length) then
                         template_r.stride2_count <= unsigned(bus_writedata_r(dp_addr_width_c-1 downto 0));
                     end if;
-                    if wregno2=to_unsigned(register2_dp_stride2_max_c,wregno2'length) then
+                    if wregno2_r=to_unsigned(register2_dp_stride2_max_c,wregno2_r'length) then
                         template_r.stride2_max <= unsigned(bus_writedata_r(dp_addr_width_c downto 0));                        
                     end if;
-                    if wregno2=to_unsigned(register2_dp_stride3_c,wregno2'length) then
+                    if wregno2_r=to_unsigned(register2_dp_stride3_c,wregno2_r'length) then
                         template_r.stride3 <= unsigned(bus_writedata_r(dp_addr_width_c-1 downto 0));
                     end if;
-                    if wregno2=to_unsigned(register2_dp_stride3_count_c,wregno2'length) then
+                    if wregno2_r=to_unsigned(register2_dp_stride3_count_c,wregno2_r'length) then
                         template_r.stride3_count <= unsigned(bus_writedata_r(dp_addr_width_c-1 downto 0));
                     end if;
-                    if wregno2=to_unsigned(register2_dp_stride3_max_c,wregno2'length) then
+                    if wregno2_r=to_unsigned(register2_dp_stride3_max_c,wregno2_r'length) then
                         template_r.stride3_max <= unsigned(bus_writedata_r(dp_addr_width_c downto 0));                        
                     end if;
-                    if wregno2=to_unsigned(register2_dp_stride4_c,wregno2'length) then
+                    if wregno2_r=to_unsigned(register2_dp_stride4_c,wregno2_r'length) then
                         template_r.stride4 <= unsigned(bus_writedata_r(dp_addr_width_c-1 downto 0));
                     end if;
-                    if wregno2=to_unsigned(register2_dp_stride4_count_c,wregno2'length) then
+                    if wregno2_r=to_unsigned(register2_dp_stride4_count_c,wregno2_r'length) then
                         template_r.stride4_count <= unsigned(bus_writedata_r(dp_addr_width_c-1 downto 0));
                     end if;
-                    if wregno2=to_unsigned(register2_dp_stride4_max_c,wregno2'length) then
+                    if wregno2_r=to_unsigned(register2_dp_stride4_max_c,wregno2_r'length) then
                         template_r.stride4_max <= unsigned(bus_writedata_r(dp_addr_width_c downto 0));                        
                     end if;
-                    if wregno2=to_unsigned(register2_dp_burst_max_c,wregno2'length) then
+                    if wregno2_r=to_unsigned(register2_dp_burst_max_c,wregno2_r'length) then
                         template_r.burst_max <= unsigned(bus_writedata_r(dp_addr_width_c downto 0));                        
                         template_r.burst_max2 <= unsigned(bus_writedata_r(dp_addr_width_c downto 0));                        
                         template_r.burst_max_init <= unsigned(bus_writedata_r(dp_addr_width_c downto 0));                        
                     end if;
-                    if wregno2=to_unsigned(register2_dp_burst_max2_c,wregno2'length) then
+                    if wregno2_r=to_unsigned(register2_dp_burst_max2_c,wregno2_r'length) then
                         template_r.burst_max2 <= unsigned(bus_writedata_r(dp_addr_width_c downto 0));                        
                     end if;
-                    if wregno2=to_unsigned(register2_dp_burst_max_init_c,wregno2'length) then
+                    if wregno2_r=to_unsigned(register2_dp_burst_max_init_c,wregno2_r'length) then
                         template_r.burst_max_init <= unsigned(bus_writedata_r(dp_addr_width_c downto 0));                        
                     end if;
-                    if wregno2=to_unsigned(register2_dp_burst_max_index_c,wregno2'length) then
+                    if wregno2_r=to_unsigned(register2_dp_burst_max_index_c,wregno2_r'length) then
                         template_r.burst_max_index <= unsigned(bus_writedata_r(template_r.burst_max_index'length-1 downto 0));                        
                     end if;
-                    if wregno2=to_unsigned(register2_dp_bar_c,wregno2'length) then
+                    if wregno2_r=to_unsigned(register2_dp_bar_c,wregno2_r'length) then
                         if load_r='1' then
                             template_r.bar <= unsigned(bus_writedata_r(dp_full_addr_width_c-1 downto 0));
                         else
                             template_r.bar <= template_r.bar+unsigned(bus_writedata_r(dp_full_addr_width_c-1 downto 0));
                         end if;
                     end if;
-                    if wregno2=to_unsigned(register2_dp_bufsize_c,wregno2'length) then
+                    if wregno2_r=to_unsigned(register2_dp_bufsize_c,wregno2_r'length) then
                         template_r.bufsize <= unsigned(bus_writedata_r(dp_addr_width_c-1 downto 0));
                     end if;
-                    if wregno2=to_unsigned(register2_dp_burst_max_len_c,wregno2'length) then
+                    if wregno2_r=to_unsigned(register2_dp_burst_max_len_c,wregno2_r'length) then
                         template_r.burst_max_len <= unsigned(bus_writedata_r(dp_addr_width_c-1 downto 0));
                     end if;
-                    if wregno2=to_unsigned(register2_dp_count_c,wregno2'length) then
+                    if wregno2_r=to_unsigned(register2_dp_count_c,wregno2_r'length) then
                         template_r.count <= unsigned(bus_writedata_r(dp_addr_width_c-1 downto 0));
                     end if;
-                    if wregno2=to_unsigned(register2_dp_burst_stride_c,wregno2'length) then
+                    if wregno2_r=to_unsigned(register2_dp_burst_stride_c,wregno2_r'length) then
                         template_r.burstStride <= unsigned(bus_writedata_r(dp_addr_width_c-1 downto 0));
                     end if;
-                    if wregno2=to_unsigned(register2_dp_mode_c,wregno2'length) then
+                    if wregno2_r=to_unsigned(register2_dp_mode_c,wregno2_r'length) then
                         if bus_writedata_r(0)='1' then
                            pos_v := dp_template_id_t'length+1;
                            template_r.double_precision <= bus_writedata_r(pos_v);
@@ -1471,29 +1477,29 @@ begin
                            load_busid_r(0) <= curr_vm_r;
                         end if;
                     end if;
-                    if wregno2=to_unsigned(register2_dp_stride0_min_c,wregno2'length) then
+                    if wregno2_r=to_unsigned(register2_dp_stride0_min_c,wregno2_r'length) then
                         template_r.stride0_min <= unsigned(bus_writedata_r(dp_addr_width_c downto 0));
                     end if;
-                    if wregno2=to_unsigned(register2_dp_stride1_min_c,wregno2'length) then
+                    if wregno2_r=to_unsigned(register2_dp_stride1_min_c,wregno2_r'length) then
                         template_r.stride1_min <= unsigned(bus_writedata_r(dp_addr_width_c downto 0));
                     end if;
-                    if wregno2=to_unsigned(register2_dp_stride2_min_c,wregno2'length) then
+                    if wregno2_r=to_unsigned(register2_dp_stride2_min_c,wregno2_r'length) then
                         template_r.stride2_min <= unsigned(bus_writedata_r(dp_addr_width_c downto 0));
                     end if;
-                    if wregno2=to_unsigned(register2_dp_stride3_min_c,wregno2'length) then
+                    if wregno2_r=to_unsigned(register2_dp_stride3_min_c,wregno2_r'length) then
                         template_r.stride3_min <= unsigned(bus_writedata_r(dp_addr_width_c downto 0));
                     end if;
-                    if wregno2=to_unsigned(register2_dp_stride4_min_c,wregno2'length) then
+                    if wregno2_r=to_unsigned(register2_dp_stride4_min_c,wregno2_r'length) then
                         template_r.stride4_min <= unsigned(bus_writedata_r(dp_addr_width_c downto 0));
                     end if;
-                    if wregno2=to_unsigned(register2_dp_burst_min_c,wregno2'length) then
+                    if wregno2_r=to_unsigned(register2_dp_burst_min_c,wregno2_r'length) then
                         template_r.burst_min <= unsigned(bus_writedata_r(dp_addr_width_c downto 0));
                     end if;
-                    if wregno2=to_unsigned(register2_dp_totalcount_c,wregno2'length) then
+                    if wregno2_r=to_unsigned(register2_dp_totalcount_c,wregno2_r'length) then
                         -- Set number of words to be transfered with subsequent dp_opcode_transfer_c instruction
                         template_r.totalcount <= unsigned(bus_writedata_r(template_r.totalcount'length-1 downto 0));
                     end if;
-                    if wregno2=to_unsigned(register2_dp_data_c,wregno2'length) then
+                    if wregno2_r=to_unsigned(register2_dp_data_c,wregno2_r'length) then
                         -- Set constant value used in case a transfer is running out of source address.
                         template_r.data <= bus_writedata_r(template_r.data'length-1 downto 0);
                     end if;

@@ -96,26 +96,45 @@ signal ram_be:std_logic_vector(3 downto 0);
 
 begin
 
-ram1_i:DPRAM_BE
-   GENERIC MAP (
-        numwords_a=>2**(RAM_DEPTH-2),
-        numwords_b=>2**(RAM_DEPTH-2),
-        widthad_a=>RAM_DEPTH-2,
-        widthad_b=>RAM_DEPTH-2,
-        width_a=>32,
-        width_b=>32
-    )
-    PORT MAP (
-        address_a=>ram_waddr,
-        byteena_a=>ram_be,
-        clock0=>TCM_clk,
-        data_a=>ram_wdata,
-        q_b=>ram_q1,
-        wren_a=>ram_wren,
-        address_b=>ram_raddr1
-    );
+--ram1_i:DPRAM_BE
+--   GENERIC MAP (
+--        numwords_a=>2**(RAM_DEPTH-2),
+--        numwords_b=>2**(RAM_DEPTH-2),
+--        widthad_a=>RAM_DEPTH-2,
+--        widthad_b=>RAM_DEPTH-2,
+--        width_a=>32,
+--        width_b=>32
+--    )
+--    PORT MAP (
+--        address_a=>ram_waddr,
+--        byteena_a=>ram_be,
+--        clock0=>TCM_clk,
+--        data_a=>ram_wdata,
+--        q_b=>ram_q1,
+--        wren_a=>ram_wren,
+--        address_b=>ram_raddr1
+--    );
+--
+--ram2_i:DPRAM_BE
+--   GENERIC MAP (
+--        numwords_a=>2**(RAM_DEPTH-2),
+--        numwords_b=>2**(RAM_DEPTH-2),
+--        widthad_a=>RAM_DEPTH-2,
+--        widthad_b=>RAM_DEPTH-2,
+--        width_a=>32,
+--        width_b=>32
+--    )
+--    PORT MAP (
+--        address_a=>ram_waddr,
+--        byteena_a=>ram_be,
+--        clock0=>TCM_clk,
+--        data_a=>ram_wdata,
+--        q_b=>ram_q2,
+--        wren_a=>ram_wren,
+--        address_b=>ram_raddr2
+--    );
 
-ram2_i:DPRAM_BE
+ram_i:ram2r1w
    GENERIC MAP (
         numwords_a=>2**(RAM_DEPTH-2),
         numwords_b=>2**(RAM_DEPTH-2),
@@ -125,13 +144,16 @@ ram2_i:DPRAM_BE
         width_b=>32
     )
     PORT MAP (
+        clock=>TCM_clk,
+        clock_x2=>TCM_clk_x2,
         address_a=>ram_waddr,
         byteena_a=>ram_be,
-        clock0=>TCM_clk,
         data_a=>ram_wdata,
-        q_b=>ram_q2,
         wren_a=>ram_wren,
-        address_b=>ram_raddr2
+        address1_b=>ram_raddr1,
+        q1_b=>ram_q1,
+        address2_b=>ram_raddr2,
+        q2_b=>ram_q2
     );
 
 TCM_read1_i:TCM_read

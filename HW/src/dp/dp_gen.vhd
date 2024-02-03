@@ -106,6 +106,7 @@ ENTITY dp_gen IS
         SIGNAL gen_data_type_source_out         : OUT dp_data_type_t;
         SIGNAL gen_data_model_source_out        : OUT dp_data_model_t;
         SIGNAL gen_bus_id_dest_out              : OUT dp_bus_id_t;
+        SIGNAL gen_busy_dest_out                : OUT std_logic;
         SIGNAL gen_data_type_dest_out           : OUT dp_data_type_t;
         SIGNAL gen_data_model_dest_out          : OUT dp_data_model_t;
         SIGNAL gen_burstlen_source_out          : OUT burstlen_t;
@@ -438,6 +439,8 @@ constant depth_c:integer:=bus_width_c;
 constant len_zero_v:unsigned(dp_addr_width_c-1 downto 0):=(others=>'0');
 SIGNAL debug_source_bar:std_logic_vector(31 downto 0);
 SIGNAL debug_dest_bar:std_logic_vector(31 downto 0);
+
+SIGNAL gen_busy_dest_r:std_logic;
 BEGIN
 
 gen_src_scatter_out <= src_scatter_rrrr;
@@ -702,6 +705,7 @@ d_i4_count_new <= d_i4_count_r+1;
 gen_valid_out <= gen_valid_r;
 gen_fork_out <= (others=>'0');
 gen_bus_id_dest_out <= dp_dst_bus_id_rrrr;
+gen_busy_dest_out <= gen_busy_dest_r;
 gen_data_type_dest_out <= dp_dst_data_type_rrrr;
 gen_data_model_dest_out <= dp_dst_data_model_rrrr;
 gen_bus_id_source_out <= dp_src_bus_id_rrrr;
@@ -908,6 +912,8 @@ begin
         d_burstpos_end_r <= (others=>'0');
         d_burstpos_end_rr <= (others=>'0');
         d_burstpos_end_rrr <= (others=>'0');
+
+        gen_busy_dest_r <= '0';
     else
         if clock_in'event and clock_in='1' then
              if waitreq='0' then
@@ -921,6 +927,7 @@ begin
                       gen_valid_r(II) <= '0';
                    end if;
                 END LOOP;
+                gen_busy_dest_r <= wr_full_in(to_integer(dp_dst_bus_id_rrr));
                 data_rr <= data_r;
                 data_rrr <= data_rr;
                 data_rrrr <= data_rrr;
@@ -1233,6 +1240,8 @@ begin
                         d_gen_burstlen_r <= to_unsigned(1,burstlen_t'length); -- Calculate burst len at second stage of addess calculation
                     end if;
                 end if;            
+            else
+                gen_busy_dest_r <= wr_full_in(to_integer(dp_dst_bus_id_rrrr));
             end if;
         end if;
     end if;

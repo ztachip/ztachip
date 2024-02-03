@@ -71,6 +71,7 @@ ENTITY dp_gen_core IS
        SIGNAL gen_pcore_data_type_source_out  :out dp_data_type_t;
        SIGNAL gen_pcore_data_model_source_out :out dp_data_model_t;
        SIGNAL gen_pcore_bus_id_dest_out       :out dp_bus_id_t;
+       SIGNAL gen_pcore_busy_dest_out         :out std_logic;
        SIGNAL gen_pcore_data_type_dest_out    :out dp_data_type_t;
        SIGNAL gen_pcore_data_model_dest_out   :out dp_data_model_t;
        SIGNAL gen_pcore_src_burstlen_out      :out burstlen_t;
@@ -105,6 +106,7 @@ ENTITY dp_gen_core IS
        SIGNAL gen_sram_data_type_source_out   :out dp_data_type_t;
        SIGNAL gen_sram_data_model_source_out  :out dp_data_model_t;
        SIGNAL gen_sram_bus_id_dest_out        :out dp_bus_id_t;
+       SIGNAL gen_sram_busy_dest_out          :out std_logic;
        SIGNAL gen_sram_data_type_dest_out     :out dp_data_type_t;
        SIGNAL gen_sram_data_model_dest_out    :out dp_data_model_t;
        SIGNAL gen_sram_src_burstlen_out       :out burstlen_t;
@@ -138,6 +140,7 @@ ENTITY dp_gen_core IS
        SIGNAL gen_ddr_data_type_source_out    :out dp_data_type_t;
        SIGNAL gen_ddr_data_model_source_out   :out dp_data_model_t;
        SIGNAL gen_ddr_bus_id_dest_out         :out dp_bus_id_t;
+       SIGNAL gen_ddr_busy_dest_out           :out std_logic;
        SIGNAL gen_ddr_data_type_dest_out      :out dp_data_type_t;
        SIGNAL gen_ddr_data_model_dest_out     :out dp_data_model_t;
        SIGNAL gen_ddr_src_burstlen_out        :out burstlen_t;
@@ -173,6 +176,7 @@ SIGNAL gen_bus_id_source_1: dp_bus_id_t;
 SIGNAL gen_data_type_source_1: dp_data_type_t;
 SIGNAL gen_data_model_source_1: dp_data_model_t;
 SIGNAL gen_bus_id_dest_1: dp_bus_id_t;
+SIGNAL gen_busy_dest_1: std_logic;
 SIGNAL gen_data_type_dest_1: dp_data_type_t;
 SIGNAL gen_data_model_dest_1: dp_data_model_t;
 SIGNAL gen_src_burstlen_1: burstlen_t;
@@ -204,6 +208,7 @@ SIGNAL gen_bus_id_source_2: dp_bus_id_t;
 SIGNAL gen_data_type_source_2: dp_data_type_t;
 SIGNAL gen_data_model_source_2: dp_data_model_t;
 SIGNAL gen_bus_id_dest_2: dp_bus_id_t;
+SIGNAL gen_busy_dest_2: std_logic;
 SIGNAL gen_data_type_dest_2: dp_data_type_t;
 SIGNAL gen_data_model_dest_2: dp_data_model_t;
 SIGNAL gen_src_burstlen_2: burstlen_t;
@@ -248,6 +253,7 @@ process(
         gen_data_type_source_1,gen_data_type_source_2,
         gen_data_model_source_1,gen_data_model_source_2,
         gen_bus_id_dest_1,gen_bus_id_dest_2,
+        gen_busy_dest_1,gen_busy_dest_2,
         gen_data_type_dest_1,gen_data_type_dest_2,
         gen_data_model_dest_1,gen_data_model_dest_2,
         gen_src_burstlen_1,gen_src_burstlen_2,
@@ -282,6 +288,7 @@ gen_pcore_src_valid <= gen_src_valid_1(dp_bus_id_register_c);
    gen_pcore_data_type_source_out <= gen_data_type_source_1;
    gen_pcore_data_model_source_out <= gen_data_model_source_1;
    gen_pcore_bus_id_dest_out <= gen_bus_id_dest_1;
+   gen_pcore_busy_dest_out <= gen_busy_dest_1;
    gen_pcore_data_type_dest_out <= gen_data_type_dest_1;
    gen_pcore_data_model_dest_out <= gen_data_model_dest_1;
    gen_pcore_src_burstlen_out <= gen_src_burstlen_1;
@@ -314,6 +321,7 @@ gen_pcore_src_valid <= gen_src_valid_2(dp_bus_id_register_c);
    gen_pcore_data_type_source_out <= gen_data_type_source_2;
    gen_pcore_data_model_source_out <= gen_data_model_source_2;
    gen_pcore_bus_id_dest_out <= gen_bus_id_dest_2;
+   gen_pcore_busy_dest_out <= gen_busy_dest_2;
    gen_pcore_data_type_dest_out <= gen_data_type_dest_2;
    gen_pcore_data_model_dest_out <= gen_data_model_dest_2;
    gen_pcore_src_burstlen_out <= gen_src_burstlen_2;
@@ -351,6 +359,7 @@ process(
         gen_data_type_source_1,gen_data_type_source_2,
         gen_data_model_source_1,gen_data_model_source_2,
         gen_bus_id_dest_1,gen_bus_id_dest_2,
+        gen_busy_dest_1,gen_busy_dest_2,
         gen_data_type_dest_1,gen_data_type_dest_2,
         gen_data_model_dest_1,gen_data_model_dest_2,
         gen_src_burstlen_1,gen_src_burstlen_2,
@@ -384,6 +393,7 @@ if gen_src_valid_1(dp_bus_id_sram_c)='1' then
    gen_sram_data_type_source_out <= gen_data_type_source_1;
    gen_sram_data_model_source_out <= gen_data_model_source_1;
    gen_sram_bus_id_dest_out <= gen_bus_id_dest_1;
+   gen_sram_busy_dest_out <= gen_busy_dest_1;
    gen_sram_data_type_dest_out <= gen_data_type_dest_1;
    gen_sram_data_model_dest_out <= gen_data_model_dest_1;
    gen_sram_src_burstlen_out <= gen_src_burstlen_1;
@@ -415,6 +425,7 @@ else
    gen_sram_data_type_source_out <= gen_data_type_source_2;
    gen_sram_data_model_source_out <= gen_data_model_source_2;
    gen_sram_bus_id_dest_out <= gen_bus_id_dest_2;
+   gen_sram_busy_dest_out <= gen_busy_dest_2;
    gen_sram_data_type_dest_out <= gen_data_type_dest_2;
    gen_sram_data_model_dest_out <= gen_data_model_dest_2;
    gen_sram_src_burstlen_out <= gen_src_burstlen_2;
@@ -451,6 +462,7 @@ process(
         gen_data_type_source_1,gen_data_type_source_2,
         gen_data_model_source_1,gen_data_model_source_2,
         gen_bus_id_dest_1,gen_bus_id_dest_2,
+        gen_busy_dest_1,gen_busy_dest_2,
         gen_data_type_dest_1,gen_data_type_dest_2,
         gen_data_model_dest_1,gen_data_model_dest_2,
         gen_src_burstlen_1,gen_src_burstlen_2,
@@ -484,6 +496,7 @@ gen_ddr_src_valid <= gen_src_valid_1(dp_bus_id_ddr_c);
    gen_ddr_data_type_source_out <= gen_data_type_source_1;
    gen_ddr_data_model_source_out <= gen_data_model_source_1;
    gen_ddr_bus_id_dest_out <= gen_bus_id_dest_1;
+   gen_ddr_busy_dest_out <= gen_busy_dest_1;
    gen_ddr_data_type_dest_out <= gen_data_type_dest_1;
    gen_ddr_data_model_dest_out <= gen_data_model_dest_1;
    gen_ddr_src_burstlen_out <= gen_src_burstlen_1;
@@ -516,6 +529,7 @@ gen_ddr_src_valid <= gen_src_valid_2(dp_bus_id_ddr_c);
    gen_ddr_data_type_source_out <= gen_data_type_source_2;
    gen_ddr_data_model_source_out <= gen_data_model_source_2;
    gen_ddr_bus_id_dest_out <= gen_bus_id_dest_2;
+   gen_ddr_busy_dest_out <= gen_busy_dest_2;
    gen_ddr_data_type_dest_out <= gen_data_type_dest_2;
    gen_ddr_data_model_dest_out <= gen_data_model_dest_2;
    gen_ddr_src_burstlen_out <= gen_src_burstlen_2;
@@ -592,6 +606,7 @@ dp_gen_primary_i: dp_gen GENERIC MAP(
                             gen_data_type_source_out=>gen_data_type_source_1,
                             gen_data_model_source_out=>gen_data_model_source_1,
                             gen_bus_id_dest_out=>gen_bus_id_dest_1,
+                            gen_busy_dest_out=>gen_busy_dest_1,
                             gen_data_type_dest_out=>gen_data_type_dest_1,
                             gen_data_model_dest_out=>gen_data_model_dest_1,
                             gen_burstlen_source_out=>gen_src_burstlen_1,
@@ -670,6 +685,7 @@ dp_gen_secondary_i: dp_gen GENERIC MAP(
                             gen_data_type_source_out=>gen_data_type_source_2,
                             gen_data_model_source_out=>gen_data_model_source_2,
                             gen_bus_id_dest_out=>gen_bus_id_dest_2,
+                            gen_busy_dest_out=>gen_busy_dest_2,
                             gen_data_type_dest_out=>gen_data_type_dest_2,
                             gen_data_model_dest_out=>gen_data_model_dest_2,
                             gen_burstlen_source_out=>gen_src_burstlen_2,

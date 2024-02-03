@@ -1091,7 +1091,7 @@ entity DataCache is
     io_cpu_flush_valid : in std_logic;
     io_cpu_flush_ready : out std_logic;
     io_cpu_flush_payload_singleLine : in std_logic;
-    io_cpu_flush_payload_lineId : in unsigned(6 downto 0);
+    io_cpu_flush_payload_lineId : in unsigned(7 downto 0);
     io_cpu_writesPending : out std_logic;
     io_mem_cmd_valid : out std_logic;
     io_mem_cmd_ready : in std_logic;
@@ -1112,10 +1112,8 @@ entity DataCache is
 end DataCache;
 
 architecture arch of DataCache is
-  signal zz_ways_0_tags_port0 : std_logic_vector(21 downto 0);
+  signal zz_ways_0_tags_port0 : std_logic_vector(20 downto 0);
   signal zz_ways_0_data_port0 : std_logic_vector(31 downto 0);
-  signal zz_ways_1_tags_port0 : std_logic_vector(21 downto 0);
-  signal zz_ways_1_data_port0 : std_logic_vector(31 downto 0);
   signal io_mem_cmd_valid_read_buffer : std_logic;
   signal io_cpu_flush_ready_read_buffer : std_logic;
   signal io_cpu_redo_read_buffer : std_logic;
@@ -1123,55 +1121,42 @@ architecture arch of DataCache is
   signal io_cpu_writeBack_mmuException_read_buffer : std_logic;
   signal io_cpu_writeBack_unalignedAccess_read_buffer : std_logic;
   signal io_cpu_writeBack_haltIt_read_buffer : std_logic;
-  signal zz_ways_0_tags_port : std_logic_vector(21 downto 0);
-  signal zz_ways_1_tags_port : std_logic_vector(21 downto 0);
+  signal zz_ways_0_tags_port : std_logic_vector(20 downto 0);
 
   signal zz_1 : std_logic;
   signal zz_2 : std_logic;
-  signal zz_3 : std_logic;
-  signal zz_4 : std_logic;
   signal haltCpu : std_logic;
   signal tagsReadCmd_valid : std_logic;
-  signal tagsReadCmd_payload : unsigned(6 downto 0);
+  signal tagsReadCmd_payload : unsigned(7 downto 0);
   signal tagsWriteCmd_valid : std_logic;
-  signal tagsWriteCmd_payload_way : std_logic_vector(1 downto 0);
-  signal tagsWriteCmd_payload_address : unsigned(6 downto 0);
+  signal tagsWriteCmd_payload_way : std_logic_vector(0 downto 0);
+  signal tagsWriteCmd_payload_address : unsigned(7 downto 0);
   signal tagsWriteCmd_payload_data_valid : std_logic;
   signal tagsWriteCmd_payload_data_error : std_logic;
-  signal tagsWriteCmd_payload_data_address : unsigned(19 downto 0);
+  signal tagsWriteCmd_payload_data_address : unsigned(18 downto 0);
   signal tagsWriteLastCmd_valid : std_logic;
-  signal tagsWriteLastCmd_payload_way : std_logic_vector(1 downto 0);
-  signal tagsWriteLastCmd_payload_address : unsigned(6 downto 0);
+  signal tagsWriteLastCmd_payload_way : std_logic_vector(0 downto 0);
+  signal tagsWriteLastCmd_payload_address : unsigned(7 downto 0);
   signal tagsWriteLastCmd_payload_data_valid : std_logic;
   signal tagsWriteLastCmd_payload_data_error : std_logic;
-  signal tagsWriteLastCmd_payload_data_address : unsigned(19 downto 0);
+  signal tagsWriteLastCmd_payload_data_address : unsigned(18 downto 0);
   signal dataReadCmd_valid : std_logic;
-  signal dataReadCmd_payload : unsigned(9 downto 0);
+  signal dataReadCmd_payload : unsigned(10 downto 0);
   signal dataWriteCmd_valid : std_logic;
-  signal dataWriteCmd_payload_way : std_logic_vector(1 downto 0);
-  signal dataWriteCmd_payload_address : unsigned(9 downto 0);
+  signal dataWriteCmd_payload_way : std_logic_vector(0 downto 0);
+  signal dataWriteCmd_payload_address : unsigned(10 downto 0);
   signal dataWriteCmd_payload_data : std_logic_vector(31 downto 0);
   signal dataWriteCmd_payload_mask : std_logic_vector(3 downto 0);
   signal zz_ways_0_tagsReadRsp_valid : std_logic;
   signal ways_0_tagsReadRsp_valid : std_logic;
   signal ways_0_tagsReadRsp_error : std_logic;
-  signal ways_0_tagsReadRsp_address : unsigned(19 downto 0);
-  signal zz_ways_0_tagsReadRsp_valid_1 : std_logic_vector(21 downto 0);
+  signal ways_0_tagsReadRsp_address : unsigned(18 downto 0);
+  signal zz_ways_0_tagsReadRsp_valid_1 : std_logic_vector(20 downto 0);
   signal zz_ways_0_dataReadRspMem : std_logic;
   signal ways_0_dataReadRspMem : std_logic_vector(31 downto 0);
   signal ways_0_dataReadRsp : std_logic_vector(31 downto 0);
   signal when_DataCache_l645 : std_logic;
   signal when_DataCache_l648 : std_logic;
-  signal zz_ways_1_tagsReadRsp_valid : std_logic;
-  signal ways_1_tagsReadRsp_valid : std_logic;
-  signal ways_1_tagsReadRsp_error : std_logic;
-  signal ways_1_tagsReadRsp_address : unsigned(19 downto 0);
-  signal zz_ways_1_tagsReadRsp_valid_1 : std_logic_vector(21 downto 0);
-  signal zz_ways_1_dataReadRspMem : std_logic;
-  signal ways_1_dataReadRspMem : std_logic_vector(31 downto 0);
-  signal ways_1_dataReadRsp : std_logic_vector(31 downto 0);
-  signal when_DataCache_l645_1 : std_logic;
-  signal when_DataCache_l648_1 : std_logic;
   signal when_DataCache_l667 : std_logic;
   signal rspSync : std_logic;
   signal rspLast : std_logic;
@@ -1180,10 +1165,8 @@ architecture arch of DataCache is
   signal when_DataCache_l689 : std_logic;
   signal zz_stage0_mask : std_logic_vector(3 downto 0);
   signal stage0_mask : std_logic_vector(3 downto 0);
-  signal stage0_dataColisions : std_logic_vector(1 downto 0);
-  signal zz_stage0_dataColisions : unsigned(9 downto 0);
-  signal zz_stage0_dataColisions_1 : std_logic_vector(3 downto 0);
-  signal stage0_wayInvalidate : std_logic_vector(1 downto 0);
+  signal stage0_dataColisions : std_logic_vector(0 downto 0);
+  signal stage0_wayInvalidate : std_logic_vector(0 downto 0);
   signal stage0_isAmo : std_logic;
   signal when_DataCache_l776 : std_logic;
   signal stageA_request_wr : std_logic;
@@ -1193,15 +1176,13 @@ architecture arch of DataCache is
   signal stageA_mask : std_logic_vector(3 downto 0);
   signal stageA_isAmo : std_logic;
   signal stageA_isLrsc : std_logic;
-  signal stageA_wayHits : std_logic_vector(1 downto 0);
+  signal stageA_wayHits : std_logic_vector(0 downto 0);
   signal when_DataCache_l776_2 : std_logic;
-  signal stageA_wayInvalidate : std_logic_vector(1 downto 0);
+  signal stageA_wayInvalidate : std_logic_vector(0 downto 0);
   signal when_DataCache_l776_3 : std_logic;
-  signal stage0_dataColisions_regNextWhen : std_logic_vector(1 downto 0);
-  signal zz_stageA_dataColisions : std_logic_vector(1 downto 0);
-  signal zz_stageA_dataColisions_1 : unsigned(9 downto 0);
-  signal zz_stageA_dataColisions_2 : std_logic_vector(3 downto 0);
-  signal stageA_dataColisions : std_logic_vector(1 downto 0);
+  signal stage0_dataColisions_regNextWhen : std_logic_vector(0 downto 0);
+  signal zz_stageA_dataColisions : std_logic_vector(0 downto 0);
+  signal stageA_dataColisions : std_logic_vector(0 downto 0);
   signal when_DataCache_l827 : std_logic;
   signal stageB_request_wr : std_logic;
   signal stageB_request_size : unsigned(1 downto 0);
@@ -1220,25 +1201,19 @@ architecture arch of DataCache is
   signal when_DataCache_l826 : std_logic;
   signal stageB_tagsReadRsp_0_valid : std_logic;
   signal stageB_tagsReadRsp_0_error : std_logic;
-  signal stageB_tagsReadRsp_0_address : unsigned(19 downto 0);
+  signal stageB_tagsReadRsp_0_address : unsigned(18 downto 0);
   signal when_DataCache_l826_1 : std_logic;
-  signal stageB_tagsReadRsp_1_valid : std_logic;
-  signal stageB_tagsReadRsp_1_error : std_logic;
-  signal stageB_tagsReadRsp_1_address : unsigned(19 downto 0);
-  signal when_DataCache_l826_2 : std_logic;
   signal stageB_dataReadRsp_0 : std_logic_vector(31 downto 0);
-  signal when_DataCache_l826_3 : std_logic;
-  signal stageB_dataReadRsp_1 : std_logic_vector(31 downto 0);
   signal when_DataCache_l825 : std_logic;
-  signal stageB_wayInvalidate : std_logic_vector(1 downto 0);
+  signal stageB_wayInvalidate : std_logic_vector(0 downto 0);
   signal stageB_consistancyHazard : std_logic;
   signal when_DataCache_l825_1 : std_logic;
-  signal stageB_dataColisions : std_logic_vector(1 downto 0);
+  signal stageB_dataColisions : std_logic_vector(0 downto 0);
   signal when_DataCache_l825_2 : std_logic;
   signal stageB_unaligned : std_logic;
   signal when_DataCache_l825_3 : std_logic;
-  signal stageB_waysHitsBeforeInvalidate : std_logic_vector(1 downto 0);
-  signal stageB_waysHits : std_logic_vector(1 downto 0);
+  signal stageB_waysHitsBeforeInvalidate : std_logic_vector(0 downto 0);
+  signal stageB_waysHits : std_logic_vector(0 downto 0);
   signal stageB_waysHit : std_logic;
   signal stageB_dataMux : std_logic_vector(31 downto 0);
   signal when_DataCache_l825_4 : std_logic;
@@ -1247,7 +1222,7 @@ architecture arch of DataCache is
   signal stageB_ioMemRspMuxed : std_logic_vector(31 downto 0);
   signal stageB_flusher_waitDone : std_logic;
   signal stageB_flusher_hold : std_logic;
-  signal stageB_flusher_counter : unsigned(7 downto 0);
+  signal stageB_flusher_counter : unsigned(8 downto 0);
   signal when_DataCache_l855 : std_logic;
   signal when_DataCache_l861 : std_logic;
   signal when_DataCache_l863 : std_logic;
@@ -1278,7 +1253,7 @@ architecture arch of DataCache is
   signal loader_counter_value : unsigned(2 downto 0);
   signal loader_counter_willOverflowIfInc : std_logic;
   signal loader_counter_willOverflow : std_logic;
-  signal loader_waysAllocator : std_logic_vector(1 downto 0);
+  signal loader_waysAllocator : std_logic_vector(0 downto 0);
   signal loader_error : std_logic;
   signal loader_kill : std_logic;
   signal loader_killReg : std_logic;
@@ -1288,28 +1263,17 @@ architecture arch of DataCache is
   signal loader_valid_regNext : std_logic;
   signal when_DataCache_l1129 : std_logic;
   signal when_DataCache_l1132 : std_logic;
-  type ways_0_tags_type is array (0 to 127) of std_logic_vector(21 downto 0);
+  type ways_0_tags_type is array (0 to 255) of std_logic_vector(20 downto 0);
   signal ways_0_tags : ways_0_tags_type;
-  type ways_0_data_type is array (0 to 1023) of std_logic_vector(7 downto 0);
+  type ways_0_data_type is array (0 to 2047) of std_logic_vector(7 downto 0);
   signal ways_0_data_symbol0 : ways_0_data_type;
   signal ways_0_data_symbol1 : ways_0_data_type;
   signal ways_0_data_symbol2 : ways_0_data_type;
   signal ways_0_data_symbol3 : ways_0_data_type;
-  signal zz_13 : std_logic_vector(7 downto 0);
-  signal zz_14 : std_logic_vector(7 downto 0);
-  signal zz_15 : std_logic_vector(7 downto 0);
-  signal zz_16 : std_logic_vector(7 downto 0);
-  type ways_1_tags_type is array (0 to 127) of std_logic_vector(21 downto 0);
-  signal ways_1_tags : ways_1_tags_type;
-  type ways_1_data_type is array (0 to 1023) of std_logic_vector(7 downto 0);
-  signal ways_1_data_symbol0 : ways_1_data_type;
-  signal ways_1_data_symbol1 : ways_1_data_type;
-  signal ways_1_data_symbol2 : ways_1_data_type;
-  signal ways_1_data_symbol3 : ways_1_data_type;
-  signal zz_17 : std_logic_vector(7 downto 0);
-  signal zz_18 : std_logic_vector(7 downto 0);
-  signal zz_19 : std_logic_vector(7 downto 0);
-  signal zz_20 : std_logic_vector(7 downto 0);
+  signal zz_7 : std_logic_vector(7 downto 0);
+  signal zz_8 : std_logic_vector(7 downto 0);
+  signal zz_9 : std_logic_vector(7 downto 0);
+  signal zz_10 : std_logic_vector(7 downto 0);
 begin
   io_mem_cmd_valid <= io_mem_cmd_valid_read_buffer;
   io_cpu_flush_ready <= io_cpu_flush_ready_read_buffer;
@@ -1319,7 +1283,6 @@ begin
   io_cpu_writeBack_unalignedAccess <= io_cpu_writeBack_unalignedAccess_read_buffer;
   io_cpu_writeBack_haltIt <= io_cpu_writeBack_haltIt_read_buffer;
   zz_ways_0_tags_port <= pkg_cat(std_logic_vector(tagsWriteCmd_payload_data_address),pkg_cat(pkg_toStdLogicVector(tagsWriteCmd_payload_data_error),pkg_toStdLogicVector(tagsWriteCmd_payload_data_valid)));
-  zz_ways_1_tags_port <= pkg_cat(std_logic_vector(tagsWriteCmd_payload_data_address),pkg_cat(pkg_toStdLogicVector(tagsWriteCmd_payload_data_error),pkg_toStdLogicVector(tagsWriteCmd_payload_data_valid)));
   process(io_mainClk)
   begin
     if rising_edge(io_mainClk) then
@@ -1332,76 +1295,24 @@ begin
   process(io_mainClk)
   begin
     if rising_edge(io_mainClk) then
-      if zz_4 = '1' then
+      if zz_2 = '1' then
         ways_0_tags(to_integer(tagsWriteCmd_payload_address)) <= zz_ways_0_tags_port;
       end if;
     end if;
   end process;
 
-  process (zz_13, zz_14, zz_15, zz_16)
+  process (zz_7, zz_8, zz_9, zz_10)
   begin
-    zz_ways_0_data_port0 <= zz_16 & zz_15 & zz_14 & zz_13;
+    zz_ways_0_data_port0 <= zz_10 & zz_9 & zz_8 & zz_7;
   end process;
   process(io_mainClk)
   begin
     if rising_edge(io_mainClk) then
       if zz_ways_0_dataReadRspMem = '1' then
-        zz_13 <= ways_0_data_symbol0(to_integer(dataReadCmd_payload));
-        zz_14 <= ways_0_data_symbol1(to_integer(dataReadCmd_payload));
-        zz_15 <= ways_0_data_symbol2(to_integer(dataReadCmd_payload));
-        zz_16 <= ways_0_data_symbol3(to_integer(dataReadCmd_payload));
-      end if;
-    end if;
-  end process;
-
-  process(io_mainClk)
-  begin
-    if rising_edge(io_mainClk) then
-      if dataWriteCmd_payload_mask(0) = '1' and zz_3 = '1' then
-        ways_0_data_symbol0(to_integer(dataWriteCmd_payload_address)) <= dataWriteCmd_payload_data(7 downto 0);
-      end if;
-      if dataWriteCmd_payload_mask(1) = '1' and zz_3 = '1' then
-        ways_0_data_symbol1(to_integer(dataWriteCmd_payload_address)) <= dataWriteCmd_payload_data(15 downto 8);
-      end if;
-      if dataWriteCmd_payload_mask(2) = '1' and zz_3 = '1' then
-        ways_0_data_symbol2(to_integer(dataWriteCmd_payload_address)) <= dataWriteCmd_payload_data(23 downto 16);
-      end if;
-      if dataWriteCmd_payload_mask(3) = '1' and zz_3 = '1' then
-        ways_0_data_symbol3(to_integer(dataWriteCmd_payload_address)) <= dataWriteCmd_payload_data(31 downto 24);
-      end if;
-    end if;
-  end process;
-
-  process(io_mainClk)
-  begin
-    if rising_edge(io_mainClk) then
-      if zz_ways_1_tagsReadRsp_valid = '1' then
-        zz_ways_1_tags_port0 <= ways_1_tags(to_integer(tagsReadCmd_payload));
-      end if;
-    end if;
-  end process;
-
-  process(io_mainClk)
-  begin
-    if rising_edge(io_mainClk) then
-      if zz_2 = '1' then
-        ways_1_tags(to_integer(tagsWriteCmd_payload_address)) <= zz_ways_1_tags_port;
-      end if;
-    end if;
-  end process;
-
-  process (zz_17, zz_18, zz_19, zz_20)
-  begin
-    zz_ways_1_data_port0 <= zz_20 & zz_19 & zz_18 & zz_17;
-  end process;
-  process(io_mainClk)
-  begin
-    if rising_edge(io_mainClk) then
-      if zz_ways_1_dataReadRspMem = '1' then
-        zz_17 <= ways_1_data_symbol0(to_integer(dataReadCmd_payload));
-        zz_18 <= ways_1_data_symbol1(to_integer(dataReadCmd_payload));
-        zz_19 <= ways_1_data_symbol2(to_integer(dataReadCmd_payload));
-        zz_20 <= ways_1_data_symbol3(to_integer(dataReadCmd_payload));
+        zz_7 <= ways_0_data_symbol0(to_integer(dataReadCmd_payload));
+        zz_8 <= ways_0_data_symbol1(to_integer(dataReadCmd_payload));
+        zz_9 <= ways_0_data_symbol2(to_integer(dataReadCmd_payload));
+        zz_10 <= ways_0_data_symbol3(to_integer(dataReadCmd_payload));
       end if;
     end if;
   end process;
@@ -1410,49 +1321,33 @@ begin
   begin
     if rising_edge(io_mainClk) then
       if dataWriteCmd_payload_mask(0) = '1' and zz_1 = '1' then
-        ways_1_data_symbol0(to_integer(dataWriteCmd_payload_address)) <= dataWriteCmd_payload_data(7 downto 0);
+        ways_0_data_symbol0(to_integer(dataWriteCmd_payload_address)) <= dataWriteCmd_payload_data(7 downto 0);
       end if;
       if dataWriteCmd_payload_mask(1) = '1' and zz_1 = '1' then
-        ways_1_data_symbol1(to_integer(dataWriteCmd_payload_address)) <= dataWriteCmd_payload_data(15 downto 8);
+        ways_0_data_symbol1(to_integer(dataWriteCmd_payload_address)) <= dataWriteCmd_payload_data(15 downto 8);
       end if;
       if dataWriteCmd_payload_mask(2) = '1' and zz_1 = '1' then
-        ways_1_data_symbol2(to_integer(dataWriteCmd_payload_address)) <= dataWriteCmd_payload_data(23 downto 16);
+        ways_0_data_symbol2(to_integer(dataWriteCmd_payload_address)) <= dataWriteCmd_payload_data(23 downto 16);
       end if;
       if dataWriteCmd_payload_mask(3) = '1' and zz_1 = '1' then
-        ways_1_data_symbol3(to_integer(dataWriteCmd_payload_address)) <= dataWriteCmd_payload_data(31 downto 24);
+        ways_0_data_symbol3(to_integer(dataWriteCmd_payload_address)) <= dataWriteCmd_payload_data(31 downto 24);
       end if;
-    end if;
-  end process;
-
-  process(when_DataCache_l648_1)
-  begin
-    zz_1 <= pkg_toStdLogic(false);
-    if when_DataCache_l648_1 = '1' then
-      zz_1 <= pkg_toStdLogic(true);
-    end if;
-  end process;
-
-  process(when_DataCache_l645_1)
-  begin
-    zz_2 <= pkg_toStdLogic(false);
-    if when_DataCache_l645_1 = '1' then
-      zz_2 <= pkg_toStdLogic(true);
     end if;
   end process;
 
   process(when_DataCache_l648)
   begin
-    zz_3 <= pkg_toStdLogic(false);
+    zz_1 <= pkg_toStdLogic(false);
     if when_DataCache_l648 = '1' then
-      zz_3 <= pkg_toStdLogic(true);
+      zz_1 <= pkg_toStdLogic(true);
     end if;
   end process;
 
   process(when_DataCache_l645)
   begin
-    zz_4 <= pkg_toStdLogic(false);
+    zz_2 <= pkg_toStdLogic(false);
     if when_DataCache_l645 = '1' then
-      zz_4 <= pkg_toStdLogic(true);
+      zz_2 <= pkg_toStdLogic(true);
     end if;
   end process;
 
@@ -1461,22 +1356,12 @@ begin
   zz_ways_0_tagsReadRsp_valid_1 <= zz_ways_0_tags_port0;
   ways_0_tagsReadRsp_valid <= pkg_extract(zz_ways_0_tagsReadRsp_valid_1,0);
   ways_0_tagsReadRsp_error <= pkg_extract(zz_ways_0_tagsReadRsp_valid_1,1);
-  ways_0_tagsReadRsp_address <= unsigned(pkg_extract(zz_ways_0_tagsReadRsp_valid_1,21,2));
+  ways_0_tagsReadRsp_address <= unsigned(pkg_extract(zz_ways_0_tagsReadRsp_valid_1,20,2));
   zz_ways_0_dataReadRspMem <= (dataReadCmd_valid and (not io_cpu_memory_isStuck));
   ways_0_dataReadRspMem <= zz_ways_0_data_port0;
   ways_0_dataReadRsp <= pkg_extract(ways_0_dataReadRspMem,31,0);
   when_DataCache_l645 <= (tagsWriteCmd_valid and pkg_extract(tagsWriteCmd_payload_way,0));
   when_DataCache_l648 <= (dataWriteCmd_valid and pkg_extract(dataWriteCmd_payload_way,0));
-  zz_ways_1_tagsReadRsp_valid <= (tagsReadCmd_valid and (not io_cpu_memory_isStuck));
-  zz_ways_1_tagsReadRsp_valid_1 <= zz_ways_1_tags_port0;
-  ways_1_tagsReadRsp_valid <= pkg_extract(zz_ways_1_tagsReadRsp_valid_1,0);
-  ways_1_tagsReadRsp_error <= pkg_extract(zz_ways_1_tagsReadRsp_valid_1,1);
-  ways_1_tagsReadRsp_address <= unsigned(pkg_extract(zz_ways_1_tagsReadRsp_valid_1,21,2));
-  zz_ways_1_dataReadRspMem <= (dataReadCmd_valid and (not io_cpu_memory_isStuck));
-  ways_1_dataReadRspMem <= zz_ways_1_data_port0;
-  ways_1_dataReadRsp <= pkg_extract(ways_1_dataReadRspMem,31,0);
-  when_DataCache_l645_1 <= (tagsWriteCmd_valid and pkg_extract(tagsWriteCmd_payload_way,1));
-  when_DataCache_l648_1 <= (dataWriteCmd_valid and pkg_extract(dataWriteCmd_payload_way,1));
   process(when_DataCache_l667)
   begin
     tagsReadCmd_valid <= pkg_toStdLogic(false);
@@ -1487,9 +1372,9 @@ begin
 
   process(when_DataCache_l667,io_cpu_execute_address)
   begin
-    tagsReadCmd_payload <= pkg_unsigned("XXXXXXX");
+    tagsReadCmd_payload <= pkg_unsigned("XXXXXXXX");
     if when_DataCache_l667 = '1' then
-      tagsReadCmd_payload <= pkg_extract(io_cpu_execute_address,11,5);
+      tagsReadCmd_payload <= pkg_extract(io_cpu_execute_address,12,5);
     end if;
   end process;
 
@@ -1503,9 +1388,9 @@ begin
 
   process(when_DataCache_l667,io_cpu_execute_address)
   begin
-    dataReadCmd_payload <= pkg_unsigned("XXXXXXXXXX");
+    dataReadCmd_payload <= pkg_unsigned("XXXXXXXXXXX");
     if when_DataCache_l667 = '1' then
-      dataReadCmd_payload <= pkg_extract(io_cpu_execute_address,11,2);
+      dataReadCmd_payload <= pkg_extract(io_cpu_execute_address,12,2);
     end if;
   end process;
 
@@ -1527,9 +1412,9 @@ begin
 
   process(when_DataCache_l855,loader_done,loader_waysAllocator)
   begin
-    tagsWriteCmd_payload_way <= pkg_stdLogicVector("XX");
+    tagsWriteCmd_payload_way <= pkg_stdLogicVector("X");
     if when_DataCache_l855 = '1' then
-      tagsWriteCmd_payload_way <= pkg_stdLogicVector("11");
+      tagsWriteCmd_payload_way <= pkg_stdLogicVector("1");
     end if;
     if loader_done = '1' then
       tagsWriteCmd_payload_way <= loader_waysAllocator;
@@ -1538,12 +1423,12 @@ begin
 
   process(when_DataCache_l855,stageB_flusher_counter,loader_done,stageB_mmuRsp_physicalAddress)
   begin
-    tagsWriteCmd_payload_address <= pkg_unsigned("XXXXXXX");
+    tagsWriteCmd_payload_address <= pkg_unsigned("XXXXXXXX");
     if when_DataCache_l855 = '1' then
-      tagsWriteCmd_payload_address <= pkg_resize(stageB_flusher_counter,7);
+      tagsWriteCmd_payload_address <= pkg_resize(stageB_flusher_counter,8);
     end if;
     if loader_done = '1' then
-      tagsWriteCmd_payload_address <= pkg_extract(stageB_mmuRsp_physicalAddress,11,5);
+      tagsWriteCmd_payload_address <= pkg_extract(stageB_mmuRsp_physicalAddress,12,5);
     end if;
   end process;
 
@@ -1568,9 +1453,9 @@ begin
 
   process(loader_done,stageB_mmuRsp_physicalAddress)
   begin
-    tagsWriteCmd_payload_data_address <= pkg_unsigned("XXXXXXXXXXXXXXXXXXXX");
+    tagsWriteCmd_payload_data_address <= pkg_unsigned("XXXXXXXXXXXXXXXXXXX");
     if loader_done = '1' then
-      tagsWriteCmd_payload_data_address <= pkg_extract(stageB_mmuRsp_physicalAddress,31,12);
+      tagsWriteCmd_payload_data_address <= pkg_extract(stageB_mmuRsp_physicalAddress,31,13);
     end if;
   end process;
 
@@ -1594,7 +1479,7 @@ begin
 
   process(stageB_cpuWriteToCache,stageB_waysHits,when_DataCache_l1097,loader_waysAllocator)
   begin
-    dataWriteCmd_payload_way <= pkg_stdLogicVector("XX");
+    dataWriteCmd_payload_way <= pkg_stdLogicVector("X");
     if stageB_cpuWriteToCache = '1' then
       dataWriteCmd_payload_way <= stageB_waysHits;
     end if;
@@ -1605,12 +1490,12 @@ begin
 
   process(stageB_cpuWriteToCache,stageB_mmuRsp_physicalAddress,when_DataCache_l1097,loader_counter_value)
   begin
-    dataWriteCmd_payload_address <= pkg_unsigned("XXXXXXXXXX");
+    dataWriteCmd_payload_address <= pkg_unsigned("XXXXXXXXXXX");
     if stageB_cpuWriteToCache = '1' then
-      dataWriteCmd_payload_address <= pkg_extract(stageB_mmuRsp_physicalAddress,11,2);
+      dataWriteCmd_payload_address <= pkg_extract(stageB_mmuRsp_physicalAddress,12,2);
     end if;
     if when_DataCache_l1097 = '1' then
-      dataWriteCmd_payload_address <= unsigned(pkg_cat(std_logic_vector(pkg_extract(stageB_mmuRsp_physicalAddress,11,5)),std_logic_vector(loader_counter_value)));
+      dataWriteCmd_payload_address <= unsigned(pkg_cat(std_logic_vector(pkg_extract(stageB_mmuRsp_physicalAddress,12,5)),std_logic_vector(loader_counter_value)));
     end if;
   end process;
 
@@ -1667,32 +1552,18 @@ begin
   end process;
 
   stage0_mask <= std_logic_vector(shift_left(unsigned(zz_stage0_mask),to_integer(pkg_extract(io_cpu_execute_address,1,0))));
-  zz_stage0_dataColisions <= pkg_extract(io_cpu_execute_address,11,2);
-  zz_stage0_dataColisions_1 <= pkg_extract(dataWriteCmd_payload_mask,3,0);
-  process(dataWriteCmd_valid,dataWriteCmd_payload_way,dataWriteCmd_payload_address,zz_stage0_dataColisions,stage0_mask,zz_stage0_dataColisions_1)
-  begin
-    stage0_dataColisions(0) <= (((dataWriteCmd_valid and pkg_extract(dataWriteCmd_payload_way,0)) and pkg_toStdLogic(dataWriteCmd_payload_address = zz_stage0_dataColisions)) and pkg_toStdLogic((stage0_mask and zz_stage0_dataColisions_1) /= pkg_stdLogicVector("0000")));
-    stage0_dataColisions(1) <= (((dataWriteCmd_valid and pkg_extract(dataWriteCmd_payload_way,1)) and pkg_toStdLogic(dataWriteCmd_payload_address = zz_stage0_dataColisions)) and pkg_toStdLogic((stage0_mask and zz_stage0_dataColisions_1) /= pkg_stdLogicVector("0000")));
-  end process;
-
-  stage0_wayInvalidate <= pkg_stdLogicVector("00");
+  stage0_dataColisions(0) <= (((dataWriteCmd_valid and pkg_extract(dataWriteCmd_payload_way,0)) and pkg_toStdLogic(dataWriteCmd_payload_address = pkg_extract(io_cpu_execute_address,12,2))) and pkg_toStdLogic((stage0_mask and pkg_extract(dataWriteCmd_payload_mask,3,0)) /= pkg_stdLogicVector("0000")));
+  stage0_wayInvalidate <= pkg_stdLogicVector("0");
   stage0_isAmo <= pkg_toStdLogic(false);
   when_DataCache_l776 <= (not io_cpu_memory_isStuck);
   when_DataCache_l776_1 <= (not io_cpu_memory_isStuck);
   io_cpu_memory_isWrite <= stageA_request_wr;
   stageA_isAmo <= pkg_toStdLogic(false);
   stageA_isLrsc <= pkg_toStdLogic(false);
-  stageA_wayHits <= pkg_cat(pkg_toStdLogicVector((pkg_toStdLogic(pkg_extract(io_cpu_memory_mmuRsp_physicalAddress,31,12) = ways_1_tagsReadRsp_address) and ways_1_tagsReadRsp_valid)),pkg_toStdLogicVector((pkg_toStdLogic(pkg_extract(io_cpu_memory_mmuRsp_physicalAddress,31,12) = ways_0_tagsReadRsp_address) and ways_0_tagsReadRsp_valid)));
+  stageA_wayHits <= pkg_toStdLogicVector((pkg_toStdLogic(pkg_extract(io_cpu_memory_mmuRsp_physicalAddress,31,13) = ways_0_tagsReadRsp_address) and ways_0_tagsReadRsp_valid));
   when_DataCache_l776_2 <= (not io_cpu_memory_isStuck);
   when_DataCache_l776_3 <= (not io_cpu_memory_isStuck);
-  zz_stageA_dataColisions_1 <= pkg_extract(io_cpu_memory_address,11,2);
-  zz_stageA_dataColisions_2 <= pkg_extract(dataWriteCmd_payload_mask,3,0);
-  process(dataWriteCmd_valid,dataWriteCmd_payload_way,dataWriteCmd_payload_address,zz_stageA_dataColisions_1,stageA_mask,zz_stageA_dataColisions_2)
-  begin
-    zz_stageA_dataColisions(0) <= (((dataWriteCmd_valid and pkg_extract(dataWriteCmd_payload_way,0)) and pkg_toStdLogic(dataWriteCmd_payload_address = zz_stageA_dataColisions_1)) and pkg_toStdLogic((stageA_mask and zz_stageA_dataColisions_2) /= pkg_stdLogicVector("0000")));
-    zz_stageA_dataColisions(1) <= (((dataWriteCmd_valid and pkg_extract(dataWriteCmd_payload_way,1)) and pkg_toStdLogic(dataWriteCmd_payload_address = zz_stageA_dataColisions_1)) and pkg_toStdLogic((stageA_mask and zz_stageA_dataColisions_2) /= pkg_stdLogicVector("0000")));
-  end process;
-
+  zz_stageA_dataColisions(0) <= (((dataWriteCmd_valid and pkg_extract(dataWriteCmd_payload_way,0)) and pkg_toStdLogic(dataWriteCmd_payload_address = pkg_extract(io_cpu_memory_address,12,2))) and pkg_toStdLogic((stageA_mask and pkg_extract(dataWriteCmd_payload_mask,3,0)) /= pkg_stdLogicVector("0000")));
   stageA_dataColisions <= (stage0_dataColisions_regNextWhen or zz_stageA_dataColisions);
   when_DataCache_l827 <= (not io_cpu_writeBack_isStuck);
   process(when_DataCache_l1132)
@@ -1706,16 +1577,14 @@ begin
   when_DataCache_l829 <= ((not io_cpu_writeBack_isStuck) and (not stageB_mmuRspFreeze));
   when_DataCache_l826 <= (not io_cpu_writeBack_isStuck);
   when_DataCache_l826_1 <= (not io_cpu_writeBack_isStuck);
-  when_DataCache_l826_2 <= (not io_cpu_writeBack_isStuck);
-  when_DataCache_l826_3 <= (not io_cpu_writeBack_isStuck);
   when_DataCache_l825 <= (not io_cpu_writeBack_isStuck);
   stageB_consistancyHazard <= pkg_toStdLogic(false);
   when_DataCache_l825_1 <= (not io_cpu_writeBack_isStuck);
   when_DataCache_l825_2 <= (not io_cpu_writeBack_isStuck);
   when_DataCache_l825_3 <= (not io_cpu_writeBack_isStuck);
   stageB_waysHits <= (stageB_waysHitsBeforeInvalidate and pkg_not(stageB_wayInvalidate));
-  stageB_waysHit <= pkg_toStdLogic(stageB_waysHits /= pkg_stdLogicVector("00"));
-  stageB_dataMux <= pkg_mux(pkg_extract(stageB_waysHits,0),stageB_dataReadRsp_0,stageB_dataReadRsp_1);
+  stageB_waysHit <= pkg_toStdLogic(stageB_waysHits /= pkg_stdLogicVector("0"));
+  stageB_dataMux <= stageB_dataReadRsp_0;
   when_DataCache_l825_4 <= (not io_cpu_writeBack_isStuck);
   process(io_cpu_writeBack_isValid,stageB_isExternalAmo,when_DataCache_l996,when_DataCache_l1009,io_mem_cmd_ready,when_DataCache_l1072)
   begin
@@ -1765,10 +1634,10 @@ begin
   end process;
 
   stageB_flusher_hold <= pkg_toStdLogic(false);
-  when_DataCache_l855 <= (not pkg_extract(stageB_flusher_counter,7));
+  when_DataCache_l855 <= (not pkg_extract(stageB_flusher_counter,8));
   when_DataCache_l861 <= (not stageB_flusher_hold);
   when_DataCache_l863 <= (io_cpu_flush_valid and io_cpu_flush_payload_singleLine);
-  io_cpu_flush_ready_read_buffer <= (stageB_flusher_waitDone and pkg_extract(stageB_flusher_counter,7));
+  io_cpu_flush_ready_read_buffer <= (stageB_flusher_waitDone and pkg_extract(stageB_flusher_counter,8));
   when_DataCache_l877 <= (io_cpu_flush_valid and io_cpu_flush_payload_singleLine);
   stageB_isAmo <= pkg_toStdLogic(false);
   stageB_isAmoCached <= pkg_toStdLogic(false);
@@ -1816,13 +1685,13 @@ begin
     end if;
   end process;
 
-  process(stageB_bypassCache,stageB_request_wr,io_mem_rsp_valid,io_mem_rsp_payload_error,stageB_waysHits,stageB_tagsReadRsp_1_error,stageB_tagsReadRsp_0_error,stageB_loadStoreFault,stageB_mmuRsp_isPaging)
+  process(stageB_bypassCache,stageB_request_wr,io_mem_rsp_valid,io_mem_rsp_payload_error,stageB_waysHits,stageB_tagsReadRsp_0_error,stageB_loadStoreFault,stageB_mmuRsp_isPaging)
   begin
     io_cpu_writeBack_accessError_read_buffer <= pkg_toStdLogic(false);
     if stageB_bypassCache = '1' then
       io_cpu_writeBack_accessError_read_buffer <= ((((not stageB_request_wr) and pkg_toStdLogic(true)) and io_mem_rsp_valid) and io_mem_rsp_payload_error);
     else
-      io_cpu_writeBack_accessError_read_buffer <= (pkg_toStdLogic((stageB_waysHits and pkg_cat(pkg_toStdLogicVector(stageB_tagsReadRsp_1_error),pkg_toStdLogicVector(stageB_tagsReadRsp_0_error))) /= pkg_stdLogicVector("00")) or (stageB_loadStoreFault and (not stageB_mmuRsp_isPaging)));
+      io_cpu_writeBack_accessError_read_buffer <= (pkg_toStdLogic((stageB_waysHits and pkg_toStdLogicVector(stageB_tagsReadRsp_0_error)) /= pkg_stdLogicVector("0")) or (stageB_loadStoreFault and (not stageB_mmuRsp_isPaging)));
     end if;
   end process;
 
@@ -1907,7 +1776,7 @@ begin
   when_DataCache_l1000 <= pkg_mux((not stageB_request_wr),(io_mem_rsp_valid and rspSync),io_mem_cmd_ready);
   when_DataCache_l1009 <= (stageB_waysHit or (stageB_request_wr and (not stageB_isAmoCached)));
   when_DataCache_l1014 <= ((not stageB_request_wr) or io_mem_cmd_ready);
-  when_DataCache_l1025 <= (((not stageB_request_wr) or stageB_isAmoCached) and pkg_toStdLogic((stageB_dataColisions and stageB_waysHits) /= pkg_stdLogicVector("00")));
+  when_DataCache_l1025 <= (((not stageB_request_wr) or stageB_isAmoCached) and pkg_toStdLogic((stageB_dataColisions and stageB_waysHits) /= pkg_stdLogicVector("0")));
   when_DataCache_l1037 <= (not memCmdSent);
   when_DataCache_l996 <= (stageB_mmuRsp_isIoAccess or stageB_isExternalLsrc);
   process(stageB_bypassCache,stageB_ioMemRspMuxed,stageB_dataMux)
@@ -1992,15 +1861,7 @@ begin
         stageB_tagsReadRsp_0_address <= ways_0_tagsReadRsp_address;
       end if;
       if when_DataCache_l826_1 = '1' then
-        stageB_tagsReadRsp_1_valid <= ways_1_tagsReadRsp_valid;
-        stageB_tagsReadRsp_1_error <= ways_1_tagsReadRsp_error;
-        stageB_tagsReadRsp_1_address <= ways_1_tagsReadRsp_address;
-      end if;
-      if when_DataCache_l826_2 = '1' then
         stageB_dataReadRsp_0 <= ways_0_dataReadRsp;
-      end if;
-      if when_DataCache_l826_3 = '1' then
-        stageB_dataReadRsp_1 <= ways_1_dataReadRsp;
       end if;
       if when_DataCache_l825 = '1' then
         stageB_wayInvalidate <= stageA_wayInvalidate;
@@ -2026,11 +1887,11 @@ begin
     if resetCtrl_systemReset = '1' then
       memCmdSent <= pkg_toStdLogic(false);
       stageB_flusher_waitDone <= pkg_toStdLogic(false);
-      stageB_flusher_counter <= pkg_unsigned("00000000");
+      stageB_flusher_counter <= pkg_unsigned("000000000");
       stageB_flusher_start <= pkg_toStdLogic(true);
       loader_valid <= pkg_toStdLogic(false);
       loader_counter_value <= pkg_unsigned("000");
-      loader_waysAllocator <= pkg_stdLogicVector("01");
+      loader_waysAllocator <= pkg_stdLogicVector("1");
       loader_error <= pkg_toStdLogic(false);
       loader_killReg <= pkg_toStdLogic(false);
     elsif rising_edge(io_mainClk) then
@@ -2045,16 +1906,16 @@ begin
       end if;
       if when_DataCache_l855 = '1' then
         if when_DataCache_l861 = '1' then
-          stageB_flusher_counter <= (stageB_flusher_counter + pkg_unsigned("00000001"));
+          stageB_flusher_counter <= (stageB_flusher_counter + pkg_unsigned("000000001"));
           if when_DataCache_l863 = '1' then
-            stageB_flusher_counter(7) <= pkg_toStdLogic(true);
+            stageB_flusher_counter(8) <= pkg_toStdLogic(true);
           end if;
         end if;
       end if;
       stageB_flusher_start <= (((((((not stageB_flusher_waitDone) and (not stageB_flusher_start)) and io_cpu_flush_valid) and (not io_cpu_execute_isValid)) and (not io_cpu_memory_isValid)) and (not io_cpu_writeBack_isValid)) and (not io_cpu_redo_read_buffer));
       if stageB_flusher_start = '1' then
         stageB_flusher_waitDone <= pkg_toStdLogic(true);
-        stageB_flusher_counter <= pkg_unsigned("00000000");
+        stageB_flusher_counter <= pkg_unsigned("000000000");
         if when_DataCache_l877 = '1' then
           stageB_flusher_counter <= unsigned(pkg_cat(std_logic_vector(pkg_unsigned("0")),std_logic_vector(io_cpu_flush_payload_lineId)));
         end if;
@@ -2076,7 +1937,7 @@ begin
         loader_killReg <= pkg_toStdLogic(false);
       end if;
       if when_DataCache_l1125 = '1' then
-        loader_waysAllocator <= pkg_resize(pkg_cat(loader_waysAllocator,pkg_toStdLogicVector(pkg_extract(loader_waysAllocator,1))),2);
+        loader_waysAllocator <= pkg_resize(pkg_cat(loader_waysAllocator,pkg_toStdLogicVector(pkg_extract(loader_waysAllocator,0))),1);
       end if;
     end if;
   end process;
@@ -2287,7 +2148,7 @@ architecture arch of VexRiscv is
   signal dataCache_1_io_cpu_writeBack_fence_FM : std_logic_vector(3 downto 0);
   signal dataCache_1_io_cpu_flush_valid : std_logic;
   signal dataCache_1_io_cpu_flush_payload_singleLine : std_logic;
-  signal dataCache_1_io_cpu_flush_payload_lineId : unsigned(6 downto 0);
+  signal dataCache_1_io_cpu_flush_payload_lineId : unsigned(7 downto 0);
   signal zz_IBusCachedPlugin_predictor_history_port0 : std_logic_vector(55 downto 0);
   signal zz_RegFilePlugin_regFile_port0 : std_logic_vector(31 downto 0);
   signal zz_RegFilePlugin_regFile_port0_1 : std_logic_vector(31 downto 0);
@@ -4679,7 +4540,7 @@ begin
 
   dataCache_1_io_cpu_flush_valid <= (execute_arbitration_isValid and execute_MEMORY_MANAGMENT);
   dataCache_1_io_cpu_flush_payload_singleLine <= pkg_toStdLogic(pkg_extract(execute_INSTRUCTION,19,15) /= pkg_stdLogicVector("00000"));
-  dataCache_1_io_cpu_flush_payload_lineId <= pkg_resize(unsigned(pkg_shiftRight(execute_RS1,5)),7);
+  dataCache_1_io_cpu_flush_payload_lineId <= pkg_resize(unsigned(pkg_shiftRight(execute_RS1,5)),8);
   system_cpu_dataCache_1_io_cpu_flush_isStall <= (dataCache_1_io_cpu_flush_valid and (not dataCache_1_io_cpu_flush_ready));
   when_DBusCachedPlugin_l385 <= (system_cpu_dataCache_1_io_cpu_flush_isStall or dataCache_1_io_cpu_execute_haltIt);
   when_DBusCachedPlugin_l401 <= (dataCache_1_io_cpu_execute_refilling and execute_arbitration_isValid);

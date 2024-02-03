@@ -213,6 +213,7 @@ SIGNAL gen_pcore_dst_addr_mode:STD_LOGIC;
 SIGNAL gen_pcore_dst_burstlen: burstlen_t;
 SIGNAL gen_pcore_bus_id_source: dp_bus_id_t;
 SIGNAL gen_pcore_bus_id_dest: dp_bus_id_t;
+SIGNAL gen_pcore_busy_dest: std_logic;
 SIGNAL gen_pcore_data_type_source: dp_data_type_t;
 SIGNAL gen_pcore_data_type_dest: dp_data_type_t;
 SIGNAL gen_pcore_data_model_source: dp_data_model_t;
@@ -244,6 +245,7 @@ SIGNAL gen_sram_dst_addr_mode:STD_LOGIC;
 SIGNAL gen_sram_dst_burstlen: burstlen_t;
 SIGNAL gen_sram_bus_id_source: dp_bus_id_t;
 SIGNAL gen_sram_bus_id_dest: dp_bus_id_t;
+SIGNAL gen_sram_busy_dest: std_logic;
 SIGNAL gen_sram_data_type_source: dp_data_type_t;
 SIGNAL gen_sram_data_type_dest: dp_data_type_t;
 SIGNAL gen_sram_data_model_source: dp_data_model_t;
@@ -275,6 +277,7 @@ SIGNAL gen_ddr_dst_addr_mode:STD_LOGIC;
 SIGNAL gen_ddr_dst_burstlen: burstlen_t;
 SIGNAL gen_ddr_bus_id_source: dp_bus_id_t;
 SIGNAL gen_ddr_bus_id_dest: dp_bus_id_t;
+SIGNAL gen_ddr_busy_dest: std_logic;
 SIGNAL gen_ddr_data_type_source: dp_data_type_t;
 SIGNAL gen_ddr_data_type_dest: dp_data_type_t;
 SIGNAL gen_ddr_data_model_source: dp_data_model_t;
@@ -409,7 +412,11 @@ indication_avail_out <= indication_avail;
 
 thread <= to_unsigned(0,dp_thread_t'length);
 
-full <= wr_full & wr_sram_full & wr_ddr_full;
+full(0) <= wr_full;
+
+full(1) <= wr_sram_full;
+
+full(2) <= wr_ddr_full;
 
 -----------------
 -- FETCH stage. Taking requests from mcore
@@ -520,6 +527,7 @@ dp_gen_core_i: dp_gen_core
        gen_pcore_data_type_source_out =>gen_pcore_data_type_source,
        gen_pcore_data_model_source_out =>gen_pcore_data_model_source,
        gen_pcore_bus_id_dest_out =>gen_pcore_bus_id_dest,
+       gen_pcore_busy_dest_out =>gen_pcore_busy_dest,
        gen_pcore_data_type_dest_out =>gen_pcore_data_type_dest,
        gen_pcore_data_model_dest_out =>gen_pcore_data_model_dest,
        gen_pcore_src_burstlen_out =>gen_pcore_src_burstlen,
@@ -553,6 +561,7 @@ dp_gen_core_i: dp_gen_core
        gen_sram_data_type_source_out =>gen_sram_data_type_source,
        gen_sram_data_model_source_out =>gen_sram_data_model_source,
        gen_sram_bus_id_dest_out =>gen_sram_bus_id_dest,
+       gen_sram_busy_dest_out =>gen_sram_busy_dest,
        gen_sram_data_type_dest_out =>gen_sram_data_type_dest,
        gen_sram_data_model_dest_out =>gen_sram_data_model_dest,
        gen_sram_src_burstlen_out =>gen_sram_src_burstlen,
@@ -586,6 +595,7 @@ dp_gen_core_i: dp_gen_core
        gen_ddr_data_type_source_out =>gen_ddr_data_type_source,
        gen_ddr_data_model_source_out =>gen_ddr_data_model_source,
        gen_ddr_bus_id_dest_out =>gen_ddr_bus_id_dest,
+       gen_ddr_busy_dest_out =>gen_ddr_busy_dest,
        gen_ddr_data_type_dest_out =>gen_ddr_data_type_dest,
        gen_ddr_data_model_dest_out =>gen_ddr_data_model_dest,
        gen_ddr_src_burstlen_out =>gen_ddr_src_burstlen,
@@ -658,6 +668,7 @@ dp_source1_i: dp_source
             gen_data_type_source_in=>gen_pcore_data_type_source,
             gen_data_model_source_in=>gen_pcore_data_model_source,
             gen_bus_id_dest_in=>gen_pcore_bus_id_dest,
+            gen_busy_dest_in=>gen_pcore_busy_dest,
             gen_data_type_dest_in=>gen_pcore_data_type_dest,
             gen_data_model_dest_in=>gen_pcore_data_model_dest,
             gen_src_burstlen_in=>gen_pcore_src_burstlen,
@@ -799,6 +810,7 @@ dp_source2_i: dp_source
             gen_data_type_source_in=>gen_sram_data_type_source,
             gen_data_model_source_in=>gen_sram_data_model_source,
             gen_bus_id_dest_in=>gen_sram_bus_id_dest,
+            gen_busy_dest_in=>gen_sram_busy_dest,
             gen_data_type_dest_in=>gen_sram_data_type_dest,
             gen_data_model_dest_in=>gen_sram_data_model_dest,
             gen_src_burstlen_in=>gen_sram_src_burstlen,
@@ -940,6 +952,7 @@ dp_source3_i0: dp_source
             gen_data_type_source_in=>gen_ddr_data_type_source,
             gen_data_model_source_in=>gen_ddr_data_model_source,
             gen_bus_id_dest_in=>gen_ddr_bus_id_dest,
+            gen_busy_dest_in=>gen_ddr_busy_dest,
             gen_data_type_dest_in=>gen_ddr_data_type_dest,
             gen_data_model_dest_in=>gen_ddr_data_model_dest,
             gen_src_burstlen_in=>gen_ddr_src_burstlen,

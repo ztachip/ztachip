@@ -766,7 +766,7 @@ if reset_in='0' then
 else
    if clock_in'event and clock_in='1' then
       avail_v := unsigned(not usedw);
-      if(avail_v <= to_unsigned(burstlen_max_c+8,FIFO_DEPTH)) then
+      if(avail_v <= to_unsigned(burstlen_max_c+16,FIFO_DEPTH)) then
          wr_full_r <= '1';
       else
          wr_full_r <= '0';

@@ -22,8 +22,8 @@ SECTIONS {
 
   ._vector ORIGIN(TCM): {
     *crt.o(.start_jump);
-    *crt.o(.text);
-    *task.o(.text);
+    EXCLUDE_FILE(*/newlib.o)
+    */base/*.o(.text);
   } > TCM 
 
   ._stack (NOLOAD):
