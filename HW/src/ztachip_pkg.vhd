@@ -4194,6 +4194,7 @@ end component;
 COMPONENT iregister_file IS
    PORT( 
         SIGNAL clock_in             : IN STD_LOGIC;
+        SIGNAL clock_x2_in          : IN STD_LOGIC;
         SIGNAL reset_in             : IN STD_LOGIC;
         
         -- Interface 1
@@ -4219,6 +4220,7 @@ COMPONENT iregister_ram IS
         );
     PORT (
         SIGNAL clock_in         : IN STD_LOGIC;
+        SIGNAL clock_x2_in      : IN STD_LOGIC;
         SIGNAL reset_in         : IN STD_LOGIC;
         -- PORT 1
         SIGNAL data1_in         : IN STD_LOGIC_VECTOR (WIDTH-1 DOWNTO 0);

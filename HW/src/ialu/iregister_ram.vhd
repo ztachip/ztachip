@@ -36,6 +36,7 @@ ENTITY iregister_ram IS
         );
     PORT (
         SIGNAL clock_in         : IN STD_LOGIC;
+        SIGNAL clock_x2_in      : IN STD_LOGIC;
         SIGNAL reset_in         : IN STD_LOGIC;
         -- PORT 1
         SIGNAL data1_in         : IN STD_LOGIC_VECTOR (WIDTH-1 DOWNTO 0);
@@ -86,7 +87,7 @@ END COMPONENT;
 
 BEGIN
 
-altsyncram_i:DPRAM_BE
+altsyncram_i:ramw
    GENERIC MAP (
         numwords_a=>2**DEPTH,
         numwords_b=>2**DEPTH,
@@ -98,7 +99,8 @@ altsyncram_i:DPRAM_BE
     PORT MAP (
         address_a=>wraddress1_in,
         byteena_a=>wrbyteena1_in,
-        clock0=>clock_in,
+        clock=>clock_in,
+        clock_x2=>clock_x2_in,
         data_a=>data1_in,
         q_b=>q1_out,
         wren_a=>wren1_in,

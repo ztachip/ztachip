@@ -966,6 +966,7 @@ xregister_file_i: xregister_file port map(
 
 iregister_i: iregister_file port map(
             clock_in=>clock_in,
+            clock_x2_in=>clock_x2_in,
             reset_in=>reset_in,
 
             rd_en1_in=>i_rd_en1,

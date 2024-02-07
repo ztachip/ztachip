@@ -147,12 +147,12 @@ signal axislave_resp_fifo_empty:std_logic;
 signal axislave_resp_fifo_wr:std_logic;
 signal axislave_resp_fifo_rd:std_logic;
 
-signal axislave_rid_r:axi_rid_t;
-signal axislave_rvalid_r:axi_rvalid_t;
-signal axislave_rlast_r:axi_rlast_t;
-signal axislave_rdata_r:STD_LOGIC_VECTOR(DATA_WIDTH-1 downto 0);
-signal axislave_rresp_r:axi_rresp_t;
-signal axislave_rready:std_logic;
+signal aximaster_rid_r:axi_rid_t;
+signal aximaster_rvalid_r:axi_rvalid_t;
+signal aximaster_rlast_r:axi_rlast_t;
+signal aximaster_rdata_r:STD_LOGIC_VECTOR(DATA_WIDTH-1 downto 0);
+signal aximaster_rresp_r:axi_rresp_t;
+signal aximaster_rready:std_logic;
 
 -- Function to pack axiread_cmd_rec_t to flat buffer
 
@@ -249,18 +249,18 @@ end function unpack_resp;
 begin
 
 -- Set output signals for slave port
-axislave_rvalid_out <= axislave_rvalid_r;
-axislave_rid_out <= axislave_rid_r;
-axislave_rlast_out <= axislave_rlast_r;
-axislave_rdata_out <= axislave_rdata_r;
-axislave_rresp_out <= axislave_rresp_r;
+axislave_rvalid_out <= (not axislave_resp_fifo_empty);
+axislave_rid_out <= axislave_resp_rec_read.rid;
+axislave_rlast_out <= axislave_resp_rec_read.rlast;
+axislave_rdata_out <= axislave_resp_rec_read.rdata;
+axislave_rresp_out <= axislave_resp_rec_read.rresp;
 axislave_arready_out <= (not axislave_cmd_fifo_full);
 
 -- Set output signals for master port
 aximaster_araddr_out <= axislave_cmd_rec_read.araddr;
 aximaster_arlen_out <= axislave_cmd_rec_read.arlen;
 aximaster_arvalid_out <= (not axislave_cmd_fifo_empty);
-aximaster_rready_out <= (not axislave_resp_fifo_full);
+aximaster_rready_out <= aximaster_rready;
 aximaster_arid_out <= axislave_cmd_rec_read.arid;
 aximaster_arlock_out <= axislave_cmd_rec_read.arlock;
 aximaster_arcache_out <= axislave_cmd_rec_read.arcache;
@@ -281,18 +281,18 @@ axislave_cmd_rec_write.arburst <= axislave_arburst_in;
 axislave_cmd_rec_write.arsize <= axislave_arsize_in;
 
 -- Set input to master resp_fifo
-axislave_resp_rec_write.rid <= aximaster_rid_in;
-axislave_resp_rec_write.rlast <= aximaster_rlast_in;
-axislave_resp_rec_write.rdata <= aximaster_rdata_in;
-axislave_resp_rec_write.rresp <= aximaster_rresp_in;
+axislave_resp_rec_write.rid <= aximaster_rid_r;
+axislave_resp_rec_write.rlast <= aximaster_rlast_r;
+axislave_resp_rec_write.rdata <= aximaster_rdata_r;
+axislave_resp_rec_write.rresp <= aximaster_rresp_r;
 
 -- slave_cmd_fifo read/write
 axislave_cmd_fifo_wr <= (axislave_arvalid_in) and (not axislave_cmd_fifo_full);
 axislave_cmd_fifo_rd <= (aximaster_arready_in) and (not axislave_cmd_fifo_empty);
 
 -- slave_resp_fifo read/write
-axislave_resp_fifo_wr <= (aximaster_rvalid_in) and (not axislave_resp_fifo_full);
-axislave_resp_fifo_rd <= (axislave_rready) and (not axislave_resp_fifo_empty);
+axislave_resp_fifo_wr <= (aximaster_rvalid_r) and (not axislave_resp_fifo_full);
+axislave_resp_fifo_rd <= (axislave_rready_in) and (not axislave_resp_fifo_empty);
 
 -- Pack and unpack record to/from fifo
         
@@ -301,8 +301,6 @@ axislave_cmd_fifo_write <= pack_cmd(axislave_cmd_rec_write);
 
 axislave_resp_rec_read <= unpack_resp(axislave_resp_fifo_read);
 axislave_resp_fifo_write <= pack_resp(axislave_resp_rec_write);
-
-axislave_rready <= '1' when axislave_rvalid_r='0' or axislave_rready_in='1' else '0';
 
 -- FIFO for slave port command signals
 
@@ -398,22 +396,25 @@ slave_resp_fifo:scfifo
    );
 end generate GEN2;
 
-process(axislave_clock_in,reset_in)
+aximaster_rready <= '1' when (aximaster_rvalid_r='0') or (axislave_resp_fifo_full='0') else '0';
+
+process(aximaster_clock_in,reset_in)
 begin
+-- TODO wrong reset for aximaster_clock_in
    if reset_in = '0' then
-      axislave_rvalid_r <= '0';
-      axislave_rid_r <= (others=>'0');
-      axislave_rlast_r <= '0';
-      axislave_rdata_r <= (others=>'0');
-      axislave_rresp_r <= (others=>'0');
+      aximaster_rid_r <= (others=>'0');
+      aximaster_rvalid_r <= '0';
+      aximaster_rlast_r <= '0';
+      aximaster_rdata_r <= (others=>'0');
+      aximaster_rresp_r <= (others=>'0');
    else
-      if rising_edge(axislave_clock_in) then  
-         if axislave_rready='1' then
-            axislave_rvalid_r <= (not axislave_resp_fifo_empty);
-            axislave_rid_r <= axislave_resp_rec_read.rid;
-            axislave_rlast_r <= axislave_resp_rec_read.rlast;
-            axislave_rdata_r <= axislave_resp_rec_read.rdata;
-            axislave_rresp_r <= axislave_resp_rec_read.rresp;
+      if rising_edge(aximaster_clock_in) then 
+         if(aximaster_rready='1') then
+            aximaster_rid_r <= aximaster_rid_in;
+            aximaster_rvalid_r <= aximaster_rvalid_in;
+            aximaster_rlast_r <= aximaster_rlast_in;
+            aximaster_rdata_r <= aximaster_rdata_in;
+            aximaster_rresp_r <= aximaster_rresp_in;
          end if;
       end if;
    end if;

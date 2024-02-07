@@ -33,6 +33,7 @@ use work.ztachip_pkg.all;
 ENTITY iregister_file IS
    PORT( 
         SIGNAL clock_in             : IN STD_LOGIC;
+        SIGNAL clock_x2_in          : IN STD_LOGIC;
         SIGNAL reset_in             : IN STD_LOGIC;
         -- Interface 1
         SIGNAL rd_en1_in            : IN STD_LOGIC;
@@ -155,6 +156,7 @@ iregister_ram_i: iregister_ram
     )
     PORT MAP(
         clock_in => clock_in,
+        clock_x2_in => clock_x2_in,
         reset_in => reset_in,
         -- PORT 1
         data1_in => wrdata1,

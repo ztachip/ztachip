@@ -389,16 +389,16 @@ begin
    master_rready <= '0';
    pend_master_rd <= '0';
    pend_master_rvalid <= '0';
+   if((align_r='0' and pend_master_read(MAX_SLAVE_PORT+1)='0') or
+      (align_r='1' and pend_master_read(MAX_SLAVE_PORT+1)='1')) then
+      slave_rdatas(S0) <= master_rdata(31 downto 0);
+   else
+      slave_rdatas(S0) <= master_rdata(63 downto 32);
+   end if; 
    if pend_master_empty='0' and pend_master_read(S0)='1' then
       slave_rvalids(S0) <= master_rvalid; 
       slave_rids(S0) <= master_rid;
-      slave_rlasts(S0) <= master_rlast;
-      if((align_r='0' and pend_master_read(MAX_SLAVE_PORT+1)='0') or
-         (align_r='1' and pend_master_read(MAX_SLAVE_PORT+1)='1')) then
-         slave_rdatas(S0) <= master_rdata(31 downto 0);
-      else
-         slave_rdatas(S0) <= master_rdata(63 downto 32);
-      end if;       
+      slave_rlasts(S0) <= master_rlast;      
       slave_rresps(S0) <= master_rresp;
       master_rready <= slave_rreadys(S0);
       pend_master_rd <= slave_rreadys(S0) and master_rlast and master_rvalid;
@@ -407,20 +407,19 @@ begin
       slave_rvalids(S0) <= '0';
       slave_rids(S0) <= (others=>'0');
       slave_rlasts(S0) <= '0';
-      slave_rdatas(S0) <= (others=>'0');
       slave_rresps(S0) <= (others=>'0');
    end if;
 
+   if((align_r='0' and pend_master_read(MAX_SLAVE_PORT+1)='0') or
+      (align_r='1' and pend_master_read(MAX_SLAVE_PORT+1)='1')) then
+      slave_rdatas(S1)(31 downto 0) <= master_rdata(31 downto 0);
+   else
+      slave_rdatas(S1)(31 downto 0) <= master_rdata(63 downto 32);
+   end if; 
    if pend_master_empty='0' and pend_master_read(S1)='1' then
       slave_rvalids(S1) <= master_rvalid;
       slave_rids(S1) <= master_rid;
       slave_rlasts(S1) <= master_rlast;
-      if((align_r='0' and pend_master_read(MAX_SLAVE_PORT+1)='0') or
-         (align_r='1' and pend_master_read(MAX_SLAVE_PORT+1)='1')) then
-         slave_rdatas(S1)(31 downto 0) <= master_rdata(31 downto 0);
-      else
-         slave_rdatas(S1)(31 downto 0) <= master_rdata(63 downto 32);
-      end if; 
       slave_rresps(S1) <= master_rresp;
       master_rready <= slave_rreadys(S1);
       pend_master_rd <= slave_rreadys(S1) and master_rlast and master_rvalid;
@@ -429,20 +428,19 @@ begin
       slave_rvalids(S1) <= '0';
       slave_rids(S1) <= (others=>'0');
       slave_rlasts(S1) <= '0';
-      slave_rdatas(S1) <= (others=>'0');
       slave_rresps(S1) <= (others=>'0');
    end if;
 
+   if((align_r='0' and pend_master_read(MAX_SLAVE_PORT+1)='0') or
+      (align_r='1' and pend_master_read(MAX_SLAVE_PORT+1)='1')) then
+      slave_rdatas(S2) <= master_rdata(31 downto 0);
+   else
+      slave_rdatas(S2) <= master_rdata(63 downto 32);
+   end if;
    if pend_master_empty='0' and pend_master_read(S2)='1' then
       slave_rvalids(S2) <= master_rvalid;
       slave_rids(S2) <= master_rid;
-      slave_rlasts(S2) <= master_rlast;
-      if((align_r='0' and pend_master_read(MAX_SLAVE_PORT+1)='0') or
-         (align_r='1' and pend_master_read(MAX_SLAVE_PORT+1)='1')) then
-         slave_rdatas(S2) <= master_rdata(31 downto 0);
-      else
-         slave_rdatas(S2) <= master_rdata(63 downto 32);
-      end if;       
+      slave_rlasts(S2) <= master_rlast;       
       slave_rresps(S2) <= master_rresp;
       master_rready <= slave_rreadys(S2);
       pend_master_rd <= slave_rreadys(S2) and master_rlast and master_rvalid;
@@ -451,15 +449,14 @@ begin
       slave_rvalids(S2) <= '0';
       slave_rids(S2) <= (others=>'0');
       slave_rlasts(S2) <= '0';
-      slave_rdatas(S2) <= (others=>'0');
       slave_rresps(S2) <= (others=>'0');
    end if;
 
+   slavew_rdata <= master_rdata;
    if pend_master_empty='0' and pend_master_read(SW)='1' then
       slavew_rvalid <= master_rvalid;
       slavew_rid <= master_rid;
       slavew_rlast <= master_rlast;
-      slavew_rdata <= master_rdata;
       slavew_rresp <= master_rresp;
       master_rready <= slavew_rready;
       pend_master_rd <= slavew_rready and master_rlast and master_rvalid;
@@ -468,7 +465,6 @@ begin
       slavew_rvalid <= '0';
       slavew_rid <= (others=>'0');
       slavew_rlast <= '0';
-      slavew_rdata <= (others=>'0');
       slavew_rresp <= (others=>'0');
    end if;
 end process;
@@ -546,7 +542,7 @@ process(slave_arvalids,slave_araddrs,slave_arlens,slave_arids,slave_arlocks,slav
 begin
    slave_arreadys <= (others=>'0');
    slavew_arready <= '0';
-   if (curr_r(S0)='1' or (gnt_valid='1' and gnt(S0)='1')) then
+   if (curr_r(S0)='1' or gnt(S0)='1') then
       -- Send commands from slave1 to master2    
       master_araddr <= slave_araddrs(S0);
       master_arlen <= slave_arlens(S0);
@@ -565,7 +561,7 @@ begin
       pend_master_we <= master_arready;
       curr <= (others=>'0');
       curr(S0) <= '1';
-   elsif (curr_r(S1)='1' or (gnt_valid='1' and gnt(S1)='1')) then
+   elsif (curr_r(S1)='1' or gnt(S1)='1') then
       -- Send commands from slave1 to master2    
       master_araddr <= slave_araddrs(S1);
       master_arlen <= slave_arlens(S1);
@@ -584,7 +580,7 @@ begin
       pend_master_we <= master_arready;
       curr <= (others=>'0');
       curr(S1) <= '1';
-   elsif (curr_r(S2)='1' or (gnt_valid='1' and gnt(S2)='1')) then
+   elsif (curr_r(S2)='1' or gnt(S2)='1') then
       -- Send commands from slave1 to master2    
       master_araddr <= slave_araddrs(S2);
       master_arlen <= slave_arlens(S2);
@@ -603,7 +599,7 @@ begin
       pend_master_we <= master_arready;
       curr <= (others=>'0');
       curr(S2) <= '1';
-   elsif (curr_r(SW)='1' or (gnt_valid='1' and gnt(SW)='1')) then
+   elsif (curr_r(SW)='1' or gnt(SW)='1') then
       -- Send commands from slave1 to master2    
       master_araddr <= slavew_araddr;
       master_arlen <= slavew_arlen;
