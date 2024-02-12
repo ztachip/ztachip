@@ -56,39 +56,31 @@ begin
 
 byteena_a(0) <= wren_a;
 
-xpm_memory_sdpram_inst : xpm_memory_sdpram
+xpm_memory_sdpram_inst : xpm_memory_dpdistram
 generic map (
     ADDR_WIDTH_A => widthad_a, -- DECIMAL
     ADDR_WIDTH_B => widthad_b, -- DECIMAL
-    AUTO_SLEEP_TIME => 0, -- DECIMAL
     BYTE_WRITE_WIDTH_A => width_a, -- DECIMAL
-    CASCADE_HEIGHT => 0, -- DECIMAL
     CLOCKING_MODE => "independent_clock", -- String
-    ECC_MODE => "no_ecc", -- String
     MEMORY_INIT_FILE => "none", -- String
     MEMORY_INIT_PARAM => "0", -- String
     MEMORY_OPTIMIZATION => "true", -- String
-    MEMORY_PRIMITIVE => "auto", -- String
     MEMORY_SIZE => numwords_a*width_a, -- DECIMAL
     MESSAGE_CONTROL => 0, -- DECIMAL
+    READ_DATA_WIDTH_A => width_b, -- DECIMAL
     READ_DATA_WIDTH_B => width_b, -- DECIMAL
     READ_LATENCY_B => 1, -- DECIMAL
     READ_RESET_VALUE_B => "0", -- String
     RST_MODE_A => "SYNC", -- String
     RST_MODE_B => "SYNC", -- String
     SIM_ASSERT_CHK => 0, -- DECIMAL; 0=disable simulation messages, 1=enable simulation messages
-    USE_EMBEDDED_CONSTRAINT => 0, -- DECIMAL
+    USE_EMBEDDED_CONSTRAINT => 1, -- DECIMAL
     USE_MEM_INIT => 1, -- DECIMAL
     USE_MEM_INIT_MMI => 0, -- DECIMAL
-    WAKEUP_TIME => "disable_sleep", -- String
-    WRITE_DATA_WIDTH_A => width_a, -- DECIMAL
-    WRITE_MODE_B => "no_change", -- String
-    WRITE_PROTECT => 1 -- DECIMAL
+    WRITE_DATA_WIDTH_A => width_a
 )
 port map (
-    dbiterrb => open,     -- 1-bit output: Status signal to indicate double bit error occurrence
     doutb => q_b,         -- READ_DATA_WIDTH_B-bit output: Data output for port B read operations.
-    sbiterrb => open,     -- 1-bit output: Status signal to indicate single bit error occurrence
     addra => address_a,   -- ADDR_WIDTH_A-bit input: Address for port A write operations.
     addrb => address_b,   -- ADDR_WIDTH_B-bit input: Address for port B read operations.
     clka => clock_a,      -- 1-bit input: Clock signal for port A. Also clocks port B when
@@ -98,24 +90,20 @@ port map (
     dina => data_a,       -- WRITE_DATA_WIDTH_A-bit input: Data input for port A write operations.
     ena => wren_a,        -- 1-bit input: Memory enable signal for port A. Must be high on clock
     enb => '1',           -- 1-bit input: Memory enable signal for port B. Must be high on clock
-    injectdbiterra => '0', -- 1-bit input: Controls double bit error injection on input data when
-                           -- ECC enabled (Error injection capability is not available in
-                           -- "decode_only" mode).
-    injectsbiterra => '0', -- 1-bit input: Controls single bit error injection on input data when
-                           -- ECC enabled (Error injection capability is not available in
-                           -- "decode_only" mode).
     regceb => '1',         -- 1-bit input: Clock Enable for the last register stage on the output
                            -- data path.
+    rsta => '0',           -- 1-bit input: Reset signal for the final port B output register
+
     rstb => '0',           -- 1-bit input: Reset signal for the final port B output register
                            -- stage. Synchronously resets output port doutb to the value specified
                            -- by parameter READ_RESET_VALUE_B.
-    sleep => '0',          -- 1-bit input: sleep signal to enable the dynamic power saving feature.
-    wea => byteena_a       -- WRITE_DATA_WIDTH_A/BYTE_WRITE_WIDTH_A-bit input: Write enable vector
+    wea => byteena_a,      -- WRITE_DATA_WIDTH_A/BYTE_WRITE_WIDTH_A-bit input: Write enable vector
                            -- for port A input data port dina. 1 bit wide when word-wide writes
                            -- are used. In byte-wide write configurations, each bit controls the
                            -- writing one byte of dina to address addra. For example, to
                            -- synchronously write only bits [15-8] of dina when WRITE_DATA_WIDTH_A
                            -- is 32, wea would be 4'b0010.
+    regcea => '1'
 );
 
 end dpram_behaviour;
