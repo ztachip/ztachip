@@ -42,6 +42,16 @@
 
 #define APB_CAMERA_CURR_FRAME 4
 
+#define APB_UART_READ         15 
+
+#define APB_UART_WRITE        16 
+
+#define APB_UART_READ_AVAIL   17 
+
+#define APB_UART_WRITE_AVAIL  18 
+
+#define APB_TIME_GET          19 
+
 
 // Flush data cache with VexRiscv
 // This is dependent on the Riscv implementation since flushing datacache
@@ -64,5 +74,15 @@ uint8_t *CameraGetCapture(void);
 void LedSetState(uint32_t ledState);
 
 uint32_t PushButtonGetState();
+
+uint8_t UartRead();
+
+void UartWrite(uint8_t ch);
+
+int UartReadAvailable();
+
+int UartWriteAvailable();
+
+#define TimeGet() (APB[APB_TIME_GET])
 
 #endif

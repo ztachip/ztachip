@@ -72,7 +72,14 @@ signal SDRAM_wready:std_logic;
 signal SDRAM_wstrb:std_logic_vector(exmem_data_width_c/8-1 downto 0);
 signal SDRAM_wvalid:std_logic;
 
-signal led:std_logic_vector(3 downto 0);
+signal APB_PADDR:STD_LOGIC_VECTOR(19 downto 0);
+signal APB_PENABLE:STD_LOGIC;
+signal APB_PREADY:STD_LOGIC;
+signal APB_PWRITE:STD_LOGIC;
+signal APB_PWDATA:STD_LOGIC_VECTOR(31 downto 0);
+signal APB_PRDATA:STD_LOGIC_VECTOR(31 downto 0);
+signal APB_PSLVERROR:STD_LOGIC;
+
 signal VIDEO_tdata:std_logic_vector(31 downto 0);
 signal VIDEO_tlast:std_logic;
 signal VIDEO_tready:std_logic;
@@ -83,9 +90,10 @@ signal camera_tready:std_logic;
 signal camera_tuser:std_logic_vector(0 downto 0);
 signal camera_tvalid:std_logic;
 
+signal UART_RX:std_logic;
+signal UART_TX:std_logic;
 begin
 
-led_out <= led;
 VIDEO_tready <= '0';
 camera_tdata <= (others=>'0');
 camera_tlast <= '0';
@@ -102,9 +110,6 @@ soc_base_inst: soc_base
       clk_main=>clk_main,
       clk_x2_main=>clk_x2_main,
       clk_reset=>reset_in,
-
-      led=>led,
-      pushbutton=>(others=>'0'),
 
       UART_TXD=>open,
       UART_RXD=>'0',
@@ -147,7 +152,15 @@ soc_base_inst: soc_base
       SDRAM_wlast=>SDRAM_wlast,
       SDRAM_wready=>SDRAM_wready,
       SDRAM_wstrb=>SDRAM_wstrb,
-      SDRAM_wvalid=>SDRAM_wvalid
+      SDRAM_wvalid=>SDRAM_wvalid,
+
+      APB_PADDR=>APB_PADDR,
+      APB_PENABLE=>APB_PENABLE,
+      APB_PREADY=>APB_PREADY,
+      APB_PWRITE=>APB_PWRITE,
+      APB_PWDATA=>APB_PWDATA,
+      APB_PRDATA=>APB_PRDATA,
+      APB_PSLVERROR=>APB_PSLVERROR
    );
 
 GEN1:IF exmem_data_width_c=32 GENERATE
@@ -215,5 +228,42 @@ mem64_inst:mem64
       SDRAM_wvalid=>SDRAM_wvalid
    );
 END GENERATE GEN2;
+
+gpio_inst:gpio
+   PORT MAP(
+      clock_in=>clk_main,
+      reset_in=>reset_in,
+      apb_paddr=>APB_PADDR,
+      apb_penable=>APB_PENABLE,
+      apb_pready=>APB_PREADY,
+      apb_pwrite=>APB_PWRITE,
+      apb_pwdata=>APB_PWDATA,
+      apb_prdata=>APB_PRDATA,
+      apb_pslverror=>APB_PSLVERROR,
+      led_out=>led_out,
+      button_in=>(others=>'0')
+   );
+
+UART_RX <= UART_TX;
+
+uart_inst:UART
+	generic map (
+		BAUD_RATE=>112500,
+		CLOCK_FREQUENCY=>100000000
+	)
+	port map ( 
+		clock_in=>clk_main,
+		reset_in=>reset_in,
+		uart_rx_in=>UART_RX,
+		uart_tx_out=>UART_TX,
+
+      apb_paddr=>APB_PADDR,
+      apb_penable=>APB_PENABLE,
+      apb_pready=>APB_PREADY,
+      apb_pwrite=>APB_PWRITE,
+      apb_pwdata=>APB_PWDATA,
+      apb_prdata=>APB_PRDATA,
+      apb_pslverror=>APB_PSLVERROR
+	);
 
 end rtl;

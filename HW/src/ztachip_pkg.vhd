@@ -1098,6 +1098,16 @@ constant apb_rvdma_buf2_c:integer:=52;
 
 constant apb_rvdma_buf3_c:integer:=56;
 
+constant apb_uart_read_c:integer:=60;
+
+constant apb_uart_write_c:integer:=64;
+
+constant apb_uart_read_avail_c:integer:=68;
+
+constant apb_uart_write_avail_c:integer:=72;
+
+constant apb_time_get_c:integer:=76;
+
 -----------------------------------------------------------------------------
 --
 --                       Component declaration
@@ -4405,6 +4415,16 @@ component soc_base is
         SDRAM_wstrb     :OUT STD_LOGIC_VECTOR(exmem_data_width_c/8-1 downto 0);
         SDRAM_wvalid    :OUT STD_LOGIC;
 
+        -- APB bus signals
+
+        APB_PADDR       :INOUT STD_LOGIC_VECTOR(19 downto 0);
+        APB_PENABLE     :INOUT STD_LOGIC;
+        APB_PREADY      :INOUT STD_LOGIC;
+        APB_PWRITE      :INOUT STD_LOGIC;
+        APB_PWDATA      :INOUT STD_LOGIC_VECTOR(31 downto 0);
+        APB_PRDATA      :INOUT STD_LOGIC_VECTOR(31 downto 0);
+        APB_PSLVERROR   :INOUT STD_LOGIC;
+
         -- VIDEO streaming bus  
 
         VIDEO_clk       :IN STD_LOGIC;
@@ -4419,17 +4439,7 @@ component soc_base is
         camera_tdata    :IN STD_LOGIC_VECTOR(31 downto 0);
         camera_tlast    :IN STD_LOGIC;
         camera_tready   :OUT STD_LOGIC;
-        camera_tvalid   :IN STD_LOGIC;
-
-        -- GPIO signals
-
-        led             :OUT STD_LOGIC_VECTOR(3 downto 0);
-        pushbutton      :IN STD_LOGIC_VECTOR(3 downto 0);
-
-        -- UART Signals
-
-        UART_TXD        :OUT STD_LOGIC;
-        UART_RXD        :IN STD_LOGIC
+        camera_tvalid   :IN STD_LOGIC
     );
 end component;
 
@@ -4652,6 +4662,42 @@ end component;
 
        signal led_out               : out std_Logic_vector(3 downto 0);
        signal button_in             : in std_logic_vector(3 downto 0)       
+    );
+end component;
+
+component UART is
+	generic (
+		BAUD_RATE : positive;
+		CLOCK_FREQUENCY : positive
+	);
+	Port ( 
+		signal clock_in          : in std_logic;
+		signal reset_in          : in std_logic;
+		signal uart_rx_in        : in std_logic;
+		signal uart_tx_out       : out std_logic;
+
+		signal apb_paddr         : IN STD_LOGIC_VECTOR(19 downto 0);
+		signal apb_penable       : IN STD_LOGIC;
+		signal apb_pready        : OUT STD_LOGIC;
+		signal apb_pwrite        : IN STD_LOGIC;
+		signal apb_pwdata        : IN STD_LOGIC_VECTOR(31 downto 0);
+		signal apb_prdata        : OUT STD_LOGIC_VECTOR(31 downto 0);
+		signal apb_pslverror     : OUT STD_LOGIC
+	);
+end component;
+
+component TIME is
+    PORT (
+       signal clock_in              : IN STD_LOGIC;
+       signal reset_in              : IN STD_LOGIC;
+
+       signal apb_paddr             : IN STD_LOGIC_VECTOR(19 downto 0);
+       signal apb_penable           : IN STD_LOGIC;
+       signal apb_pready            : OUT STD_LOGIC;
+       signal apb_pwrite            : IN STD_LOGIC;
+       signal apb_pwdata            : IN STD_LOGIC_VECTOR(31 downto 0);
+       signal apb_prdata            : OUT STD_LOGIC_VECTOR(31 downto 0);
+       signal apb_pslverror         : OUT STD_LOGIC     
     );
  end component;
 

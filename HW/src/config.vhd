@@ -48,4 +48,7 @@ constant min_mem_depth_c:integer:=512;
 
 constant exmem_data_width_c:integer:=64;
 
+-- Main clock speed
+constant main_clock_c:integer:=125000000;
+
 end;

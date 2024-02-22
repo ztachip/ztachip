@@ -37,16 +37,6 @@
 
 #define APB ((volatile unsigned int *)0xC0000000)
 
-// APB register map
-
-#define APB_LED               0
-#define APB_PB                2
-#define APB_VIDEO_BUFFER      11
-#define APB_VIDEO_ENABLE      9
-#define APB_CAMERA_BUFFER     5
-#define APB_CAMERA_ENABLE     3
-#define APB_CAMERA_CURR_FRAME 4
-
 static void *buffer_vga[NUM_VIDEO_FRAME];
 
 static void *buffer_camera[NUM_CAMERA_CAPTURE];
@@ -167,4 +157,37 @@ uint32_t PushButtonGetState() {
    return APB[APB_PB];
 }
 
+//-----------------------------------------
+// Read UART characters
+//-----------------------------------------
+
+uint8_t UartRead() {
+   return (uint8_t)APB[APB_UART_READ];
+}
+
+//-------------------------------------------
+// Write UART character
+//---------------------------------------------
+
+void UartWrite(uint8_t ch) {
+   APB[APB_UART_WRITE]=(uint32_t)ch;
+}
+
+//-----------------------------------------------
+// Return number of available UART characters for
+// reading
+//-----------------------------------------------
+
+int UartReadAvailable() {
+   return (int)APB[APB_UART_READ_AVAIL];
+}
+
+//-----------------------------------------------
+// Return number of spaces available for UART
+// transmission FIFO
+//-----------------------------------------------
+
+int UartWriteAvailable() {
+   return (int)APB[APB_UART_WRITE_AVAIL];
+}
 

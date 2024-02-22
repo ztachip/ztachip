@@ -21,6 +21,7 @@
 #include <unistd.h>
 #include <assert.h>
 #include "ztalib.h"
+#include "../src/soc.h"
 #include "tensor.h"
 #include "graph.h"
 

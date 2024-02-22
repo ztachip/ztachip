@@ -23,6 +23,7 @@
 #include "../../base/types.h"
 #include "../../base/util.h"
 #include "../../base/ztalib.h"
+#include "../../src/soc.h"
 #include "flatbuffer/schema_generated.h"
 #include "nn.h" 
 #include "nn_add.h"
@@ -373,6 +374,9 @@ ZtaStatus NeuralNet::Verify() {
 ZtaStatus NeuralNet::Execute(int queue,int stepMode)
 {
    ZtaStatus rc;
+   int32_t startTime;
+
+   startTime=(int32_t)TimeGet();
    if(m_runningStep < 0) {
       m_runningStep=0; // Restart from beginning
       AssignInputTensor(false);
@@ -391,7 +395,7 @@ ZtaStatus NeuralNet::Execute(int queue,int stepMode)
       m_runningStep++;
       if(stepMode==0)
          break;
-      if(stepMode > 0 && Graph::Poll())
+      if(stepMode > 0 && ((int32_t)TimeGet()-startTime) >= stepMode)
          break;
    }
    if(m_runningStep >= (int)m_operators.size()) {

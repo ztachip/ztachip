@@ -152,6 +152,14 @@ module main(
    wire [0:0]         camera_tuser;
    wire               camera_tvalid;
 
+   wire [19:0]        APB_PADDR;
+   wire               APB_PENABLE;
+   wire               APB_PREADY;
+   wire               APB_PWRITE;
+   wire [31:0]        APB_PWDATA;
+   wire [31:0]        APB_PRDATA;
+   wire               APB_PSLVERROR;
+
    soc_base #(.RISCV(`RISCV_MODE)) soc_base_inst (
 
       .clk_main(clk_main),
@@ -168,12 +176,6 @@ module main(
       .TDI(0),
       .TDO(),
       .TCK(0),
-
-      .led(led),
-      .pushbutton(pushbutton),
-
-      .UART_TXD(UART_TXD),
-      .UART_RXD(UART_RXD),
 
       .VIDEO_clk(clk_vga),  
       .VIDEO_tdata(VIDEO_tdata),
@@ -213,7 +215,15 @@ module main(
       .SDRAM_wlast(SDRAM_wlast),
       .SDRAM_wready(SDRAM_wready),
       .SDRAM_wstrb(SDRAM_wstrb),
-      .SDRAM_wvalid(SDRAM_wvalid)
+      .SDRAM_wvalid(SDRAM_wvalid),
+
+      .APB_PADDR(APB_PADDR),
+      .APB_PENABLE(APB_PENABLE),
+      .APB_PREADY(APB_PREADY),
+      .APB_PWRITE(APB_PWRITE),
+      .APB_PWDATA(APB_PWDATA),
+      .APB_PRDATA(APB_PRDATA),
+      .APB_PSLVERROR(APB_PSLVERROR)
    );
 
    //---------------------------
@@ -292,6 +302,48 @@ module main(
       .s_axi_rvalid(SDRAM_rvalid),			  
       .sys_rst(sys_resetn)
    );
+
+   // GPIO
+                 
+   gpio gpio_inst(
+         .clock_in(clk_main),
+         .reset_in(1),
+         .apb_paddr(APB_PADDR),
+         .apb_penable(APB_PENABLE),
+         .apb_pready(APB_PREADY),
+         .apb_pwrite(APB_PWRITE),
+         .apb_pwdata(APB_PWDATA),
+         .apb_prdata(APB_PRDATA),
+         .apb_pslverror(APB_PSLVERROR),
+         .led_out(led),
+         .button_in(pushbutton)
+      );
+
+   UART #(.BAUD_RATE(115200),.CLOCK_FREQUENCY(125000000)) UART_inst(
+		   .clock_in(clk_main),
+		   .reset_in(1),
+		   .uart_rx_in(UART_RXD),
+		   .uart_tx_out(UART_TXD),
+         .apb_paddr(APB_PADDR),
+         .apb_penable(APB_PENABLE),
+         .apb_pready(APB_PREADY),
+         .apb_pwrite(APB_PWRITE),
+         .apb_pwdata(APB_PWDATA),
+         .apb_prdata(APB_PRDATA),
+         .apb_pslverror(APB_PSLVERROR)
+	   );
+
+   TIME TIME_inst(
+		   .clock_in(clk_main),
+		   .reset_in(1),
+         .apb_paddr(APB_PADDR),
+         .apb_penable(APB_PENABLE),
+         .apb_pready(APB_PREADY),
+         .apb_pwrite(APB_PWRITE),
+         .apb_pwdata(APB_PWDATA),
+         .apb_prdata(APB_PRDATA),
+         .apb_pslverror(APB_PSLVERROR)
+	   );
 
    //-----------
    // VGA

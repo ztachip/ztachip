@@ -81,6 +81,16 @@ entity soc_base is
    SDRAM_wstrb     :OUT STD_LOGIC_VECTOR(exmem_data_width_c/8-1 downto 0);
    SDRAM_wvalid    :OUT STD_LOGIC;
 
+   -- APB bus signals
+
+   APB_PADDR       :INOUT STD_LOGIC_VECTOR(19 downto 0);
+   APB_PENABLE     :INOUT STD_LOGIC;
+   APB_PREADY      :INOUT STD_LOGIC;
+   APB_PWRITE      :INOUT STD_LOGIC;
+   APB_PWDATA      :INOUT STD_LOGIC_VECTOR(31 downto 0);
+   APB_PRDATA      :INOUT STD_LOGIC_VECTOR(31 downto 0);
+   APB_PSLVERROR   :INOUT STD_LOGIC;
+
    -- VIDEO streaming bus  
 
    VIDEO_clk       :IN STD_LOGIC;
@@ -95,18 +105,7 @@ entity soc_base is
    camera_tdata    :IN STD_LOGIC_VECTOR(31 downto 0);
    camera_tlast    :IN STD_LOGIC;
    camera_tready   :OUT STD_LOGIC;
-   camera_tvalid   :IN STD_LOGIC;
-
-   -- GPIO signals
-   
-   led             :OUT STD_LOGIC_VECTOR(3 downto 0);
-   pushbutton      :IN STD_LOGIC_VECTOR(3 downto 0);
-
-   -- UART Signals
-   
-   UART_TXD        :OUT STD_LOGIC;
-   UART_RXD        :IN STD_LOGIC
-
+   camera_tvalid   :IN STD_LOGIC
    );
 end soc_base;
    
@@ -452,14 +451,6 @@ architecture rtl of soc_base is
    SIGNAL ZTA_DATA_wready:STD_LOGIC;
    SIGNAL ZTA_DATA_wstrb:STD_LOGIC_VECTOR(7 downto 0);
    SIGNAL ZTA_DATA_wvalid:STD_LOGIC;
-   
-   SIGNAL APB_PADDR:STD_LOGIC_VECTOR(19 downto 0);
-   SIGNAL APB_PENABLE:STD_LOGIC;
-   SIGNAL APB_PREADY:STD_LOGIC;
-   SIGNAL APB_PWRITE:STD_LOGIC;
-   SIGNAL APB_PWDATA:STD_LOGIC_VECTOR(31 downto 0);
-   SIGNAL APB_PRDATA:STD_LOGIC_VECTOR(31 downto 0);
-   SIGNAL APB_PSLVERROR:STD_LOGIC;
 
    SIGNAL s_wdata:STD_LOGIC_VECTOR(31 downto 0);
    SIGNAL s_wready:STD_LOGIC;
@@ -503,8 +494,6 @@ architecture rtl of soc_base is
 begin
 
    resetn <= not clk_reset;  
-
-   UART_TXD <= '0';
    
    ZTA_CONTROL_rlast <= '1';
 
@@ -1373,25 +1362,6 @@ axi_stream_read_inst : axi_stream_read
       apb_prdata=>APB_PRDATA,
       apb_pslverror=>APB_PSLVERROR
    );
-
-   -------------
-   -- GPIO
-   -------------
-                 
-   gpio_inst : gpio
-      PORT MAP(
-         clock_in=>clk_main,
-         reset_in=>clk_reset,
-         apb_paddr=>APB_PADDR,
-         apb_penable=>APB_PENABLE,
-         apb_pready=>APB_PREADY,
-         apb_pwrite=>APB_PWRITE,
-         apb_pwdata=>APB_PWDATA,
-         apb_prdata=>APB_PRDATA,
-         apb_pslverror=>APB_PSLVERROR,
-         led_out=>led,
-         button_in=>pushbutton
-       );
 
    -------------------------
    -- ztachip

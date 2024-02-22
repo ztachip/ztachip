@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include "../base/ztalib.h"
+#include "soc.h"
 extern "C"
 {
 extern int main(void);
@@ -24,8 +25,8 @@ extern int vision_ai(void);
 //-----------------------------------------
 
 int main() {
-
    ztaInit();
+
 #ifdef ZTACHIP_UNIT_TEST
    while(1){
       test();

@@ -46,6 +46,8 @@ read_vhdl ../../src/soc/axi/axi_convert_64to32.vhd
 read_vhdl ../../src/soc/peripherals/camera.vhd
 read_vhdl ../../src/soc/peripherals/gpio.vhd
 read_vhdl ../../src/soc/peripherals/vga.vhd
+read_vhdl ../../src/soc/peripherals/time.vhd
+read_vhdl ../../src/soc/peripherals/uart.vhd
 read_vhdl ../../src/top/axilite.vhd
 read_vhdl ../../src/top/cell.vhd
 read_vhdl ../../src/top/ddr_rx.vhd

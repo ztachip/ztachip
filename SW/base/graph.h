@@ -69,8 +69,7 @@ public:
       else
          return false;
    }
-   inline ZtaStatus RunUntilInterrupt() {return run(1);}
-   inline ZtaStatus RunSingleStep() {return run(0);}
+   inline ZtaStatus Run(int timeout) {return run(timeout);}
    inline ZtaStatus RunUntilCompletion() {
       ZtaStatus rc;
 	  for(;;) {
