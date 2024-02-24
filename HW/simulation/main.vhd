@@ -111,9 +111,6 @@ soc_base_inst: soc_base
       clk_x2_main=>clk_x2_main,
       clk_reset=>reset_in,
 
-      UART_TXD=>open,
-      UART_RXD=>'0',
-
       VIDEO_clk=>clk_main,  
       VIDEO_tdata=>VIDEO_tdata,
       VIDEO_tready=>VIDEO_tready,

@@ -57,7 +57,7 @@
 #define MAX_OUTPUT          4
 #define ALPHABET_DIM        16
 
-#define GRAPH_EXE_TIMEOUT 15000
+#define GRAPH_EXE_TIMEOUT 15 // 15msec
 
 typedef struct {
    int x1,y1;
