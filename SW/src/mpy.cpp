@@ -41,6 +41,8 @@
 #include "mpy.h"
 
 static std::vector<MPY_HANDLE> tensorLst;
+static std::vector<MPY_HANDLE> tensorDisplayLst;
+static std::vector<MPY_HANDLE> tensorCameraLst;
 static std::vector<MPY_HANDLE> graphNodeLst;
 static std::vector<MPY_HANDLE> graphLst;
 
@@ -58,15 +60,24 @@ void MPY_Init() {
 // Remove all previously allocated objecys such as tensor,graphNode,graph
 void MPY_DeleteAll() {
    int i;
+   Graph *graph;
+   // Make sure all the graph are completed
+   for(i=0;i < (int)graphLst.size();i++) {
+      graph=(Graph *)graphLst[i];
+      while(graph->IsRunning())
+         graph->Run(1000); // Keep running until done
+   }   
    for(i=0;i < (int)graphLst.size();i++)
-      MPY_Graph_Delete(graphLst[i]);
+      delete (Graph *)graphLst[i];
    for(i=0;i < (int)graphNodeLst.size();i++)
-      MPY_GraphNode_Delete(graphNodeLst[i]);
+      delete (GraphNode *)graphNodeLst[i];
    for(i=0;i < (int)tensorLst.size();i++)
-      MPY_TENSOR_Delete(tensorLst[i]);
+      delete (TENSOR *)tensorLst[i];
    graphLst.clear();
    graphNodeLst.clear();
    tensorLst.clear();
+   tensorDisplayLst.clear();
+   tensorCameraLst.clear();
 }
 
 // API for set led state
@@ -162,7 +173,11 @@ MPY_HANDLE MPY_TENSOR_Create(eMPY_TensorType _type) {
          }
          break;
       case eMPY_TensorTypeDisplay:
+         {
+         std::vector<int> dim={3,DISPLAY_HEIGHT,DISPLAY_WIDTH};
          tensor=new TENSOR();
+         tensor->Create(TensorDataTypeUint8,TensorFormatInterleaved,TensorObjTypeRGB,dim);
+         }
          break;
       case eMPY_TensorTypeData:
          tensor=new TENSOR();
@@ -171,6 +186,10 @@ MPY_HANDLE MPY_TENSOR_Create(eMPY_TensorType _type) {
          return 0;
    }
    tensorLst.push_back((MPY_HANDLE)tensor);
+   if(_type==eMPY_TensorTypeDisplay)
+      tensorDisplayLst.push_back((MPY_HANDLE)tensor);
+   else if(_type==eMPY_TensorTypeCamera)
+      tensorCameraLst.push_back((MPY_HANDLE)tensor);
    return (MPY_HANDLE)tensor;
 }
 
@@ -225,17 +244,24 @@ eMPY_TensorDataType MPY_TENSOR_GetDataType(MPY_HANDLE hwd) {
 // Delete a tensor object
 
 void MPY_TENSOR_Delete(MPY_HANDLE hwd) {
-   if(hwd != 0)
-      delete (TENSOR *)hwd;
+//   if(hwd != 0)
+//      delete (TENSOR *)hwd;
 }
 
 // Bind last camera capture to the tensor
 
 bool MPY_TENSOR_GetCameraCapture(MPY_HANDLE _tensor) {
    TENSOR *tensor;
-   tensor=(TENSOR *)_tensor;
-   if(tensor) 
-      tensor->Alias((ZTA_SHARED_MEM)CameraGetCapture());
+   int i;
+   if(_tensor != 0) {
+      tensor=(TENSOR *)_tensor;
+      if(tensor) 
+         tensor->Alias((ZTA_SHARED_MEM)CameraGetCapture());
+   }
+   else {
+      for(i=0;i < (int)tensorCameraLst.size();i++)
+         MPY_TENSOR_GetCameraCapture(tensorCameraLst[i]);
+   }
    return true;
 }
 
@@ -245,15 +271,22 @@ bool MPY_TENSOR_GetCameraCapture(MPY_HANDLE _tensor) {
 
 bool MPY_TENSOR_GetScreenCanvas(MPY_HANDLE _tensor) {
    TENSOR *tensor;
-   tensor=(TENSOR *)_tensor;
-   if(tensor)
-      tensor->Alias((ZTA_SHARED_MEM)DisplayGetBuffer()); 
+   int i;
+   if(_tensor != 0) {
+      tensor=(TENSOR *)_tensor;
+      if(tensor)
+         tensor->Alias((ZTA_SHARED_MEM)DisplayGetBuffer()); 
+   }
+   else {
+      for(i=0;i < (int)tensorDisplayLst.size();i++)
+         MPY_TENSOR_GetScreenCanvas(tensorDisplayLst[i]);
+   }
    return true;  
 }
 
 // API for GraphNode for transformation  
 
-MPY_HANDLE MPY_GraphNodeTransform_Create(
+MPY_HANDLE MPY_GraphNodeCopyAndTransform_Create(
                   MPY_HANDLE _tensorInput,
                   MPY_HANDLE _tensorOutput,
                   eMPY_TensorColorSpace _dstColorSpace,
@@ -430,15 +463,15 @@ const char *MPY_GraphNodeNeuralNet_GetLabel(MPY_HANDLE hwd,int idx) {
 // Delete a graph node
 
 void MPY_GraphNode_Delete(MPY_HANDLE hwd) {
-   if(hwd != 0)
-      delete (GraphNode *)hwd;
+//   if(hwd != 0)
+//      delete (GraphNode *)hwd;
 }
 
 // Delete a graph object
 
 void MPY_Graph_Delete(MPY_HANDLE hwd) {
-   if(hwd != 0)
-      delete (Graph *)hwd;
+//   if(hwd != 0)
+//      delete (Graph *)hwd;
 }
 
 // Create a graph

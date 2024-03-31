@@ -65,7 +65,7 @@ extern void MPY_Display_FlushScreenCanvas();
 extern void MPY_Canvas_DrawText(const char *str,int r,int c);
 extern void MPY_Canvas_DrawPoint(int r,int c);
 extern void MPY_Canvas_DrawRectangle(int r1,int c1,int r2,int c2);
-extern MPY_HANDLE MPY_GraphNodeTransform_Create(
+extern MPY_HANDLE MPY_GraphNodeCopyAndTransform_Create(
                     MPY_HANDLE _tensorInput,
                     MPY_HANDLE _tensorOutput,
                     eMPY_TensorColorSpace _dstColorSpace,
