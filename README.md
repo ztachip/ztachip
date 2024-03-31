@@ -55,6 +55,13 @@ with the appropriate implementation of this wrapper layer.
 
 # Build procedure
 
+The build procedure produces 2 seperate images.
+
+One image is a standalone executable where user applications are using ztachip using a native [C/C++ library interface] (https://github.com/ztachip/ztachip/raw/master/Documentation/visionai_programmer_guide.pdf)
+
+The second image is a micropython port of ztachip. With this image, applications are using ztachip using a [Python programming interface](micropython/MicropythonUserGuide.md)
+
+
 ## Prerequisites (Ubuntu)
 
 ```
@@ -74,10 +81,13 @@ cd riscv-gnu-toolchain
 sudo make
 ```
 
-## Download and build ztachip
-
+## Download ztachip
 ```
 git clone https://github.com/ztachip/ztachip.git
+```
+
+## Build ztachip as standalone image
+```
 export PATH=/opt/riscv/bin:$PATH
 cd ztachip
 cd SW/compiler
@@ -87,6 +97,19 @@ python3 bin2c.py
 cd ..
 make clean all -f makefile.kernels
 make clean all
+```
+
+## Build ztachip as micropython port
+
+```
+git clone https://github.com/micropython/micropython.git
+cd micropython/ports
+cp -avr <ztachip installation folder>/micropython/ztachip_port .
+cd ztachip_port
+export PATH=/opt/riscv/bin:$PATH
+export ZTACHIP=<ztachip installation folder>
+make clean
+make
 ```
 
 ## Build FPGA
@@ -133,6 +156,16 @@ Connect camera_module to Arty board according to picture below
 
 ![camera_to_arty](Documentation/images/camera_and_arty_connect.bmp)
 
+## Open serial port
+
+If you are running ztachip's micropython image, then you need to connect to the serial port. Arty-A7 provides serial port connectivity via USB. Serial port flow control must be disabled.
+
+```
+sudo miniport -w -D /dev/ttyUSB1
+```
+
+Note: After the first time connecting to serial port, reset the board again (press button next to USB port and wait for led to turn green) since USB serial must be the first device to connect to USB before ztachip.
+
 ## Download and build OpenOCD package required for GDB debugger's JTAG connectivity
 
 In this example, we will load the program using GDB debugger and JTAG
@@ -161,9 +194,10 @@ cd <openocd_riscv installation folder>
 sudo src/openocd -f usb_connect.cfg -c 'set MURAX_CPU0_YAML cpu0.yaml' -f soc_init.cfg
 ```
 
-## Launch GDB debugger
+## Uploading SW image via GDB debugger
 
-Open another terminal, then launch GDB debugger
+### Upload procedure standalone SW image
+Open another terminal, then issue commands below to upload the standalone image
 
 ```
 export PATH=/opt/riscv/bin:$PATH
@@ -171,9 +205,20 @@ cd <ztachip installation folder>/SW/src
 riscv32-unknown-elf-gdb ../build/ztachip.elf
 ```
 
-## Load program to DRAM memory using GDB debugger
+### Upload procedure for micropython SW image
+Open another terminal, then issue commands below to upload the micropython image
+Issue commands below to launch the Micropython image.
+
+```
+export PATH=/opt/riscv/bin:$PATH
+cd <Micropython installation folder>/ports/ztachip_port
+riscv32-unknown-elf-gdb ./build/firmware.elf
+```
+
+### Start the image transfer
 
 From GDB debugger prompt, issue the commands below
+This step takes some time since some AI models are also transfered.
 
 ```
 set pagination off
@@ -192,9 +237,14 @@ After sucessfully loading the program, issue command below at GDB prompt
 continue
 ```
 
-Press button0 to switch between different AI/vision applications.
+### Running standalone image
+If you are running the standalone image, press button0 to switch between different AI/vision applications. The sample application running is implemented in [vision_ai.cpp](SW/src/vision_ai.cpp)
 
+### Running micropython image
+If you are running the micropython image, Micropython allows for entering python code in paste mode at the serial port.  
+To use the paste mode, hit Ctrl+E then paste one of the [examples](micropython/examples/) to the serial port, then hit ctrl+D to execute the python code.
 
+Hit any button to return back to Micropython prompt.
 
 # How to port ztachip to other FPGA,ASIC and SOC 
 
