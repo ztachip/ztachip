@@ -100,6 +100,8 @@ make clean all
 ```
 
 ## Build ztachip as micropython port
+You are required to complete the previous build procedure for standalone image even if your
+target image is micropython image. 
 
 ```
 git clone https://github.com/micropython/micropython.git
@@ -196,7 +198,7 @@ sudo src/openocd -f usb_connect.cfg -c 'set MURAX_CPU0_YAML cpu0.yaml' -f soc_in
 
 ## Uploading SW image via GDB debugger
 
-### Upload procedure standalone SW image
+### Upload procedure for standalone SW image
 Open another terminal, then issue commands below to upload the standalone image
 
 ```
@@ -206,8 +208,7 @@ riscv32-unknown-elf-gdb ../build/ztachip.elf
 ```
 
 ### Upload procedure for micropython SW image
-Open another terminal, then issue commands below to upload the micropython image
-Issue commands below to launch the Micropython image.
+Open another terminal, then issue commands below to upload the micropython image.
 
 ```
 export PATH=/opt/riscv/bin:$PATH
