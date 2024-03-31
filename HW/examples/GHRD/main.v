@@ -319,7 +319,7 @@ module main(
          .button_in(pushbutton)
       );
 
-   UART #(.BAUD_RATE(115200),.CLOCK_FREQUENCY(125000000)) UART_inst(
+   UART #(.BAUD_RATE(115200)) UART_inst(
 		   .clock_in(clk_main),
 		   .reset_in(1),
 		   .uart_rx_in(UART_RXD),

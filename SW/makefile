@@ -7,6 +7,7 @@ UNIT_TEST=no
 
 SRCS = 	base/newlib.c \
 	base/ztalib.c \
+	base/ztalog.c \
 	base/tensor.cpp \
 	base/util.c \
 	base/graph.cpp \
@@ -14,6 +15,7 @@ SRCS = 	base/newlib.c \
 	base/task.S \
 	src/test.cpp \
 	src/vision_ai.cpp \
+	src/mpy.cpp \
 	apps/main/kernels/main.m.c \
 	apps/color/kernels/color.m.c \
 	apps/color/color.cpp \
@@ -42,6 +44,7 @@ SRCS = 	base/newlib.c \
 	apps/nn/tf_util.cpp \
 	apps/nn/kernels/conv.m.c \
 	apps/nn/kernels/fcn.m.c \
+	apps/gdi/gdi.cpp \
 	apps/test/kernels/test.m.c \
 	src/soc.cpp \
 	src/main.cpp

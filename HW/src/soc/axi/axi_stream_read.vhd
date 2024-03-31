@@ -52,7 +52,7 @@ entity axi_stream_read is
       ddr_rid_in               : IN axi_rid_t;
       ddr_rvalid_in            : IN axi_rvalid_t;
       ddr_rlast_in             : IN axi_rlast_t;
-      ddr_rdata_in             : IN STD_LOGIC_VECTOR(31 downto 0);
+      ddr_rdata_in             : IN STD_LOGIC_VECTOR(63 downto 0);
       ddr_rresp_in             : IN axi_rresp_t;
       ddr_arready_in           : IN axi_arready_t;
       ddr_rready_out           : OUT axi_rready_t;
@@ -84,6 +84,7 @@ architecture rtl of axi_stream_read is
 signal read_fifo_empty:std_logic;
 signal read_fifo_full:std_logic;
 signal read_fifo_rd:std_logic;
+signal read_fifo_rd2:std_logic;
 signal read_fifo_wr:std_logic;
 signal read_size_r:unsigned(23 downto 0); 
 signal ddr_araddr_r:axi_awaddr_t;
@@ -101,10 +102,15 @@ signal apb_rvdma_buf2_match:std_logic;
 signal apb_rvdma_buf3_match:std_logic;
 signal apb_rvdma_get_curr_match:std_logic;
 signal apb_match:std_logic;
-signal read_fifo_write:std_logic_vector(32 downto 0);
-signal read_fifo_read:std_logic_vector(32 downto 0);
+signal read_fifo_write:std_logic_vector(64 downto 0);
+signal read_fifo_read:std_logic_vector(64 downto 0);
 signal rlast_r:std_logic;
-constant stride_c:integer:=4*READ_MAX_PENDING;
+signal read_fifo_read2:std_logic_vector(64 downto 0);
+signal empty2:std_logic;
+signal full2:std_logic;
+signal xfer:std_logic;
+signal toggle_r:std_logic;
+constant stride_c:integer:=8*READ_MAX_PENDING;
 begin
 
 --s_rcurr_next <= s_rcurr_r+to_unsigned(1,s_rcurr_r'length);
@@ -152,38 +158,60 @@ apb_prdata(s_rcurr_r'length-1 downto 0) <= std_logic_vector(s_rcurr_r)
                                            else 
                                            (others=>'Z');   
    
-read_fifo_write(31 downto 0) <= ddr_rdata_in;
+read_fifo_write(63 downto 0) <= ddr_rdata_in;
 
-read_fifo_write(32) <= ddr_rlast_in and rlast_r;
+read_fifo_write(64) <= ddr_rlast_in and rlast_r;
 
-s_rdata_out <= read_fifo_read(31 downto 0);
 
-s_rlast_out <= read_fifo_read(32);
+s_rdata_out <= read_fifo_read(31 downto 0) when toggle_r='0' else read_fifo_read(63 downto 32);
+
+s_rlast_out <= read_fifo_read(64) and toggle_r;
        
 read_fifo:afifo
    generic map
    (
-      DATA_WIDTH=>33,
-      FIFO_DEPTH=>READ_STREAM_DEPTH
+      DATA_WIDTH=>65,
+      FIFO_DEPTH=>5
    )
    port map 
    (
       rclock_in=>s_rclk_in,
       wclock_in=>clock_in,
       reset_in=>reset_in,
-      data_in=>read_fifo_write,
-      write_in=>read_fifo_wr,
-      read_in=>read_fifo_rd,
+      data_in=>read_fifo_read2,
+      write_in=>xfer,
+      read_in=>read_fifo_rd2,
       q_out=>read_fifo_read,
       empty_out=>read_fifo_empty,
+      full_out=>full2
+   );
+
+xfer <= '1' when empty2='0' and full2='0' else '0'; 
+
+read_fifo2:scfifo
+   generic map
+   (
+      DATA_WIDTH=>65,
+      FIFO_DEPTH=>READ_STREAM_DEPTH,
+      LOOKAHEAD=>TRUE
+   )
+   port map 
+   (
+      clock_in=>clock_in,
+      reset_in=>reset_in,
+      data_in=>read_fifo_write,
+      write_in=>read_fifo_wr,
+      read_in=>xfer,
+      q_out=>read_fifo_read2,
+      empty_out=>empty2,
       full_out=>read_fifo_full
    );
 
 ddr_araddr_out <= ddr_araddr_r;
 ddr_arvalid <= ddr_arready_in and (not in_progress_r) and ready_r;
 ddr_arvalid_out <= ddr_arvalid;
-ddr_arlen_out <= std_logic_vector(to_unsigned(stride_c/4-1,ddr_arlen_out'length));
-ddr_arsize_out <= "010";
+ddr_arlen_out <= std_logic_vector(to_unsigned(stride_c/8-1,ddr_arlen_out'length));
+ddr_arsize_out <= "011";
 ddr_arburst_out <= "01";
 ddr_arcache_out <= (others=>'0');
 ddr_arid_out <= (others=>'0');
@@ -199,6 +227,20 @@ s_rvalid_out <= (not read_fifo_empty);
 
 read_fifo_rd <= '1' when (read_fifo_empty='0' and s_rready_in='1') else '0';	
 
+read_fifo_rd2 <= read_fifo_rd and toggle_r;
+
+process(s_rclk_in,reset_in)
+begin
+   if reset_in='0' then
+      toggle_r <= '0';
+   else
+      if s_rclk_in'event and s_rclk_in='1' then
+         if(read_fifo_rd='1') then
+            toggle_r <= not toggle_r;
+         end if;
+      end if;
+   end if;
+end process;
 
 process(clock_in,reset_in)
 begin

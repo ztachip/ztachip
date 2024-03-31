@@ -284,8 +284,8 @@ architecture rtl of soc_base is
    SIGNAL vdma_awcache:STD_LOGIC_VECTOR(3 downto 0);
    SIGNAL vdma_awprot:STD_LOGIC_VECTOR(2 downto 0);
    SIGNAL vdma_awqos:STD_LOGIC_VECTOR(3 downto 0);
-   SIGNAL vdma_wdata:STD_LOGIC_VECTOR(31 downto 0);
-   SIGNAL vdma_wstrb:STD_LOGIC_VECTOR(3 downto 0);
+   SIGNAL vdma_wdata:STD_LOGIC_VECTOR(63 downto 0);
+   SIGNAL vdma_wstrb:STD_LOGIC_VECTOR(7 downto 0);
    SIGNAL vdma_wlast:STD_LOGIC;
    SIGNAL vdma_wvalid:STD_LOGIC;
    SIGNAL vdma_wready:STD_LOGIC;
@@ -306,7 +306,7 @@ architecture rtl of soc_base is
    SIGNAL rvdma_arprot:STD_LOGIC_VECTOR(2 downto 0);
    SIGNAL rvdma_arqos:STD_LOGIC_VECTOR(3 downto 0);
    SIGNAL rvdma_rready:STD_LOGIC;
-   SIGNAL rvdma_rdata:STD_LOGIC_VECTOR(31 downto 0);
+   SIGNAL rvdma_rdata:STD_LOGIC_VECTOR(63 downto 0);
    SIGNAL rvdma_rresp:STD_LOGIC_VECTOR(1 downto 0);
    SIGNAL rvdma_rlast:STD_LOGIC;
    SIGNAL rvdma_rvalid:STD_LOGIC;
@@ -1275,7 +1275,7 @@ axi_stream_write_inst : axi_stream_write
       WRITE_BUF_DEPTH=>2,
       WRITE_STREAM_DEPTH=>10,
       WRITE_PAGE_SIZE=>921600,
-      WRITE_MAX_PENDING=>32
+      WRITE_MAX_PENDING=>64
    )
    PORT MAP (
       clock_in=>clk_main,
@@ -1324,7 +1324,7 @@ axi_stream_read_inst : axi_stream_read
       READ_BUF_DEPTH=>2,
       READ_STREAM_DEPTH=>10,
       READ_PAGE_SIZE=>921600,
-      READ_MAX_PENDING=>128
+      READ_MAX_PENDING=>64
    )
    PORT MAP (    
       clock_in=>clk_main,

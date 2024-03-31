@@ -70,9 +70,9 @@ entity axi_merge_write is
       axislave_awlens_in           : IN axi_awlens_t(MAX_SLAVE_PORT-1 downto 0);
       axislave_awvalids_in         : IN axi_awvalids_t(MAX_SLAVE_PORT-1 downto 0);
       axislave_wvalids_in          : IN axi_wvalids_t(MAX_SLAVE_PORT-1 downto 0);
-      axislave_wdatas_in           : IN axi_wdatas_t(MAX_SLAVE_PORT-1 downto 0);
+      axislave_wdatas_in           : IN axi_wdata64s_t(MAX_SLAVE_PORT-1 downto 0);
       axislave_wlasts_in           : IN axi_wlasts_t(MAX_SLAVE_PORT-1 downto 0);
-      axislave_wstrbs_in           : IN axi_wstrbs_t(MAX_SLAVE_PORT-1 downto 0);
+      axislave_wstrbs_in           : IN axi_wstrb8s_t(MAX_SLAVE_PORT-1 downto 0);
       axislave_awreadys_out        : OUT axi_awreadys_t(MAX_SLAVE_PORT-1 downto 0);
       axislave_wreadys_out         : OUT axi_wreadys_t(MAX_SLAVE_PORT-1 downto 0);
       axislave_bresps_out          : OUT axi_bresps_t(MAX_SLAVE_PORT-1 downto 0);
@@ -121,9 +121,9 @@ SIGNAL slave_awaddrs:axi_awaddrs_t(MAX_SLAVE_PORT-1 downto 0);
 SIGNAL slave_awlens:axi_awlens_t(MAX_SLAVE_PORT-1 downto 0);
 SIGNAL slave_awvalids:axi_awvalids_t(MAX_SLAVE_PORT-1 downto 0);
 SIGNAL slave_wvalids:axi_wvalids_t(MAX_SLAVE_PORT-1 downto 0);
-SIGNAL slave_wdatas:axi_wdatas_t(MAX_SLAVE_PORT-1 downto 0);
+SIGNAL slave_wdatas:axi_wdata64s_t(MAX_SLAVE_PORT-1 downto 0);
 SIGNAL slave_wlasts:axi_wlasts_t(MAX_SLAVE_PORT-1 downto 0);
-SIGNAL slave_wstrbs:axi_wstrbs_t(MAX_SLAVE_PORT-1 downto 0);
+SIGNAL slave_wstrbs:axi_wstrb8s_t(MAX_SLAVE_PORT-1 downto 0);
 SIGNAL slave_awreadys:axi_awreadys_t(MAX_SLAVE_PORT-1 downto 0);
 SIGNAL slave_wreadys:axi_wreadys_t(MAX_SLAVE_PORT-1 downto 0);
 SIGNAL slave_bresps:axi_bresps_t(MAX_SLAVE_PORT-1 downto 0);
@@ -292,6 +292,7 @@ FOR I IN 0 TO MAX_SLAVE_PORT-1 GENERATE
 
 slave_i: axi_write
    generic map(
+      DATA_WIDTH=>64,
       FIFO_DEPTH=>FIFO_CMD_DEPTH(I),
       FIFO_DATA_DEPTH=>FIFO_DATA_DEPTH(I)
    )
@@ -516,34 +517,24 @@ begin
    if(pend_data_empty='0' and pend_data_read(S0)='1' and slave_wvalids(S0)='1') then
       master_wlast <= slave_wlasts(S0);
       master_wvalid <= slave_wvalids(S0);   
-      master_wdata(31 downto 0) <= slave_wdatas(S0);
-      master_wdata(63 downto 32) <= slave_wdatas(S0);
-      if(pend_data_read(MAX_SLAVE_PORT+1)='0') then
-         master_wstrb(3 downto 0) <= slave_wstrbs(S0);
-         master_wstrb(7 downto 4) <= (others=>'0');
-         master_wdata_mask(0) <= '1';
-         master_wdata_mask(1) <= '0';
-      else
-         master_wstrb(3 downto 0) <= (others=>'0');
-         master_wstrb(7 downto 4) <= slave_wstrbs(S0);
-         master_wdata_mask(0) <= '0';
-         master_wdata_mask(1) <= '1';
-      end if;
+      master_wdata <= slave_wdatas(S0);
+      master_wstrb <= slave_wstrbs(S0);
+      master_wdata_mask(0) <= '1';
+      master_wdata_mask(1) <= '1';
       slave_wreadys(S0) <= master_wready;
       pend_data_rd <= master_wready;
    elsif(pend_data_empty='0' and pend_data_read(S1)='1' and slave_wvalids(S1)='1') then
       master_wlast <= slave_wlasts(S1);
       master_wvalid <= slave_wvalids(S1);
-      master_wdata(31 downto 0) <= slave_wdatas(S1);
-      master_wdata(63 downto 32) <= slave_wdatas(S1);
+      master_wdata <= slave_wdatas(S1);
       if(pend_data_read(MAX_SLAVE_PORT+1)='0') then
-         master_wstrb(3 downto 0) <= slave_wstrbs(S1);
+         master_wstrb(3 downto 0) <= slave_wstrbs(S1)(3 downto 0);
          master_wstrb(7 downto 4) <= (others=>'0');
          master_wdata_mask(0) <= '1';
          master_wdata_mask(1) <= '0';
       else
          master_wstrb(3 downto 0) <= (others=>'0');
-         master_wstrb(7 downto 4) <= slave_wstrbs(S1);
+         master_wstrb(7 downto 4) <= slave_wstrbs(S1)(3 downto 0);
          master_wdata_mask(0) <= '0';
          master_wdata_mask(1) <= '1';
       end if;
@@ -552,16 +543,15 @@ begin
    elsif(pend_data_empty='0' and pend_data_read(S2)='1' and slave_wvalids(S2)='1') then
       master_wlast <= slave_wlasts(S2);
       master_wvalid <= slave_wvalids(S2);
-      master_wdata(31 downto 0) <= slave_wdatas(S2);
-      master_wdata(63 downto 32) <= slave_wdatas(S2);
+      master_wdata <= slave_wdatas(S2);
       if(pend_data_read(MAX_SLAVE_PORT+1)='0') then
-         master_wstrb(3 downto 0) <= slave_wstrbs(S2);
+         master_wstrb(3 downto 0) <= slave_wstrbs(S2)(3 downto 0);
          master_wstrb(7 downto 4) <= (others=>'0');
          master_wdata_mask(0) <= '1';
          master_wdata_mask(1) <= '0';
       else
          master_wstrb(3 downto 0) <= (others=>'0');
-         master_wstrb(7 downto 4) <= slave_wstrbs(S2);
+         master_wstrb(7 downto 4) <= slave_wstrbs(S2)(3 downto 0);
          master_wdata_mask(0) <= '0';
          master_wdata_mask(1) <= '1';
       end if;

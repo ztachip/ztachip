@@ -37,6 +37,7 @@
 #include "../apps/gaussian/gaussian.h"
 #include "../apps/equalize/equalize.h"
 #include "../apps/nn/tf.h"
+#include "../apps/gdi/gdi.h"
 
 //---------------------------------------------------------------------
 // Example on how to use ztachip for vision AI applications
@@ -51,8 +52,6 @@
 //      same time
 //----------------------------------------------------------------------
 
-#define WEBCAM_WIDTH        640
-#define WEBCAM_HEIGHT       480
 #define MAX_SSD_RESULT      4
 #define MAX_OUTPUT          4
 #define ALPHABET_DIM        16
@@ -90,115 +89,6 @@ static const char *testcase_label[TestCaseMax]= {
 static const char *progress_str[NUM_PROGRESS]={"|","/","-","\\","|","/","-","\\"};
 
 static TestCase testcase=TestCaseObjectDetection;
-
-// Display text
-
-int drawText(uint8_t *screen,char *str,int r,int c) {
-   static TENSOR *alpha=0;
-   int i,j,idx;
-   uint8_t *s,*d;
-   int ch;
-   int len,len2;
-
-   if(r<0) r=0;
-   if((r+ALPHABET_DIM) >= WEBCAM_HEIGHT)
-      return 0;
-   if(c<0) c=0;
-   len=strlen(str);
-   len2=((WEBCAM_WIDTH-c) >> 4);
-   len=(len<len2)?len:len2;
-   if(!alpha) {
-      // Font is defined in bitmap
-      alpha=new TENSOR();
-      alpha->CreateWithBitmap("alphabet2.bmp",TensorFormatInterleaved);
-   }
-   for(j=0;j < len;j++) {
-      ch=(int)(*str++);
-      // Locate bitmap for the letter in alphabet2.bmp image 
-      if(ch==0)
-         idx=0;
-      else
-         idx=ch-1;
-      if(idx >= (6*16))
-         idx++;
-      if(idx >= (8*16))
-         idx=0;
-      s=(uint8_t *)alpha->GetBuf()+3*((((idx>>4)<<4)<<8)+((idx&0xF)<<4));
-      d=&screen[3*(r*WEBCAM_WIDTH+c)];
-      for(i=0;i < ALPHABET_DIM;i++) {
-         memcpy(d,s,ALPHABET_DIM*3);
-         s += (ALPHABET_DIM<<4)*3;
-         d += WEBCAM_WIDTH*3;
-      }
-      c+=ALPHABET_DIM;
-   }
-   return 0;
-}
-
-// Draw rectangle. Show the corner of rectangle only
-
-#define CORNER 16
-
-int drawRectangle(uint8_t *screen,int r1,int c1,int r2,int c2,const char *label) {
-   int r,c;
-   uint8_t *p;
-   // Top line
-   if(r1<0) r1=0;
-   if(r1 >= (WEBCAM_HEIGHT-1)) r1=WEBCAM_HEIGHT-2;
-   if(c1<0) c1=0;
-   if(c1 >= (WEBCAM_WIDTH-1)) c1=WEBCAM_WIDTH-2;
-   if(r2<0) r2=0;
-   if(r2 >= (WEBCAM_HEIGHT-1)) r2=WEBCAM_HEIGHT-2;
-   if(c2<0) c2=0;
-   if(c2 >= (WEBCAM_WIDTH-1)) c2=WEBCAM_WIDTH-2;
-
-   // top line
-   for(c=c1,p=&screen[3*(r1*WEBCAM_WIDTH+c1)];c <= c2;c++,p+=3) {
-        if(c >= (c1+CORNER) && (c <= c2-CORNER))
-           continue;
-        p[0]=0xff;
-        p[1]=0;
-        p[2]=0;
-        p[3*WEBCAM_WIDTH+0]=0xff;
-        p[3*WEBCAM_WIDTH+1]=0;
-        p[3*WEBCAM_WIDTH+2]=0;
-   }
-   // Left line
-   for(r=r1,p=&screen[3*(r1*WEBCAM_WIDTH+c1)];r <= r2;r++,p+=(WEBCAM_WIDTH*3)) {
-        if(r >= (r1+CORNER) && (r <= r2-CORNER))
-           continue;
-        p[0]=0xff;
-        p[1]=0;
-        p[2]=0;
-        p[3]=0xff;
-        p[4]=0;
-        p[5]=0;
-   }
-   // Right line
-   for(r=r1,p=&screen[3*(r1*WEBCAM_WIDTH+c2)];r <= r2;r++,p+=(WEBCAM_WIDTH*3)) {
-        if(r >= (r1+CORNER) && (r <= r2-CORNER))
-           continue;
-        p[0]=0xff;
-        p[1]=0;
-        p[2]=0;
-        p[3]=0xff;
-        p[4]=0;
-        p[5]=0;
-   }
-   // Bottom line
-   for(c=c1,p=&screen[3*(r2*WEBCAM_WIDTH+c1)];c <= c2;c++,p+=3) {
-        if(c >= (c1+CORNER) && (c <= c2-CORNER))
-           continue;
-        p[0]=0xff;
-        p[1]=0;
-        p[2]=0;
-
-        p[3*WEBCAM_WIDTH+0]=0xff;
-        p[3*WEBCAM_WIDTH+1]=0;
-        p[3*WEBCAM_WIDTH+2]=0;
-   }
-   return 0;
-}
 
 // Main loop
 
@@ -247,13 +137,7 @@ int vision_ai() {
    bool readyToSwitch=false;
    uint32_t buttonStatus;
    int progress_cnt=0;
-   uint8_t *cameraCapture;
    uint8_t *displayBuffer;
-
-   DisplayInit(WEBCAM_WIDTH,WEBCAM_HEIGHT);
-   CameraInit(WEBCAM_WIDTH,WEBCAM_HEIGHT);
-
-   Graph::SetPoll(CameraCaptureReady);
 
    std::vector<int> dim={3,WEBCAM_HEIGHT,WEBCAM_WIDTH};
    rc=tensorInput.Create(TensorDataTypeUint8,TensorFormatInterleaved,TensorObjTypeRGB,dim);
@@ -471,11 +355,10 @@ int vision_ai() {
 
       // Check if there is new image ready from camera
 
-      cameraCapture=CameraGetCapture();
-      if(cameraCapture) {
+      if(CameraCaptureReady()) {
          displayBuffer=DisplayGetBuffer();
          // New capture available...
-         tensorInput.Alias((ZTA_SHARED_MEM)cameraCapture);
+         tensorInput.Alias((ZTA_SHARED_MEM)CameraGetCapture());
          if(testcase==TestCaseAll) {
             for(int i=0;i < MAX_OUTPUT;i++) {
                tensorOutputs[i].Alias((ZTA_SHARED_MEM)displayBuffer);
@@ -491,12 +374,10 @@ int vision_ai() {
          FLUSH_DATA_CACHE();
          if(testcase==TestCaseHarrisCorner || testcase==TestCaseAll) {
             // Update display with point-of-interests from Harris-Corner algorithm
-            uint8_t *display_p=(uint8_t *)displayBuffer;
             uint16_t *harris_p=(uint16_t *)tensorHarris.GetBuf();
             int i;
             int w,h;
             if(testcase==TestCaseAll) {
-               display_p += (WEBCAM_HEIGHT/2)*WEBCAM_WIDTH*3;
                w=WEBCAM_WIDTH/2;
                h=WEBCAM_HEIGHT/2;
             } else {
@@ -504,77 +385,41 @@ int vision_ai() {
                h=WEBCAM_HEIGHT;
             }
             for(i=0;i < h;i++) {
-               for(j=0;j < w;j++,harris_p++,display_p+=3) {
+               for(j=0;j < w;j++,harris_p++) {
                   if(*harris_p != 0) {
-                     display_p[0]=0xff;
-                     display_p[1]=0;
-                     display_p[2]=0;
-                     display_p[0+3*WEBCAM_WIDTH]=0xff;
-                     display_p[1+3*WEBCAM_WIDTH]=0;
-                     display_p[2+3*WEBCAM_WIDTH]=0;
-                     display_p[3]=0xff;
-                     display_p[4]=0;
-                     display_p[5]=0;
-                     display_p[3+3*WEBCAM_WIDTH]=0xff;
-                     display_p[4+3*WEBCAM_WIDTH]=0;
-                     display_p[5+3*WEBCAM_WIDTH]=0;
+                     GdiDrawPoint((testcase==TestCaseAll)?(i+h):i,j);
                   }
                }
-               if(testcase==TestCaseAll)
-                  display_p += (WEBCAM_WIDTH/2)*3;
             }
          }
          if(testcase==TestCaseImageClassifier) {
-            if(!graphNN.IsRunning()) {
-               // If the second graph is idle, then process a new image
-               graphNN.Prepare();
-               // Execute just the first step of AI graph so that NN graph
-               // no longer need input image and NN graph can now run
-               // independently from main vision graph
-               graphNN.Run(0);
-            }
             // Update display with image classifier results if available
             if(top5_valid) {
                for(i=0;i < 5;i++) {
                   sprintf(buf,"%s 0.%02d",nodeNN.LabelGet(top5[i]),(top5_probability[i]*100)>>8);
-                  drawText(displayBuffer,buf,(i<<4),16);
+                  GdiDrawText(buf,(i<<4),0);
                }
             }
          }
          if(testcase==TestCaseObjectDetection || testcase==TestCaseAll) {
-            if(!graphNN.IsRunning()) {
-               // If the second graph is idle, then process a new image
-               FLUSH_DATA_CACHE();
-               graphNN.Prepare();
-               // Execute just the first step of AI graph so that NN graph
-               // no longer need input image and NN graph can now run
-               // independently from main vision graph
-               graphNN.Run(0);
-            }
               // Update display with object detection boxes if available
             if(ssd_valid) {
                for(int i=0;i < ssd_result_cnt;i++) {
                   sprintf(buf,"%s 0.%02d",(char *)ssd_result[i].label,ssd_result[i].probability);
-                  drawText(displayBuffer,
-                           buf,
-                           ssd_result[i].y1+2,
-                           ssd_result[i].x1+2);
+                  GdiDrawText(buf,
+                              ssd_result[i].y1+2,
+                              ssd_result[i].x1+2);
 
-                  drawRectangle(displayBuffer,
-                                 ssd_result[i].y1,
+                  GdiDrawRectangle(ssd_result[i].y1,
                                  ssd_result[i].x1,
                                  ssd_result[i].y2,
-                                 ssd_result[i].x2,
-                                 ssd_result[i].label);
+                                 ssd_result[i].x2);
                }
             }
          }
          // Update screen label
          sprintf(buf,"%s %s", (char *)testcase_label[testcase],progress_str[progress_cnt]);
-         drawText(displayBuffer,
-                  buf,
-                  0,
-                  WEBCAM_WIDTH-strlen(buf)*ALPHABET_DIM-8);
+         GdiDrawText(buf,0,WEBCAM_WIDTH-strlen(buf)*ALPHABET_DIM-8);
          if(++progress_cnt>=NUM_PROGRESS)
             progress_cnt=0;
          // Update video memory
@@ -583,49 +428,57 @@ int vision_ai() {
       // There is no new images. Continue to process the second graph
       // for AI processing.
       if(testcase==TestCaseImageClassifier) {
-         if(graphNN.IsRunning())
+         if(graphNN.IsRunning()) {
             graphNN.Run(GRAPH_EXE_TIMEOUT);
-         if(!graphNN.IsRunning()) {
-            // Got new result from image classifier. Save it to display later
-            FLUSH_DATA_CACHE();
-            uint8_t *probability=(uint8_t *)tensorNN[0].GetBuf();
-            NeuralNet::GetTop5(probability,tensorNN[0].GetBufLen(),top5);
-            for(i=0;i < 5;i++) {
-               top5_probability[i]=probability[top5[i]];
+            if(!graphNN.IsRunning()) {
+                  // Got new result from image classifier. Save it to display later
+                  FLUSH_DATA_CACHE();
+                  uint8_t *probability=(uint8_t *)tensorNN[0].GetBuf();
+                  NeuralNet::GetTop5(probability,tensorNN[0].GetBufLen(),top5);
+                  for(i=0;i < 5;i++) {
+                     top5_probability[i]=probability[top5[i]];
+                  }
+                  top5_valid=true;
             }
-            top5_valid=true;
+         } 
+         else {
+            graphNN.Prepare();     
          }
       } else if(testcase==TestCaseObjectDetection || testcase==TestCaseAll) {
-         if(graphNN.IsRunning())
+         if(graphNN.IsRunning()) {
             graphNN.Run(GRAPH_EXE_TIMEOUT);
-         if(!graphNN.IsRunning())
-         {
-            // Got new result from object detection. Save it to display later
-            FLUSH_DATA_CACHE();
-            float *box_p=(float *)tensorNN[0].GetBuf();
-            float *classes_p=(float *)tensorNN[1].GetBuf();
-            float *probability_p=(float *)tensorNN[2].GetBuf();
-            float *numDetect_p=(float *)tensorNN[3].GetBuf();
-            ssd_result_cnt=(int)numDetect_p[0];
-            if(ssd_result_cnt > MAX_SSD_RESULT)
-               ssd_result_cnt=MAX_SSD_RESULT;
-            if(ssd_result_cnt < 0)
-               ssd_result_cnt=0;
-            for(int i=0;i < ssd_result_cnt;i++) {
-               ssd_result[i].x1=box_p[4*i+1]*WEBCAM_WIDTH;
-               ssd_result[i].y1=box_p[4*i+0]*WEBCAM_HEIGHT;
-               ssd_result[i].x2=box_p[4*i+3]*WEBCAM_WIDTH;
-               ssd_result[i].y2=box_p[4*i+2]*WEBCAM_HEIGHT;
-               ssd_result[i].probability=probability_p[i]*100;
-               ssd_result[i].label=nodeNN.LabelGet((int)classes_p[i]);
-               if(testcase==TestCaseAll) {
-                  ssd_result[i].x1=ssd_result[i].x1>>1;
-                  ssd_result[i].y1=ssd_result[i].y1>>1;
-                  ssd_result[i].x2=ssd_result[i].x2>>1;
-                  ssd_result[i].y2=ssd_result[i].y2>>1;
+            if(!graphNN.IsRunning())
+            {
+               // Got new result from object detection. Save it to display later
+               FLUSH_DATA_CACHE();
+               float *box_p=(float *)tensorNN[0].GetBuf();
+               float *classes_p=(float *)tensorNN[1].GetBuf();
+               float *probability_p=(float *)tensorNN[2].GetBuf();
+               float *numDetect_p=(float *)tensorNN[3].GetBuf();
+               ssd_result_cnt=(int)numDetect_p[0];
+               if(ssd_result_cnt > MAX_SSD_RESULT)
+                  ssd_result_cnt=MAX_SSD_RESULT;
+               if(ssd_result_cnt < 0)
+                  ssd_result_cnt=0;
+               for(int i=0;i < ssd_result_cnt;i++) {
+                  ssd_result[i].x1=box_p[4*i+1]*WEBCAM_WIDTH;
+                  ssd_result[i].y1=box_p[4*i+0]*WEBCAM_HEIGHT;
+                  ssd_result[i].x2=box_p[4*i+3]*WEBCAM_WIDTH;
+                  ssd_result[i].y2=box_p[4*i+2]*WEBCAM_HEIGHT;
+                  ssd_result[i].probability=probability_p[i]*100;
+                  ssd_result[i].label=nodeNN.LabelGet((int)classes_p[i]);
+                  if(testcase==TestCaseAll) {
+                     ssd_result[i].x1=ssd_result[i].x1>>1;
+                     ssd_result[i].y1=ssd_result[i].y1>>1;
+                     ssd_result[i].x2=ssd_result[i].x2>>1;
+                     ssd_result[i].y2=ssd_result[i].y2>>1;
+                  }
                }
+               ssd_valid=true;
             }
-            ssd_valid=true;
+         }
+         else {
+            graphNN.Prepare();     
          }
       }
    }

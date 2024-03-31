@@ -22,6 +22,14 @@
 #include <stdint.h>
 #include "../base/types.h"
 
+#define DISPLAY_WIDTH       640
+
+#define DISPLAY_HEIGHT      480
+
+#define WEBCAM_WIDTH        640
+
+#define WEBCAM_HEIGHT       480
+
 // Memory mapped of APB bus
 
 #define APB ((volatile unsigned int *)0xC0000000)
@@ -59,9 +67,14 @@
 
 #define FLUSH_DATA_CACHE()  {asm(".word 0x500F");}
 
+extern uint8_t *DisplayCanvas;
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 ZtaStatus DisplayInit(int w,int h);
 
-uint8_t *DisplayGetBuffer(void);
+inline uint8_t *DisplayGetBuffer(void) {return DisplayCanvas;}
 
 ZtaStatus DisplayUpdateBuffer(void);
 
@@ -82,6 +95,9 @@ void UartWrite(uint8_t ch);
 int UartReadAvailable();
 
 int UartWriteAvailable();
+#ifdef __cplusplus
+}
+#endif
 
 #define TimeGet() (APB[APB_TIME_GET])
 

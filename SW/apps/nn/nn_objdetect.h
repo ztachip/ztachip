@@ -29,13 +29,19 @@
 #include "../../base/ztalib.h"
 #include "nn.h"
 
+#define dNnObjDetectThreshold ((float)0.5)
+
+#define dNnObjDetectIouThreshold ((float)0.6)
+
+#define dNnObjDetectMaxNumDetects 10
+
 struct ObjDetectionResult {
    float xmin;
    float ymin;
    float xmax;
    float ymax;
    int detectClass;
-   float score;
+   int score;
 };
 
 class NeuralNetLayerObjDetect : public NeuralNetLayer {
@@ -47,8 +53,6 @@ public:
    LayerIoType GetIoType() {return LayerIoTypeInInterleaveOutInterleave;}
    virtual bool RunAtHost() {return true;}
 public:
-   ObjDetectionResult *m_detects;
-   int m_numDetects;
    int m_maxNumDetects;
 private:
    float m_lookup_score[256];
@@ -56,11 +60,10 @@ private:
    float m_lookup_box_y[256];
    float m_lookup_box_h[256];
    float m_lookup_box_w[256];
-   uint8_t *m_boxes;
-   uint8_t *m_classes;
    size_t m_boxesSize;
    size_t m_classesSize;
    float *m_anchors;
+   int m_score_threshold;
 };
 
 #endif

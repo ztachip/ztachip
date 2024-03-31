@@ -6,6 +6,7 @@ MULDIV=yes
 
 SRCS = 	base/newlib.c \
 	base/ztalib.c \
+	src/soc.c \
 	base/crt.S \
 	base/task.S \
 	apps/main/kernels/main.m.c \

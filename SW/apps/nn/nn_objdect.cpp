@@ -30,20 +30,10 @@
 // Do the SSD box detection pruning
 
 NeuralNetLayerObjDetect::NeuralNetLayerObjDetect(NeuralNet *nn,NeuralNetOperatorDef* def) : NeuralNetLayer(nn,def) {
-   m_detects=0;
-   m_numDetects=0;
-   m_boxes=0;
-   m_classes=0;
    m_anchors=0;
 }
 
 NeuralNetLayerObjDetect::~NeuralNetLayerObjDetect() {
-   if(m_detects)
-      free(m_detects);
-   if(m_boxes)
-      free(m_boxes);
-   if(m_classes)
-      free(m_classes);
    if(m_anchors)
       free(m_anchors);
 }
@@ -60,16 +50,18 @@ ZtaStatus NeuralNetLayerObjDetect::Prepare() {
    float scale_y=op->u.detection.scale_y;
    float scale_w=op->u.detection.scale_w;
    float scale_h=op->u.detection.scale_h;
+   m_score_threshold=-1;
    for(int i=0;i <=255;i++) {
       m_lookup_score[i]=m_nn->dequantize(i,class_zero,class_scale);
       m_lookup_box_x[i]=m_nn->dequantize(i,box_zero,box_scale)/scale_x;
       m_lookup_box_y[i]=m_nn->dequantize(i,box_zero,box_scale)/scale_y;
       m_lookup_box_h[i]=0.5f*static_cast<float>(exp(m_nn->dequantize(i,box_zero,box_scale)/scale_h));
       m_lookup_box_w[i]=0.5f*static_cast<float>(exp(m_nn->dequantize(i,box_zero,box_scale)/scale_w));
+      if((m_lookup_score[i] >= dNnObjDetectThreshold) && 
+         (m_score_threshold<0))
+         m_score_threshold=i;
    }
    m_maxNumDetects=(*(op->input_shape)[0])[1];
-   m_detects=(ObjDetectionResult *)malloc(sizeof(ObjDetectionResult)*m_maxNumDetects);
-   m_numDetects=0;
    // Reshape the output for maximum number of detects
    // Box coordinate [xmin ymin xmax ymax]
    m_def.output_shape[0]->clear();
@@ -89,8 +81,6 @@ ZtaStatus NeuralNetLayerObjDetect::Prepare() {
    m_def.output_shape[3]->push_back(1);
    m_boxesSize=TENSOR::GetTensorSize(*(op->input_shape[0]));
    m_classesSize=TENSOR::GetTensorSize(*(op->input_shape[1]));
-   m_boxes=(uint8_t *)malloc(m_boxesSize);
-   m_classes=(uint8_t *)malloc(m_classesSize);
    uint8_t *anchors=op->u.detection.anchors;
    int numBoxes=(*(op->input_shape)[0])[1];
    m_anchors=static_cast<float*>(malloc(sizeof(float)*4*numBoxes));
@@ -107,39 +97,41 @@ ZtaStatus NeuralNetLayerObjDetect::Evaluate(int queue) {
    NeuralNetOperatorDef *op=&m_def;
    int i,j;
    std::vector<int> *boxes_shape,*classes_shape;
-   float iou_threshold;
-   float score_threshold;
+   int score_threshold;
    int numBoxes;
    uint8_t *p,*p3;
    float *p2;
    float box_x,box_y;
    float anchor_x,anchor_y,anchor_w,anchor_h;
+   uint8_t *boxes,*classes;
+   int detectClass=0;
+   struct ObjDetectionResult detects[dNnObjDetectMaxNumDetects];
+   int numDetects;
 
 //return ZtaStatusOk;
-   score_threshold=op->u.detection.score_threshold;
-   iou_threshold=op->u.detection.iou_threshold;
+   score_threshold=m_score_threshold;
    boxes_shape=(op->input_shape)[0];
    classes_shape=(op->input_shape)[1];
    // Copy to cachable memory before processing the data
-   memcpy(m_boxes,ZTA_SHARED_MEM_VIRTUAL(m_nn->BufferGetInterleave(op->input[0])),m_boxesSize);
-   memcpy(m_classes,ZTA_SHARED_MEM_VIRTUAL(m_nn->BufferGetInterleave(op->input[1])),m_classesSize);
-
+   boxes=(uint8_t *)ZTA_SHARED_MEM_VIRTUAL(m_nn->BufferGetInterleave(op->input[0]));
+   classes=(uint8_t *)ZTA_SHARED_MEM_VIRTUAL(m_nn->BufferGetInterleave(op->input[1]));
    numBoxes=(*boxes_shape)[1];
    int max_score=0;
    int numClasses=(*classes_shape)[2];
-   m_numDetects=0;
-   ObjDetectionResult *d=m_detects;
-   for(i=0,p=m_boxes,p2=m_anchors,p3=m_classes;i < numBoxes;i++,p+=4,p2+=4) {
+   numDetects=0;
+   ObjDetectionResult *d=detects;
+   for(i=0,p=boxes,p2=m_anchors,p3=classes;i < numBoxes;i++,p+=4,p2+=4) {
       // Find max score for each detect box.
       for(j=0,max_score=-1;j < numClasses;j++,p3++) {
          if(*p3 > max_score) {
-            d->detectClass=j;
+            detectClass=j;
             max_score=*p3;
          }
       }
-      d->score=m_lookup_score[max_score];
-      if(d->score < score_threshold)
+      if(max_score < score_threshold)
          continue;
+      d->detectClass=detectClass;
+      d->score=max_score;
       box_y = m_lookup_box_y[p[0]];
       box_x = m_lookup_box_x[p[1]];
       anchor_y = p2[0];
@@ -155,33 +147,34 @@ ZtaStatus NeuralNetLayerObjDetect::Evaluate(int queue) {
       d->ymax = ycenter + half_h;
       d->xmax = xcenter + half_w;
       d++;
-      m_numDetects++;
+      numDetects++;
+      if(numDetects >= dNnObjDetectMaxNumDetects)
+         break;
    }
+
    // Sort detect boxes by scores.
-   for(i=0;i < m_numDetects-1;i++) {
-      for(j=i+1;j < m_numDetects;j++) {
-         if(m_detects[i].score < m_detects[j].score) {
+   for(i=0;i < numDetects-1;i++) {
+      for(j=i+1;j < numDetects;j++) {
+         if(detects[i].score < detects[j].score) {
             ObjDetectionResult temp;
-            temp=m_detects[i];
-            m_detects[i] = m_detects[j];
-            m_detects[j]=temp;
+            temp=detects[i];
+            detects[i] = detects[j];
+            detects[j]=temp;
          }
       }
    }
    // Prune boxes with high intersection vs union ratio
-   d=m_detects;
-   for(i=0;i < (int)m_numDetects-1;i++,d++) {
+   d=detects;
+   for(i=0;i < (int)numDetects-1;i++,d++) {
       if(d->detectClass < 0)
          continue;
-      ObjDetectionResult *d2=&m_detects[i+1];
-      for(j=i+1;j < (int)m_numDetects;j++,d2++) {
+      ObjDetectionResult *d2=&detects[i+1];
+      for(j=i+1;j < (int)numDetects;j++,d2++) {
          if(d2->detectClass < 0)
             continue;
-         float intersection_over_union;
          float area_i=(d->ymax-d->ymin)*(d->xmax-d->xmin);
          float area_j=(d2->ymax-d2->ymin)*(d2->xmax-d2->xmin);
          if (area_i <= 0 || area_j <= 0) { 
-            intersection_over_union=0.0;
          } else {
             float intersection_ymin = MAX(d->ymin, d2->ymin);
             float intersection_xmin = MAX(d->xmin, d2->xmin);
@@ -192,33 +185,31 @@ ZtaStatus NeuralNetLayerObjDetect::Evaluate(int queue) {
             float intersection_dy = intersection_ymax - intersection_ymin;
             intersection_dy = MAX(intersection_dy,(float)0.0);
             const float intersection_area = intersection_dx*intersection_dy;
-            intersection_over_union=intersection_area/(area_i+area_j-intersection_area);
+            if(intersection_area > (dNnObjDetectIouThreshold*(area_i+area_j-intersection_area)))
+               d2->detectClass=-1;
          }
-         if (intersection_over_union > iou_threshold)
-            d2->detectClass=-1;
       }
    }
-   int numDetects=0;
-   for(int i=0;i < m_numDetects;i++) {
-      if(m_detects[i].detectClass >= 0) {
-         m_detects[numDetects++]=m_detects[i];
+   int numReducedDetects=0;
+   for(int i=0;i < numDetects;i++) {
+      if(detects[i].detectClass >= 0) {
+         detects[numReducedDetects++]=detects[i];
       }
    }
-   m_numDetects=numDetects;
+   numDetects=numReducedDetects;
    // Save results in format to be compatible with tflite
    float *box_p=(float *)ZTA_SHARED_MEM_VIRTUAL(m_nn->BufferGetInterleave(m_def.output[0]));
    float *classes_p=(float *)ZTA_SHARED_MEM_VIRTUAL(m_nn->BufferGetInterleave(m_def.output[1]));
    float *probabilty_p=(float *)ZTA_SHARED_MEM_VIRTUAL(m_nn->BufferGetInterleave(m_def.output[2]));
    float *numDetect_p=(float *)ZTA_SHARED_MEM_VIRTUAL(m_nn->BufferGetInterleave(m_def.output[3]));
-   for(int i=0;i < m_numDetects;i++) {
-      box_p[4*i+1]=m_detects[i].xmin;
-      box_p[4*i+0]=m_detects[i].ymin;
-      box_p[4*i+3]=m_detects[i].xmax;
-      box_p[4*i+2]=m_detects[i].ymax;
-      classes_p[i]=static_cast<float>(m_detects[i].detectClass);
-      probabilty_p[i]=m_detects[i].score;
+   for(int i=0;i < numDetects;i++) {
+      box_p[4*i+1]=detects[i].xmin;
+      box_p[4*i+0]=detects[i].ymin;
+      box_p[4*i+3]=detects[i].xmax;
+      box_p[4*i+2]=detects[i].ymax;
+      classes_p[i]=detects[i].detectClass;
+      probabilty_p[i]=m_lookup_score[detects[i].score];
    }
-   numDetect_p[0]=static_cast<float>(m_numDetects);
-
+   numDetect_p[0]=numDetects;
    return ZtaStatusOk;
 }

@@ -29,9 +29,6 @@
 #include <stdbool.h>
 #include "ztalib.h"
 
-
-// This file contains supporting functions for codes running on mcore
-
 static bool taskStatus=false;
 
 // Task entry point...

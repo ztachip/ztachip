@@ -46,6 +46,7 @@ ZtaStatus GraphNodeGaussian::Create(TENSOR *input,TENSOR *output) {
    Cleanup();
    m_input=input;
    m_output=output;
+   m_sigma=SIGMA;
    return ZtaStatusOk;
 }
 
@@ -60,7 +61,6 @@ ZtaStatus GraphNodeGaussian::Verify() {
       return ZtaStatusFail;
    m_ksz=7;
    m_kernel=ztaAllocSharedMem(m_ksz*m_ksz*sizeof(int16_t));
-   m_sigma=SIGMA;
    BuildKernel();
    std::vector<int> dim={m_nChannel,m_h,m_w};
    m_output->Create(TensorDataTypeUint8,TensorFormatSplit,m_input->GetObjType(),dim);
@@ -102,7 +102,6 @@ void GraphNodeGaussian::BuildKernel() {
 
 void GraphNodeGaussian::SetSigma(float _sigma) {
    m_sigma = _sigma;
-   BuildKernel();
 }
 
 float GraphNodeGaussian::GetSigma() {

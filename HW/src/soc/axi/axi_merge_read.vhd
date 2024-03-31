@@ -73,7 +73,7 @@ entity axi_merge_read is
       axislave_rids_out       : OUT axi_rids_t(MAX_SLAVE_PORT-1 downto 0):=(others=>(others=>'0'));
       axislave_rvalids_out    : OUT axi_rvalids_t(MAX_SLAVE_PORT-1 downto 0);
       axislave_rlasts_out     : OUT axi_rlasts_t(MAX_SLAVE_PORT-1 downto 0);
-      axislave_rdatas_out     : OUT axi_rdatas_t(MAX_SLAVE_PORT-1 downto 0);
+      axislave_rdatas_out     : OUT axi_rdata64s_t(MAX_SLAVE_PORT-1 downto 0);
       axislave_rresps_out     : OUT axi_rresps_t(MAX_SLAVE_PORT-1 downto 0);
       axislave_arreadys_out   : OUT axi_arreadys_t(MAX_SLAVE_PORT-1 downto 0);
       axislave_rreadys_in     : IN axi_rreadys_t(MAX_SLAVE_PORT-1 downto 0):=(others=>'0');
@@ -119,7 +119,7 @@ SIGNAL slave_arqoss:axi_arqoss_t(MAX_SLAVE_PORT-1 downto 0);
 SIGNAL slave_rids:axi_rids_t(MAX_SLAVE_PORT-1 downto 0);
 SIGNAL slave_rvalids:axi_rvalids_t(MAX_SLAVE_PORT-1 downto 0);
 SIGNAL slave_rlasts:axi_rlasts_t(MAX_SLAVE_PORT-1 downto 0);
-SIGNAL slave_rdatas:axi_rdatas_t(MAX_SLAVE_PORT-1 downto 0);
+SIGNAL slave_rdatas:axi_rdata64s_t(MAX_SLAVE_PORT-1 downto 0);
 SIGNAL slave_rresps:axi_rresps_t(MAX_SLAVE_PORT-1 downto 0);
 SIGNAL slave_arreadys:axi_arreadys_t(MAX_SLAVE_PORT-1 downto 0);
 SIGNAL slave_rreadys:axi_rreadys_t(MAX_SLAVE_PORT-1 downto 0);
@@ -218,7 +218,7 @@ GEN_SLAVE:
 FOR I in 0 to MAX_SLAVE_PORT-1 GENERATE
 slave_i: axi_read
    generic map(
-      DATA_WIDTH=>32,
+      DATA_WIDTH=>64,
       FIFO_DEPTH=>FIFO_CMD_DEPTH(I),
       FIFO_DATA_DEPTH=>FIFO_DATA_DEPTH(I)
    )
@@ -389,12 +389,7 @@ begin
    master_rready <= '0';
    pend_master_rd <= '0';
    pend_master_rvalid <= '0';
-   if((align_r='0' and pend_master_read(MAX_SLAVE_PORT+1)='0') or
-      (align_r='1' and pend_master_read(MAX_SLAVE_PORT+1)='1')) then
-      slave_rdatas(S0) <= master_rdata(31 downto 0);
-   else
-      slave_rdatas(S0) <= master_rdata(63 downto 32);
-   end if; 
+   slave_rdatas(S0) <= master_rdata;
    if pend_master_empty='0' and pend_master_read(S0)='1' then
       slave_rvalids(S0) <= master_rvalid; 
       slave_rids(S0) <= master_rid;
@@ -413,8 +408,10 @@ begin
    if((align_r='0' and pend_master_read(MAX_SLAVE_PORT+1)='0') or
       (align_r='1' and pend_master_read(MAX_SLAVE_PORT+1)='1')) then
       slave_rdatas(S1)(31 downto 0) <= master_rdata(31 downto 0);
+      slave_rdatas(S1)(63 downto 32) <= master_rdata(31 downto 0);
    else
       slave_rdatas(S1)(31 downto 0) <= master_rdata(63 downto 32);
+      slave_rdatas(S1)(63 downto 32) <= master_rdata(63 downto 32);
    end if; 
    if pend_master_empty='0' and pend_master_read(S1)='1' then
       slave_rvalids(S1) <= master_rvalid;
@@ -433,9 +430,11 @@ begin
 
    if((align_r='0' and pend_master_read(MAX_SLAVE_PORT+1)='0') or
       (align_r='1' and pend_master_read(MAX_SLAVE_PORT+1)='1')) then
-      slave_rdatas(S2) <= master_rdata(31 downto 0);
+      slave_rdatas(S2)(31 downto 0) <= master_rdata(31 downto 0);
+      slave_rdatas(S2)(63 downto 32) <= master_rdata(31 downto 0);
    else
-      slave_rdatas(S2) <= master_rdata(63 downto 32);
+      slave_rdatas(S2)(31 downto 0) <= master_rdata(63 downto 32);
+      slave_rdatas(S2)(63 downto 32) <= master_rdata(63 downto 32);
    end if;
    if pend_master_empty='0' and pend_master_read(S2)='1' then
       slave_rvalids(S2) <= master_rvalid;
@@ -472,7 +471,7 @@ end process;
 process(pend_master_empty,pend_master_read,align_r)
 begin
 if(pend_master_empty='0') then
-   if pend_master_read(SW)='1' then
+   if pend_master_read(SW)='1' or pend_master_read(S0)='1' then
       master_rdata_mask(0) <= '1';
       master_rdata_mask(1) <= '1';
    else

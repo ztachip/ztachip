@@ -24,8 +24,7 @@ use work.ztachip_pkg.all;
 
 entity UART is
    generic (
-      BAUD_RATE : positive;
-      CLOCK_FREQUENCY : positive
+      BAUD_RATE : positive
    );
    Port ( 
       signal clock_in              : IN  std_logic;
@@ -45,9 +44,9 @@ end UART;
 
 architecture Behavioral of UART is
 
-   constant FIFO_DEPTH:integer:=5;
+   constant FIFO_DEPTH:integer:=8;
 
-   constant TICKS_PER_BIT : integer := CLOCK_FREQUENCY / BAUD_RATE;
+   constant TICKS_PER_BIT : integer := main_clock_c / BAUD_RATE;
    -- RX
    signal rx_clk_count_r : integer range 0 to TICKS_PER_BIT - 1 := 0;
    type t_RX_State is (IDLE, WAITING_FOR_START, WAITING_FOR_BITS, WAITING_FOR_END);
@@ -130,11 +129,11 @@ if(match_read='1') then
    apb_prdata(31 downto 8) <= (others=>'0');
    apb_prdata(7 downto 0) <= rxfifo_q;
 elsif(match_read_avail='1') then
-   apb_prdata(31 downto FIFO_DEPTH) <= (others=>'0');
-   apb_prdata(FIFO_DEPTH-1 downto 0) <= rxfifo_ravail;
+   apb_prdata(31 downto 1) <= (others=>'0');
+   apb_prdata(0) <= (not rxfifo_empty);
 elsif(match_write_avail='1') then
-   apb_prdata(31 downto FIFO_DEPTH) <= (others=>'0');
-   apb_prdata(FIFO_DEPTH-1 downto 0) <= not(txfifo_wused);
+   apb_prdata(31 downto 1) <= (others=>'0');
+   apb_prdata(0) <= not(txfifo_full);
 else
    apb_prdata <= (others=>'Z');
 end if;
@@ -144,7 +143,7 @@ txfifo_i:scfifo
 	generic map 
 	(
       DATA_WIDTH=>8,
-      FIFO_DEPTH=>5,
+      FIFO_DEPTH=>FIFO_DEPTH,
       LOOKAHEAD=>TRUE
 	)
 	port map 
@@ -166,7 +165,7 @@ rxfifo_i:scfifo
 	generic map 
 	(
       DATA_WIDTH=>8,
-      FIFO_DEPTH=>5,
+      FIFO_DEPTH=>FIFO_DEPTH,
       LOOKAHEAD=>TRUE
 	)
 	port map 

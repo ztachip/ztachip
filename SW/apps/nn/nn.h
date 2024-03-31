@@ -172,8 +172,6 @@ struct NeuralNetOperatorDef {
          float scale_y;
          float scale_w;
          float scale_h;
-         float score_threshold;
-         float iou_threshold;
       } detection;
       struct {
          size_t size;

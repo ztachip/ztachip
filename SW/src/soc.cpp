@@ -25,10 +25,6 @@
 #include "../base/zta.h"
 #include "../base/util.h"
 
-#define WEBCAM_WIDTH        640
-
-#define WEBCAM_HEIGHT       480
-
 #define NUM_CAMERA_CAPTURE  4
 
 #define NUM_VIDEO_FRAME     4
@@ -41,11 +37,15 @@ static void *buffer_vga[NUM_VIDEO_FRAME];
 
 static void *buffer_camera[NUM_CAMERA_CAPTURE];
 
+static void *curr_camera_capture=0;
+
 static int curr_video=0;
 
 extern unsigned int *vgabuf;
 
 static int camera_last_read=0;
+
+uint8_t *DisplayCanvas=0;
 
 
 //----------------------------
@@ -66,17 +66,9 @@ ZtaStatus DisplayInit(int w,int h) {
       APB[APB_VIDEO_BUFFER+r]=(unsigned int)buffer_vga[r];
    }
    APB[APB_VIDEO_ENABLE]=1;
+   DisplayCanvas=(uint8_t *)buffer_vga[curr_video];
    init=true;
    return ZtaStatusOk;
-}
-
-//---------------------------------
-// Get display buffer so that application can work with for next screen
-// update
-//---------------------------------
-
-uint8_t *DisplayGetBuffer() {
-   return (uint8_t *)buffer_vga[curr_video];
 }
 
 //---------------------------------
@@ -89,6 +81,7 @@ ZtaStatus DisplayUpdateBuffer() {
    curr_video++;
    if(curr_video >= NUM_VIDEO_FRAME)
       curr_video=0;
+   DisplayCanvas=(uint8_t *)buffer_vga[curr_video];
    return ZtaStatusOk;
 }
 
@@ -104,6 +97,7 @@ ZtaStatus CameraInit(int w,int h) {
       return ZtaStatusOk;
    if(w!=WEBCAM_WIDTH || h!=WEBCAM_HEIGHT)
       return ZtaStatusFail;
+   curr_camera_capture=malloc(WEBCAM_WIDTH*3*(WEBCAM_HEIGHT+2));
    // Configure camera input stream
    for(r=0;r < NUM_CAMERA_CAPTURE;r++) {
       buffer_camera[r]=malloc(WEBCAM_WIDTH*3*(WEBCAM_HEIGHT+2));
@@ -117,10 +111,23 @@ ZtaStatus CameraInit(int w,int h) {
 // Check if capture from camera is ready
 
 bool CameraCaptureReady() {
-   int next_read;
+   int next_read,curr_read;
+   unsigned int vv;
+   void *temp;
 
    next_read=APB[APB_CAMERA_CURR_FRAME];
-   return (next_read != camera_last_read);
+   if(next_read != camera_last_read) {
+      camera_last_read=next_read;
+      curr_read=(camera_last_read==0)?(NUM_CAMERA_CAPTURE-1):camera_last_read-1;
+      // Swap current camera buffer for the current capture buffer
+      temp=buffer_camera[curr_read];
+      buffer_camera[curr_read]=curr_camera_capture;
+      curr_camera_capture=temp;
+      APB[APB_CAMERA_BUFFER+curr_read]=(unsigned int)buffer_camera[curr_read];
+      return true;
+   }
+   else
+      return false;
 }
 
 //---------------------------------------
@@ -128,17 +135,7 @@ bool CameraCaptureReady() {
 //---------------------------------------
 
 uint8_t *CameraGetCapture() {
-   int next_read,curr_read;
-   unsigned int vv;
-
-   next_read=APB[APB_CAMERA_CURR_FRAME];
-   if(next_read != camera_last_read) {
-      camera_last_read=next_read;
-      curr_read=(camera_last_read==0)?(NUM_CAMERA_CAPTURE-1):camera_last_read-1;
-      return (uint8_t *)buffer_camera[curr_read];
-   }
-   else
-      return 0;
+   return (uint8_t *)curr_camera_capture;
 }
 
 //----------------------------------------

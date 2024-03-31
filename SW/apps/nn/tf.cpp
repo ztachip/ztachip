@@ -296,9 +296,6 @@ ZtaStatus TfliteNn::Verify() {
                def.u.detection.scale_y=10.0;
                def.u.detection.scale_w=5.0;
                def.u.detection.scale_h=5.0;
-//               def.u.detection.score_threshold=(float)1e-8;
-               def.u.detection.score_threshold=(float)0.5;
-               def.u.detection.iou_threshold=(float)0.6;
                break;
                }
             case NeuralNetOperatorReshape: {

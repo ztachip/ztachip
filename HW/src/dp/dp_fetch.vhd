@@ -1019,31 +1019,31 @@ end process;
 
 log_wrreq2 <= log_wrreq and log_enable_r and (not log_full);
 
---log_fifo_i:scfifo
---	generic map 
---	(
---		DATA_WIDTH=>2*host_width_c,
---		FIFO_DEPTH=>log_depth_c,
---      LOOKAHEAD=>TRUE
---	)
---	port map 
---	(
---		clock_in=>clock_in,
---       reset_in=>reset_in,
---        data_in=>log_write,
---        write_in=>log_wrreq2,
---        read_in=>log_rdreq,
---        q_out=>log_read,
---        ravail_out=>open,
---        wused_out=>open,
---        empty_out=>log_empty,
---        full_out=>log_full,
---        almost_full_out=>open
---	);
+log_fifo_i:scfifo
+	generic map 
+	(
+		DATA_WIDTH=>2*host_width_c,
+		FIFO_DEPTH=>log_depth_c,
+      LOOKAHEAD=>TRUE
+	)
+	port map 
+	(
+      clock_in=>clock_in,
+      reset_in=>reset_in,
+      data_in=>log_write,
+      write_in=>log_wrreq2,
+      read_in=>log_rdreq,
+      q_out=>log_read,
+      ravail_out=>open,
+      wused_out=>open,
+      empty_out=>log_empty,
+      full_out=>log_full,
+      almost_full_out=>open
+	);
 
-log_empty <= '1';
-log_full <= '0';
-log_read <= (others=>'0');
+--log_empty <= '1';
+--log_full <= '0';
+--log_read <= (others=>'0');
 
 ----------
 -- FIFO to store incoming DP instructions from mcore
@@ -1241,7 +1241,7 @@ end process;
 
 indication_rdreq <= '1' when bus_read_r='1' and rregno=(register_dp_read_indication_c) and match='1' else '0';
 
-log_rdreq <= '1' when bus_read_r='1' and rregno=(register_dp_read_log_c) and match='1' else '0';
+log_rdreq <= '1' when bus_read_r='1' and rregno=(register_dp_read_log_c) and match='1' and (log_empty='0') else '0';
 
 -------------------
 -- Latch in incoming register access from mcore

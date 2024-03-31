@@ -30,9 +30,7 @@ use work.ztachip_pkg.all;
 entity arbiter is
     generic(
         NUM_SIGNALS     : integer;
-        PRIORITY_BASED  : boolean;
-        SIGNAL_WIDTH    : integer;
-        GEN_SIGNAL_NO   : boolean
+        PRIORITY_BASED  : boolean
         );
     port(
         SIGNAL clock_in         : IN STD_LOGIC;

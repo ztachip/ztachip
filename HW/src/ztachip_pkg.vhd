@@ -128,8 +128,10 @@ type axi_awlens_t is array(natural range <>) of axi_awlen_t;
 type axi_awvalids_t is array(natural range <>) of axi_awvalid_t;
 type axi_wvalids_t is array(natural range <>) of axi_wvalid_t;
 type axi_wdatas_t is array(natural range <>) of axi_wdata_t;
+type axi_wdata64s_t is array(natural range <>) of axi_wdata64_t;
 type axi_wlasts_t is array(natural range <>) of axi_wlast_t;
 type axi_wstrbs_t is array(natural range <>) of axi_wstrb_t;
+type axi_wstrb8s_t is array(natural range <>) of axi_wstrb8_t;
 type axi_awreadys_t is array(natural range <>) of axi_awready_t;
 type axi_wreadys_t is array(natural range <>) of axi_wready_t;
 type axi_bresps_t is array(natural range <>) of axi_bresp_t;
@@ -1596,7 +1598,7 @@ COMPONENT axi_merge_read is
         axislave_rids_out       : OUT axi_rids_t(MAX_SLAVE_PORT-1 downto 0):=(others=>(others=>'0'));
         axislave_rvalids_out    : OUT axi_rvalids_t(MAX_SLAVE_PORT-1 downto 0);
         axislave_rlasts_out     : OUT axi_rlasts_t(MAX_SLAVE_PORT-1 downto 0);
-        axislave_rdatas_out     : OUT axi_rdatas_t(MAX_SLAVE_PORT-1 downto 0);
+        axislave_rdatas_out     : OUT axi_rdata64s_t(MAX_SLAVE_PORT-1 downto 0);
         axislave_rresps_out     : OUT axi_rresps_t(MAX_SLAVE_PORT-1 downto 0);
         axislave_arreadys_out   : OUT axi_arreadys_t(MAX_SLAVE_PORT-1 downto 0);
         axislave_rreadys_in     : IN axi_rreadys_t(MAX_SLAVE_PORT-1 downto 0):=(others=>'0');
@@ -1664,9 +1666,9 @@ component axi_merge_write is
         axislave_awlens_in           : IN axi_awlens_t(MAX_SLAVE_PORT-1 downto 0);
         axislave_awvalids_in         : IN axi_awvalids_t(MAX_SLAVE_PORT-1 downto 0);
         axislave_wvalids_in          : IN axi_wvalids_t(MAX_SLAVE_PORT-1 downto 0);
-        axislave_wdatas_in           : IN axi_wdatas_t(MAX_SLAVE_PORT-1 downto 0);
+        axislave_wdatas_in           : IN axi_wdata64s_t(MAX_SLAVE_PORT-1 downto 0);
         axislave_wlasts_in           : IN axi_wlasts_t(MAX_SLAVE_PORT-1 downto 0);
-        axislave_wstrbs_in           : IN axi_wstrbs_t(MAX_SLAVE_PORT-1 downto 0);
+        axislave_wstrbs_in           : IN axi_wstrb8s_t(MAX_SLAVE_PORT-1 downto 0);
         axislave_awreadys_out        : OUT axi_awreadys_t(MAX_SLAVE_PORT-1 downto 0);
         axislave_wreadys_out         : OUT axi_wreadys_t(MAX_SLAVE_PORT-1 downto 0);
         axislave_bresps_out          : OUT axi_bresps_t(MAX_SLAVE_PORT-1 downto 0);
@@ -2092,7 +2094,7 @@ component axi_stream_write is
         WRITE_BUF_DEPTH       : integer:=4;
         WRITE_STREAM_DEPTH    : integer:=9;
         WRITE_PAGE_SIZE       : integer;
-        WRITE_MAX_PENDING     : integer:=4
+        WRITE_MAX_PENDING     : integer
     );
 	port 
 	(
@@ -2103,9 +2105,9 @@ component axi_stream_write is
         signal ddr_awlen_out     : OUT axi_awlen_t;
         signal ddr_awvalid_out   : OUT axi_awvalid_t;
         signal ddr_wvalid_out    : OUT axi_wvalid_t;
-        signal ddr_wdata_out     : OUT axi_wdata_t;
+        signal ddr_wdata_out     : OUT axi_wdata64_t;
         signal ddr_wlast_out     : OUT axi_wlast_t;
-        signal ddr_wstrb_out     : OUT axi_wstrb_t;
+        signal ddr_wstrb_out     : OUT axi_wstrb8_t;
         signal ddr_awready_in    : IN axi_awready_t;
         signal ddr_wready_in     : IN axi_wready_t;
         signal ddr_bresp_in      : IN axi_bresp_t;
@@ -2161,7 +2163,7 @@ component axi_stream_read is
         ddr_rid_in               : IN axi_rid_t;
         ddr_rvalid_in            : IN axi_rvalid_t;
         ddr_rlast_in             : IN axi_rlast_t;
-        ddr_rdata_in             : IN STD_LOGIC_VECTOR(31 downto 0);
+        ddr_rdata_in             : IN STD_LOGIC_VECTOR(63 downto 0);
         ddr_rresp_in             : IN axi_rresp_t;
         ddr_arready_in           : IN axi_arready_t;
         ddr_rready_out           : OUT axi_rready_t;
@@ -2252,7 +2254,7 @@ component axi_merge is
         axislave0_rid_out       : OUT axi_rid_t;
         axislave0_rvalid_out    : OUT axi_rvalid_t;
         axislave0_rlast_out     : OUT axi_rlast_t;
-        axislave0_rdata_out     : OUT axi_rdata_t;
+        axislave0_rdata_out     : OUT axi_rdata64_t;
         axislave0_rresp_out     : OUT axi_rresp_t;
         axislave0_arready_out   : OUT axi_arready_t;
         axislave0_rready_in     : IN axi_rready_t;
@@ -2263,9 +2265,9 @@ component axi_merge is
         axislave0_awlen_in      : IN axi_awlen_t;
         axislave0_awvalid_in    : IN axi_awvalid_t;
         axislave0_wvalid_in     : IN axi_wvalid_t;
-        axislave0_wdata_in      : IN axi_wdata_t;
+        axislave0_wdata_in      : IN axi_wdata64_t;
         axislave0_wlast_in      : IN axi_wlast_t;
-        axislave0_wstrb_in      : IN axi_wstrb_t;
+        axislave0_wstrb_in      : IN axi_wstrb8_t;
         axislave0_awready_out   : OUT axi_awready_t;
         axislave0_wready_out    : OUT axi_wready_t;
         axislave0_bresp_out     : OUT axi_bresp_t;
@@ -3974,9 +3976,7 @@ end component;
 component arbiter is
     generic(
         NUM_SIGNALS     : integer;
-        PRIORITY_BASED  : boolean;
-        SIGNAL_WIDTH    : integer;
-        GEN_SIGNAL_NO   : boolean
+        PRIORITY_BASED  : boolean
         );
     port(
         SIGNAL clock_in         : IN STD_LOGIC;
@@ -4667,8 +4667,7 @@ end component;
 
 component UART is
 	generic (
-		BAUD_RATE : positive;
-		CLOCK_FREQUENCY : positive
+		BAUD_RATE : positive
 	);
 	Port ( 
 		signal clock_in          : in std_logic;

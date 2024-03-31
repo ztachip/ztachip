@@ -1,6 +1,9 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include "../base/ztalib.h"
+#include "../apps/gdi/gdi.h"
 #include "soc.h"
+
 extern "C"
 {
 extern int main(void);
@@ -26,6 +29,9 @@ extern int vision_ai(void);
 
 int main() {
    ztaInit();
+   GdiInit();
+   DisplayInit(DISPLAY_WIDTH,DISPLAY_HEIGHT);
+   CameraInit(WEBCAM_WIDTH,WEBCAM_HEIGHT);
 
 #ifdef ZTACHIP_UNIT_TEST
    while(1){

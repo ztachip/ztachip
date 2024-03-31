@@ -31,12 +31,16 @@ GraphNodeCanny::GraphNodeCanny() {
    m_magnitude=0;
    m_phase=0;
    m_maxima=0;
+   m_thresholdLo=81;
+   m_thresholdHi=163;
 }
 
 GraphNodeCanny::GraphNodeCanny(TENSOR *input,TENSOR *output) : GraphNodeCanny() {
    m_magnitude=0;
    m_phase=0;
    m_maxima=0;
+   m_thresholdLo=81;
+   m_thresholdHi=163;
    Create(input,output);
 }
 
@@ -67,8 +71,6 @@ ZtaStatus GraphNodeCanny::Verify() {
    m_magnitude=ztaAllocSharedMem(sz*sizeof(int16_t));
    m_phase=ztaAllocSharedMem(sz*sizeof(uint8_t));
    m_maxima=ztaAllocSharedMem(sz*sizeof(int16_t));
-   m_thresholdLo=81;
-   m_thresholdHi=163;
 //   m_thresholdHi=100;
    std::vector<int> dim={1,m_h,m_w};
    m_output->Create(TensorDataTypeUint8,TensorFormatSplit,TensorObjTypeMonochromeSingleChannel,dim);

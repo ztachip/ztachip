@@ -82,7 +82,7 @@ object RiscvConfig{
         ioRange      = _(31 downto 31) === 0x1
       ),
       new RegFilePlugin(
-        regFileReadyKind = plugin.SYNC,
+        regFileReadyKind = plugin.ASYNC,
         zeroBoot = false
       ),
       new IntAluPlugin,

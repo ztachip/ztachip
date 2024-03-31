@@ -503,9 +503,8 @@ next_tid2 <= mask2num(next_tid);
 
 arbiter_1_i: arbiter generic map(
                         NUM_SIGNALS=>tid_max_c,
-                        PRIORITY_BASED=>FALSE,
-                        SIGNAL_WIDTH=>tid_t'length,
-                        GEN_SIGNAL_NO=>TRUE)
+                        PRIORITY_BASED=>FALSE
+                        )
                     port map(
                         clock_in=>clock_in,
                         reset_in=>reset_in,

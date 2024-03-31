@@ -25,6 +25,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>
+#include "../src/soc.h"
 #ifndef SIMULATION
 #ifdef ZTACHIP_UNIT_TEST
 #include "../fs/gen/optical_flow_1_in.c"
@@ -436,8 +437,19 @@ int _fstat(int file, struct stat *st) {
 // Not implemented
 
 ssize_t _write(int fd, const void *ptr, size_t len) {
-    errno = ENOSYS;
-    return -1;
+   if(fd == STDOUT_FILENO || fd == STDERR_FILENO) {
+      int i;
+      char *p;
+      for(i=0,p=(char *)ptr;i < len;i++,p++) {
+         while(UartWriteAvailable()==0);
+         UartWrite(*p);
+      }
+      return len;
+   }
+   else {
+      errno = ENOSYS;
+      return -1;
+   }
 }
 
 // Position a read cursor of an opened file

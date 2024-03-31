@@ -2345,10 +2345,7 @@ architecture arch of VexRiscv is
   signal zz_zz_decode_IS_RS2_SIGNED_127 : std_logic;
   signal zz_zz_decode_IS_RS2_SIGNED_128 : std_logic_vector(31 downto 0);
   signal zz_zz_decode_IS_RS2_SIGNED_129 : std_logic_vector(31 downto 0);
-  signal zz_RegFilePlugin_regFile_port : std_logic;
-  signal zz_decode_RegFilePlugin_rs1Data : std_logic;
-  signal zz_RegFilePlugin_regFile_port_1 : std_logic;
-  signal zz_decode_RegFilePlugin_rs2Data : std_logic;
+  attribute ram_style : string;
   attribute keep : boolean;
   attribute syn_keep : boolean;
 
@@ -2485,7 +2482,6 @@ architecture arch of VexRiscv is
   signal zz_lastStageRegFileWrite_payload_address : std_logic_vector(31 downto 0);
   signal zz_lastStageRegFileWrite_valid : std_logic;
   signal zz_1 : std_logic;
-  signal decode_INSTRUCTION_ANTICIPATED : std_logic_vector(31 downto 0);
   signal decode_REGFILE_WRITE_VALID : std_logic;
   signal decode_LEGAL_INSTRUCTION : std_logic;
   signal zz_decode_BRANCH_CTRL_1 : BranchCtrlEnum_seq_type;
@@ -3249,13 +3245,12 @@ architecture arch of VexRiscv is
   signal IBusCachedPlugin_predictor_history : IBusCachedPlugin_predictor_history_type;
   type RegFilePlugin_regFile_type is array (0 to 31) of std_logic_vector(31 downto 0);
   signal RegFilePlugin_regFile : RegFilePlugin_regFile_type;
+  attribute ram_style of RegFilePlugin_regFile : signal is "distributed";
 begin
   debug_bus_cmd_ready <= debug_bus_cmd_ready_read_buffer;
   zz_when <= pkg_toStdLogic(pkg_cat(pkg_toStdLogicVector(decodeExceptionPort_valid),pkg_toStdLogicVector(IBusCachedPlugin_decodeExceptionPort_valid)) /= pkg_stdLogicVector("00"));
   zz_IBusCachedPlugin_predictor_history_port <= pkg_cat(std_logic_vector(IBusCachedPlugin_predictor_historyWriteDelayPatched_payload_data_target),pkg_cat(std_logic_vector(IBusCachedPlugin_predictor_historyWriteDelayPatched_payload_data_branchWish),IBusCachedPlugin_predictor_historyWriteDelayPatched_payload_data_source));
   zz_zz_IBusCachedPlugin_predictor_buffer_line_source_1 <= pkg_resize(zz_IBusCachedPlugin_predictor_buffer_line_source,8);
-  zz_decode_RegFilePlugin_rs1Data <= pkg_toStdLogic(true);
-  zz_decode_RegFilePlugin_rs2Data <= pkg_toStdLogic(true);
   zz_IBusCachedPlugin_jump_pcLoad_payload_5 <= unsigned(pkg_cat(pkg_toStdLogicVector(zz_IBusCachedPlugin_jump_pcLoad_payload_3),pkg_toStdLogicVector(zz_IBusCachedPlugin_jump_pcLoad_payload_2)));
   zz_writeBack_DBusCachedPlugin_rspShifted_1 <= pkg_extract(dataCache_1_io_cpu_writeBack_address,1,0);
   zz_writeBack_DBusCachedPlugin_rspShifted_3 <= pkg_extract(dataCache_1_io_cpu_writeBack_address,1,1);
@@ -3425,24 +3420,8 @@ begin
     end if;
   end process;
 
-  process(io_mainClk)
-  begin
-    if rising_edge(io_mainClk) then
-      if zz_decode_RegFilePlugin_rs1Data = '1' then
-        zz_RegFilePlugin_regFile_port0 <= RegFilePlugin_regFile(to_integer(decode_RegFilePlugin_regFileReadAddress1));
-      end if;
-    end if;
-  end process;
-
-  process(io_mainClk)
-  begin
-    if rising_edge(io_mainClk) then
-      if zz_decode_RegFilePlugin_rs2Data = '1' then
-        zz_RegFilePlugin_regFile_port0_1 <= RegFilePlugin_regFile(to_integer(decode_RegFilePlugin_regFileReadAddress2));
-      end if;
-    end if;
-  end process;
-
+  zz_RegFilePlugin_regFile_port0 <= RegFilePlugin_regFile(to_integer(decode_RegFilePlugin_regFileReadAddress1));
+  zz_RegFilePlugin_regFile_port0_1 <= RegFilePlugin_regFile(to_integer(decode_RegFilePlugin_regFileReadAddress2));
   process(io_mainClk)
   begin
     if rising_edge(io_mainClk) then
@@ -3785,7 +3764,6 @@ begin
     end if;
   end process;
 
-  decode_INSTRUCTION_ANTICIPATED <= pkg_mux(decode_arbitration_isStuck,decode_INSTRUCTION,IBusCachedPlugin_cache_io_cpu_fetch_data);
   process(zz_decode_IS_RS2_SIGNED,when_RegFilePlugin_l63)
   begin
     decode_REGFILE_WRITE_VALID <= pkg_extract(zz_decode_IS_RS2_SIGNED,10);
@@ -4956,8 +4934,8 @@ begin
   DBusCachedPlugin_mmuBus_rsp_refilling <= pkg_toStdLogic(false);
   DBusCachedPlugin_mmuBus_busy <= pkg_toStdLogic(false);
   when_RegFilePlugin_l63 <= pkg_toStdLogic(pkg_extract(decode_INSTRUCTION,11,7) = pkg_stdLogicVector("00000"));
-  decode_RegFilePlugin_regFileReadAddress1 <= unsigned(pkg_extract(decode_INSTRUCTION_ANTICIPATED,19,15));
-  decode_RegFilePlugin_regFileReadAddress2 <= unsigned(pkg_extract(decode_INSTRUCTION_ANTICIPATED,24,20));
+  decode_RegFilePlugin_regFileReadAddress1 <= unsigned(pkg_extract(decode_INSTRUCTION,19,15));
+  decode_RegFilePlugin_regFileReadAddress2 <= unsigned(pkg_extract(decode_INSTRUCTION,24,20));
   decode_RegFilePlugin_rs1Data <= zz_RegFilePlugin_regFile_port0;
   decode_RegFilePlugin_rs2Data <= zz_RegFilePlugin_regFile_port0_1;
   process(zz_lastStageRegFileWrite_valid,writeBack_arbitration_isFiring,zz_8)
