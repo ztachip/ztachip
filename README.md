@@ -198,7 +198,7 @@ sudo src/openocd -f usb_connect.cfg -c 'set MURAX_CPU0_YAML cpu0.yaml' -f soc_in
 
 ## Uploading SW image via GDB debugger
 
-### Upload procedure for standalone SW image
+### Upload procedure for standalone SW image option
 Open another terminal, then issue commands below to upload the standalone image
 
 ```
@@ -207,7 +207,7 @@ cd <ztachip installation folder>/SW/src
 riscv32-unknown-elf-gdb ../build/ztachip.elf
 ```
 
-### Upload procedure for micropython SW image
+### Upload procedure for micropython SW image option
 Open another terminal, then issue commands below to upload the micropython image.
 
 ```
