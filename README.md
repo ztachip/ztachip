@@ -27,6 +27,8 @@ massive processing/data parallelism enabled by ztachip tensor processor.
 
 [VisionAI Stack Programmers Guide](https://github.com/ztachip/ztachip/raw/master/Documentation/visionai_programmer_guide.pdf)
 
+[MicroPython Programmers Guide](micropython/MicropythonUserGuide.md)
+
 # Code structure
 
 - [SW/compiler](SW/compiler): compiler to generate instructions for the tensor processor.

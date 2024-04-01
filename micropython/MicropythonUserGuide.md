@@ -139,9 +139,9 @@ Graph execution is performed with the following functions:
 
 - Graph.Run(): To execute the graph until completion
 
-- Graph.RunWithTimeout(timeout_in_ms): To execute the graph but only up to a time limit.A
+- Graph.RunWithTimeout(timeout_in_ms): To execute the graph but only up to a time limit.
 
-- Graph.IsBusy(): To check if graph is still busy running. Normally in conjection with RunWithTimeout.
+- Graph.IsBusy(): To check if graph is still busy running. Normally used in conjection with RunWithTimeout.
 
 # Drawing functions.
 
