@@ -16,6 +16,8 @@ ztachip python programming begins with the import of module zta
 import zta
 ```
 
+Many examples on how to use the Python API are provided [here](examples)
+
 ## Tensor objects
 
 There are 3 types of tensors to be created by the functions below
