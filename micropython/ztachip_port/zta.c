@@ -16,31 +16,31 @@
 // Button function
 //-----------------------------------------------------------
 
-STATIC mp_obj_t zta_ButtonState() {
+static mp_obj_t zta_ButtonState() {
     return mp_obj_new_int(MPY_PushButtonState());
 }
 // Define a Python reference to the function above.
-STATIC MP_DEFINE_CONST_FUN_OBJ_0(zta_ButtonState_obj, zta_ButtonState);
+static MP_DEFINE_CONST_FUN_OBJ_0(zta_ButtonState_obj, zta_ButtonState);
 
 //-----------------------------------------------------------
 // Get time function
 //-----------------------------------------------------------
 
-STATIC mp_obj_t zta_GetTimeMsec() {
+static mp_obj_t zta_GetTimeMsec() {
     return mp_obj_new_int_from_uint(MPY_GetTimeMsec());
 }
 // Define a Python reference to the function above.
-STATIC MP_DEFINE_CONST_FUN_OBJ_0(zta_GetTimeMsec_obj, zta_GetTimeMsec);
+static MP_DEFINE_CONST_FUN_OBJ_0(zta_GetTimeMsec_obj, zta_GetTimeMsec);
 
 //-----------------------------------------------------------
 // Get elapsed time function
 //-----------------------------------------------------------
 
-STATIC mp_obj_t zta_GetElapsedTimeMsec() {
+static mp_obj_t zta_GetElapsedTimeMsec() {
     return mp_obj_new_int_from_uint(MPY_GetElapsedTimeMsec());
 }
 // Define a Python reference to the function above.
-STATIC MP_DEFINE_CONST_FUN_OBJ_0(zta_GetElapsedTimeMsec_obj, zta_GetElapsedTimeMsec);
+static MP_DEFINE_CONST_FUN_OBJ_0(zta_GetElapsedTimeMsec_obj, zta_GetElapsedTimeMsec);
 
 
 
@@ -48,21 +48,21 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_0(zta_GetElapsedTimeMsec_obj, zta_GetElapsedTimeM
 // LED function
 //-----------------------------------------------------------
 
-STATIC mp_obj_t zta_SetLed(mp_obj_t _ledState) {
+static mp_obj_t zta_SetLed(mp_obj_t _ledState) {
     uint32_t ledState;
     ledState=mp_obj_get_int(_ledState);
     MPY_LedSet(ledState);
     return mp_const_none;
 }
 // Define a Python reference to the function above.
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(zta_SetLed_obj, zta_SetLed);
+static MP_DEFINE_CONST_FUN_OBJ_1(zta_SetLed_obj, zta_SetLed);
 
 
 //-----------------------------------------------------------
 // Camera capture function
 //-----------------------------------------------------------
 
-STATIC mp_obj_t zta_CameraCapture() {
+static mp_obj_t zta_CameraCapture() {
     bool retval;
     retval=MPY_Camera_Capture();
     if(retval)
@@ -70,42 +70,42 @@ STATIC mp_obj_t zta_CameraCapture() {
     return mp_obj_new_bool(retval);
 }
 // Define a Python reference to the function above.
-STATIC MP_DEFINE_CONST_FUN_OBJ_0(zta_CameraCapture_obj, zta_CameraCapture);
+static MP_DEFINE_CONST_FUN_OBJ_0(zta_CameraCapture_obj, zta_CameraCapture);
 
 //-----------------------------------------------------------
 // Display update function
 //-----------------------------------------------------------
 
-STATIC mp_obj_t zta_DisplayFlushCanvas() {
+static mp_obj_t zta_DisplayFlushCanvas() {
     MPY_Display_FlushScreenCanvas();
     MPY_TENSOR_GetScreenCanvas(0);
     return mp_const_none;
 }
 // Define a Python reference to the function above.
-STATIC MP_DEFINE_CONST_FUN_OBJ_0(zta_DisplayFlushCanvas_obj, zta_DisplayFlushCanvas);
+static MP_DEFINE_CONST_FUN_OBJ_0(zta_DisplayFlushCanvas_obj, zta_DisplayFlushCanvas);
 
 //-----------------------------------------------------------
 // Canvas drawing function
 //-----------------------------------------------------------
 
-STATIC mp_obj_t zta_CanvasDrawText(mp_obj_t str,mp_obj_t r,mp_obj_t c) {
+static mp_obj_t zta_CanvasDrawText(mp_obj_t str,mp_obj_t r,mp_obj_t c) {
     MPY_Canvas_DrawText(mp_obj_str_get_str(str),mp_obj_get_int(r),mp_obj_get_int(c));
     return mp_const_none;
 }
 
 // Define a Python reference to the function above.
-STATIC MP_DEFINE_CONST_FUN_OBJ_3(zta_CanvasDrawText_obj, zta_CanvasDrawText);
+static MP_DEFINE_CONST_FUN_OBJ_3(zta_CanvasDrawText_obj, zta_CanvasDrawText);
 
-STATIC mp_obj_t zta_CanvasDrawPoint(mp_obj_t r,mp_obj_t c) {
+static mp_obj_t zta_CanvasDrawPoint(mp_obj_t r,mp_obj_t c) {
     MPY_Canvas_DrawPoint(mp_obj_get_int(r),mp_obj_get_int(c));
     return mp_const_none;
 }
 // Define a Python reference to the function above.
-STATIC MP_DEFINE_CONST_FUN_OBJ_2(zta_CanvasDrawPoint_obj, zta_CanvasDrawPoint);
+static MP_DEFINE_CONST_FUN_OBJ_2(zta_CanvasDrawPoint_obj, zta_CanvasDrawPoint);
 
 // Draw rectangle. Show the corner of rectangle only
 
-STATIC mp_obj_t zta_CanvasDrawRectangle(mp_obj_t _topleft,mp_obj_t _botright) {
+static mp_obj_t zta_CanvasDrawRectangle(mp_obj_t _topleft,mp_obj_t _botright) {
     mp_obj_tuple_t *topleft = MP_OBJ_TO_PTR(_topleft);
     mp_obj_tuple_t *botright = MP_OBJ_TO_PTR(_botright);
     MPY_Canvas_DrawRectangle(mp_obj_get_int(topleft->items[0]),
@@ -115,18 +115,18 @@ STATIC mp_obj_t zta_CanvasDrawRectangle(mp_obj_t _topleft,mp_obj_t _botright) {
     return mp_const_none;
 }
 // Define a Python reference to the function above.
-STATIC MP_DEFINE_CONST_FUN_OBJ_2(zta_CanvasDrawRectangle_obj, zta_CanvasDrawRectangle);
+static MP_DEFINE_CONST_FUN_OBJ_2(zta_CanvasDrawRectangle_obj, zta_CanvasDrawRectangle);
 
 //------------------------------------------------------------
 // Delete all previously allocated objects such as tensor,graphNode and graph
 //------------------------------------------------------------
 
-STATIC mp_obj_t zta_DeleteAll() {
+static mp_obj_t zta_DeleteAll() {
     MPY_DeleteAll();
     return mp_const_none;
 }
 // Define a Python reference to the function above.
-STATIC MP_DEFINE_CONST_FUN_OBJ_0(zta_DeleteAll_obj, zta_DeleteAll);
+static MP_DEFINE_CONST_FUN_OBJ_0(zta_DeleteAll_obj, zta_DeleteAll);
 
 //----------------------------------------------------------
 // Delete all objects
@@ -146,7 +146,7 @@ typedef struct _zta_Tensor_obj_t {
 // TensorCamera class represents image capture from camera
 //---------------------------------------------------------------
 
-STATIC mp_obj_t zta_TensorCamera_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
+static mp_obj_t zta_TensorCamera_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
     zta_Tensor_obj_t *self = mp_obj_malloc(zta_Tensor_obj_t, type);
     self->tensorType=eMPY_TensorTypeCamera;
     self->hwd=MPY_TENSOR_Create(eMPY_TensorTypeCamera);
@@ -154,18 +154,18 @@ STATIC mp_obj_t zta_TensorCamera_make_new(const mp_obj_type_t *type, size_t n_ar
     return MP_OBJ_FROM_PTR(self);
 }
 
-STATIC mp_obj_t zta_TensorCamera_Delete(mp_obj_t self_in) {
+static mp_obj_t zta_TensorCamera_Delete(mp_obj_t self_in) {
     zta_Tensor_obj_t *self = MP_OBJ_TO_PTR(self_in);
     MPY_TENSOR_Delete(self->hwd);
     self->hwd=0;
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(zta_TensorCamera_Delete_obj, zta_TensorCamera_Delete);
+static MP_DEFINE_CONST_FUN_OBJ_1(zta_TensorCamera_Delete_obj, zta_TensorCamera_Delete);
 
-STATIC const mp_rom_map_elem_t zta_TensorCamera_locals_dict_table[] = {
+static const mp_rom_map_elem_t zta_TensorCamera_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_Delete), MP_ROM_PTR(&zta_TensorCamera_Delete_obj) },
 };
-STATIC MP_DEFINE_CONST_DICT(zta_TensorCamera_locals_dict, zta_TensorCamera_locals_dict_table);
+static MP_DEFINE_CONST_DICT(zta_TensorCamera_locals_dict, zta_TensorCamera_locals_dict_table);
 
 MP_DEFINE_CONST_OBJ_TYPE(
     zta_type_TensorCamera,
@@ -181,7 +181,7 @@ MP_DEFINE_CONST_OBJ_TYPE(
 // screen display
 //---------------------------------------------------------------
 
-STATIC mp_obj_t zta_TensorDisplay_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
+static mp_obj_t zta_TensorDisplay_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
     zta_Tensor_obj_t *self = mp_obj_malloc(zta_Tensor_obj_t, type);
     self->tensorType=eMPY_TensorTypeDisplay;
     self->hwd=MPY_TENSOR_Create(eMPY_TensorTypeDisplay);
@@ -189,18 +189,18 @@ STATIC mp_obj_t zta_TensorDisplay_make_new(const mp_obj_type_t *type, size_t n_a
     return MP_OBJ_FROM_PTR(self);
 }
 
-STATIC mp_obj_t zta_TensorDisplay_Delete(mp_obj_t self_in) {
+static mp_obj_t zta_TensorDisplay_Delete(mp_obj_t self_in) {
     zta_Tensor_obj_t *self = MP_OBJ_TO_PTR(self_in);
     MPY_TENSOR_Delete(self->hwd);
     self->hwd=0;
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(zta_TensorDisplay_Delete_obj, zta_TensorDisplay_Delete);
+static MP_DEFINE_CONST_FUN_OBJ_1(zta_TensorDisplay_Delete_obj, zta_TensorDisplay_Delete);
 
-STATIC const mp_rom_map_elem_t zta_TensorDisplay_locals_dict_table[] = {
+static const mp_rom_map_elem_t zta_TensorDisplay_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_Delete), MP_ROM_PTR(&zta_TensorDisplay_Delete_obj) },
 };
-STATIC MP_DEFINE_CONST_DICT(zta_TensorDisplay_locals_dict, zta_TensorDisplay_locals_dict_table);
+static MP_DEFINE_CONST_DICT(zta_TensorDisplay_locals_dict, zta_TensorDisplay_locals_dict_table);
 
 MP_DEFINE_CONST_OBJ_TYPE(
     zta_type_TensorDisplay,
@@ -215,32 +215,32 @@ MP_DEFINE_CONST_OBJ_TYPE(
 // carry intermediate data within an execution graph
 //---------------------------------------------------------------
 
-STATIC mp_obj_t zta_Tensor_print(mp_obj_t self_in) {
+static mp_obj_t zta_Tensor_print(mp_obj_t self_in) {
     zta_Tensor_obj_t *self = MP_OBJ_TO_PTR(self_in);
     return mp_obj_new_bool(true);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(zta_Tensor_print_obj, zta_Tensor_print);
+static MP_DEFINE_CONST_FUN_OBJ_1(zta_Tensor_print_obj, zta_Tensor_print);
 
-STATIC mp_obj_t zta_Tensor_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
+static mp_obj_t zta_Tensor_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
     zta_Tensor_obj_t *self = mp_obj_malloc(zta_Tensor_obj_t, type);
     self->tensorType=eMPY_TensorTypeData;
     self->hwd=MPY_TENSOR_Create(eMPY_TensorTypeData);
     return MP_OBJ_FROM_PTR(self);
 }
 
-STATIC mp_obj_t zta_Tensor_Delete(mp_obj_t self_in) {
+static mp_obj_t zta_Tensor_Delete(mp_obj_t self_in) {
     zta_Tensor_obj_t *self = MP_OBJ_TO_PTR(self_in);
     MPY_TENSOR_Delete(self->hwd);
     self->hwd=0;
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(zta_Tensor_Delete_obj, zta_Tensor_Delete);
+static MP_DEFINE_CONST_FUN_OBJ_1(zta_Tensor_Delete_obj, zta_Tensor_Delete);
 
-STATIC const mp_rom_map_elem_t zta_Tensor_locals_dict_table[] = {
+static const mp_rom_map_elem_t zta_Tensor_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_Delete), MP_ROM_PTR(&zta_Tensor_Delete_obj) },
     { MP_ROM_QSTR(MP_QSTR_print), MP_ROM_PTR(&zta_Tensor_print_obj) },
 };
-STATIC MP_DEFINE_CONST_DICT(zta_Tensor_locals_dict, zta_Tensor_locals_dict_table);
+static MP_DEFINE_CONST_DICT(zta_Tensor_locals_dict, zta_Tensor_locals_dict_table);
 
 MP_DEFINE_CONST_OBJ_TYPE(
     zta_type_Tensor,
@@ -266,13 +266,13 @@ typedef struct _zta_GraphNode_obj_t {
 // as color plane reformatting (between interleaved and planar mode)
 //--------------------------------------------------------------
 
-STATIC mp_obj_t zta_GraphNodeCopyAndTransform_Print(mp_obj_t self_in) {
+static mp_obj_t zta_GraphNodeCopyAndTransform_Print(mp_obj_t self_in) {
     zta_GraphNode_obj_t *self = MP_OBJ_TO_PTR(self_in);
     return mp_obj_new_bool(true);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(zta_GraphNodeCopyAndTransform_Print_obj, zta_GraphNodeCopyAndTransform_Print);
+static MP_DEFINE_CONST_FUN_OBJ_1(zta_GraphNodeCopyAndTransform_Print_obj, zta_GraphNodeCopyAndTransform_Print);
 
-STATIC mp_obj_t zta_GraphNodeCopyAndTransform_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
+static mp_obj_t zta_GraphNodeCopyAndTransform_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
     zta_GraphNode_obj_t *self = mp_obj_malloc(zta_GraphNode_obj_t, type);
     zta_Tensor_obj_t *tensorInput = MP_OBJ_TO_PTR(args[0]);
     zta_Tensor_obj_t *tensorOutput = MP_OBJ_TO_PTR(args[1]);
@@ -305,19 +305,19 @@ STATIC mp_obj_t zta_GraphNodeCopyAndTransform_make_new(const mp_obj_type_t *type
     return MP_OBJ_FROM_PTR(self);
 }
 
-STATIC mp_obj_t zta_GraphNodeCopyAndTransform_Delete(mp_obj_t self_in) {
+static mp_obj_t zta_GraphNodeCopyAndTransform_Delete(mp_obj_t self_in) {
     zta_GraphNode_obj_t *self = MP_OBJ_TO_PTR(self_in);
     MPY_GraphNode_Delete(self->hwd);
     self->hwd=0;
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(zta_GraphNodeCopyAndTransform_Delete_obj, zta_GraphNodeCopyAndTransform_Delete);
+static MP_DEFINE_CONST_FUN_OBJ_1(zta_GraphNodeCopyAndTransform_Delete_obj, zta_GraphNodeCopyAndTransform_Delete);
 
-STATIC const mp_rom_map_elem_t zta_GraphNodeCopyAndTransform_locals_dict_table[] = {
+static const mp_rom_map_elem_t zta_GraphNodeCopyAndTransform_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_Print), MP_ROM_PTR(&zta_GraphNodeCopyAndTransform_Print_obj) },
     { MP_ROM_QSTR(MP_QSTR_Delete), MP_ROM_PTR(&zta_GraphNodeCopyAndTransform_Delete_obj) },
 };
-STATIC MP_DEFINE_CONST_DICT(zta_GraphNodeCopyAndTransform_locals_dict, zta_GraphNodeCopyAndTransform_locals_dict_table);
+static MP_DEFINE_CONST_DICT(zta_GraphNodeCopyAndTransform_locals_dict, zta_GraphNodeCopyAndTransform_locals_dict_table);
 
 MP_DEFINE_CONST_OBJ_TYPE(
     zta_type_GraphNodeCopyAndTransform,
@@ -332,13 +332,13 @@ MP_DEFINE_CONST_OBJ_TYPE(
 // This node performs edge detection
 //----------------------------------------------------------
 
-STATIC mp_obj_t zta_GraphNodeCanny_Print(mp_obj_t self_in) {
+static mp_obj_t zta_GraphNodeCanny_Print(mp_obj_t self_in) {
     zta_GraphNode_obj_t *self = MP_OBJ_TO_PTR(self_in);
     return mp_obj_new_bool(true);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(zta_GraphNodeCanny_Print_obj, zta_GraphNodeCanny_Print);
+static MP_DEFINE_CONST_FUN_OBJ_1(zta_GraphNodeCanny_Print_obj, zta_GraphNodeCanny_Print);
 
-STATIC mp_obj_t zta_GraphNodeCanny_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
+static mp_obj_t zta_GraphNodeCanny_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
     zta_GraphNode_obj_t *self = mp_obj_malloc(zta_GraphNode_obj_t, type);
     zta_Tensor_obj_t *tensorInput = MP_OBJ_TO_PTR(args[0]);
     zta_Tensor_obj_t *tensorOutput = MP_OBJ_TO_PTR(args[1]);
@@ -349,31 +349,31 @@ STATIC mp_obj_t zta_GraphNodeCanny_make_new(const mp_obj_type_t *type, size_t n_
     return MP_OBJ_FROM_PTR(self);
 }
 
-STATIC mp_obj_t zta_GraphNodeCanny_SetThreshold(mp_obj_t self_in,mp_obj_t _loThreshold,mp_obj_t _hiThreshold) {
+static mp_obj_t zta_GraphNodeCanny_SetThreshold(mp_obj_t self_in,mp_obj_t _loThreshold,mp_obj_t _hiThreshold) {
     zta_GraphNode_obj_t *self = MP_OBJ_TO_PTR(self_in);
     int loThreshold=mp_obj_get_int(_loThreshold);
     int hiThreshold=mp_obj_get_int(_hiThreshold);
     MPY_GraphNodeCanny_SetThreshold(self->hwd,loThreshold,hiThreshold);
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_3(zta_GraphNodeCanny_SetThreshold_obj, zta_GraphNodeCanny_SetThreshold);
+static MP_DEFINE_CONST_FUN_OBJ_3(zta_GraphNodeCanny_SetThreshold_obj, zta_GraphNodeCanny_SetThreshold);
 
 // DEL operator
 
-STATIC mp_obj_t zta_GraphNodeCanny_Delete(mp_obj_t self_in) {
+static mp_obj_t zta_GraphNodeCanny_Delete(mp_obj_t self_in) {
     zta_GraphNode_obj_t *self = MP_OBJ_TO_PTR(self_in);
     MPY_GraphNode_Delete(self->hwd);
     self->hwd=0;
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(zta_GraphNodeCanny_Delete_obj, zta_GraphNodeCanny_Delete);
+static MP_DEFINE_CONST_FUN_OBJ_1(zta_GraphNodeCanny_Delete_obj, zta_GraphNodeCanny_Delete);
 
-STATIC const mp_rom_map_elem_t zta_GraphNodeCanny_locals_dict_table[] = {
+static const mp_rom_map_elem_t zta_GraphNodeCanny_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_Delete), MP_ROM_PTR(&zta_GraphNodeCanny_Delete_obj) },
     { MP_ROM_QSTR(MP_QSTR_SetThreshold), MP_ROM_PTR(&zta_GraphNodeCanny_SetThreshold_obj) },
     { MP_ROM_QSTR(MP_QSTR_Print), MP_ROM_PTR(&zta_GraphNodeCanny_Print_obj) },
 };
-STATIC MP_DEFINE_CONST_DICT(zta_GraphNodeCanny_locals_dict, zta_GraphNodeCanny_locals_dict_table);
+static MP_DEFINE_CONST_DICT(zta_GraphNodeCanny_locals_dict, zta_GraphNodeCanny_locals_dict_table);
 
 MP_DEFINE_CONST_OBJ_TYPE(
     zta_type_GraphNodeCanny,
@@ -388,13 +388,13 @@ MP_DEFINE_CONST_OBJ_TYPE(
 // This node performs image blurring
 //-----------------------------------------------------------
 
-STATIC mp_obj_t zta_GraphNodeGaussian_Print(mp_obj_t self_in) {
+static mp_obj_t zta_GraphNodeGaussian_Print(mp_obj_t self_in) {
     zta_GraphNode_obj_t *self = MP_OBJ_TO_PTR(self_in);
     return mp_obj_new_bool(true);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(zta_GraphNodeGaussian_Print_obj, zta_GraphNodeGaussian_Print);
+static MP_DEFINE_CONST_FUN_OBJ_1(zta_GraphNodeGaussian_Print_obj, zta_GraphNodeGaussian_Print);
 
-STATIC mp_obj_t zta_GraphNodeGaussian_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
+static mp_obj_t zta_GraphNodeGaussian_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
     zta_GraphNode_obj_t *self = mp_obj_malloc(zta_GraphNode_obj_t, type);
     zta_Tensor_obj_t *tensorInput = MP_OBJ_TO_PTR(args[0]);
     zta_Tensor_obj_t *tensorOutput = MP_OBJ_TO_PTR(args[1]);
@@ -405,30 +405,30 @@ STATIC mp_obj_t zta_GraphNodeGaussian_make_new(const mp_obj_type_t *type, size_t
     return MP_OBJ_FROM_PTR(self);
 }
 
-STATIC mp_obj_t zta_GraphNodeGaussian_SetSigma(mp_obj_t self_in,mp_obj_t _sigma) {
+static mp_obj_t zta_GraphNodeGaussian_SetSigma(mp_obj_t self_in,mp_obj_t _sigma) {
     zta_GraphNode_obj_t *self = MP_OBJ_TO_PTR(self_in);
     float sigma=mp_obj_get_float(_sigma);
     MPY_GraphNodeGaussian_SetSigma(self->hwd,sigma);
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_2(zta_GraphNodeGaussian_SetSigma_obj, zta_GraphNodeGaussian_SetSigma);
+static MP_DEFINE_CONST_FUN_OBJ_2(zta_GraphNodeGaussian_SetSigma_obj, zta_GraphNodeGaussian_SetSigma);
 
 // DEL operator
 
-STATIC mp_obj_t zta_GraphNodeGaussian_Delete(mp_obj_t self_in) {
+static mp_obj_t zta_GraphNodeGaussian_Delete(mp_obj_t self_in) {
     zta_GraphNode_obj_t *self = MP_OBJ_TO_PTR(self_in);
     MPY_GraphNode_Delete(self->hwd);
     self->hwd=0;
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(zta_GraphNodeGaussian_Delete_obj, zta_GraphNodeGaussian_Delete);
+static MP_DEFINE_CONST_FUN_OBJ_1(zta_GraphNodeGaussian_Delete_obj, zta_GraphNodeGaussian_Delete);
 
-STATIC const mp_rom_map_elem_t zta_GraphNodeGaussian_locals_dict_table[] = {
+static const mp_rom_map_elem_t zta_GraphNodeGaussian_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_Delete), MP_ROM_PTR(&zta_GraphNodeGaussian_Delete_obj) },
     { MP_ROM_QSTR(MP_QSTR_SetSigma), MP_ROM_PTR(&zta_GraphNodeGaussian_SetSigma_obj) },
     { MP_ROM_QSTR(MP_QSTR_Print), MP_ROM_PTR(&zta_GraphNodeGaussian_Print_obj) },
 };
-STATIC MP_DEFINE_CONST_DICT(zta_GraphNodeGaussian_locals_dict, zta_GraphNodeGaussian_locals_dict_table);
+static MP_DEFINE_CONST_DICT(zta_GraphNodeGaussian_locals_dict, zta_GraphNodeGaussian_locals_dict_table);
 
 MP_DEFINE_CONST_OBJ_TYPE(
     zta_type_GraphNodeGaussian,
@@ -444,13 +444,13 @@ MP_DEFINE_CONST_OBJ_TYPE(
 // point of interests in an image
 //----------------------------------------------------------
 
-STATIC mp_obj_t zta_GraphNodeHarris_Print(mp_obj_t self_in) {
+static mp_obj_t zta_GraphNodeHarris_Print(mp_obj_t self_in) {
     zta_GraphNode_obj_t *self = MP_OBJ_TO_PTR(self_in);
     return mp_obj_new_bool(true);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(zta_GraphNodeHarris_Print_obj, zta_GraphNodeHarris_Print);
+static MP_DEFINE_CONST_FUN_OBJ_1(zta_GraphNodeHarris_Print_obj, zta_GraphNodeHarris_Print);
 
-STATIC mp_obj_t zta_GraphNodeHarris_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
+static mp_obj_t zta_GraphNodeHarris_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
     zta_GraphNode_obj_t *self = mp_obj_malloc(zta_GraphNode_obj_t, type);
     zta_Tensor_obj_t *tensorInput = MP_OBJ_TO_PTR(args[0]);
     MPY_HANDLE tensorOutput = MPY_TENSOR_Create(eMPY_TensorTypeData);
@@ -466,7 +466,7 @@ STATIC mp_obj_t zta_GraphNodeHarris_make_new(const mp_obj_type_t *type, size_t n
 
 // Retrieve the list of point-of-interests
 
-STATIC mp_obj_t zta_GraphNodeHarris_GetPOI(mp_obj_t self_in) {
+static mp_obj_t zta_GraphNodeHarris_GetPOI(mp_obj_t self_in) {
     zta_GraphNode_obj_t *self = MP_OBJ_TO_PTR(self_in);
     int w,h;
     int i,j;
@@ -495,22 +495,22 @@ STATIC mp_obj_t zta_GraphNodeHarris_GetPOI(mp_obj_t self_in) {
     }
     return mp_obj_new_list(count, (mp_obj_t *)tuple);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(zta_GraphNodeHarris_GetPOI_obj, zta_GraphNodeHarris_GetPOI);
+static MP_DEFINE_CONST_FUN_OBJ_1(zta_GraphNodeHarris_GetPOI_obj, zta_GraphNodeHarris_GetPOI);
 
-STATIC mp_obj_t zta_GraphNodeHarris_Delete(mp_obj_t self_in) {
+static mp_obj_t zta_GraphNodeHarris_Delete(mp_obj_t self_in) {
     zta_GraphNode_obj_t *self = MP_OBJ_TO_PTR(self_in);
     MPY_GraphNode_Delete(self->hwd);
     self->hwd=0;
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(zta_GraphNodeHarris_Delete_obj, zta_GraphNodeHarris_Delete);
+static MP_DEFINE_CONST_FUN_OBJ_1(zta_GraphNodeHarris_Delete_obj, zta_GraphNodeHarris_Delete);
 
-STATIC const mp_rom_map_elem_t zta_GraphNodeHarris_locals_dict_table[] = {
+static const mp_rom_map_elem_t zta_GraphNodeHarris_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_GetPOI), MP_ROM_PTR(&zta_GraphNodeHarris_GetPOI_obj) },
     { MP_ROM_QSTR(MP_QSTR_Delete), MP_ROM_PTR(&zta_GraphNodeHarris_Delete_obj) },
     { MP_ROM_QSTR(MP_QSTR_Print), MP_ROM_PTR(&zta_GraphNodeHarris_Print_obj) },
 };
-STATIC MP_DEFINE_CONST_DICT(zta_GraphNodeHarris_locals_dict, zta_GraphNodeHarris_locals_dict_table);
+static MP_DEFINE_CONST_DICT(zta_GraphNodeHarris_locals_dict, zta_GraphNodeHarris_locals_dict_table);
 
 MP_DEFINE_CONST_OBJ_TYPE(
     zta_type_GraphNodeHarris,
@@ -526,13 +526,13 @@ MP_DEFINE_CONST_OBJ_TYPE(
 // encoded as colored pixel to represent motion speed and direction
 //-------------------------------------------------------------
 
-STATIC mp_obj_t zta_GraphNodeOpticalFlow_Print(mp_obj_t self_in) {
+static mp_obj_t zta_GraphNodeOpticalFlow_Print(mp_obj_t self_in) {
     zta_GraphNode_obj_t *self = MP_OBJ_TO_PTR(self_in);
     return mp_obj_new_bool(true);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(zta_GraphNodeOpticalFlow_Print_obj, zta_GraphNodeOpticalFlow_Print);
+static MP_DEFINE_CONST_FUN_OBJ_1(zta_GraphNodeOpticalFlow_Print_obj, zta_GraphNodeOpticalFlow_Print);
 
-STATIC mp_obj_t zta_GraphNodeOpticalFlow_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
+static mp_obj_t zta_GraphNodeOpticalFlow_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
     zta_GraphNode_obj_t *self = mp_obj_malloc(zta_GraphNode_obj_t, type);
     zta_Tensor_obj_t *tensorInput = MP_OBJ_TO_PTR(args[0]);
     zta_Tensor_obj_t *tensorOutput = MP_OBJ_TO_PTR(args[1]);
@@ -543,19 +543,19 @@ STATIC mp_obj_t zta_GraphNodeOpticalFlow_make_new(const mp_obj_type_t *type, siz
     return MP_OBJ_FROM_PTR(self);
 }
 
-STATIC mp_obj_t zta_GraphNodeOpticalFlow_Delete(mp_obj_t self_in) {
+static mp_obj_t zta_GraphNodeOpticalFlow_Delete(mp_obj_t self_in) {
     zta_GraphNode_obj_t *self = MP_OBJ_TO_PTR(self_in);
     MPY_GraphNode_Delete(self->hwd);
     self->hwd=0;
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(zta_GraphNodeOpticalFlow_Delete_obj, zta_GraphNodeOpticalFlow_Delete);
+static MP_DEFINE_CONST_FUN_OBJ_1(zta_GraphNodeOpticalFlow_Delete_obj, zta_GraphNodeOpticalFlow_Delete);
 
-STATIC const mp_rom_map_elem_t zta_GraphNodeOpticalFlow_locals_dict_table[] = {
+static const mp_rom_map_elem_t zta_GraphNodeOpticalFlow_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_Delete), MP_ROM_PTR(&zta_GraphNodeOpticalFlow_Delete_obj) },
     { MP_ROM_QSTR(MP_QSTR_Print), MP_ROM_PTR(&zta_GraphNodeOpticalFlow_Print_obj) },
 };
-STATIC MP_DEFINE_CONST_DICT(zta_GraphNodeOpticalFlow_locals_dict, zta_GraphNodeOpticalFlow_locals_dict_table);
+static MP_DEFINE_CONST_DICT(zta_GraphNodeOpticalFlow_locals_dict, zta_GraphNodeOpticalFlow_locals_dict_table);
 
 MP_DEFINE_CONST_OBJ_TYPE(
     zta_type_GraphNodeOpticalFlow,
@@ -571,13 +571,13 @@ MP_DEFINE_CONST_OBJ_TYPE(
 // Only image reduction is supported at the moment 
 //----------------------------------------------------------
 
-STATIC mp_obj_t zta_GraphNodeResize_Print(mp_obj_t self_in) {
+static mp_obj_t zta_GraphNodeResize_Print(mp_obj_t self_in) {
     zta_GraphNode_obj_t *self = MP_OBJ_TO_PTR(self_in);
     return mp_obj_new_bool(true);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(zta_GraphNodeResize_Print_obj, zta_GraphNodeResize_Print);
+static MP_DEFINE_CONST_FUN_OBJ_1(zta_GraphNodeResize_Print_obj, zta_GraphNodeResize_Print);
 
-STATIC mp_obj_t zta_GraphNodeResize_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
+static mp_obj_t zta_GraphNodeResize_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
     zta_GraphNode_obj_t *self = mp_obj_malloc(zta_GraphNode_obj_t, type);
     zta_Tensor_obj_t *tensorInput = MP_OBJ_TO_PTR(args[0]);
     zta_Tensor_obj_t *tensorOutput = MP_OBJ_TO_PTR(args[1]);
@@ -591,19 +591,19 @@ STATIC mp_obj_t zta_GraphNodeResize_make_new(const mp_obj_type_t *type, size_t n
     return MP_OBJ_FROM_PTR(self);
 }
 
-STATIC mp_obj_t zta_GraphNodeResize_Delete(mp_obj_t self_in) {
+static mp_obj_t zta_GraphNodeResize_Delete(mp_obj_t self_in) {
     zta_GraphNode_obj_t *self = MP_OBJ_TO_PTR(self_in);
     MPY_GraphNode_Delete(self->hwd);
     self->hwd=0;
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(zta_GraphNodeResize_Delete_obj, zta_GraphNodeResize_Delete);
+static MP_DEFINE_CONST_FUN_OBJ_1(zta_GraphNodeResize_Delete_obj, zta_GraphNodeResize_Delete);
 
-STATIC const mp_rom_map_elem_t zta_GraphNodeResize_locals_dict_table[] = {
+static const mp_rom_map_elem_t zta_GraphNodeResize_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_Delete), MP_ROM_PTR(&zta_GraphNodeResize_Delete_obj) },
     { MP_ROM_QSTR(MP_QSTR_Print), MP_ROM_PTR(&zta_GraphNodeResize_Print_obj) },
 };
-STATIC MP_DEFINE_CONST_DICT(zta_GraphNodeResize_locals_dict, zta_GraphNodeResize_locals_dict_table);
+static MP_DEFINE_CONST_DICT(zta_GraphNodeResize_locals_dict, zta_GraphNodeResize_locals_dict_table);
 
 MP_DEFINE_CONST_OBJ_TYPE(
     zta_type_GraphNodeResize,
@@ -620,13 +620,13 @@ MP_DEFINE_CONST_OBJ_TYPE(
 // or modifications required
 //----------------------------------------------------------
 
-STATIC mp_obj_t zta_GraphNodeImageClassifier_Print(mp_obj_t self_in) {
+static mp_obj_t zta_GraphNodeImageClassifier_Print(mp_obj_t self_in) {
     zta_GraphNode_obj_t *self = MP_OBJ_TO_PTR(self_in);
     return mp_obj_new_bool(true);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(zta_GraphNodeImageClassifier_Print_obj, zta_GraphNodeImageClassifier_Print);
+static MP_DEFINE_CONST_FUN_OBJ_1(zta_GraphNodeImageClassifier_Print_obj, zta_GraphNodeImageClassifier_Print);
 
-STATIC mp_obj_t zta_GraphNodeImageClassifier_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
+static mp_obj_t zta_GraphNodeImageClassifier_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
     zta_GraphNode_obj_t *self = mp_obj_malloc(zta_GraphNode_obj_t, type);
     zta_Tensor_obj_t *tensorInput = MP_OBJ_TO_PTR(args[0]);
     MPY_HANDLE tensorOutput = MPY_TENSOR_Create(eMPY_TensorTypeData);
@@ -642,7 +642,7 @@ STATIC mp_obj_t zta_GraphNodeImageClassifier_make_new(const mp_obj_type_t *type,
 
 // Getting the top5 results from the image classification
 
-STATIC mp_obj_t zta_GraphNodeImageClassifier_GetTop5(mp_obj_t self_in)
+static mp_obj_t zta_GraphNodeImageClassifier_GetTop5(mp_obj_t self_in)
 {
     zta_GraphNode_obj_t *self = MP_OBJ_TO_PTR(self_in);
     unsigned int v;
@@ -717,22 +717,22 @@ STATIC mp_obj_t zta_GraphNodeImageClassifier_GetTop5(mp_obj_t self_in)
 
     return mp_obj_new_list(5, (mp_obj_t *)tuple);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(zta_GraphNodeImageClassifier_GetTop5_obj, zta_GraphNodeImageClassifier_GetTop5);
+static MP_DEFINE_CONST_FUN_OBJ_1(zta_GraphNodeImageClassifier_GetTop5_obj, zta_GraphNodeImageClassifier_GetTop5);
 
-STATIC mp_obj_t zta_GraphNodeImageClassifier_Delete(mp_obj_t self_in) {
+static mp_obj_t zta_GraphNodeImageClassifier_Delete(mp_obj_t self_in) {
     zta_GraphNode_obj_t *self = MP_OBJ_TO_PTR(self_in);
     MPY_GraphNode_Delete(self->hwd);
     self->hwd=0;
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(zta_GraphNodeImageClassifier_Delete_obj, zta_GraphNodeImageClassifier_Delete);
+static MP_DEFINE_CONST_FUN_OBJ_1(zta_GraphNodeImageClassifier_Delete_obj, zta_GraphNodeImageClassifier_Delete);
 
-STATIC const mp_rom_map_elem_t zta_GraphNodeImageClassifier_locals_dict_table[] = {
+static const mp_rom_map_elem_t zta_GraphNodeImageClassifier_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_GetTop5), MP_ROM_PTR(&zta_GraphNodeImageClassifier_GetTop5_obj) },
     { MP_ROM_QSTR(MP_QSTR_Delete), MP_ROM_PTR(&zta_GraphNodeImageClassifier_Delete_obj) },
     { MP_ROM_QSTR(MP_QSTR_Print), MP_ROM_PTR(&zta_GraphNodeImageClassifier_Print_obj) },
 };
-STATIC MP_DEFINE_CONST_DICT(zta_GraphNodeImageClassifier_locals_dict, zta_GraphNodeImageClassifier_locals_dict_table);
+static MP_DEFINE_CONST_DICT(zta_GraphNodeImageClassifier_locals_dict, zta_GraphNodeImageClassifier_locals_dict_table);
 
 MP_DEFINE_CONST_OBJ_TYPE(
     zta_type_GraphNodeImageClassifier,
@@ -750,13 +750,13 @@ MP_DEFINE_CONST_OBJ_TYPE(
 // or modifications required
 //----------------------------------------------------------
 
-STATIC mp_obj_t zta_GraphNodeObjectDetection_Print(mp_obj_t self_in) {
+static mp_obj_t zta_GraphNodeObjectDetection_Print(mp_obj_t self_in) {
     zta_GraphNode_obj_t *self = MP_OBJ_TO_PTR(self_in);
     return mp_obj_new_bool(true);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(zta_GraphNodeObjectDetection_Print_obj, zta_GraphNodeObjectDetection_Print);
+static MP_DEFINE_CONST_FUN_OBJ_1(zta_GraphNodeObjectDetection_Print_obj, zta_GraphNodeObjectDetection_Print);
 
-STATIC mp_obj_t zta_GraphNodeObjectDetection_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
+static mp_obj_t zta_GraphNodeObjectDetection_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
     zta_GraphNode_obj_t *self = mp_obj_malloc(zta_GraphNode_obj_t, type);
     zta_Tensor_obj_t *tensorInput = MP_OBJ_TO_PTR(args[0]);
     MPY_HANDLE tensorOutput0 = MPY_TENSOR_Create(eMPY_TensorTypeData);
@@ -784,7 +784,7 @@ STATIC mp_obj_t zta_GraphNodeObjectDetection_make_new(const mp_obj_type_t *type,
 
 // Getting the list of detected objects
 
-STATIC mp_obj_t zta_GraphNodeObjectDetection_GetObjects(mp_obj_t self_in)
+static mp_obj_t zta_GraphNodeObjectDetection_GetObjects(mp_obj_t self_in)
 {
     zta_GraphNode_obj_t *self = MP_OBJ_TO_PTR(self_in);
     mp_obj_tuple_t *tuple[MAX_SSD_RESULT];
@@ -823,22 +823,22 @@ STATIC mp_obj_t zta_GraphNodeObjectDetection_GetObjects(mp_obj_t self_in)
     }
     return mp_obj_new_list(ssd_result_cnt, (mp_obj_t *)tuple);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(zta_GraphNodeObjectDetection_GetObjects_obj, zta_GraphNodeObjectDetection_GetObjects);
+static MP_DEFINE_CONST_FUN_OBJ_1(zta_GraphNodeObjectDetection_GetObjects_obj, zta_GraphNodeObjectDetection_GetObjects);
 
-STATIC mp_obj_t zta_GraphNodeObjectDetection_Delete(mp_obj_t self_in) {
+static mp_obj_t zta_GraphNodeObjectDetection_Delete(mp_obj_t self_in) {
     zta_GraphNode_obj_t *self = MP_OBJ_TO_PTR(self_in);
     MPY_GraphNode_Delete(self->hwd);
     self->hwd=0;
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(zta_GraphNodeObjectDetection_Delete_obj, zta_GraphNodeObjectDetection_Delete);
+static MP_DEFINE_CONST_FUN_OBJ_1(zta_GraphNodeObjectDetection_Delete_obj, zta_GraphNodeObjectDetection_Delete);
 
-STATIC const mp_rom_map_elem_t zta_GraphNodeObjectDetection_locals_dict_table[] = {
+static const mp_rom_map_elem_t zta_GraphNodeObjectDetection_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_GetObjects), MP_ROM_PTR(&zta_GraphNodeObjectDetection_GetObjects_obj) },
     { MP_ROM_QSTR(MP_QSTR_Delete), MP_ROM_PTR(&zta_GraphNodeObjectDetection_Delete_obj) },
     { MP_ROM_QSTR(MP_QSTR_Print), MP_ROM_PTR(&zta_GraphNodeObjectDetection_Print_obj) },
 };
-STATIC MP_DEFINE_CONST_DICT(zta_GraphNodeObjectDetection_locals_dict, zta_GraphNodeObjectDetection_locals_dict_table);
+static MP_DEFINE_CONST_DICT(zta_GraphNodeObjectDetection_locals_dict, zta_GraphNodeObjectDetection_locals_dict_table);
 
 MP_DEFINE_CONST_OBJ_TYPE(
     zta_type_GraphNodeObjectDetection,
@@ -859,52 +859,52 @@ typedef struct _zta_Graph_obj_t {
 
 // Is graph currently busy running
 
-STATIC mp_obj_t zta_Graph_IsBusy(mp_obj_t self_in) {
+static mp_obj_t zta_Graph_IsBusy(mp_obj_t self_in) {
     zta_Graph_obj_t *self = MP_OBJ_TO_PTR(self_in);
     if(!MPY_Graph_IsBusy(self->hwd))
         return mp_obj_new_bool(false);
     else
         return mp_obj_new_bool(true);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(zta_Graph_IsBusy_obj, zta_Graph_IsBusy);
+static MP_DEFINE_CONST_FUN_OBJ_1(zta_Graph_IsBusy_obj, zta_Graph_IsBusy);
 
 
 // Run the graph until completion
 
-STATIC mp_obj_t zta_Graph_Run(mp_obj_t self_in) {
+static mp_obj_t zta_Graph_Run(mp_obj_t self_in) {
     zta_Graph_obj_t *self = MP_OBJ_TO_PTR(self_in);
     MPY_Graph_Run(self->hwd);
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(zta_Graph_Run_obj, zta_Graph_Run);
+static MP_DEFINE_CONST_FUN_OBJ_1(zta_Graph_Run_obj, zta_Graph_Run);
 
 // Run the graph but only upto a time period. If graph execution not completed
 // yet before time expiration, this function will return and must be called
 // again to resume the execution where it left off.
 
-STATIC mp_obj_t zta_Graph_RunWithTimeout(mp_obj_t self_in,mp_obj_t _timeout) {
+static mp_obj_t zta_Graph_RunWithTimeout(mp_obj_t self_in,mp_obj_t _timeout) {
     zta_Graph_obj_t *self = MP_OBJ_TO_PTR(self_in);
     int timeout= mp_obj_get_int(_timeout);
     MPY_Graph_RunWithTimeout(self->hwd,timeout);
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_2(zta_Graph_RunWithTimeout_obj, zta_Graph_RunWithTimeout);
+static MP_DEFINE_CONST_FUN_OBJ_2(zta_Graph_RunWithTimeout_obj, zta_Graph_RunWithTimeout);
 
 // DEL operator
 
-STATIC mp_obj_t zta_Graph_Delete(mp_obj_t self_in) {
+static mp_obj_t zta_Graph_Delete(mp_obj_t self_in) {
     zta_Graph_obj_t *self = MP_OBJ_TO_PTR(self_in);
     MPY_Graph_Delete(self->hwd);
     self->hwd=0;
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(zta_Graph_Delete_obj, zta_Graph_Delete);
+static MP_DEFINE_CONST_FUN_OBJ_1(zta_Graph_Delete_obj, zta_Graph_Delete);
 
 // Constructor
 
 #define MAX_NUM_NODE_PER_GRAPH 32
 
-STATIC mp_obj_t zta_Graph_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
+static mp_obj_t zta_Graph_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
     zta_Graph_obj_t *self = mp_obj_malloc(zta_Graph_obj_t,type);
     MPY_HANDLE nodeLst[MAX_NUM_NODE_PER_GRAPH];
     zta_GraphNode_obj_t *node;
@@ -920,13 +920,13 @@ STATIC mp_obj_t zta_Graph_make_new(const mp_obj_type_t *type, size_t n_args, siz
     return MP_OBJ_FROM_PTR(self);
 }
 
-STATIC const mp_rom_map_elem_t zta_Graph_locals_dict_table[] = {
+static const mp_rom_map_elem_t zta_Graph_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_Delete), MP_ROM_PTR(&zta_Graph_Delete_obj) },
     { MP_ROM_QSTR(MP_QSTR_IsBusy), MP_ROM_PTR(&zta_Graph_IsBusy_obj) },
     { MP_ROM_QSTR(MP_QSTR_Run), MP_ROM_PTR(&zta_Graph_Run_obj) },
     { MP_ROM_QSTR(MP_QSTR_RunWithTimeout), MP_ROM_PTR(&zta_Graph_RunWithTimeout_obj) },
 };
-STATIC MP_DEFINE_CONST_DICT(zta_Graph_locals_dict, zta_Graph_locals_dict_table);
+static MP_DEFINE_CONST_DICT(zta_Graph_locals_dict, zta_Graph_locals_dict_table);
 
 MP_DEFINE_CONST_OBJ_TYPE(
     zta_type_Graph,
@@ -940,7 +940,7 @@ MP_DEFINE_CONST_OBJ_TYPE(
 // Module definition
 //---------------------------------------------------------------------------
 
-STATIC const mp_rom_map_elem_t zta_module_globals_table[] = {
+static const mp_rom_map_elem_t zta_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_zta) },
     { MP_ROM_QSTR(MP_QSTR_DeleteAll), MP_ROM_PTR(&zta_DeleteAll_obj) },
     { MP_ROM_QSTR(MP_QSTR_SetLed), MP_ROM_PTR(&zta_SetLed_obj) },
@@ -970,7 +970,7 @@ STATIC const mp_rom_map_elem_t zta_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_MONO3), MP_ROM_INT(CONST_MONO3)},
     { MP_ROM_QSTR(MP_QSTR_COLOR), MP_ROM_INT(CONST_COLOR)},
 };
-STATIC MP_DEFINE_CONST_DICT(zta_module_globals, zta_module_globals_table);
+static MP_DEFINE_CONST_DICT(zta_module_globals, zta_module_globals_table);
 
 // Define module object.
 const mp_obj_module_t zta_user_cmodule = {

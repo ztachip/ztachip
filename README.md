@@ -102,6 +102,7 @@ make clean all
 ## Build ztachip as micropython port
 You are required to complete the previous build procedure for standalone image even if your
 target image is micropython image. 
+Below is procedure to build micropython image after you have completed the standalone image build procedure.
 
 ```
 git clone https://github.com/micropython/micropython.git
@@ -163,7 +164,7 @@ Connect camera_module to Arty board according to picture below
 If you are running ztachip's micropython image, then you need to connect to the serial port. Arty-A7 provides serial port connectivity via USB. Serial port flow control must be disabled.
 
 ```
-sudo miniport -w -D /dev/ttyUSB1
+sudo minicom -w -D /dev/ttyUSB1
 ```
 
 Note: After the first time connecting to serial port, reset the board again (press button next to USB port and wait for led to turn green) since USB serial must be the first device to connect to USB before ztachip.
