@@ -6,6 +6,9 @@
 #   3. Copy t2 to display. Display has format RGBRGB...
 # Program runs until push button is pressed
 #
+# Reference ztachip/micropython/MicropythonUserGuide.md documentation for more details.
+#
+
 
 import zta
 

@@ -5,6 +5,9 @@
 #   2. Perform blurring on t1 and output result to t2, t2 has format RR..GG..BB..
 #   3. Copy t2 to display, reformat to output format RGBRGB..
 # Program runs until push button is pressed
+#
+# Reference ztachip/micropython/MicropythonUserGuide.md documentation for more details.
+#
 
 import zta
 

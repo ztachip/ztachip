@@ -3,6 +3,10 @@
 # Execution graph:
 #   1. Copy webcam input to display. During copying, for each pixel, compute [R,G,B]=MonoValue(R,G,B)
 # Program runs until push button is pressed
+#
+# Reference ztachip/micropython/MicropythonUserGuide.md documentation for more details.
+#
+
 import zta
 
 tensorInput = zta.TensorCamera()

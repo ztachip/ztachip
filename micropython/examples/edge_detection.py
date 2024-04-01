@@ -7,6 +7,9 @@
 #   3. Copy t2 to display. During copying, reformat to format RGBRGB... with R=G=B
 # Program runs until push button is pressed
 #
+# Reference ztachip/micropython/MicropythonUserGuide.md documentation for more details.
+#
+
 import zta
 
 tensorInput = zta.TensorCamera()

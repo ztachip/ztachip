@@ -8,6 +8,8 @@
 #   4. Copy webcam input to display. Display has format RGBRGB...
 # Program runs until push button is pressed
 #
+# Reference ztachip/micropython/MicropythonUserGuide.md documentation for more details.
+#
 
 import zta
 
