@@ -20,18 +20,18 @@ import zta
 
 There are 3 types of tensors to be created by the functions below
 
-- zta.TensorCamera(): Tensor that is mapped to image capture from Camera
+- TensorCamera(): Tensor that is mapped to image capture from Camera
 
-- zta.TensorDisplay(): Tensor that is mapped to the display canvas. Display canvas are working copy for the next display output.
+- TensorDisplay(): Tensor that is mapped to the display canvas. Display canvas are working copy for the next display output.
 
-- zta.Tensor(): temporary tensor used to carry intermediate results between GraphNodes.
+- Tensor(): temporary tensor used to carry intermediate results between GraphNodes.
 
 
 ## GraphNode objects
 
 ### GraphNodeCopyAndTransform(input,output,color,format,[row,col])
 
-Perform a data copy from input tensor to output tensor. Perform some color and format conversion if required.
+This GraphNode performs data copy from input tensor to output tensor. Perform some color and format conversion if required.
 
 Parameters:
 
@@ -55,15 +55,117 @@ Parameters:
 
 - row,col: Apply when output tensor is DisplayTensor. Specify where on the display to copy the tensor to. If not specified then [0,0] is assumed.
 
-### GraphNodeCanny
-### GraphNodeGaussian
-### GraphNodeHarris
-### GraphNodeOpticalFlow
-### GraphNodeResize
-### GraphNodeImageClassifier
-### GraphNodeObjectDetection
+### GraphNodeCanny(input,output)
+
+This graphNode performs Canny edge detection algorithm.
+
+Edge detection threshold is set by GraphNodeCanny.SetThreshold(loThreshold,hiThreshold)
+
+Parameters:
+
+- input: Input tensor. This node expects input to be color=zta.MONO1 and format=zta.PLANAR.
+
+- output: Output tensor. It has color=zta.MONO1 and format=zta.PLANAR  
+
+### GraphNodeGaussian(input,output)
+
+This graphNode performs Gaussian blurring algorithm.
+
+Gaussian sigma is set by GraphNodeGaussian.SetSigma(sigma)
+
+Parameters:
+
+- input: Input tensor. This node expects input to be color=zta.COLOR and format=zta.PLANAR.
+
+- output: Output tensor. Output has color=zta.COLOR and format=zta.PLANAR  
+
+### GraphNodeHarris(input)
+
+This graphNode performs Harris-Corner point-of-interest detection algo.
+
+The resulted point-of-interests are then retrieved by calling GetPOI() which returns a list of POI coordinates [col,row]....
+
+Parameters:
+
+- input: Input tensor. This node expects input to be color=zta.MONO1 and format=zta.PLANAR.
+
+### GraphNodeOpticalFlow(input,output)
+
+This GraphNoode performs motion detection using OpticalFlow algo.
+
+Parameters:
+
+- input: Input tensor. This node expects input to have color=zta.COLOR and format=zta.PLANAR
+
+- output: Motion is produced as color-coded pixel. Output has color=zta.COLOR and format=zta.PLANAR 
 
 
+### GraphNodeResize(width,height)
+
+This GraphNode performs image resize. Currently only image reduction is supported. 
+
+Parameters:
+
+- input: Input tensor. This node expects input to have color=zta.COLOR and format=zta.PLANAR
+
+- output: Output tensor has color=zta.COLOR and format=zta.PLANAR 
+
+### GraphNodeImageClassifier(input)
+
+This GraphNode performs Mobinet image classification from TensorFlowLite.
+
+Top 5 classification results are returned by calling GraphNodeImageClassifier.GetTop5 which returns a list of 5 tuples [probability,name]...
+
+Parameters:
+
+- input: Input tensor. This node expects input to have color=zta.COLOR and format=zta.PLANAR and image size=224x224
+
+
+### GraphNodeObjectDetection(input)
+
+This GraphNode performs SSD-Mobinet object detection from TensorFlowLite
+
+List of detected objects are returned by calling GraphNodeObjectDetection.GetObjects() which returns a list of tuples describing the detected rectangular region of the objects [topleft_col,topleft_row,botright_col,botright_row,probability,name]
+
+Parameters:
+
+- input: Input tensor. This node expects input to have color=zta.COLOR and format=zta.PLANAR and image size=300x300
+
+# Graph object
+
+Graph is constructed from a list of GraphNodes objects described earlier.
+
+Graph execution is performed with the following functions:
+
+- Graph.Run(): To execute the graph until completion
+
+- Graph.RunWithTimeout(timeout_in_ms): To execute the graph but only up to a time limit.A
+
+- Graph.IsBusy(): To check if graph is still busy running. Normally in conjection with RunWithTimeout.
+
+# Drawing functions.
+
+Drawing is done on a canvas work area defined by TensorDisplay and not directly to the display.
+
+- zta.CanvasDrawText(text,row,col): Draw a string at location [row,col]
+
+- zta.CanvasDrawPoint(r,c): Draw a point at location [row,col]
+
+- zta.CanvasDrawRectangle([top_left_row,top_lef_col],[bot_right_row,bot_right_col]) : Draw a rectangle by specifying the topleft and botright corners.
+
+- zta.DisplayFlushCanvas(): Flush the canvas to the display screen.
+
+# Camera function
+
+- CameraCapture(): Return True is a new camera capture becomes available, False otherwise.
+
+# Miscellaneous functions
+
+- SetLed(ledVal) : Set LED
+
+- ButtonState() : Return button state (True is pressed, False otherwise)
+
+- GetElapsesTimeMsec() : Return time in msec from previous call to this function
 
 
   
