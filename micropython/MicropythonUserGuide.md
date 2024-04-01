@@ -169,5 +169,7 @@ Drawing is done on a canvas work area defined by TensorDisplay and not directly 
 
 - GetElapsesTimeMsec() : Return time in msec from previous call to this function
 
+- DeleteAll() : To release all previously allocated Graph,GraphNode and Tensor objects. Call before exiting Python program. 
+
 
   
