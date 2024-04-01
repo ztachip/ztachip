@@ -9,7 +9,7 @@
 #include "py/gc.h"
 #include "py/mperrno.h"
 #include "shared/runtime/pyexec.h"
-#include "../../../ztachip/SW/src/mpy.h"
+#include "SW/src/mpy.h"
 
 void *__dso_handle=0;
 
