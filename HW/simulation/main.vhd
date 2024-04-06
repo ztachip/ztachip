@@ -245,8 +245,7 @@ UART_RX <= UART_TX;
 
 uart_inst:UART
 	generic map (
-		BAUD_RATE=>112500,
-		CLOCK_FREQUENCY=>100000000
+		BAUD_RATE=>112500
 	)
 	port map ( 
 		clock_in=>clk_main,
