@@ -4367,7 +4367,7 @@ END COMPONENT;
 
 component soc_base is
     generic (
-        RISCV : string;
+        RISCV : string:="RISCV_XILINX_BSCAN2_JTAG";
         TCM_DEPTH : integer:=14 -- TCM size=2**TCM_DEPTH bytes
     );
     port 
@@ -4643,62 +4643,6 @@ component VexRiscvForSim is
     );
 end component;
 
--------------------------------------------------------------------
--- Peripherals
--------------------------------------------------------------------
-
- component gpio is
-    PORT (
-       signal clock_in              : IN STD_LOGIC;
-       signal reset_in              : IN STD_LOGIC;
-
-       signal apb_paddr             : IN STD_LOGIC_VECTOR(19 downto 0);
-       signal apb_penable           : IN STD_LOGIC;
-       signal apb_pready            : OUT STD_LOGIC;
-       signal apb_pwrite            : IN STD_LOGIC;
-       signal apb_pwdata            : IN STD_LOGIC_VECTOR(31 downto 0);
-       signal apb_prdata            : OUT STD_LOGIC_VECTOR(31 downto 0);
-       signal apb_pslverror         : OUT STD_LOGIC;
-
-       signal led_out               : out std_Logic_vector(3 downto 0);
-       signal button_in             : in std_logic_vector(3 downto 0)       
-    );
-end component;
-
-component UART is
-	generic (
-		BAUD_RATE : positive
-	);
-	Port ( 
-		signal clock_in          : in std_logic;
-		signal reset_in          : in std_logic;
-		signal uart_rx_in        : in std_logic;
-		signal uart_tx_out       : out std_logic;
-
-		signal apb_paddr         : IN STD_LOGIC_VECTOR(19 downto 0);
-		signal apb_penable       : IN STD_LOGIC;
-		signal apb_pready        : OUT STD_LOGIC;
-		signal apb_pwrite        : IN STD_LOGIC;
-		signal apb_pwdata        : IN STD_LOGIC_VECTOR(31 downto 0);
-		signal apb_prdata        : OUT STD_LOGIC_VECTOR(31 downto 0);
-		signal apb_pslverror     : OUT STD_LOGIC
-	);
-end component;
-
-component TIME is
-    PORT (
-       signal clock_in              : IN STD_LOGIC;
-       signal reset_in              : IN STD_LOGIC;
-
-       signal apb_paddr             : IN STD_LOGIC_VECTOR(19 downto 0);
-       signal apb_penable           : IN STD_LOGIC;
-       signal apb_pready            : OUT STD_LOGIC;
-       signal apb_pwrite            : IN STD_LOGIC;
-       signal apb_pwdata            : IN STD_LOGIC_VECTOR(31 downto 0);
-       signal apb_prdata            : OUT STD_LOGIC_VECTOR(31 downto 0);
-       signal apb_pslverror         : OUT STD_LOGIC     
-    );
- end component;
 
 --------------------------------------------------------------------
 -- Platform porting layers
@@ -4875,6 +4819,100 @@ component mem32 is
       SDRAM_wvalid    :IN STD_LOGIC
    );
 end component;
+
+---
+-- Peripherals
+---
+
+component camera is
+   Port ( clk_in      : in STD_LOGIC;
+          SIOC        : out STD_LOGIC;
+          SIOD        : inout STD_LOGIC;
+          RESET       : out STD_LOGIC;
+          PWDN        : out STD_LOGIC;
+          XCLK        : out STD_LOGIC;
+           
+          CAMERA_PCLK : in std_logic;           
+          CAMERA_D    : in std_logic_vector(7 downto 0);
+          CAMERA_VS   : in std_logic;
+          CAMERA_RS   : in std_logic;
+          tdata_out   : out std_logic_vector(31 downto 0);
+          tlast_out   : out std_logic;
+          tready_in   : in std_logic;
+          tuser_out   : out std_logic_vector(0 downto 0);
+          tvalid_out  : out std_logic
+);
+end component;
+
+component TIMER is
+    PORT (
+        signal clock_in              : IN STD_LOGIC;
+        signal reset_in              : IN STD_LOGIC;
+
+        signal apb_paddr             : IN STD_LOGIC_VECTOR(19 downto 0);
+        signal apb_penable           : IN STD_LOGIC;
+        signal apb_pready            : OUT STD_LOGIC;
+        signal apb_pwrite            : IN STD_LOGIC;
+        signal apb_pwdata            : IN STD_LOGIC_VECTOR(31 downto 0);
+        signal apb_prdata            : OUT STD_LOGIC_VECTOR(31 downto 0);
+        signal apb_pslverror         : OUT STD_LOGIC   
+    );
+end component;
+
+component UART is
+    generic (
+        BAUD_RATE : positive
+    );
+    Port ( 
+        signal clock_in              : IN  std_logic;
+        signal reset_in              : IN  std_logic;
+        signal uart_rx_in            : IN  std_logic;
+        signal uart_tx_out           : OUT  std_logic;
+
+        signal apb_paddr             : IN STD_LOGIC_VECTOR(19 downto 0);
+        signal apb_penable           : IN STD_LOGIC;
+        signal apb_pready            : OUT STD_LOGIC;
+        signal apb_pwrite            : IN STD_LOGIC;
+        signal apb_pwdata            : IN STD_LOGIC_VECTOR(31 downto 0);
+        signal apb_prdata            : OUT STD_LOGIC_VECTOR(31 downto 0);
+        signal apb_pslverror         : OUT STD_LOGIC
+        );
+end component;
+
+component vga is
+    PORT (
+        signal clk_in        : in  std_logic;
+        signal tdata_in      : in  std_logic_vector(31 downto 0);
+        signal tready_out    : out std_logic;  
+        signal tvalid_in     : in  std_logic;
+        signal tlast_in      : in  std_logic;
+        
+        signal VGA_HS_O_out  : out std_logic;
+        signal VGA_VS_O_out  : out std_logic;
+        signal VGA_R_out     : out std_logic_vector(3 downto 0);
+        signal VGA_B_out     : out std_logic_vector(3 downto 0);
+        signal VGA_G_out     : out std_logic_vector(3 downto 0)
+    );
+end component;
+
+component gpio is
+    PORT (
+       signal clock_in              : IN STD_LOGIC;
+       signal reset_in              : IN STD_LOGIC;
+
+       signal apb_paddr             : IN STD_LOGIC_VECTOR(19 downto 0);
+       signal apb_penable           : IN STD_LOGIC;
+       signal apb_pready            : OUT STD_LOGIC;
+       signal apb_pwrite            : IN STD_LOGIC;
+       signal apb_pwdata            : IN STD_LOGIC_VECTOR(31 downto 0);
+       signal apb_prdata            : OUT STD_LOGIC_VECTOR(31 downto 0);
+       signal apb_pslverror         : OUT STD_LOGIC;
+
+       signal led_out               : out std_Logic_vector(3 downto 0);
+       signal button_in             : in std_logic_vector(3 downto 0)       
+    );
+end component;
+
 
 END;
 

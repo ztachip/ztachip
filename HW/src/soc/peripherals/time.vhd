@@ -22,7 +22,7 @@ use IEEE.NUMERIC_STD.ALL;
 use work.config.all;
 use work.ztachip_pkg.all;
 
- entity TIME is
+ entity TIMER is
    PORT (
       signal clock_in              : IN STD_LOGIC;
       signal reset_in              : IN STD_LOGIC;
@@ -35,9 +35,9 @@ use work.ztachip_pkg.all;
       signal apb_prdata            : OUT STD_LOGIC_VECTOR(31 downto 0);
       signal apb_pslverror         : OUT STD_LOGIC   
    );
- end TIME;
+ end TIMER;
   
-architecture Behavioral of TIME is  
+architecture Behavioral of TIMER is  
 constant clock_divider_c:integer:=main_clock_c/1000;
 signal match:std_logic;
 signal time_r:unsigned(31 downto 0);

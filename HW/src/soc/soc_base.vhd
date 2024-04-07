@@ -33,7 +33,7 @@ use work.ztachip_pkg.all;
 
 entity soc_base is
    generic (
-      RISCV : string;
+      RISCV : string:="RISCV_XILINX_BSCAN2_JTAG";
       TCM_DEPTH : integer:=14 -- TCM size=2**TCM_DEPTH bytes
    );
    port 

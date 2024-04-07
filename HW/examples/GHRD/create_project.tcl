@@ -1,6 +1,6 @@
 create_project ztachip . -part xc7a100tcsg324-1
 
-read_verilog main.v
+read_vhdl main.vhd
 read_vhdl VexRiscvForXilinxBscan2Jtag.vhd
 read_vhdl ../../src/config.vhd
 read_vhdl ../../src/ztachip_pkg.vhd
