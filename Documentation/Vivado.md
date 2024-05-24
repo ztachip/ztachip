@@ -12,7 +12,7 @@ On the TCL console command line, issuing the following commands
 
 ```
 cd <ztachip installation folder>/HW/examples/GHRD
-
+set argv linux # For Linux Only
 source create_project.tcl
 ```
 

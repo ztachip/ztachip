@@ -97,7 +97,11 @@ generate_target all [get_files ztachip.srcs/sources_1/ip/clk_wiz_0/clk_wiz_0.xci
 
 create_ip -name mig_7series -vendor xilinx.com -library ip -version 4.2 -module_name mig_7series_0
 
-exec cmd /c copy mig.prj ztachip.srcs\\sources_1\\ip\\mig_7series_0\\mig.prj
+if {[string equal $argv linux]}  {
+  exec cp mig.prj ztachip.srcs/sources_1/ip/mig_7series_0/mig.prj
+} else {
+  exec cmd /c copy mig.prj ztachip.srcs\\sources_1\\ip\\mig_7series_0\\mig.prj
+}
 set_property -dict [list CONFIG.XML_INPUT_FILE {mig.prj}] [get_ips mig_7series_0]
 
 generate_target {instantiation_template} [get_files ztachip.srcs/sources_1/ip/mig_7series_0/mig_7series_0.xci]
