@@ -17,18 +17,28 @@
 #ifndef FLATBUFFERS_UTIL_H_
 #define FLATBUFFERS_UTIL_H_
 
-#include "base.h"
-
+#include <ctype.h>
 #include <errno.h>
 
+#include "flatbuffers/base.h"
+#include "flatbuffers/stl_emulation.h"
+
+// For TFLM we always want to use FLATBUFFERS_PREFER_PRINTF=1. See
+// http://b/211811553 for more context.
 #ifndef FLATBUFFERS_PREFER_PRINTF
+#define FLATBUFFERS_PREFER_PRINTF 1
+#endif
+
+#ifndef FLATBUFFERS_PREFER_PRINTF
+#  include <iomanip>
 #  include <sstream>
 #else  // FLATBUFFERS_PREFER_PRINTF
 #  include <float.h>
 #  include <stdio.h>
 #endif  // FLATBUFFERS_PREFER_PRINTF
 
-#include <iomanip>
+#include <cmath>
+#include <limits>
 #include <string>
 
 namespace flatbuffers {
@@ -49,6 +59,9 @@ inline bool is_alpha(char c) {
   // ASCII only: alpha to upper case => reset bit 0x20 (~0x20 = 0xDF).
   return check_ascii_range(c & 0xDF, 'a' & 0xDF, 'z' & 0xDF);
 }
+
+// Check for uppercase alpha
+inline bool is_alpha_upper(char c) { return check_ascii_range(c, 'A', 'Z'); }
 
 // Check (case-insensitive) that `c` is equal to alpha.
 inline bool is_alpha_char(char c, char alpha) {
@@ -72,6 +85,14 @@ inline bool is_xdigit(char c) {
 // Case-insensitive isalnum
 inline bool is_alnum(char c) { return is_alpha(c) || is_digit(c); }
 
+inline char CharToUpper(char c) {
+  return static_cast<char>(::toupper(static_cast<unsigned char>(c)));
+}
+
+inline char CharToLower(char c) {
+  return static_cast<char>(::tolower(static_cast<unsigned char>(c)));
+}
+
 // @end-locale-independent functions for ASCII character set
 
 #ifdef FLATBUFFERS_PREFER_PRINTF
@@ -82,7 +103,7 @@ template<typename T> size_t IntToDigitCount(T t) {
   // Count a single 0 left of the dot for fractional numbers
   if (-1 < t && t < 1) digit_count++;
   // Count digits until fractional part
-  T eps = std::numeric_limits<float>::epsilon();
+  T eps = std::numeric_limits<T>::epsilon();
   while (t <= (-1 + eps) || (1 - eps) <= t) {
     t /= 10;
     digit_count++;
@@ -102,7 +123,7 @@ std::string NumToStringImplWrapper(T t, const char *fmt, int precision = 0) {
   size_t string_width = NumToStringWidth(t, precision);
   std::string s(string_width, 0x00);
   // Allow snprintf to use std::string trailing null to detect buffer overflow
-  snprintf(const_cast<char *>(s.data()), (s.size() + 1), fmt, precision, t);
+  snprintf(const_cast<char *>(s.data()), (s.size() + 1), fmt, string_width, t);
   return s;
 }
 #endif  // FLATBUFFERS_PREFER_PRINTF
@@ -133,20 +154,6 @@ template<> inline std::string NumToString<unsigned char>(unsigned char t) {
 template<> inline std::string NumToString<char>(char t) {
   return NumToString(static_cast<int>(t));
 }
-#if defined(FLATBUFFERS_CPP98_STL)
-template<> inline std::string NumToString<long long>(long long t) {
-  char buf[21];  // (log((1 << 63) - 1) / log(10)) + 2
-  snprintf(buf, sizeof(buf), "%lld", t);
-  return std::string(buf);
-}
-
-template<>
-inline std::string NumToString<unsigned long long>(unsigned long long t) {
-  char buf[22];  // (log((1 << 63) - 1) / log(10)) + 1
-  snprintf(buf, sizeof(buf), "%llu", t);
-  return std::string(buf);
-}
-#endif  // defined(FLATBUFFERS_CPP98_STL)
 
 // Special versions for floats/doubles.
 template<typename T> std::string FloatToString(T t, int precision) {
@@ -256,7 +263,7 @@ inline void strtoval_impl(double *val, const char *str, char **endptr) {
 }
 
 // UBSAN: double to float is safe if numeric_limits<float>::is_iec559 is true.
-__supress_ubsan__("float-cast-overflow")
+FLATBUFFERS_SUPPRESS_UBSAN("float-cast-overflow")
 inline void strtoval_impl(float *val, const char *str, char **endptr) {
   *val = __strtof_impl(str, endptr);
 }
@@ -313,6 +320,7 @@ inline bool StringToFloatImpl(T *val, const char *const str) {
   strtoval_impl(val, str, const_cast<char **>(&end));
   auto done = (end != str) && (*end == '\0');
   if (!done) *val = 0;  // erase partial result
+  if (done && std::isnan(*val)) { *val = std::numeric_limits<T>::quiet_NaN(); }
   return done;
 }
 
@@ -323,11 +331,14 @@ inline bool StringToFloatImpl(T *val, const char *const str) {
 // - If the converted value falls out of range of corresponding return type, a
 // range error occurs. In this case value MAX(T)/MIN(T) is returned.
 template<typename T> inline bool StringToNumber(const char *s, T *val) {
+  // Assert on `unsigned long` and `signed long` on LP64.
+  // If it is necessary, it could be solved with flatbuffers::enable_if<B,T>.
+  static_assert(sizeof(T) < sizeof(int64_t), "unexpected type T");
   FLATBUFFERS_ASSERT(s && val);
   int64_t i64;
   // The errno check isn't needed, will return MAX/MIN on overflow.
   if (StringToIntegerImpl(&i64, s, 0, false)) {
-    const int64_t max = flatbuffers::numeric_limits<T>::max();
+    const int64_t max = (flatbuffers::numeric_limits<T>::max)();
     const int64_t min = flatbuffers::numeric_limits<T>::lowest();
     if (i64 > max) {
       *val = static_cast<T>(max);
@@ -365,7 +376,7 @@ inline bool StringToNumber<uint64_t>(const char *str, uint64_t *val) {
     if (*s == '-') {
       // For unsigned types return the max to distinguish from
       // "no conversion can be performed".
-      *val = flatbuffers::numeric_limits<uint64_t>::max();
+      *val = (flatbuffers::numeric_limits<uint64_t>::max)();
       return false;
     }
   }
@@ -388,6 +399,18 @@ inline int64_t StringToInt(const char *s, int base = 10) {
 inline uint64_t StringToUInt(const char *s, int base = 10) {
   uint64_t val;
   return StringToIntegerImpl(&val, s, base) ? val : 0;
+}
+
+inline bool StringIsFlatbufferNan(const std::string &s) {
+  return s == "nan" || s == "+nan" || s == "-nan";
+}
+
+inline bool StringIsFlatbufferPositiveInfinity(const std::string &s) {
+  return s == "inf" || s == "+inf" || s == "infinity" || s == "+infinity";
+}
+
+inline bool StringIsFlatbufferNegativeInfinity(const std::string &s) {
+  return s == "-inf" || s == "-infinity";
 }
 
 typedef bool (*LoadFileFunction)(const char *filename, bool binary,
@@ -446,13 +469,17 @@ std::string StripPath(const std::string &filepath);
 // Strip the last component of the path + separator.
 std::string StripFileName(const std::string &filepath);
 
-// Concatenates a path with a filename, regardless of wether the path
+std::string StripPrefix(const std::string &filepath,
+                        const std::string &prefix_to_remove);
+
+// Concatenates a path with a filename, regardless of whether the path
 // ends in a separator or not.
 std::string ConCatPathFileName(const std::string &path,
                                const std::string &filename);
 
 // Replaces any '\\' separators with '/'
 std::string PosixPath(const char *path);
+std::string PosixPath(const std::string &path);
 
 // This function ensure a directory exists, by recursively
 // creating dirs for any parts of the path that don't exist yet.
@@ -461,6 +488,10 @@ void EnsureDirExists(const std::string &filepath);
 // Obtains the absolute path from any other path.
 // Returns the input path if the absolute path couldn't be resolved.
 std::string AbsolutePath(const std::string &filepath);
+
+// Returns files relative to the --project_root path, prefixed with `//`.
+std::string RelativeToRootPath(const std::string &project,
+                               const std::string &filepath);
 
 // To and from UTF-8 unicode conversion functions
 
@@ -598,7 +629,7 @@ inline bool EscapeString(const char *s, size_t length, std::string *_text,
               // we previously checked for non-UTF-8, so we shouldn't reach
               // here.
               //
-              // 2) We reached here by someone calling GenerateText()
+              // 2) We reached here by someone calling GenText()
               // on a previously-serialized flatbuffer. The data might have
               // non-UTF-8 Strings, or might be corrupt.
               //
@@ -636,6 +667,32 @@ inline bool EscapeString(const char *s, size_t length, std::string *_text,
   return true;
 }
 
+inline std::string BufferToHexText(const void *buffer, size_t buffer_size,
+                                   size_t max_length,
+                                   const std::string &wrapped_line_prefix,
+                                   const std::string &wrapped_line_suffix) {
+  std::string text = wrapped_line_prefix;
+  size_t start_offset = 0;
+  const char *s = reinterpret_cast<const char *>(buffer);
+  for (size_t i = 0; s && i < buffer_size; i++) {
+    // Last iteration or do we have more?
+    bool have_more = i + 1 < buffer_size;
+    text += "0x";
+    text += IntToStringHex(static_cast<uint8_t>(s[i]), 2);
+    if (have_more) { text += ','; }
+    // If we have more to process and we reached max_length
+    if (have_more &&
+        text.size() + wrapped_line_suffix.size() >= start_offset + max_length) {
+      text += wrapped_line_suffix;
+      text += '\n';
+      start_offset = text.size();
+      text += wrapped_line_prefix;
+    }
+  }
+  text += wrapped_line_suffix;
+  return text;
+}
+
 // Remove paired quotes in a string: "text"|'text' -> text.
 std::string RemoveStringQuotes(const std::string &s);
 
@@ -648,6 +705,33 @@ bool SetGlobalTestLocale(const char *locale_name,
 // Read (or test) a value of environment variable.
 bool ReadEnvironmentVariable(const char *var_name,
                              std::string *_value = nullptr);
+
+enum class Case {
+  kUnknown = 0,
+  // TheQuickBrownFox
+  kUpperCamel = 1,
+  // theQuickBrownFox
+  kLowerCamel = 2,
+  // the_quick_brown_fox
+  kSnake = 3,
+  // THE_QUICK_BROWN_FOX
+  kScreamingSnake = 4,
+  // THEQUICKBROWNFOX
+  kAllUpper = 5,
+  // thequickbrownfox
+  kAllLower = 6,
+  // the-quick-brown-fox
+  kDasher = 7,
+  // THEQuiCKBr_ownFox (or whatever you want, we won't change it)
+  kKeep = 8,
+  // the_quick_brown_fox123 (as opposed to the_quick_brown_fox_123)
+  kSnake2 = 9,
+};
+
+// Convert the `input` string of case `input_case` to the specified
+// `output_case`.
+std::string ConvertCase(const std::string &input, Case output_case,
+                        Case input_case = Case::kSnake);
 
 }  // namespace flatbuffers
 

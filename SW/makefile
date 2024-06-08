@@ -98,6 +98,8 @@ ifeq ($(UNIT_TEST),yes)
 	CFLAGS += -DZTACHIP_UNIT_TEST
 endif
 
+CFLAGS += -I./apps/nn/flatbuffer
+
 ifeq ($(SIFIVE_GCC_PACK),yes)
 	RISCV_CLIB=$(RISCV_PATH)/$(RISCV_NAME)/lib/$(MARCH)/$(MABI)/
 else

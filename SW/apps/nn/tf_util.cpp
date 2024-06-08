@@ -27,6 +27,13 @@
 #include "../../base/ztalib.h"
 #include "tf.h"
 
+
+static BuiltinOperator GetBuiltinCode(const OperatorCode* op_code) {
+  return std::max(
+      op_code->builtin_code(),
+      static_cast<BuiltinOperator>(op_code->deprecated_builtin_code()));
+}
+
 // Padding utilities
 
 NeuralNetTensorType TfliteNn::ParseTensorType(tflite::TensorType type_) {
@@ -66,7 +73,7 @@ NeuralNetActivation TfliteNn::ParseActivation(tflite::ActivationFunctionType act
 
 NeuralNetOperator TfliteNn::ParseOpcode(const tflite::OperatorCode *opcode)
 {
-   switch(opcode->builtin_code()) {
+   switch(GetBuiltinCode(opcode)) {
       case BuiltinOperator_ADD:
          return NeuralNetOperatorAdd;
       case BuiltinOperator_AVERAGE_POOL_2D:
