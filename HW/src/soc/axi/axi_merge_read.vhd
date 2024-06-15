@@ -180,13 +180,10 @@ SIGNAL gnt:std_logic_vector(NUM_SLAVE_PORT+1-1 downto 0);
 SIGNAL gnt_valid:std_logic;
 SIGNAL align_r:std_logic;
 
-constant max_read_pending_c:integer:=32;
+constant max_read_pending_c:integer:=128;
 
 constant read_pending_depth_c:integer:=8;
 
-SIGNAL req_r:signed(read_pending_depth_c-1 downto 0);
-SIGNAL rsp_r:signed(read_pending_depth_c-1 downto 0);
-SIGNAL congest_r:std_logic;
 SIGNAL congest:std_logic;
 
 SIGNAL master_rdata_mask:std_logic_vector(1 downto 0);
@@ -212,7 +209,7 @@ aximaster_arburst_out <= master_arburst;
 aximaster_arsize_out <= master_arsize;
 aximaster_rdata_mask_out <= master_rdata_mask;
 
-congest <= '1' when (congest_r='1' or pend_master_full='1' or aximaster_arready_in='0') else '0';
+congest <= '1' when (pend_master_full='1' or aximaster_arready_in='0') else '0';
 
 GEN_SLAVE:
 FOR I in 0 to MAX_SLAVE_PORT-1 GENERATE
@@ -491,14 +488,10 @@ end if;
 end process;
 
 process(clock_in,reset_in)
-variable req_v:signed(read_pending_depth_c-1 downto 0);
 begin
    if reset_in='0' then
       curr_r <= (others=>'0');
       align_r <= '0';
-      req_r <= (others=>'0');
-      rsp_r <= (others=>'0');
-      congest_r <= '0';
    else
       if clock_in'event and clock_in='1' then
          if(master_arvalid='1' and master_arready='0') then
@@ -512,19 +505,6 @@ begin
             else   
                align_r <= not align_r;
             end if;
-         end if;
-         
-         if(pend_master_we='1') then
-            req_v := resize(signed(master_arlen),req_v'length) + to_signed(1,req_v'length);
-            req_r <= req_r + req_v;
-         end if;
-         if(pend_master_rvalid='1') then
-            rsp_r <= rsp_r + to_signed(1,rsp_r'length);
-         end if;
-         if((req_r-rsp_r) >= to_signed(max_read_pending_c,req_r'length)) then
-            congest_r <= '1';
-         else
-            congest_r <= '0';
          end if;
       end if;
    end if;
