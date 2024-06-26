@@ -3,7 +3,7 @@ PROJ_NAME=ztachip
 DEBUG=no
 BENCH=no
 MULDIV=yes
-UNIT_TEST=yes
+UNIT_TEST?=no
 
 SRCS = 	base/newlib.c \
 	base/ztalib.c \
