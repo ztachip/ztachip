@@ -12,22 +12,42 @@ many common vision tasks such as edge-detection, optical-flow, motion-detection,
 to executing TensorFlow AI models. This is one key difference of ztachip when compared with other accelerators
 that tend to accelerate only a narrow range of applications only (for example convolution neural network only).
 
-A new tensor programming paradigm is introduced to allow programmers to leverage the
-massive processing/data parallelism enabled by ztachip tensor processor.
+A new tensor programming paradigm is introduced to allow programmers to leverage the massive processing/data parallelism enabled by ztachip tensor processor.
+
+![Ztachip Architecture](./Documentation/images/ztachip_arch.png)
+
+# Features
+## Hardware
+Ztachip consists of the following functional units tied via an AXI Bus to a VexRicsv CPU, a DRAM and other
+peripherals as follows
+1. The Mcore, a Scheduling Processor
+2. A Dataplane, to stream the next data and instruction to the Tensor Engine .
+3. A Scratch-Pad Memory to temporarily hold data
+4. A Stream Processor to manage data IO
+5. Tensor Engine with 28x Pcores that can be configured to act like a systolic array to perform in memory compute each containing a Scalar and Vector ALU, with 16 Threads of execution on private memory.
+
+## Software
+The software provided consists of 
+1. Zta DSL C-like compiler
+2. AI vision libraries
+3. Application examples
+4. Micropython port and examples
+
+## Demo
 
 [![ztachip demo video](Documentation/images/demo_video.bmp)](https://www.youtube.com/watch?v=nLGmmw7-PYs)
 
 # Documentation
 
-[Technical overview](Documentation/Overview.md)
+1. [Technical overview](Documentation/Overview.md)
 
-[Hardware Architecture](Documentation/HardwareDesign.md)
+2. [Hardware Architecture](Documentation/HardwareDesign.md)
 
-[Programmers Guide](https://github.com/ztachip/ztachip/raw/master/Documentation/ztachip_programmer_guide.pdf)
+3. [Programmers Guide](https://github.com/ztachip/ztachip/raw/master/Documentation/ztachip_programmer_guide.pdf)
 
-[VisionAI Stack Programmers Guide](https://github.com/ztachip/ztachip/raw/master/Documentation/visionai_programmer_guide.pdf)
+4. [VisionAI Stack Programmers Guide](https://github.com/ztachip/ztachip/raw/master/Documentation/visionai_programmer_guide.pdf)
 
-[MicroPython Programmers Guide](micropython/MicropythonUserGuide.md)
+5. [MicroPython Programmers Guide](micropython/MicropythonUserGuide.md)
 
 # Code structure
 
@@ -286,7 +306,8 @@ The main:led_out should blink everytime a test result is passed.
 
 # Contact
 
-This project is free to use. But for business consulting and support, please contact vuongdnguyen@hotmail.com
-
-Follow ztachip on Twitter: https://twitter.com/ztachip 
+This project is free to use. You can open an issue or a discussion on github.
+But for business consulting and support, please
+ <a href="mailto:vuongdnguyen@hotmail.com?cc=&subject=Ztachip Support&body=Hi Vuong \n">contact us</a></p>
+Follow ztachip on [Twitter](https://twitter.com/ztachip)
 
