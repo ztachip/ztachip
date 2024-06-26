@@ -23,4 +23,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: '▶️ Run SW Compilation'
-        run: bash .github/scripts/build.sh"
+        run: |
+          chmod +x ./.github/scripts/build.sh
+          ./.github/scripts/build.sh
+        shell: bash
