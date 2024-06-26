@@ -1,11 +1,9 @@
 # Introduction
 
-ztachip is a RISCV accelerator for vision and AI edge applications running on low-end FPGA devices
-or custom ASIC.
+Ztachip is a Multicore, Data-Aware, Embedded RISC-V AI Accelerator for Edge Inferencing running on low-end FPGA devices or custom ASIC.
 
 Acceleration provided by ztachip can be up to 20-50x compared with a non-accelerated RISCV implementation
-on many vision/AI tasks. ztachip performs also better when compared with a RISCV that is equipped with
-vector extension.
+on many vision/AI tasks. ztachip performs also better when compared with a RISCV that is equipped with vector extension.
 
 An innovative tensor processor hardware is implemented to accelerate a wide range of different tasks from
 many common vision tasks such as edge-detection, optical-flow, motion-detection, color-conversion
@@ -28,7 +26,7 @@ peripherals as follows
 
 ## Software
 The software provided consists of 
-1. Zta DSL C-like compiler
+1. Ztachip DSL C-like compiler
 2. AI vision libraries
 3. Application examples
 4. Micropython port and examples
@@ -51,29 +49,38 @@ The software provided consists of
 
 # Code structure
 
-- [SW/compiler](SW/compiler): compiler to generate instructions for the tensor processor.
+```
+.
+├── Documentation         Overview on HW/SW and programmer's guide for ztachip, pcore, visionai and tensor
+├── HW                    Hardware
+│   ├── examples          Reference Design: Integration of Vexriscv, Ztachip, DDR3, VGA, Camera, LEDs & Buttons
+│   ├── platform          Memory IP depenedencies for different FPGA synthesis (e.g. XIlinx, Altera) or ASIC
+│   ├── simulation        RTL Simulation
+│   └── src               RTL of Ztachip's top design, Scalar/Vector ALU, Dataplane, Pcore, SoC integration etc
+├── LICENSE.md
+├── micropython           Micropython Support
+│   ├── examples          edge_detection, image_classification, motion_detect, object_detect, point_of_interest etc
+│   ├── micropython       micropython
+│   └── ztachip_port      ztachip micropython port
+├── README.md
+├── SW                    Software
+│   ├── apps              AI kernel libraries of canny edge detector, harris corner, neural nets, optical flow etc
+│   ├── base              C runtime zero, Ztachip application libraries and other utilities
+│   ├── compiler          Ztachip C-like DSL compiler that generates instructions for the tensor processor
+│   ├── fs                File for data inference to be downloaded together with the build image
+│   ├── linker.ld         linker script for Ztachip
+│   ├── makefile          Main project makefile
+│   ├── makefile.kernels  Kernel makefile
+│   ├── makefile.sim      Makefile to test Kernels
+│   ├── sim               C source to test kernels
+│   └── src               SW Main (visionai and unit test entry points), SoC drivers and Zta's micropython API
+│                         This is a good place to learn on how to use ztachip prebuilt vision and AI stack.
+└── tools                 openocd and vexriscv interface descriptions
+```
 
-- [SW/apps](SW/apps): vision and AI stack implementation. Many prebuilt acceleration functions are provided to provide
-programmers with a fast path to leverage ztachip acceleration.
-This folder is also a good place to learn on how to program your own custom acceleration functions.
+In `HW/platform`, a generic implementation is also provided for simulation environment. Any FPGA/ASIC can be supported with the appropriate implementation of this wrapper layer. Choose the appropriate sub-folder that corresponds to your FPGA target.
 
-- [SW/base](SW/base): SW framework library and some utilities
-
-- [SW/fs](SW/fs): read-only file system to be downloaded together with the build image.
-
-- [SW/src](SW/src): codes for the reference design example. This is a good place to learn on how to use ztachip
-prebuilt vision and AI stack.
-
-- [HW/examples](HW/examples): HDL codes for the reference design.
-
-- [HW/examples/GHRD/MyVexRiscv.scala](HW/examples/GHRD/MyVexRiscv.scala): RISCV core used in this example is based on VexRiscv implementation. This file is used by [VexRiscv project](https://github.com/SpinalHDL/VexRiscv) to generate the Riscv core.
-
-- [HW/platform](HW/platform): This is a thin wrapper layer to help ztachip to be synthesized efficiently
-on different FPGA or ASIC. Choose the appropriate sub-folder that corresponds to your FPGA target.
-A generic implementation is also provided for simulation environment. Any FPGA/ASIC can be supported
-with the appropriate implementation of this wrapper layer.
-
-- [HW/src](HW/src): main ztachip HDL source codes.
+Also, in `SW/apps`, many prebuilt acceleration functions are provided to provide programmers with a fast path to leverage ztachip acceleration. This folder is also a good place to learn on how to program your own custom acceleration functions.
 
 # Build procedure
 
