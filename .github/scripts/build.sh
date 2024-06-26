@@ -12,5 +12,5 @@ make clean all
 cd ../fs
 python3 bin2c.py
 cd ..
-make clean all -f makefile.kernels RISCV_PATH=../riscv/bin RISCV_NAME=riscv32-unknown-elf
-make clean all
+make clean all -f makefile.kernels
+make clean all RISCV_PATH=../riscv/bin RISCV_NAME=riscv32-unknown-elf
