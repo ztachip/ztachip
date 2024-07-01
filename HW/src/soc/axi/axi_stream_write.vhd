@@ -187,7 +187,7 @@ write_fifo_write <= s_wdata_in & s_wdata_r;
        
 s_write <= '1' when (s_wvalid_in='1' and toggle_r='1') else '0';
 
-write_fifo:afifo
+write_fifo:afifo2
    generic map
    (
       DATA_WIDTH=>64,
@@ -234,11 +234,11 @@ valid <= '1' when (burst_remain_r /= to_unsigned(0,burst_remain_r'length)) and
                   else '0';
 
 ddr_awaddr_out <= ddr_awaddr_r;
-ddr_awvalid_out <= valid;
+ddr_awvalid_out <= '1' when valid='1' and (burst_remain_r=to_unsigned(WRITE_MAX_PENDING,burst_remain_r'length)) else '0';
 ddr_wvalid_out <= valid;
-ddr_awlen_out <= (others=>'0');
+ddr_awlen_out <= std_logic_vector(to_unsigned(WRITE_MAX_PENDING-1,ddr_awlen_out'length));
 ddr_wdata_out <= write_fifo_read;
-ddr_wlast_out <= '1';
+ddr_wlast_out <= '1' when (burst_remain_r=to_unsigned(1,burst_remain_r'length)) else '0';
 ddr_wstrb_out <= (others=>'1');
 ddr_awburst_out <= "01";
 ddr_awcache_out <= "0000";
@@ -280,7 +280,6 @@ begin
          if valid='1' then
             -- Just succesfully send a write
             burst_remain_r <= burst_remain_r - to_unsigned(1,burst_remain_r'length);
-            write_req_r <= write_req_r + to_signed(1,write_req_r'length);
             if(write_size_r < to_unsigned(WRITE_PAGE_SIZE-stride_c,write_size_r'length)) then
                -- Continue on current page
                write_size_r <= write_size_r + to_unsigned(stride_c,write_size_r'length);
@@ -296,6 +295,7 @@ begin
                unsigned(ravail) > to_unsigned(WRITE_MAX_PENDING,ravail'length)) then
             -- Let start another burst if current burst is complete and acknowledge and
             -- there are enough data on FIFO for the next burst
+            write_req_r <= write_req_r+to_signed(1,write_req_r'length);
             burst_remain_r <= to_unsigned(WRITE_MAX_PENDING,burst_remain_r'length);
          end if;
          

@@ -167,7 +167,7 @@ s_rdata_out <= read_fifo_read(31 downto 0) when toggle_r='0' else read_fifo_read
 
 s_rlast_out <= read_fifo_read(64) and toggle_r;
        
-read_fifo:afifo
+read_fifo:afifo2
    generic map
    (
       DATA_WIDTH=>65,

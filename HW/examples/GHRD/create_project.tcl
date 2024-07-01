@@ -68,6 +68,7 @@ read_vhdl ../../src/util/delayi.vhd
 read_vhdl ../../src/util/delay.vhd
 read_vhdl ../../src/util/arbiter.vhd
 read_vhdl ../../src/util/afifo.vhd
+read_vhdl ../../src/util/afifo2.vhd
 read_vhdl ../../src/util/adder.vhd
 read_vhdl ../../platform/Xilinx/CCD_SYNC.vhd
 read_vhdl ../../platform/Xilinx/DPRAM.vhd

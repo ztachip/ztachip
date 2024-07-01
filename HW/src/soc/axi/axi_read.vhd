@@ -305,7 +305,7 @@ axislave_resp_fifo_write <= pack_resp(axislave_resp_rec_write);
 -- FIFO for slave port command signals
 
 GEN1_CCD:IF CCD=TRUE GENERATE
-slave_cmd_fifo:afifo
+slave_cmd_fifo:afifo2
    generic map
    (
       DATA_WIDTH=>axiread_cmd_fifo_t'length,
@@ -352,7 +352,7 @@ end generate GEN1;
 -- FIFO for slave port response signals
 
 GEN2_CCD:if CCD=TRUE generate
-slave_resp_fifo:afifo
+slave_resp_fifo:afifo2
    generic map
    (
       DATA_WIDTH=>axiread_resp_fifo_t'length,

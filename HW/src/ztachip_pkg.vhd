@@ -1248,6 +1248,26 @@ component afifo is
 	);
 end component;
 
+component afifo2 is
+	generic 
+	(
+        DATA_WIDTH  : natural;
+        FIFO_DEPTH  : natural
+	);
+	port 
+	(
+        rclock_in       : in std_logic;
+        wclock_in       : in std_logic;
+        reset_in        : in std_logic;
+        data_in         : in std_logic_vector(DATA_WIDTH-1 downto 0);
+        write_in        : in std_logic;
+        read_in         : in std_logic;
+        q_out           : out std_logic_vector(DATA_WIDTH-1 downto 0);
+        empty_out       : out std_logic;
+        full_out        : out std_logic
+	);
+end component;
+
 component rom IS
     PORT (
         SIGNAL clock_in             : IN STD_LOGIC;

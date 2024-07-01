@@ -522,7 +522,7 @@ begin
       master_wdata_mask(0) <= '1';
       master_wdata_mask(1) <= '1';
       slave_wreadys(S0) <= master_wready;
-      pend_data_rd <= master_wready;
+      pend_data_rd <= master_wready and slave_wlasts(S0);
    elsif(pend_data_empty='0' and pend_data_read(S1)='1' and slave_wvalids(S1)='1') then
       master_wlast <= slave_wlasts(S1);
       master_wvalid <= slave_wvalids(S1);
@@ -539,7 +539,7 @@ begin
          master_wdata_mask(1) <= '1';
       end if;
       slave_wreadys(S1) <= master_wready; 
-      pend_data_rd <= master_wready; 
+      pend_data_rd <= master_wready and slave_wlasts(S1); 
    elsif(pend_data_empty='0' and pend_data_read(S2)='1' and slave_wvalids(S2)='1') then
       master_wlast <= slave_wlasts(S2);
       master_wvalid <= slave_wvalids(S2);
@@ -556,14 +556,14 @@ begin
          master_wdata_mask(1) <= '1';
       end if;
       slave_wreadys(S2) <= master_wready; 
-      pend_data_rd <= master_wready; 
+      pend_data_rd <= master_wready and slave_wlasts(S2); 
    elsif(pend_data_empty='0' and pend_data_read(SW)='1' and slavew_wvalid='1') then
       master_wlast <= slavew_wlast;
       master_wvalid <= slavew_wvalid;
       master_wdata <= slavew_wdata;
       master_wstrb <= slavew_wstrb;
       slavew_wready <= master_wready; 
-      pend_data_rd <= master_wready;
+      pend_data_rd <= master_wready and slavew_wlast;
       master_wdata_mask(0) <= '1';
       master_wdata_mask(1) <= '1'; 
    else
