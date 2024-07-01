@@ -1,0 +1,29 @@
+name: Compilation Tests
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+    - master
+    paths:
+    - 'SW/**'
+  pull_request:
+    paths:
+    - 'SW/**'
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    name: 'Test Compilation'
+
+    steps:
+
+      - name: '💾 Checkout'
+        uses: actions/checkout@v4
+
+      - name: '▶️ Run SW Compilation'
+        run: |
+          chmod +x ./.github/scripts/build.sh
+          ./.github/scripts/build.sh
+        shell: bash

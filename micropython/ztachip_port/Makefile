@@ -71,7 +71,7 @@ CFLAGS += -O3 -ggdb
 LDFLAGS = -march=$(MARCH) -mabi=$(MABI)
 LDFLAGS +=  -nostdlib -lgcc -lc -lgloss -lm -lstdc++ -lgcc -lc -lgcc -mcmodel=medany -nostartfiles -ffreestanding -Wl,-Bstatic,-T,linker.ld,--print-memory-usage
 
-CC=/opt/riscv//bin/riscv32-unknown-elf-gcc
+CC?=/opt/riscv/bin/riscv32-unknown-elf-gcc
 LD=$(CC)
 
 LIBS = 
