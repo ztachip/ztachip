@@ -6884,8 +6884,8 @@ architecture arch of VexRiscvForXilinxBscan2Jtag is
   signal dbus_axi_b_fire : std_logic;
   signal zz_when_Utils_l687 : std_logic;
   signal zz_when_Utils_l687_1 : std_logic;
-  signal zz_dBus_cmd_ready : unsigned(2 downto 0);
-  signal zz_dBus_cmd_ready_1 : unsigned(2 downto 0);
+  signal zz_dBus_cmd_ready : unsigned(4 downto 0);
+  signal zz_dBus_cmd_ready_1 : unsigned(4 downto 0);
   signal when_Utils_l687 : std_logic;
   signal when_Utils_l689 : std_logic;
   signal zz_dBus_cmd_ready_2 : std_logic;
@@ -7055,18 +7055,18 @@ begin
   process(when_Utils_l687,when_Utils_l689)
   begin
     if when_Utils_l687 = '1' then
-      zz_dBus_cmd_ready_1 <= pkg_unsigned("001");
+      zz_dBus_cmd_ready_1 <= pkg_unsigned("00001");
     else
       if when_Utils_l689 = '1' then
-        zz_dBus_cmd_ready_1 <= pkg_unsigned("111");
+        zz_dBus_cmd_ready_1 <= pkg_unsigned("11111");
       else
-        zz_dBus_cmd_ready_1 <= pkg_unsigned("000");
+        zz_dBus_cmd_ready_1 <= pkg_unsigned("00000");
       end if;
     end if;
   end process;
 
   when_Utils_l689 <= ((not zz_when_Utils_l687) and zz_when_Utils_l687_1);
-  zz_dBus_cmd_ready_2 <= (not ((pkg_toStdLogic(zz_dBus_cmd_ready /= pkg_unsigned("000")) and (not system_cpu_dBus_cmd_payload_wr)) or pkg_toStdLogic(zz_dBus_cmd_ready = pkg_unsigned("111"))));
+  zz_dBus_cmd_ready_2 <= (not ((pkg_toStdLogic(zz_dBus_cmd_ready /= pkg_unsigned("00000")) and (not system_cpu_dBus_cmd_payload_wr)) or pkg_toStdLogic(zz_dBus_cmd_ready = pkg_unsigned("11111"))));
   zz_dbus_axi_arw_valid <= (system_cpu_dBus_cmd_valid and zz_dBus_cmd_ready_2);
   system_cpu_dBus_cmd_ready <= (zz_dBus_cmd_ready_3 and zz_dBus_cmd_ready_2);
   zz_dbus_axi_arw_payload_write <= system_cpu_dBus_cmd_payload_wr;
@@ -7214,7 +7214,7 @@ begin
   process(io_mainClk, resetCtrl_systemReset)
   begin
     if resetCtrl_systemReset = '1' then
-      zz_dBus_cmd_ready <= pkg_unsigned("000");
+      zz_dBus_cmd_ready <= pkg_unsigned("00000");
       zz_when_Stream_l998_2 <= pkg_toStdLogic(true);
       zz_when_Stream_l998_3 <= pkg_toStdLogic(true);
       zz_2 <= pkg_toStdLogic(false);

@@ -197,7 +197,7 @@ case class VexRiscvForXilinxBscan2Jtag(config : RiscvConfig) extends Component{
       case plugin : IBusCachedPlugin =>
         iBus = plugin.iBus.toAxi4ReadOnly().toFullConfig()
       case plugin : DBusCachedPlugin =>
-        dBus = plugin.dBus.toAxi4Shared().toAxi4().toFullConfig()
+        dBus = plugin.dBus.toAxi4Shared(pendingWritesMax=31).toAxi4().toFullConfig()
       case plugin : CsrPlugin        => {
         plugin.externalInterrupt := externalInterrupt
         plugin.timerInterrupt := timerInterrupt
