@@ -756,7 +756,7 @@ type stream_ids_t is array(natural range <>) of stream_id_t;
 -- DP instruction fifo depth. This fifo is where mcore is pushing instructions to
 ---------
 
-constant dp_fifo_depth_c :integer:=7;
+constant dp_fifo_depth_c :integer:=8;
 
 constant dp_fifo_max_c :integer:=(2**dp_fifo_depth_c-1);
 

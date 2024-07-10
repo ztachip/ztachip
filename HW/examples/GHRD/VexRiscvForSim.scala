@@ -29,7 +29,6 @@ object RiscvConfig{
       new IBusCachedPlugin(
           resetVector = 0x00004000l,
           prediction = STATIC,
-          relaxedPcCalculation = true,
           config = InstructionCacheConfig(
             cacheSize = 4096*2,
             bytePerLine =32,
@@ -40,7 +39,7 @@ object RiscvConfig{
             catchIllegalAccess = true,
             catchAccessFault = true,
             asyncTagMemory = false,
-            twoCycleRam = true,
+            twoCycleRam = false,
             twoCycleCache = true
           )
       ),
@@ -48,19 +47,16 @@ object RiscvConfig{
           config = new DataCacheConfig(
             cacheSize         = 4096*2,
             bytePerLine       = 32,
-            wayCount          = 2,
+            wayCount          = 1,
             addressWidth      = 32,
             cpuDataWidth      = 32,
             memDataWidth      = 32,
             catchAccessError  = true,
             catchIllegal      = true,
-            catchUnaligned    = true,
-            withLrSc          = true,
-            withAmo           = true
+            catchUnaligned    = true
           ),
           memoryTranslatorPortConfig = null
       ),
-
       new CsrPlugin(CsrPluginConfig.smallest(mtvecInit = 0x80000020l)),
       new DecoderSimplePlugin(
         catchIllegalInstruction = true 
@@ -69,7 +65,7 @@ object RiscvConfig{
         ioRange      = _(31 downto 31) === 0x1
       ),
       new RegFilePlugin(
-        regFileReadyKind = plugin.ASYNC,
+        regFileReadyKind = plugin.SYNC,
         zeroBoot = false
       ),
       new IntAluPlugin,
@@ -175,7 +171,7 @@ case class VexRiscvForSim(config : RiscvConfig) extends Component{
       case plugin : IBusCachedPlugin =>
         iBus = plugin.iBus.toAxi4ReadOnly().toFullConfig()
       case plugin : DBusCachedPlugin =>
-        dBus = plugin.dBus.toAxi4Shared().toAxi4().toFullConfig()
+        dBus = plugin.dBus.toAxi4Shared(pendingWritesMax=31).toAxi4().toFullConfig()
       case plugin : CsrPlugin        => {
         plugin.externalInterrupt := externalInterrupt
         plugin.timerInterrupt := timerInterrupt
