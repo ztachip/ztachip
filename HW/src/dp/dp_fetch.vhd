@@ -246,6 +246,10 @@ SIGNAL condition_vm1_busy_r:dp_condition_t;
 
 SIGNAL curr_vm_r:STD_LOGIC;
 
+SIGNAL pcore_sink_busy_r:std_logic_vector(1 downto 0);
+SIGNAL sram_sink_busy_r:std_logic_vector(1 downto 0);
+SIGNAL ddr_sink_busy_r:std_logic;
+
 -- Pack template into a linear buffer
 
 function pack_dp_template(rec_in: dp_template_t) return dp_template_record_t is
@@ -1917,6 +1921,9 @@ begin
       ddr_source_busy_r <= '0';
       condition_vm0_busy_r <= (others=>'0');
       condition_vm1_busy_r <= (others=>'0');
+      pcore_sink_busy_r <= (others=>'0');
+      sram_sink_busy_r <= (others=>'0');
+      ddr_sink_busy_r <= '0';
    else
       if clock_in'event and clock_in='1' then
 
@@ -1927,6 +1934,32 @@ begin
             indication_full_r <= '0';
          end if; 
 
+         if(pcore_sink_counter_r(0)=pcore_sink_counter_in(0)) then
+            pcore_sink_busy_r(0) <= '0';
+         else
+            pcore_sink_busy_r(0) <= '1';
+         end if;
+         if(pcore_sink_counter_r(1)=pcore_sink_counter_in(1)) then
+            pcore_sink_busy_r(1) <= '0';
+         else
+            pcore_sink_busy_r(1) <= '1';
+         end if;
+         if(sram_sink_counter_r(0)=sram_sink_counter_in(0)) then
+            sram_sink_busy_r(0) <= '0';
+         else
+            sram_sink_busy_r(0) <= '1';
+         end if;
+         if(sram_sink_counter_r(1)=sram_sink_counter_in(1)) then
+            sram_sink_busy_r(1) <= '0';
+         else
+            sram_sink_busy_r(1) <= '1';
+         end if;
+         if(ddr_sink_counter_r=ddr_sink_counter_in) then
+            ddr_sink_busy_r <= '0';
+         else
+            ddr_sink_busy_r <= '1';
+         end if;
+
          -- Update total number of sink bytes from issues DP transactions
          if instruction_valid_r /= "00" then
             count_v := instruction_r.count;
@@ -1936,17 +1969,22 @@ begin
             if instruction_r.dest_bus_id=to_unsigned(dp_bus_id_register_c,dp_bus_id_t'length) then
                if instruction_r.vm='0' then
                   pcore_sink_counter_r(0) <= pcore_sink_counter_r(0)+count_v;
+                  pcore_sink_busy_r(0) <= '1';
                else
                   pcore_sink_counter_r(1) <= pcore_sink_counter_r(1)+count_v;
+                  pcore_sink_busy_r(1) <= '1';
                end if;
                elsif instruction_r.dest_bus_id=to_unsigned(dp_bus_id_sram_c,dp_bus_id_t'length) then
                   if instruction_r.vm='0' then
                      sram_sink_counter_r(0) <= sram_sink_counter_r(0)+count_v;
+                     sram_sink_busy_r(0) <= '1';
                   else
                      sram_sink_counter_r(1) <= sram_sink_counter_r(1)+count_v;
+                     sram_sink_busy_r(1) <= '1';
                   end if;
                else
                   ddr_sink_counter_r <= ddr_sink_counter_r+count_v;
+                  ddr_sink_busy_r <= '1';
                end if;
             end if;
 
@@ -1958,7 +1996,7 @@ begin
                   instruction_r.dest_bus_id=to_unsigned(dp_bus_id_register_c,dp_bus_id_t'length) and
                   instruction_r.vm='0' then
                sink_pcore_busy_v(0) := '1';
-            elsif pcore_sink_counter_r(0)=pcore_sink_counter_in(0) then
+            elsif pcore_sink_busy_r(0)='0' then
                sink_pcore_busy_v(0) := '0';
             else
                sink_pcore_busy_v(0) := '1';
@@ -1972,7 +2010,7 @@ begin
                instruction_r.dest_bus_id=to_unsigned(dp_bus_id_register_c,dp_bus_id_t'length) and
                instruction_r.vm='1' then
                sink_pcore_busy_v(1) := '1';
-            elsif pcore_sink_counter_r(1)=pcore_sink_counter_in(1) then
+            elsif pcore_sink_busy_r(1)='0' then
                sink_pcore_busy_v(1) := '0';
             else
                sink_pcore_busy_v(1) := '1';
@@ -1984,7 +2022,7 @@ begin
                sink_sram_busy_v(0) := '1';
             elsif instruction_valid_r /= "00" and instruction_r.dest_bus_id=to_unsigned(dp_bus_id_sram_c,dp_bus_id_t'length) and orec.vm='0' then
                sink_sram_busy_v(0) := '1';
-            elsif sram_sink_counter_r(0)=sram_sink_counter_in(0) then
+            elsif sram_sink_busy_r(0)='0' then
                sink_sram_busy_v(0) := '0';
             else
                sink_sram_busy_v(0) := '1';
@@ -1994,7 +2032,7 @@ begin
                sink_sram_busy_v(1) := '1';
             elsif instruction_valid_r /= "00" and instruction_r.dest_bus_id=to_unsigned(dp_bus_id_sram_c,dp_bus_id_t'length) and orec.vm='1' then
                sink_sram_busy_v(1) := '1';
-            elsif sram_sink_counter_r(1)=sram_sink_counter_in(1) then
+            elsif sram_sink_busy_r(1)='0' then
                sink_sram_busy_v(1) := '0';
             else
                sink_sram_busy_v(1) := '1';
@@ -2006,7 +2044,7 @@ begin
                sink_ddr_busy_v := '1';
             elsif instruction_valid_r /= "00" and instruction_r.dest_bus_id=to_unsigned(dp_bus_id_ddr_c,dp_bus_id_t'length) then
                sink_ddr_busy_v := '1';
-            elsif ddr_sink_counter_r=ddr_sink_counter_in and ddr_tx_busy_in='0' then
+            elsif ddr_sink_busy_r='0' and ddr_tx_busy_in='0' then
                sink_ddr_busy_v := '0';
             else
                sink_ddr_busy_v := '1';

@@ -3741,6 +3741,7 @@ COMPONENT instr_dispatch2 IS
 
         SIGNAL wr_xreg_out          : OUT STD_LOGIC;
         SIGNAL wr_flag_out          : OUT STD_LOGIC;
+        SIGNAL wr_xreg_flag_out     : OUT STD_LOGIC;
         SIGNAL wr_en_out            : OUT STD_LOGIC; -- Enable write 
         SIGNAL wr_vm_out            : OUT STD_LOGIC;
         SIGNAL wr_vector_out        : OUT STD_LOGIC;
@@ -3767,13 +3768,14 @@ COMPONENT xregister_file IS
 
         -- Flag enable input for MU
         
-        SIGNAL write_result_vector_in : IN STD_LOGIC;
-        SIGNAL write_result_lane_in   : IN STD_LOGIC_VECTOR(vector_width_c-1 DOWNTO 0);
-        SIGNAL write_addr_in          : IN std_logic_vector(xreg_depth_c downto 0);
-        SIGNAL write_result_ena_in    : IN STD_LOGIC;
-        SIGNAL write_xreg_ena_in      : IN STD_LOGIC;
-        SIGNAL write_data_in          : IN STD_LOGIC_VECTOR(vaccumulator_width_c-1 downto 0);
-        SIGNAL write_result_in        : IN STD_LOGIC_VECTOR(vector_width_c-1 downto 0);
+        SIGNAL write_result_vector_in   : IN STD_LOGIC;
+        SIGNAL write_result_lane_in     : IN STD_LOGIC_VECTOR(vector_width_c-1 DOWNTO 0);
+        SIGNAL write_addr_in            : IN std_logic_vector(xreg_depth_c downto 0);
+        SIGNAL write_result_ena_in      : IN STD_LOGIC;
+        SIGNAL write_xreg_ena_in        : IN STD_LOGIC;
+        SIGNAL write_xreg_result_ena_in : IN STD_LOGIC;
+        SIGNAL write_data_in            : IN STD_LOGIC_VECTOR(vaccumulator_width_c-1 downto 0);
+        SIGNAL write_result_in          : IN STD_LOGIC_VECTOR(vector_width_c-1 downto 0);
 
         -- Stored flag
         

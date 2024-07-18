@@ -69,6 +69,7 @@ ENTITY instr_dispatch2 IS
 
         SIGNAL wr_xreg_out          : OUT STD_LOGIC;
         SIGNAL wr_flag_out          : OUT STD_LOGIC;
+        SIGNAL wr_xreg_flag_out     : OUT STD_LOGIC;
         SIGNAL wr_en_out            : OUT STD_LOGIC; -- Enable write 
         SIGNAL wr_vm_out            : OUT STD_LOGIC;
         SIGNAL wr_vector_out        : OUT STD_LOGIC;
@@ -118,6 +119,7 @@ SIGNAL x1_c1_en_rr:STD_LOGIC;
 SIGNAL x1_c1_r:STD_LOGIC_VECTOR(register_width_c-1 DOWNTO 0);
 SIGNAL x1_c1_rr:STD_LOGIC_VECTOR(register_width_c-1 DOWNTO 0);
 SIGNAL y_vector:STD_LOGIC;
+SIGNAL wr_xreg_flag_r:STD_LOGIC;
 BEGIN
 
 
@@ -173,6 +175,7 @@ rd_x2_vector_out <= x2_vector_in;
 
 wr_xreg_out <= wr_xreg_delay_r;
 wr_flag_out <= wr_flag_delay_r;
+wr_xreg_flag_out <= wr_xreg_flag_r;
 wr_en_out <= wr_en_delay_r;
 wr_vm_out <= wr_vm_delay_r;
 wr_addr_out <= wr_addr_delay_r;
@@ -214,6 +217,7 @@ BEGIN
         vector_lane_delay_r <= (others=>'0');
         wr_addr_delay_r <= (others=>'0');
         wr_flag_delay_r <= '0';
+        wr_xreg_flag_r <= '0';
     else
         if clock_in'event and clock_in='1' then
             x1_c1_en_r <= x1_c1_en_in;
@@ -232,6 +236,7 @@ BEGIN
             vector_lane_delay_r <= vector_lane_delay;
             wr_addr_delay_r <= wr_addr_delay;
             wr_flag_delay_r <= wr_flag_delay;
+            wr_xreg_flag_r <= wr_flag_delay or wr_xreg_delay;
         end if;
     end if;
 END PROCESS;

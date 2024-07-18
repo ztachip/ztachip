@@ -192,8 +192,6 @@ ARCHITECTURE behavior OF main IS
       );
    END COMPONENT;
 
-
-
    -- RISCV is booted using Xilinx built-in JTAG
    constant RISCV_MODE:string:="RISCV_XILINX_BSCAN2_JTAG"; 
 

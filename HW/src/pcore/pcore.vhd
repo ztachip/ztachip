@@ -92,6 +92,7 @@ SIGNAL rd_vm: STD_LOGIC;
 SIGNAL wr_en1: STD_LOGIC;
 SIGNAL wr_xreg1:STD_LOGIC;
 SIGNAL wr_flag1:STD_LOGIC;
+SIGNAL wr_xreg_flag1:STD_LOGIC;
 SIGNAL wr_data1:STD_LOGIC_VECTOR(vregister_width_c-1 DOWNTO 0);
 SIGNAL wr_vector_lane:STD_LOGIC_VECTOR(vector_width_c-1 DOWNTO 0);
 SIGNAL x1_addr1:STD_LOGIC_VECTOR(register_file_depth_c-1 DOWNTO 0);
@@ -944,20 +945,21 @@ result_write_addr <= wr_result_addr1;
 -----
 
 xregister_file_i: xregister_file port map(
-        clock_in => clock_in,
-        clock_x2_in => clock_x2_in,
-        reset_in => reset_in, 
-        write_result_vector_in => wr_vector,
-        write_result_lane_in => wr_vector_lane,
-        write_addr_in => result_write_addr, 
-        write_result_ena_in => wr_flag1,
-        write_xreg_ena_in => wr_xreg1,
-        write_data_in => mu_y,
-        write_result_in => mu_result,
-        read_addr_in => result_raddr1,
-        read_result_out => result_read,
-        read_xreg_out => xreg_read
-        );
+      clock_in => clock_in,
+      clock_x2_in => clock_x2_in,
+      reset_in => reset_in, 
+      write_result_vector_in => wr_vector,
+      write_result_lane_in => wr_vector_lane,
+      write_addr_in => result_write_addr, 
+      write_result_ena_in => wr_flag1,
+      write_xreg_ena_in => wr_xreg1,
+      write_xreg_result_ena_in => wr_xreg_flag1,
+      write_data_in => mu_y,
+      write_result_in => mu_result,
+      read_addr_in => result_raddr1,
+      read_result_out => result_read,
+      read_xreg_out => xreg_read
+      );
 
 ---------
 -- Instantiate IREGISTER file
@@ -1346,6 +1348,7 @@ instr_dispatch2_i1: instr_dispatch2 port map(
 
             wr_xreg_out => wr_xreg1,
             wr_flag_out => wr_flag1,
+            wr_xreg_flag_out => wr_xreg_flag1,
             wr_en_out => wr_en1,
             wr_vm_out => wr_vm,
             wr_vector_out => wr_vector,

@@ -75,6 +75,10 @@ SIGNAL rdreq1_r:STD_LOGIC;
 SIGNAL rdreq2_r:STD_LOGIC;
 SIGNAL pause_r:STD_LOGIC;
 SIGNAL writeready:STD_LOGIC;
+SIGNAL pause:STD_LOGIC;
+SIGNAL readdata1_valid_r:STD_LOGIC;
+SIGNAL readdata2_valid_r:STD_LOGIC;
+
 BEGIN
 
 fifo_avail_out <= fifo_avail_r;
@@ -133,11 +137,11 @@ END GENERATE GEN2;
 
 readdata1_out <= readdata1_r;
 
-valid1_out <= valid1_r and (not pause_r) and (not((not valid1_r) and valid2_r));
+valid1_out <= readdata1_valid_r;
 
 readdata2_out <= readdata2_r;
 
-valid2_out <= valid2_r and (not pause_r) and (not((not valid1_r) and valid2_r));
+valid2_out <= readdata2_valid_r;
 
 wreq_normal <= wreq_in;
 
@@ -146,6 +150,8 @@ rdreq_normal <= '1' when rdreq='1' and empty_normal='0' else '0';
 empty <= empty_normal;
 
 readdata <= readdata_normal; 
+
+pause <= rdreq1_in or rdreq2_in;
 
 process(clock_in,reset_in)
 begin
@@ -157,6 +163,8 @@ begin
        rdreq1_r <= '0';
        rdreq2_r <= '0';
        pause_r <= '0';
+       readdata1_valid_r <= '0';
+       readdata2_valid_r <= '0';
     else
         if clock_in'event and clock_in='1' then
            valid1_r <= valid1;
@@ -165,7 +173,9 @@ begin
            readdata2_r <= readdata2;
            rdreq1_r <= rdreq1_in;
            rdreq2_r <= rdreq2_in;
-           pause_r <= rdreq1_in or rdreq2_in;
+           pause_r <= pause;
+           readdata1_valid_r <= valid1 and (not pause) and (not((not valid1) and valid2));
+           readdata2_valid_r <= valid2 and (not pause) and (not((not valid1) and valid2));
         end if;
     end if;
 end process;

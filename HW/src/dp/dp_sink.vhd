@@ -191,10 +191,6 @@ SIGNAL wr_maxburstlen_r:burstlen_t;
 SIGNAL full_1_r:STD_LOGIC;
 SIGNAL full_2_r:STD_LOGIC;
 
-attribute noprune: boolean; 
-attribute noprune of full_1_r: signal is true;
-attribute noprune of full_2_r: signal is true;
-
 ---------
 -- Component declaration
 ---------
