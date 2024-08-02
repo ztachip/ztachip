@@ -9,6 +9,7 @@ SRCS = \
 	apps/equalize/kernels/equalize.m \
 	apps/nn/kernels/conv.m \
 	apps/nn/kernels/fcn.m \
+	apps/nn/kernels/objdet.m \
 	apps/test/kernels/test.m
 
 KOBJS := $(SRCS)

@@ -25,17 +25,25 @@
 #include "../../base/types.h"
 #include "../../base/util.h"
 #include "../../base/ztalib.h"
+#include "../../src/soc.h"
 #include "nn_objdetect.h"
+#include "kernels/objdet.h"
 
 // Do the SSD box detection pruning
 
 NeuralNetLayerObjDetect::NeuralNetLayerObjDetect(NeuralNet *nn,NeuralNetOperatorDef* def) : NeuralNetLayer(nn,def) {
    m_anchors=0;
+   m_scoreResult=0;
+   m_classResult=0;
 }
 
 NeuralNetLayerObjDetect::~NeuralNetLayerObjDetect() {
    if(m_anchors)
       free(m_anchors);
+   if(m_scoreResult)
+      ztaFreeSharedMem(m_scoreResult);
+   if(m_classResult)
+      ztaFreeSharedMem(m_classResult);
 }
 
 ZtaStatus NeuralNetLayerObjDetect::Prepare() {
@@ -90,6 +98,8 @@ ZtaStatus NeuralNetLayerObjDetect::Prepare() {
       m_anchors[4*i+2]=m_nn->dequantize(anchors[4*i+2],anchor_zero,anchor_scale);
       m_anchors[4*i+3]=m_nn->dequantize(anchors[4*i+3],anchor_zero,anchor_scale);
    }
+   m_scoreResult=ztaAllocSharedMem(sizeof(uint8_t)*numBoxes+8);
+   m_classResult=ztaAllocSharedMem(sizeof(uint8_t)*numBoxes+8);
    return ZtaStatusOk;
 }
 
@@ -99,7 +109,7 @@ ZtaStatus NeuralNetLayerObjDetect::Evaluate(int queue) {
    std::vector<int> *boxes_shape,*classes_shape;
    int score_threshold;
    int numBoxes;
-   uint8_t *p,*p3;
+   uint8_t *p,*p3,*p4;
    float *p2;
    float box_x,box_y;
    float anchor_x,anchor_y,anchor_w,anchor_h;
@@ -107,6 +117,8 @@ ZtaStatus NeuralNetLayerObjDetect::Evaluate(int queue) {
    int detectClass=0;
    struct ObjDetectionResult detects[dNnObjDetectMaxNumDetects];
    int numDetects;
+   uint8_t *scoreResult;
+   uint8_t *classResult;
 
 //return ZtaStatusOk;
    score_threshold=m_score_threshold;
@@ -120,16 +132,26 @@ ZtaStatus NeuralNetLayerObjDetect::Evaluate(int queue) {
    int numClasses=(*classes_shape)[2];
    numDetects=0;
    ObjDetectionResult *d=detects;
-   for(i=0,p=boxes,p2=m_anchors,p3=classes;i < numBoxes;i++,p+=4,p2+=4) {
-      // Find max score for each detect box.
-      for(j=0,max_score=-1;j < numClasses;j++,p3++) {
-         if(*p3 > max_score) {
-            detectClass=j;
-            max_score=*p3;
-         }
-      }
+   scoreResult=(uint8_t *)m_scoreResult;
+   classResult=(uint8_t *)m_classResult;
+
+   kernel_objdet_exe(
+      0,
+      (uint32_t)classes,
+      (uint32_t)scoreResult,
+      (uint32_t)classResult,
+      numBoxes,
+      numClasses
+   );
+   FLUSH_DATA_CACHE();
+
+   for(i=0,p=boxes,p2=m_anchors,p3=scoreResult,p4=classResult;
+      i < numBoxes;
+      i++,p+=4,p2+=4,p3++,p4++) {
+      max_score=p3[0];
       if(max_score < score_threshold)
          continue;
+      detectClass=p4[0];
       d->detectClass=detectClass;
       d->score=max_score;
       box_y = m_lookup_box_y[p[0]];

@@ -63,6 +63,8 @@ private:
    size_t m_boxesSize;
    size_t m_classesSize;
    float *m_anchors;
+   ZTA_SHARED_MEM m_scoreResult;
+   ZTA_SHARED_MEM m_classResult;
    int m_score_threshold;
 };
 

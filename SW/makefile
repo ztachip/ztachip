@@ -44,6 +44,7 @@ SRCS = 	base/newlib.c \
 	apps/nn/tf_util.cpp \
 	apps/nn/kernels/conv.m.c \
 	apps/nn/kernels/fcn.m.c \
+	apps/nn/kernels/objdet.m.c \
 	apps/gdi/gdi.cpp \
 	apps/test/kernels/test.m.c \
 	src/soc.cpp \

@@ -37,6 +37,7 @@ ZTA_OBJS = $(ZTACHIP)/SW/build/base/newlib.o \
 	$(ZTACHIP)/SW/build/apps/nn/tf_util.o \
 	$(ZTACHIP)/SW/build/apps/nn/kernels/conv.m.o \
 	$(ZTACHIP)/SW/build/apps/nn/kernels/fcn.m.o \
+	$(ZTACHIP)/SW/build/apps/nn/kernels/objdet.m.o \
 	$(ZTACHIP)/SW/build/apps/test/kernels/test.m.o \
 	$(ZTACHIP)/SW/build/apps/gdi/gdi.o \
 	$(ZTACHIP)/SW/build/src/soc.o \
@@ -71,7 +72,7 @@ CFLAGS += -O3 -ggdb
 LDFLAGS = -march=$(MARCH) -mabi=$(MABI)
 LDFLAGS +=  -nostdlib -lgcc -lc -lgloss -lm -lstdc++ -lgcc -lc -lgcc -mcmodel=medany -nostartfiles -ffreestanding -Wl,-Bstatic,-T,linker.ld,--print-memory-usage
 
-CC?=/opt/riscv/bin/riscv32-unknown-elf-gcc
+CC=/opt/riscv//bin/riscv32-unknown-elf-gcc
 LD=$(CC)
 
 LIBS = 

@@ -336,34 +336,34 @@ pend_master_fifo_i:scfifo
       almost_full_out=>open
    );
 
-arbiter_i: arbiter
-    generic map(
-        NUM_SIGNALS=>NUM_SLAVE_PORT+1,
-        PRIORITY_BASED=>TRUE
-        )
-    port map(
-        clock_in=>clock_in,
-        reset_in=>reset_in,
-        req_in=>req,
-        gnt_out=>gnt,
-        gnt_valid_out=>gnt_valid
-        );
+--arbiter_i: arbiter
+--    generic map(
+--        NUM_SIGNALS=>NUM_SLAVE_PORT+1,
+--        PRIORITY_BASED=>TRUE
+--        )
+--    port map(
+--        clock_in=>clock_in,
+--        reset_in=>reset_in,
+--        req_in=>req,
+--        gnt_out=>gnt,
+--        gnt_valid_out=>gnt_valid
+--        );
 
---gnt_valid <= '0' when req=std_logic_vector(to_unsigned(0,req'length)) else '1';
+gnt_valid <= '0' when req=std_logic_vector(to_unsigned(0,req'length)) else '1';
 
---process(req)
---begin
---   gnt <= (others=>'0');
---   if(req(S0)='1') then
---      gnt(S0)<='1';
---   elsif (req(S1)='1') then
---      gnt(S1)<='1';
---   elsif (req(S2)='1') then
---      gnt(S2)<='1';
---   elsif (req(SW)='1') then
---      gnt(SW)<='1';
---   end if;  
---end process;
+process(req)
+begin
+   gnt <= (others=>'0');
+   if(req(S0)='1') then
+      gnt(S0)<='1';
+   elsif (req(S1)='1') then
+      gnt(S1)<='1';
+   elsif (req(S2)='1') then
+      gnt(S2)<='1';
+   elsif (req(SW)='1') then
+      gnt(SW)<='1';
+   end if;  
+end process;
 
 process(curr_r,slave_arvalids,slavew_arvalid)
 begin

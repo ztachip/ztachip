@@ -82,13 +82,23 @@ uint32_t ztaBuildKernelFunc(uint32_t _func,int num_pcore,int num_tid) {
 // Allocate shared memory from non-cached data region
 
 ZTA_SHARED_MEM ztaAllocSharedMem(int _size) {
-	return (ZTA_SHARED_MEM)malloc(_size);
+   uint32_t p,p2;
+   // We lose up to 8 bytes to align to 64-bit boundary and lose 
+   // another 8 bytes for header
+   _size += 16; 
+	p=(uint32_t)malloc(_size);
+   p2 = ((p+7)/8)*8; // Round to neareset 64-bit boundary
+   ((uint32_t *)(p2))[0]=p;
+   ((uint32_t *)(p2))[1]=_size;
+   return (ZTA_SHARED_MEM)(p2+8);
 }
 
 // Free a previously allocated shared memory
 
 void ztaFreeSharedMem(ZTA_SHARED_MEM p) {
-	free((void *)p);
+   uint32_t p2;
+   p2 = (uint32_t)p-8;
+	free((void *)(((uint32_t *)p2)[0]));
 }
 
 // Build ztachip lookup table
