@@ -57,5 +57,25 @@ If the file is not there, verify that -bin option is selected under ProjectSettn
 
 That's it. Your board's FPGA will be programmed with the new image automatically after power reboot.
 
+# Support for opensource toolchain
+
+Opensource tool chain normally supports only Verilog.
+
+You can convert ztachip rtl to verilog using ghdl
+
+Install GHDL ![here](https://github.com/ghdl/ghdl)
+
+Then convert RTL code from VHDL to verilog with command below
+
+```
+cd <ztachip folder>/tools/ghdl
+./convert.sh
+```
+
+All vhdl code will be converted and combined to a single file tools/ghdl/soc.v
+
+As an example for all verilog project, create Vivado project but using [create_project2.tcl](HW/examples/GHRD/create_project2.tcl) instead
+
+
 
 
