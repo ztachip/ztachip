@@ -74,7 +74,7 @@ cd <ztachip folder>/tools/ghdl
 
 All vhdl code will be converted and combined to a single file tools/ghdl/soc.v
 
-As an example for all verilog project, create Vivado project but using [create_project2.tcl](HW/examples/GHRD/create_project2.tcl) instead
+As an example for all verilog project, create Vivado project but using [create_project2.tcl](../HW/examples/GHRD/create_project2.tcl) instead
 
 
 
