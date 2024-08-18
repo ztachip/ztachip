@@ -6,9 +6,9 @@ VexRiscv RTL is generated from scala files.
 
 The subfolders below provides different riscv implementation
 
-* xilinx_jtag: RISCV program is loaded using xilinx built in JTAG
+* [HW/riscv/xilinx_jtag](./xilink_jtag): RISCV program is loaded using xilinx built in JTAG
 
-* sim: For simulation, memory content is set by test bench before boot
+* [HW/riscv/sim](./sim): For simulation, memory content is set by test bench before boot
 
 You may replace this default riscv with other implementations as long as it has the same interface below 
 
