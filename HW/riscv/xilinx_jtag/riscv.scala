@@ -1,4 +1,4 @@
-package vexriscv.VexRiscvForXilinxBscan2Jtag
+package vexriscv.riscv
 
 import spinal.core._
 import spinal.lib._
@@ -127,7 +127,7 @@ object RiscvConfig{
 }
 
 
-case class VexRiscvForXilinxBscan2Jtag(config : RiscvConfig) extends Component{
+case class riscv(config : RiscvConfig) extends Component{
   import config._
 
   val io = new Bundle {
@@ -215,8 +215,8 @@ case class VexRiscvForXilinxBscan2Jtag(config : RiscvConfig) extends Component{
   }
 }
 
-object VexRiscvForXilinxBscan2Jtag{
+object riscv{
   def main(args: Array[String]) {
-    SpinalVhdl(VexRiscvForXilinxBscan2Jtag(RiscvConfig.default.copy()))
+    SpinalVhdl(riscv(RiscvConfig.default.copy()))
   }
 }

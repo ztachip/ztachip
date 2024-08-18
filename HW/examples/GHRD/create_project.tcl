@@ -1,7 +1,7 @@
 create_project ztachip . -part xc7a100tcsg324-1
 
-read_vhdl main.vhd
-read_vhdl VexRiscvForXilinxBscan2Jtag.vhd
+read_verilog main.v
+read_verilog ../../riscv/xilinx_jtag/riscv.v
 read_vhdl ../../src/config.vhd
 read_vhdl ../../src/ztachip_pkg.vhd
 read_vhdl ../../src/alu/alu.vhd
@@ -70,12 +70,14 @@ read_vhdl ../../src/util/arbiter.vhd
 read_vhdl ../../src/util/afifo.vhd
 read_vhdl ../../src/util/afifo2.vhd
 read_vhdl ../../src/util/adder.vhd
-read_vhdl ../../platform/Xilinx/CCD_SYNC.vhd
-read_vhdl ../../platform/Xilinx/DPRAM.vhd
-read_vhdl ../../platform/Xilinx/DPRAM_BE.vhd
-read_vhdl ../../platform/Xilinx/DPRAM_DUAL_CLOCK.vhd
-read_vhdl ../../platform/Xilinx/SPRAM.vhd
-read_vhdl ../../platform/Xilinx/SPRAM_BE.vhd
+read_verilog ../../platform/Xilinx/CCD_SYNC.v
+read_verilog ../../platform/Xilinx/SYNC_LATCH.v
+read_verilog ../../platform/Xilinx/SHIFT.v
+read_verilog ../../platform/Xilinx/DPRAM_BE.v
+read_verilog ../../platform/Xilinx/DPRAM_DUAL_CLOCK.v
+read_verilog ../../platform/Xilinx/DPRAM.v
+read_verilog ../../platform/Xilinx/SPRAM_BE.v
+read_verilog ../../platform/Xilinx/SPRAM.v
 
 read_xdc main.xdc
 

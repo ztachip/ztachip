@@ -85,6 +85,8 @@ signal read_fifo_empty:std_logic;
 signal read_fifo_full:std_logic;
 signal read_fifo_rd:std_logic;
 signal read_fifo_rd2:std_logic;
+signal read_fifo_rd3:std_logic;
+signal read_fifo_rd4:std_logic;
 signal read_fifo_wr:std_logic;
 signal read_size_r:unsigned(23 downto 0); 
 signal ddr_araddr_r:axi_awaddr_t;
@@ -110,6 +112,7 @@ signal empty2:std_logic;
 signal full2:std_logic;
 signal xfer:std_logic;
 signal toggle_r:std_logic;
+signal deficit_r:unsigned(31 downto 0);
 constant stride_c:integer:=8*READ_MAX_PENDING;
 begin
 
@@ -180,7 +183,7 @@ read_fifo:afifo2
       reset_in=>reset_in,
       data_in=>read_fifo_read2,
       write_in=>xfer,
-      read_in=>read_fifo_rd2,
+      read_in=>read_fifo_rd4,
       q_out=>read_fifo_read,
       empty_out=>read_fifo_empty,
       full_out=>full2
@@ -223,11 +226,42 @@ ddr_rready_out <= ddr_rready;
 
 read_fifo_wr <= ddr_rvalid_in and ddr_rready; 
 
-s_rvalid_out <= (not read_fifo_empty);
+s_rvalid_out <= '1'; -- Always ready
 
-read_fifo_rd <= '1' when (read_fifo_empty='0' and s_rready_in='1') else '0';	
+-- Read request from device
+read_fifo_rd <= s_rready_in;	
 
+-- Read every 64bit word
 read_fifo_rd2 <= read_fifo_rd and toggle_r;
+
+-- Can only read if FIFO not empty
+read_fifo_rd3 <= read_fifo_rd2 and (not read_fifo_empty);
+
+-- Can read also to catch up with missing fetch earlier
+read_fifo_rd4 <= '1' when 
+                  (read_fifo_rd3='1') or 
+                  (deficit_r/=to_unsigned(0,deficit_r'length) and (read_fifo_empty='0'))
+                  else
+                  '0';
+
+process(s_rclk_in,reset_in)
+begin
+   if reset_in='0' then
+      deficit_r <= (others=>'0');
+   else
+      if s_rclk_in'event and s_rclk_in='1' then
+         if read_fifo_rd2='1' and read_fifo_rd3='0' then
+            if deficit_r=(READ_PAGE_SIZE/8-1) then
+               deficit_r <= (others=>'0');
+            else
+               deficit_r <= deficit_r+1;
+            end if;
+         elsif read_fifo_rd3='0' and read_fifo_rd4='1' then
+            deficit_r <= deficit_r-1;
+         end if;
+      end if;
+   end if;
+end process;
 
 process(s_rclk_in,reset_in)
 begin

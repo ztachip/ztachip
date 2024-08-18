@@ -21,6 +21,7 @@ use std.standard.all;
 LIBRARY ieee;
 USE ieee.std_logic_1164.all;
 use IEEE.numeric_std.all;
+use work.ztachip_pkg.all;
 
 entity barrel_shifter_a is
    generic
@@ -38,14 +39,34 @@ entity barrel_shifter_a is
 end entity;
 
 architecture rtl of barrel_shifter_a is
-signal result:bit_vector((DATA_WIDTH-1) downto 0);
-signal data:bit_vector(DATA_WIDTH-1 downto 0);
 signal distance:unsigned(DIST_WIDTH-1 downto 0);
+signal shift_left:std_logic_vector((DATA_WIDTH-1) downto 0);
+signal shift_right:std_logic_vector((DATA_WIDTH-1) downto 0);
 begin
 
-data <= To_BitVector(data_in);
 distance <= unsigned(distance_in);
-result <= (data sra to_integer(distance)) when (direction_in = '1') else (data sla to_integer(distance));
-data_out <= To_StdLogicVector(result); 
+data_out <= shift_right when (direction_in = '1') else shift_left; 
+
+sra_i : SHIFT_RIGHT_A
+   GENERIC MAP (
+      DATA_WIDTH=>DATA_WIDTH,
+      DIST_WIDTH=>DIST_WIDTH
+   )
+   PORT MAP (
+      data_in=>data_in,
+      distance_in=>distance,
+      data_out=>shift_right
+   );
+
+sla_i : SHIFT_LEFT_A
+   GENERIC MAP (
+      DATA_WIDTH=>DATA_WIDTH,
+      DIST_WIDTH=>DIST_WIDTH
+   )
+   PORT MAP (
+      data_in=>data_in,
+      distance_in=>distance,
+      data_out=>shift_left
+   );
 
 end rtl;

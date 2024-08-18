@@ -96,13 +96,17 @@ BEGIN
    end if;
 end process;
 
-process(clock,q_b)
-begin
-if clock='1' then
-   q_latch <= q_b;
-end if;
-
-end process;
+sync_latch_i: SYNC_LATCH
+   generic map
+   (
+      DATA_WIDTH=>width_b
+   )
+   port map
+   (
+      enable_in=>clock,
+      data_in=>q_b,
+      data_out=>q_latch
+   );
 
 ram2_i : DPRAM_BE
     GENERIC MAP (

@@ -32,24 +32,15 @@ use work.config.all;
 use work.ztachip_pkg.all;
 
 entity soc_base is
-   generic (
-      RISCV : string:="RISCV_XILINX_BSCAN2_JTAG";
-      TCM_DEPTH : integer:=14 -- TCM size=2**TCM_DEPTH bytes
-   );
    port 
    (
-   -- Reference clock/external reset
+   -- clocks/reset
 
    clk_main        :IN STD_LOGIC;
    clk_x2_main     :IN STD_LOGIC;
+   clk_camera      :IN STD_LOGIC;
+   clk_vga         :IN STD_LOGIC;
    clk_reset       :IN STD_LOGIC;
-
-   -- JTAG signals
-   
-   TMS             :IN std_logic:='0';
-   TDI             :IN std_logic:='0';
-   TDO             :OUT std_logic;
-   TCK             :IN std_logic:='0';
 
    -- SDRAM axi signals
 
@@ -91,21 +82,35 @@ entity soc_base is
    APB_PRDATA      :INOUT STD_LOGIC_VECTOR(31 downto 0);
    APB_PSLVERROR   :INOUT STD_LOGIC;
 
-   -- VIDEO streaming bus  
+   -- LED/pushbutton
 
-   VIDEO_clk       :IN STD_LOGIC;
-   VIDEO_tdata     :OUT STD_LOGIC_VECTOR(31 downto 0);
-   VIDEO_tlast     :OUT STD_LOGIC;
-   VIDEO_tready    :IN STD_LOGIC;
-   VIDEO_tvalid    :OUT STD_LOGIC;
+   led             :OUT STD_LOGIC_VECTOR(3 downto 0);
+   pushbutton      :IN STD_LOGIC_VECTOR(3 downto 0);
 
-   -- Camera streaming bus
+   -- UART signals
 
-   camera_clk      :IN STD_LOGIC;
-   camera_tdata    :IN STD_LOGIC_VECTOR(31 downto 0);
-   camera_tlast    :IN STD_LOGIC;
-   camera_tready   :OUT STD_LOGIC;
-   camera_tvalid   :IN STD_LOGIC
+   UART_TXD        :OUT STD_LOGIC;
+   UART_RXD        :IN STD_LOGIC;
+
+   -- VGA signals
+   
+   SIGNAL VGA_HS_O :OUT STD_LOGIC;
+   SIGNAL VGA_VS_O :OUT STD_LOGIC;
+   SIGNAL VGA_R    :OUT STD_LOGIC_VECTOR(3 downto 0);
+   SIGNAL VGA_B    :OUT STD_LOGIC_VECTOR(3 downto 0);
+   SIGNAL VGA_G    :OUT STD_LOGIC_VECTOR(3 downto 0);
+
+   -- CAMERA signals 
+
+   SIGNAL CAMERA_SCL   :OUT STD_LOGIC;
+   SIGNAL CAMERA_VS    :IN STD_LOGIC;
+   SIGNAL CAMERA_PCLK  :IN STD_LOGIC;
+   SIGNAL CAMERA_D     :IN STD_LOGIC_VECTOR(7 downto 0);
+   SIGNAL CAMERA_RESET :OUT STD_LOGIC;
+   SIGNAL CAMERA_SDR   :OUT STD_LOGIC;
+   SIGNAL CAMERA_RS    :IN STD_LOGIC;
+   SIGNAL CAMERA_MCLK  :OUT STD_LOGIC;
+   SIGNAL CAMERA_PWDN  :OUT STD_LOGIC
    );
 end soc_base;
    
@@ -491,6 +496,18 @@ architecture rtl of soc_base is
    SIGNAL SDRAM_wstrb2:STD_LOGIC_VECTOR(7 downto 0);
    SIGNAL SDRAM_wvalid2:STD_LOGIC;
 
+   SIGNAL VIDEO_tdata:STD_LOGIC_VECTOR(31 downto 0);
+   SIGNAL VIDEO_tlast:STD_LOGIC;
+   SIGNAL VIDEO_tready:STD_LOGIC;
+   SIGNAL VIDEO_tvalid:STD_LOGIC;
+
+   SIGNAL camera_tdata:STD_LOGIC_VECTOR(31 downto 0);
+   SIGNAL camera_tlast:STD_LOGIC;
+   SIGNAL camera_tready:STD_LOGIC;
+   SIGNAL camera_tvalid:STD_LOGIC;
+
+   constant TCM_DEPTH : integer:=14; -- TCM size=2**TCM_DEPTH bytes
+
 begin
 
    resetn <= not clk_reset;  
@@ -506,8 +523,7 @@ begin
    -- CPU. RISCV based on VexRiscv
    -- ------------------------------
 
-GEN1:if RISCV="RISCV_SIM" generate                    
-   cpu_inst : VexRiscvForSim
+   cpu_inst : riscv 
       port map 
       (
          io_asyncReset=>resetn,
@@ -573,151 +589,6 @@ GEN1:if RISCV="RISCV_SIM" generate
          io_dBus_r_payload_resp=>dbus_rresp,
          io_dBus_r_payload_last=>dbus_rlast
       );
-      TDO <= '0';
-end generate GEN1;
-
-GEN2:if RISCV="RISCV_XILINX_BSCAN2_JTAG" generate
-   cpu_inst : VexRiscvForXilinxBscan2Jtag 
-      port map 
-      (
-         io_asyncReset=>resetn,
-         io_mainClk=>clk_main,
-
-         io_iBus_ar_valid=>ibus_arvalid,
-         io_iBus_ar_ready=>ibus_arready,
-         io_iBus_ar_payload_addr=>ibus_araddr,
-         io_iBus_ar_payload_id=>ibus_arid,
-         io_iBus_ar_payload_region=>open,
-         io_iBus_ar_payload_len=>ibus_arlen,
-         io_iBus_ar_payload_size=>ibus_arsize,
-         io_iBus_ar_payload_burst=>ibus_arburst,
-         io_iBus_ar_payload_lock=>ibus_arlock,
-         io_iBus_ar_payload_cache=>ibus_arcache,
-         io_iBus_ar_payload_qos=>ibus_arqos,
-         io_iBus_ar_payload_prot=>ibus_arprot,
-         io_iBus_r_valid=>ibus_rvalid,
-         io_iBus_r_ready=>ibus_rready,
-         io_iBus_r_payload_data=>ibus_rdata,
-         io_iBus_r_payload_id=>unsigned(ibus_rid),
-         io_iBus_r_payload_resp=>ibus_rresp,
-         io_iBus_r_payload_last=>ibus_rlast, 
-
-         io_dBus_aw_valid=>dbus_awvalid,
-         io_dBus_aw_ready=>dbus_awready,
-         io_dBus_aw_payload_addr=>dbus_awaddr,
-         io_dBus_aw_payload_id=>dbus_awid,
-         io_dBus_aw_payload_region=>open,
-         io_dBus_aw_payload_len=>dbus_awlen,
-         io_dBus_aw_payload_size=>dbus_awsize,
-         io_dBus_aw_payload_burst=>dbus_awburst,
-         io_dBus_aw_payload_lock=>dbus_awlock,
-         io_dBus_aw_payload_cache=>dbus_awcache,
-         io_dBus_aw_payload_qos=>dbus_awqos,
-         io_dBus_aw_payload_prot=>dbus_awprot,
-         io_dBus_w_valid=>dbus_wvalid,
-         io_dBus_w_ready=>dbus_wready,
-         io_dBus_w_payload_data=>dbus_wdata,
-         io_dBus_w_payload_strb=>dbus_wstrb,
-         io_dBus_w_payload_last=>dbus_wlast,
-         io_dBus_b_valid=>dbus_bvalid,
-         io_dBus_b_ready=>dbus_bready,
-         io_dBus_b_payload_id=>unsigned(dbus_bid),
-         io_dBus_b_payload_resp=>dbus_bresp,
-
-         io_dBus_ar_valid=>dbus_arvalid,
-         io_dBus_ar_ready=>dbus_arready,
-         io_dBus_ar_payload_addr=>dbus_araddr,
-         io_dBus_ar_payload_id=>dbus_arid,
-         io_dBus_ar_payload_region=>open,
-         io_dBus_ar_payload_len=>dbus_arlen,
-         io_dBus_ar_payload_size=>dbus_arsize,
-         io_dBus_ar_payload_burst=>dbus_arburst,
-         io_dBus_ar_payload_lock=>dbus_arlock,
-         io_dBus_ar_payload_cache=>dbus_arcache,
-         io_dBus_ar_payload_qos=>dbus_arqos,
-         io_dBus_ar_payload_prot=>dbus_arprot,
-         io_dBus_r_valid=>dbus_rvalid,
-         io_dBus_r_ready=>dbus_rready,
-         io_dBus_r_payload_data=>dbus_rdata,
-         io_dBus_r_payload_id=>unsigned(dbus_rid),
-         io_dBus_r_payload_resp=>dbus_rresp,
-         io_dBus_r_payload_last=>dbus_rlast
-      );
-      TDO <= '0';
-end generate GEN2;
-
-GEN3:if RISCV="RISCV_JTAG" generate
-   cpu_inst : VexRiscvForJtag 
-      port map 
-      (
-         io_asyncReset=>resetn,
-         io_mainClk=>clk_main,
-
-         io_iBus_ar_valid=>ibus_arvalid,
-         io_iBus_ar_ready=>ibus_arready,
-         io_iBus_ar_payload_addr=>ibus_araddr,
-         io_iBus_ar_payload_id=>ibus_arid,
-         io_iBus_ar_payload_region=>open,
-         io_iBus_ar_payload_len=>ibus_arlen,
-         io_iBus_ar_payload_size=>ibus_arsize,
-         io_iBus_ar_payload_burst=>ibus_arburst,
-         io_iBus_ar_payload_lock=>ibus_arlock,
-         io_iBus_ar_payload_cache=>ibus_arcache,
-         io_iBus_ar_payload_qos=>ibus_arqos,
-         io_iBus_ar_payload_prot=>ibus_arprot,
-         io_iBus_r_valid=>ibus_rvalid,
-         io_iBus_r_ready=>ibus_rready,
-         io_iBus_r_payload_data=>ibus_rdata,
-         io_iBus_r_payload_id=>unsigned(ibus_rid),
-         io_iBus_r_payload_resp=>ibus_rresp,
-         io_iBus_r_payload_last=>ibus_rlast, 
-
-         io_dBus_aw_valid=>dbus_awvalid,
-         io_dBus_aw_ready=>dbus_awready,
-         io_dBus_aw_payload_addr=>dbus_awaddr,
-         io_dBus_aw_payload_id=>dbus_awid,
-         io_dBus_aw_payload_region=>open,
-         io_dBus_aw_payload_len=>dbus_awlen,
-         io_dBus_aw_payload_size=>dbus_awsize,
-         io_dBus_aw_payload_burst=>dbus_awburst,
-         io_dBus_aw_payload_lock=>dbus_awlock,
-         io_dBus_aw_payload_cache=>dbus_awcache,
-         io_dBus_aw_payload_qos=>dbus_awqos,
-         io_dBus_aw_payload_prot=>dbus_awprot,
-         io_dBus_w_valid=>dbus_wvalid,
-         io_dBus_w_ready=>dbus_wready,
-         io_dBus_w_payload_data=>dbus_wdata,
-         io_dBus_w_payload_strb=>dbus_wstrb,
-         io_dBus_w_payload_last=>dbus_wlast,
-         io_dBus_b_valid=>dbus_bvalid,
-         io_dBus_b_ready=>dbus_bready,
-         io_dBus_b_payload_id=>unsigned(dbus_bid),
-         io_dBus_b_payload_resp=>dbus_bresp,
-
-         io_dBus_ar_valid=>dbus_arvalid,
-         io_dBus_ar_ready=>dbus_arready,
-         io_dBus_ar_payload_addr=>dbus_araddr,
-         io_dBus_ar_payload_id=>dbus_arid,
-         io_dBus_ar_payload_region=>open,
-         io_dBus_ar_payload_len=>dbus_arlen,
-         io_dBus_ar_payload_size=>dbus_arsize,
-         io_dBus_ar_payload_burst=>dbus_arburst,
-         io_dBus_ar_payload_lock=>dbus_arlock,
-         io_dBus_ar_payload_cache=>dbus_arcache,
-         io_dBus_ar_payload_qos=>dbus_arqos,
-         io_dBus_ar_payload_prot=>dbus_arprot,
-         io_dBus_r_valid=>dbus_rvalid,
-         io_dBus_r_ready=>dbus_rready,
-         io_dBus_r_payload_data=>dbus_rdata,
-         io_dBus_r_payload_id=>unsigned(dbus_rid),
-         io_dBus_r_payload_resp=>dbus_rresp,
-         io_dBus_r_payload_last=>dbus_rlast,
-         io_jtag_tms=>TMS,
-         io_jtag_tdi=>TDI,
-         io_jtag_tdo=>TDO,
-         io_jtag_tck=>TCK
-      );
-end generate GEN3;
 
 axi_split_ibus_i : axi_split
    GENERIC MAP (
@@ -1275,7 +1146,7 @@ axi_stream_write_inst : axi_stream_write
       WRITE_BUF_DEPTH=>2,
       WRITE_STREAM_DEPTH=>10,
       WRITE_PAGE_SIZE=>921600,
-      WRITE_MAX_PENDING=>64
+      WRITE_MAX_PENDING=>32
    )
    PORT MAP (
       clock_in=>clk_main,
@@ -1302,7 +1173,7 @@ axi_stream_write_inst : axi_stream_write
       ddr_awsize_out=>vdma_awsize,
       ddr_bready_out=>vdma_bready,
 
-      s_wclk_in=>camera_clk,
+      s_wclk_in=>CAMERA_PCLK,
       s_wdata_in=>camera_tdata,
       s_wready_out=>camera_tready,
       s_wvalid_in=>camera_tvalid,
@@ -1324,7 +1195,7 @@ axi_stream_read_inst : axi_stream_read
       READ_BUF_DEPTH=>2,
       READ_STREAM_DEPTH=>10,
       READ_PAGE_SIZE=>921600,
-      READ_MAX_PENDING=>64
+      READ_MAX_PENDING=>32
    )
    PORT MAP (    
       clock_in=>clk_main,
@@ -1348,7 +1219,7 @@ axi_stream_read_inst : axi_stream_read
       ddr_arburst_out=>rvdma_arburst,
       ddr_arsize_out=>rvdma_arsize,
                            
-      s_rclk_in=>VIDEO_clk,
+      s_rclk_in=>clk_vga,
       s_rdata_out=>VIDEO_tdata,
       s_rready_in=>VIDEO_tready,
       s_rvalid_out=>VIDEO_tvalid,
@@ -1461,72 +1332,6 @@ axi_stream_read_inst : axi_stream_read
          axilite_bresp_out=>ZTA_CONTROL_bresp
    );
 
-GEN4: IF exmem_data_width_c=32 GENERATE
-axi_convert_64to32_inst:axi_convert_64to32
-   port map
-   (
-   clock_in=>SDRAM_clk,
-   reset_in=>SDRAM_reset,
-
-   -- Input bus in 64-bit
-   
-   SDRAM64_araddr=>SDRAM_araddr2,
-   SDRAM64_arburst=>SDRAM_arburst2,
-   SDRAM64_arlen =>SDRAM_arlen2,
-   SDRAM64_arready=>SDRAM_arready2,
-   SDRAM64_arsize=>SDRAM_arsize2,
-   SDRAM64_arvalid=>SDRAM_arvalid2,
-   SDRAM64_awaddr=>SDRAM_awaddr2,
-   SDRAM64_awburst=>SDRAM_awburst2,
-   SDRAM64_awlen =>SDRAM_awlen2,
-   SDRAM64_awready=>SDRAM_awready2,
-   SDRAM64_awsize=>SDRAM_awsize2,
-   SDRAM64_awvalid=>SDRAM_awvalid2,
-   SDRAM64_bready=>SDRAM_bready2,
-   SDRAM64_bresp=>SDRAM_bresp2,
-   SDRAM64_bvalid=>SDRAM_bvalid2,
-   SDRAM64_rdata=>SDRAM_rdata2,
-   SDRAM64_rdata_mask=>SDRAM_rdata_mask2,
-   SDRAM64_rlast=>SDRAM_rlast2,
-   SDRAM64_rready=>SDRAM_rready2,
-   SDRAM64_rresp=>SDRAM_rresp2,
-   SDRAM64_rvalid=>SDRAM_rvalid2,
-   SDRAM64_wdata=>SDRAM_wdata2,
-   SDRAM64_wdata_mask=>SDRAM_wdata_mask2,
-   SDRAM64_wlast=>SDRAM_wlast2,
-   SDRAM64_wready=>SDRAM_wready2,
-   SDRAM64_wstrb=>SDRAM_wstrb2,
-   SDRAM64_wvalid=>SDRAM_wvalid2,
-
-   SDRAM32_araddr=>SDRAM_araddr,
-   SDRAM32_arburst=>SDRAM_arburst,
-   SDRAM32_arlen=>SDRAM_arlen,
-   SDRAM32_arready=>SDRAM_arready,
-   SDRAM32_arsize=>SDRAM_arsize,
-   SDRAM32_arvalid=>SDRAM_arvalid,
-   SDRAM32_awaddr=>SDRAM_awaddr,
-   SDRAM32_awburst=>SDRAM_awburst,
-   SDRAM32_awlen=>SDRAM_awlen,
-   SDRAM32_awready=>SDRAM_awready,
-   SDRAM32_awsize=>SDRAM_awsize,
-   SDRAM32_awvalid=>SDRAM_awvalid,
-   SDRAM32_bready=>SDRAM_bready,
-   SDRAM32_bresp=>SDRAM_bresp,
-   SDRAM32_bvalid=>SDRAM_bvalid,
-   SDRAM32_rdata=>SDRAM_rdata,
-   SDRAM32_rlast=>SDRAM_rlast,
-   SDRAM32_rready=>SDRAM_rready,
-   SDRAM32_rresp=>SDRAM_rresp,
-   SDRAM32_rvalid=>SDRAM_rvalid,
-   SDRAM32_wdata=>SDRAM_wdata,
-   SDRAM32_wlast=>SDRAM_wlast,
-   SDRAM32_wready=>SDRAM_wready,
-   SDRAM32_wstrb=>SDRAM_wstrb,
-   SDRAM32_wvalid=>SDRAM_wvalid
-   );
-END GENERATE GEN4;
-
-GEN5:IF exmem_data_width_c=64 GENERATE
    SDRAM_araddr <= SDRAM_araddr2;
    SDRAM_arburst <= SDRAM_arburst2;
    SDRAM_arlen <= SDRAM_arlen2;
@@ -1552,7 +1357,6 @@ GEN5:IF exmem_data_width_c=64 GENERATE
    SDRAM_wready2 <= SDRAM_wready;
    SDRAM_wstrb <= SDRAM_wstrb2;
    SDRAM_wvalid <= SDRAM_wvalid2;
-END GENERATE GEN5;
 
 --- Instantiate tigh coupling memory block
 
@@ -1603,6 +1407,94 @@ TCM_i: TCM
       TCM_wready=>TCM_wready,
       TCM_wstrb=>TCM_wstrb,
       TCM_wvalid=>TCM_wvalid
+   );
+
+TIME_inst : TIMER
+   port map(
+      clock_in=>clk_main,
+      reset_in=>'1',
+      apb_paddr=>APB_PADDR,
+      apb_penable=>APB_PENABLE,
+      apb_pready=>APB_PREADY,
+      apb_pwrite=>APB_PWRITE,
+      apb_pwdata=>APB_PWDATA,
+      apb_prdata=>APB_PRDATA,
+      apb_pslverror=>APB_PSLVERROR
+   );
+
+                 
+gpio_inst:gpio
+   port map(
+      clock_in=>clk_main,
+      reset_in=>'1',
+      apb_paddr=>APB_PADDR,
+      apb_penable=>APB_PENABLE,
+      apb_pready=>APB_PREADY,
+      apb_pwrite=>APB_PWRITE,
+      apb_pwdata=>APB_PWDATA,
+      apb_prdata=>APB_PRDATA,
+      apb_pslverror=>APB_PSLVERROR,
+      led_out=>led,
+      button_in=>pushbutton
+   );
+
+UART_INST:UART 
+   generic map(
+      BAUD_RATE=>115200
+      )
+   port map(
+      clock_in=>clk_main,
+      reset_in=>'1',
+      uart_rx_in=>UART_RXD,
+      uart_tx_out=>UART_TXD,
+      apb_paddr=>APB_PADDR,
+      apb_penable=>APB_PENABLE,
+      apb_pready=>APB_PREADY,
+      apb_pwrite=>APB_PWRITE,
+      apb_pwdata=>APB_PWDATA,
+      apb_prdata=>APB_PRDATA,
+      apb_pslverror=>APB_PSLVERROR
+   );
+
+-----------
+-- VGA
+-----------
+
+vga_inst: vga
+   port map(
+      clk_in=>clk_vga,
+      tdata_in=>VIDEO_tdata,
+      tready_out=>VIDEO_tready,
+      tvalid_in=>VIDEO_tvalid,
+      tlast_in=>VIDEO_tlast,
+      VGA_HS_O_out=>VGA_HS_O,
+      VGA_VS_O_out=>VGA_VS_O,
+      VGA_R_out=>VGA_R,
+      VGA_B_out=>VGA_B,
+      VGA_G_out=>VGA_G
+   );
+
+------------------------
+-- Camera
+------------------------
+
+camera_inst: camera
+   port map(
+      clk_in=>clk_camera,
+      SIOC=>CAMERA_SCL,
+      SIOD=>CAMERA_SDR,
+      RESET=>CAMERA_RESET,
+      PWDN=>CAMERA_PWDN,
+      XCLK=>CAMERA_MCLK,  
+      CAMERA_PCLK=>CAMERA_PCLK,
+      CAMERA_D=>CAMERA_D,
+      CAMERA_VS=>CAMERA_VS,
+      CAMERA_RS=>CAMERA_RS,
+      tdata_out=>camera_tdata,
+      tlast_out=>camera_tlast,
+      tready_in=>camera_tready,
+      tuser_out=>open,
+      tvalid_out=>camera_tvalid
    );
 
 end rtl;

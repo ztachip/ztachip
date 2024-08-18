@@ -586,7 +586,6 @@ begin
       dp_read_stream_id_r <= (others=>'0');
    else
       if clock_in'event and clock_in='1' then      
-         assert (not (read_match='1' and (read_scatter_cnt_r /= to_unsigned(0,read_scatter_cnt_r'length)))) report "pcore read access error" severity error;
          -- Calculate address for scatter read.
          if dp_read_scatter=scatter_vector_c then
             if dp_read_share='0' then
@@ -705,7 +704,6 @@ begin
       write_scatter_curr_r <= (others=>'0');
    else
       if clock_in'event and clock_in='1' then
-         assert (not (write_match='1' and (write_scatter_cnt_r /= to_unsigned(0,write_scatter_cnt_r'length)))) report "pcore write access error" severity error;
          if dp_write_scatter=scatter_vector_c then
             if dp_write_share='0' then
                addr_v := unsigned(dp_wr_addr)+unsigned(dp_write_step); -- Scattered write is to private memory space and scattered by vector word.

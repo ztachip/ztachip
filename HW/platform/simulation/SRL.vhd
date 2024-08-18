@@ -21,9 +21,8 @@ use std.standard.all;
 LIBRARY ieee;
 USE ieee.std_logic_1164.all;
 use IEEE.numeric_std.all;
-use work.ztachip_pkg.all;
 
-entity barrel_shifter_l is
+entity SHIFT_RIGHT_L is
    generic
    (
       DIST_WIDTH : natural;
@@ -31,42 +30,19 @@ entity barrel_shifter_l is
    );
    port 
    (
-      direction_in : in std_logic;
       data_in      : in std_logic_vector((DATA_WIDTH-1) downto 0);
-      distance_in  : in std_logic_vector((DIST_WIDTH-1) downto 0);
+      distance_in  : in unsigned((DIST_WIDTH-1) downto 0);
       data_out     : out std_logic_vector((DATA_WIDTH-1) downto 0)
    );
-end entity;
+end SHIFT_RIGHT_L;
 
-architecture rtl of barrel_shifter_l is
-signal distance:unsigned(DIST_WIDTH-1 downto 0);
-signal shift_left:std_logic_vector((DATA_WIDTH-1) downto 0);
-signal shift_right:std_logic_vector((DATA_WIDTH-1) downto 0);
+architecture rtl of SHIFT_RIGHT_L is
+signal input:bit_vector((DATA_WIDTH-1) downto 0);
+signal output:bit_vector((DATA_WIDTH-1) downto 0);
 begin
 
-distance <= unsigned(distance_in);
-data_out <= shift_right when (direction_in = '1') else shift_left; 
-
-sra_i : SHIFT_RIGHT_L
-   GENERIC MAP (
-      DATA_WIDTH=>DATA_WIDTH,
-      DIST_WIDTH=>DIST_WIDTH
-   )
-   PORT MAP (
-      data_in=>data_in,
-      distance_in=>distance,
-      data_out=>shift_right
-   );
-
-sla_i : SHIFT_LEFT_L
-   GENERIC MAP (
-      DATA_WIDTH=>DATA_WIDTH,
-      DIST_WIDTH=>DIST_WIDTH
-   )
-   PORT MAP (
-      data_in=>data_in,
-      distance_in=>distance,
-      data_out=>shift_left
-   );
+input <= To_BitVector(data_in);
+output <= input srl to_integer(distance_in);
+data_out <= To_StdLogicVector(output);
 
 end rtl;

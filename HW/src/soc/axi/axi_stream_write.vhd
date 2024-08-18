@@ -118,12 +118,14 @@ signal ravail:std_logic_vector(WRITE_STREAM_DEPTH-1 downto 0);
 signal s_wdata_r:std_logic_vector(31 downto 0);
 signal toggle_r:std_logic;
 signal s_write:std_logic;
+signal skip_r:unsigned(31 downto 0);
+signal data_avail:std_logic;
 constant stride_c:integer:=8;
 begin
 
 s_wcurr_next <= s_wcurr_r+to_unsigned(1,s_wcurr_r'length);
 
-s_wready_out <= (not write_fifo_full) and ready;
+s_wready_out <= ready;
 
 s_wnext <= s_wcurr_r+to_unsigned(1,s_wcurr_r'length);
     
@@ -184,8 +186,30 @@ sync_i:CCD_SYNC
    );
      
 write_fifo_write <= s_wdata_in & s_wdata_r;
-       
-s_write <= '1' when (s_wvalid_in='1' and toggle_r='1') else '0';
+
+data_avail <= '1' when (s_wvalid_in='1' and toggle_r='1') else '0'; 
+
+s_write <= '1' when (skip_r=to_unsigned(0,skip_r'length)) and 
+                  (data_avail='1') and 
+                  (write_fifo_full='0') else '0';
+
+
+process(data_avail,s_write,skip_r)
+begin
+   if reset_in='0' then
+      skip_r <= (others=>'0');
+   else
+      if s_wclk_in'event and s_wclk_in='1' then
+         if(data_avail='1' and s_write='0') then
+            if(skip_r = to_unsigned(WRITE_PAGE_SIZE/stride_c-1,skip_r'length)) then
+               skip_r <= (others=>'0');
+            else
+               skip_r <= skip_r+1;
+            end if;
+         end if;
+      end if;
+   end if;
+end process;
 
 write_fifo:afifo2
    generic map

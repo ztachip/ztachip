@@ -282,7 +282,6 @@ SIGNAL data_rrrr:std_logic_vector(ddr_data_width_c-1 downto 0);
 
 SIGNAL s_bufsize_r:dp_addr_t;
 SIGNAL s_bufsize_rr:dp_addr_t;
-SIGNAL s_temp0_r:unsigned(dp_addr_width_c-1 downto 0);
 SIGNAL s_temp1_r:unsigned(dp_addr_width_c-1 downto 0);
 SIGNAL s_temp2_r:dp_full_addr_t;
 SIGNAL s_temp3_r:unsigned(dp_addr_width_c-1 downto 0);
@@ -310,7 +309,6 @@ SIGNAL s_burst_start_valid:STD_LOGIC;
 
 SIGNAL d_bufsize_r:dp_addr_t;
 SIGNAL d_bufsize_rr:dp_addr_t;
-SIGNAL d_temp0_r:unsigned(dp_addr_width_c-1 downto 0);
 SIGNAL d_temp1_r:unsigned(dp_addr_width_c-1 downto 0);
 SIGNAL d_temp2_r:unsigned(dp_full_addr_width_c-1 downto 0);
 SIGNAL d_temp3_r:unsigned(dp_addr_width_c-1 downto 0);
@@ -810,7 +808,6 @@ begin
 
         s_bufsize_r <= (others=>'0');
         s_bufsize_rr <= (others=>'0');
-        s_temp0_r <= (others=>'0');
         s_temp1_r <= (others=>'0');
         s_temp2_r <= (others=>'0');
         s_temp3_r <= (others=>'0');
@@ -824,7 +821,6 @@ begin
 
         d_bufsize_r <= (others=>'0');
         d_bufsize_rr <= (others=>'0');
-        d_temp0_r <= (others=>'0');
         d_temp1_r <= (others=>'0');
         d_temp2_r <= (others=>'0');
         d_temp3_r <= (others=>'0');

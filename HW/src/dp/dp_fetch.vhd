@@ -1314,7 +1314,6 @@ begin
                     bus_readdata_r <= temp_v;
                     rden_r <= '1';
                 elsif rregno=register_dp_instruction_fifo_avail_c then
-                    assert false report "Unsupported DP function" severity error;
                     -- Read number of FIFO slots available to accept new DP instructions
                     bus_readdata_r(fifo_avail'length-1 downto 0) <= fifo_avail;
                     bus_readdata_r(bus_readdata_r'length-1 downto fifo_avail'length) <= (others=>'0');
@@ -1751,7 +1750,6 @@ if ready='1' and
     FOR I in 0 to max_iregister_auto_c-1 loop
         task_iregister_auto((I+1)*iregister_width_c-1 downto I*iregister_width_c) <= unsigned(orec_generic.parameters(iregister_width_c+I*host_width_c-1 downto I*host_width_c));
     end loop;
-    assert max_iregister_auto_c <= dp_indication_num_parm_c report "Too many iregister_auto" severity note;
 elsif ready='1' and 
     (orec.opcode=to_unsigned(dp_opcode_exec_vm_c,orec.opcode'length)) and (orec.vm='1') and 
     pause='0' then
@@ -1773,7 +1771,6 @@ elsif ready='1' and
     FOR I in 0 to max_iregister_auto_c-1 loop
        task_iregister_auto((I+1)*iregister_width_c-1 downto I*iregister_width_c) <= unsigned(orec_generic.parameters(iregister_width_c+I*host_width_c-1 downto I*host_width_c));
     end loop;
-    assert max_iregister_auto_c <= dp_indication_num_parm_c report "Too many iregister_auto" severity note;
 else
     task <= '0';
     task_vm <= '0';

@@ -57,8 +57,6 @@ begin
 --- Perform round-robin arbitration
 ---------
 
-assert NUM_SIGNALS=16 report "Invalid arbiter parameter" severity note;
-
 gnt <= req_in and std_logic_vector(-signed(req_in));
 req <= req_in and gnt_r;
 gnt1 <= req and std_logic_vector(-signed(req));

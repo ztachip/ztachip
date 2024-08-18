@@ -23,7 +23,7 @@ use IEEE.NUMERIC_STD.ALL;
 entity camera is
    Port ( clk_in      : in STD_LOGIC;
           SIOC        : out STD_LOGIC;
-          SIOD        : inout STD_LOGIC;
+          SIOD        : out STD_LOGIC;
           RESET       : out STD_LOGIC;
           PWDN        : out STD_LOGIC;
           XCLK        : out STD_LOGIC;

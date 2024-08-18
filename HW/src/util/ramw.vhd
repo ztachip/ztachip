@@ -76,12 +76,17 @@ q_b(q_b'length/2-1 downto 0) <= q;
 q_b(q_b'length-1 downto q_b'length/2) <= q_latch; 
 wren <= (wren_r and clock) or (wren_a and (not clock));
 
-process(clock,q)
-begin
-   if(clock='1') then
-      q_latch <= q;
-   end if;
-end process;
+sync_latch_i: SYNC_LATCH
+   generic map
+   (
+      DATA_WIDTH=>q'length
+   )
+   port map
+   (
+      enable_in=>clock,
+      data_in=>q,
+      data_out=>q_latch
+   );
 
 process(clock)
 begin

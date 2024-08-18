@@ -4388,24 +4388,15 @@ END COMPONENT;
 -------------------------------------------------------------------
 
 component soc_base is
-    generic (
-        RISCV : string:="RISCV_XILINX_BSCAN2_JTAG";
-        TCM_DEPTH : integer:=14 -- TCM size=2**TCM_DEPTH bytes
-    );
     port 
     (
         -- Reference clock/external reset
 
         clk_main        :IN STD_LOGIC;
         clk_x2_main     :IN STD_LOGIC;
+        clk_camera      :IN STD_LOGIC;
+        clk_vga         :IN STD_LOGIC;
         clk_reset       :IN STD_LOGIC;
-
-        -- JTAG signals
-
-        TMS             :IN std_logic:='0';
-        TDI             :IN std_logic:='0';
-        TDO             :OUT std_logic;
-        TCK             :IN std_logic:='0';
 
         -- SDRAM axi signals
 
@@ -4447,21 +4438,35 @@ component soc_base is
         APB_PRDATA      :INOUT STD_LOGIC_VECTOR(31 downto 0);
         APB_PSLVERROR   :INOUT STD_LOGIC;
 
-        -- VIDEO streaming bus  
+        -- LED/pushbutton
 
-        VIDEO_clk       :IN STD_LOGIC;
-        VIDEO_tdata     :OUT STD_LOGIC_VECTOR(31 downto 0);
-        VIDEO_tlast     :OUT STD_LOGIC;
-        VIDEO_tready    :IN STD_LOGIC;
-        VIDEO_tvalid    :OUT STD_LOGIC;
+        led             :OUT STD_LOGIC_VECTOR(3 downto 0);
+        pushbutton      :IN STD_LOGIC_VECTOR(3 downto 0);
 
-        -- Camera streaming bus
+        -- UART Signals
 
-        camera_clk      :IN STD_LOGIC;
-        camera_tdata    :IN STD_LOGIC_VECTOR(31 downto 0);
-        camera_tlast    :IN STD_LOGIC;
-        camera_tready   :OUT STD_LOGIC;
-        camera_tvalid   :IN STD_LOGIC
+        UART_TXD        :OUT STD_LOGIC;
+        UART_RXD        :IN STD_LOGIC;
+   
+        -- VGA signals
+
+        SIGNAL VGA_HS_O :OUT STD_LOGIC;
+        SIGNAL VGA_VS_O :OUT STD_LOGIC;
+        SIGNAL VGA_R    :OUT STD_LOGIC_VECTOR(3 downto 0);
+        SIGNAL VGA_B    :OUT STD_LOGIC_VECTOR(3 downto 0);
+        SIGNAL VGA_G    :OUT STD_LOGIC_VECTOR(3 downto 0);
+
+        -- CAMERA signals
+
+        SIGNAL CAMERA_SCL   :OUT STD_LOGIC;
+        SIGNAL CAMERA_VS    :IN STD_LOGIC;
+        SIGNAL CAMERA_PCLK  :IN STD_LOGIC;
+        SIGNAL CAMERA_D     :IN STD_LOGIC_VECTOR(7 downto 0);
+        SIGNAL CAMERA_RESET :OUT STD_LOGIC;
+        SIGNAL CAMERA_SDR   :OUT STD_LOGIC;
+        SIGNAL CAMERA_RS    :IN STD_LOGIC;
+        SIGNAL CAMERA_MCLK  :OUT STD_LOGIC;
+        SIGNAL CAMERA_PWDN  :OUT STD_LOGIC
     );
 end component;
 
@@ -4469,75 +4474,7 @@ end component;
 -- VexRiscv
 -------------------------------------------------------------------
 
-component VexRiscvForJtag is
-    port(
-        io_asyncReset : in std_logic;
-        io_mainClk : in std_logic;
-        io_iBus_ar_valid : out std_logic;
-        io_iBus_ar_ready : in std_logic;
-        io_iBus_ar_payload_addr : out unsigned(31 downto 0);
-        io_iBus_ar_payload_id : out unsigned(0 downto 0);
-        io_iBus_ar_payload_region : out std_logic_vector(3 downto 0);
-        io_iBus_ar_payload_len : out unsigned(7 downto 0);
-        io_iBus_ar_payload_size : out unsigned(2 downto 0);
-        io_iBus_ar_payload_burst : out std_logic_vector(1 downto 0);
-        io_iBus_ar_payload_lock : out std_logic_vector(0 downto 0);
-        io_iBus_ar_payload_cache : out std_logic_vector(3 downto 0);
-        io_iBus_ar_payload_qos : out std_logic_vector(3 downto 0);
-        io_iBus_ar_payload_prot : out std_logic_vector(2 downto 0);
-        io_iBus_r_valid : in std_logic;
-        io_iBus_r_ready : out std_logic;
-        io_iBus_r_payload_data : in std_logic_vector(31 downto 0);
-        io_iBus_r_payload_id : in unsigned(0 downto 0);
-        io_iBus_r_payload_resp : in std_logic_vector(1 downto 0);
-        io_iBus_r_payload_last : in std_logic;
-        io_dBus_aw_valid : out std_logic;
-        io_dBus_aw_ready : in std_logic;
-        io_dBus_aw_payload_addr : out unsigned(31 downto 0);
-        io_dBus_aw_payload_id : out unsigned(0 downto 0);
-        io_dBus_aw_payload_region : out std_logic_vector(3 downto 0);
-        io_dBus_aw_payload_len : out unsigned(7 downto 0);
-        io_dBus_aw_payload_size : out unsigned(2 downto 0);
-        io_dBus_aw_payload_burst : out std_logic_vector(1 downto 0);
-        io_dBus_aw_payload_lock : out std_logic_vector(0 downto 0);
-        io_dBus_aw_payload_cache : out std_logic_vector(3 downto 0);
-        io_dBus_aw_payload_qos : out std_logic_vector(3 downto 0);
-        io_dBus_aw_payload_prot : out std_logic_vector(2 downto 0);
-        io_dBus_w_valid : out std_logic;
-        io_dBus_w_ready : in std_logic;
-        io_dBus_w_payload_data : out std_logic_vector(31 downto 0);
-        io_dBus_w_payload_strb : out std_logic_vector(3 downto 0);
-        io_dBus_w_payload_last : out std_logic;
-        io_dBus_b_valid : in std_logic;
-        io_dBus_b_ready : out std_logic;
-        io_dBus_b_payload_id : in unsigned(0 downto 0);
-        io_dBus_b_payload_resp : in std_logic_vector(1 downto 0);
-        io_dBus_ar_valid : out std_logic;
-        io_dBus_ar_ready : in std_logic;
-        io_dBus_ar_payload_addr : out unsigned(31 downto 0);
-        io_dBus_ar_payload_id : out unsigned(0 downto 0);
-        io_dBus_ar_payload_region : out std_logic_vector(3 downto 0);
-        io_dBus_ar_payload_len : out unsigned(7 downto 0);
-        io_dBus_ar_payload_size : out unsigned(2 downto 0);
-        io_dBus_ar_payload_burst : out std_logic_vector(1 downto 0);
-        io_dBus_ar_payload_lock : out std_logic_vector(0 downto 0);
-        io_dBus_ar_payload_cache : out std_logic_vector(3 downto 0);
-        io_dBus_ar_payload_qos : out std_logic_vector(3 downto 0);
-        io_dBus_ar_payload_prot : out std_logic_vector(2 downto 0);
-        io_dBus_r_valid : in std_logic;
-        io_dBus_r_ready : out std_logic;
-        io_dBus_r_payload_data : in std_logic_vector(31 downto 0);
-        io_dBus_r_payload_id : in unsigned(0 downto 0);
-        io_dBus_r_payload_resp : in std_logic_vector(1 downto 0);
-        io_dBus_r_payload_last : in std_logic;
-        io_jtag_tms : in std_logic;
-        io_jtag_tdi : in std_logic;
-        io_jtag_tdo : out std_logic;
-        io_jtag_tck : in std_logic
-    );
-end component;
-
-component VexRiscvForXilinxBscan2Jtag is
+component riscv is
     port(
         io_asyncReset : in std_logic;
         io_mainClk : in std_logic;
@@ -4600,71 +4537,6 @@ component VexRiscvForXilinxBscan2Jtag is
         io_dBus_r_payload_last : in std_logic
     );
 end component;
-
-component VexRiscvForSim is
-    port(
-        io_asyncReset : in std_logic;
-        io_mainClk : in std_logic;
-        io_iBus_ar_valid : out std_logic;
-        io_iBus_ar_ready : in std_logic;
-        io_iBus_ar_payload_addr : out unsigned(31 downto 0);
-        io_iBus_ar_payload_id : out unsigned(0 downto 0);
-        io_iBus_ar_payload_region : out std_logic_vector(3 downto 0);
-        io_iBus_ar_payload_len : out unsigned(7 downto 0);
-        io_iBus_ar_payload_size : out unsigned(2 downto 0);
-        io_iBus_ar_payload_burst : out std_logic_vector(1 downto 0);
-        io_iBus_ar_payload_lock : out std_logic_vector(0 downto 0);
-        io_iBus_ar_payload_cache : out std_logic_vector(3 downto 0);
-        io_iBus_ar_payload_qos : out std_logic_vector(3 downto 0);
-        io_iBus_ar_payload_prot : out std_logic_vector(2 downto 0);
-        io_iBus_r_valid : in std_logic;
-        io_iBus_r_ready : out std_logic;
-        io_iBus_r_payload_data : in std_logic_vector(31 downto 0);
-        io_iBus_r_payload_id : in unsigned(0 downto 0);
-        io_iBus_r_payload_resp : in std_logic_vector(1 downto 0);
-        io_iBus_r_payload_last : in std_logic;
-        io_dBus_aw_valid : out std_logic;
-        io_dBus_aw_ready : in std_logic;
-        io_dBus_aw_payload_addr : out unsigned(31 downto 0);
-        io_dBus_aw_payload_id : out unsigned(0 downto 0);
-        io_dBus_aw_payload_region : out std_logic_vector(3 downto 0);
-        io_dBus_aw_payload_len : out unsigned(7 downto 0);
-        io_dBus_aw_payload_size : out unsigned(2 downto 0);
-        io_dBus_aw_payload_burst : out std_logic_vector(1 downto 0);
-        io_dBus_aw_payload_lock : out std_logic_vector(0 downto 0);
-        io_dBus_aw_payload_cache : out std_logic_vector(3 downto 0);
-        io_dBus_aw_payload_qos : out std_logic_vector(3 downto 0);
-        io_dBus_aw_payload_prot : out std_logic_vector(2 downto 0);
-        io_dBus_w_valid : out std_logic;
-        io_dBus_w_ready : in std_logic;
-        io_dBus_w_payload_data : out std_logic_vector(31 downto 0);
-        io_dBus_w_payload_strb : out std_logic_vector(3 downto 0);
-        io_dBus_w_payload_last : out std_logic;
-        io_dBus_b_valid : in std_logic;
-        io_dBus_b_ready : out std_logic;
-        io_dBus_b_payload_id : in unsigned(0 downto 0);
-        io_dBus_b_payload_resp : in std_logic_vector(1 downto 0);
-        io_dBus_ar_valid : out std_logic;
-        io_dBus_ar_ready : in std_logic;
-        io_dBus_ar_payload_addr : out unsigned(31 downto 0);
-        io_dBus_ar_payload_id : out unsigned(0 downto 0);
-        io_dBus_ar_payload_region : out std_logic_vector(3 downto 0);
-        io_dBus_ar_payload_len : out unsigned(7 downto 0);
-        io_dBus_ar_payload_size : out unsigned(2 downto 0);
-        io_dBus_ar_payload_burst : out std_logic_vector(1 downto 0);
-        io_dBus_ar_payload_lock : out std_logic_vector(0 downto 0);
-        io_dBus_ar_payload_cache : out std_logic_vector(3 downto 0);
-        io_dBus_ar_payload_qos : out std_logic_vector(3 downto 0);
-        io_dBus_ar_payload_prot : out std_logic_vector(2 downto 0);
-        io_dBus_r_valid : in std_logic;
-        io_dBus_r_ready : out std_logic;
-        io_dBus_r_payload_data : in std_logic_vector(31 downto 0);
-        io_dBus_r_payload_id : in unsigned(0 downto 0);
-        io_dBus_r_payload_resp : in std_logic_vector(1 downto 0);
-        io_dBus_r_payload_last : in std_logic
-    );
-end component;
-
 
 --------------------------------------------------------------------
 -- Platform porting layers
@@ -4776,6 +4648,67 @@ COMPONENT CCD_SYNC
    );
 end component;
 
+COMPONENT SYNC_LATCH is
+   generic
+   (
+      DATA_WIDTH : natural
+   );
+   port 
+   (
+      enable_in    : in std_logic;
+      data_in      : in std_logic_vector((DATA_WIDTH-1) downto 0);
+      data_out     : out std_logic_vector((DATA_WIDTH-1) downto 0)
+   );
+end component;
+
+component SHIFT_LEFT_L IS
+   GENERIC (
+      DATA_WIDTH    :NATURAL;
+      DIST_WIDTH    :NATURAL
+   );
+   PORT (
+      SIGNAL data_in      : IN STD_LOGIC_VECTOR(DATA_WIDTH-1 DOWNTO 0);
+      SIGNAL distance_in  : IN UNSIGNED(DIST_WIDTH-1 DOWNTO 0);
+      SIGNAL data_out     : OUT STD_LOGIC_VECTOR(DATA_WIDTH-1 DOWNTO 0)
+   );
+end component;
+
+component SHIFT_RIGHT_L IS
+   GENERIC (
+      DATA_WIDTH    :NATURAL;
+      DIST_WIDTH    :NATURAL
+   );
+   PORT (
+      SIGNAL data_in      : IN STD_LOGIC_VECTOR(DATA_WIDTH-1 DOWNTO 0);
+      SIGNAL distance_in  : IN UNSIGNED(DIST_WIDTH-1 DOWNTO 0);
+      SIGNAL data_out     : OUT STD_LOGIC_VECTOR(DATA_WIDTH-1 DOWNTO 0)
+   );
+end component;
+
+component SHIFT_LEFT_A IS
+   GENERIC (
+      DATA_WIDTH    :NATURAL;
+      DIST_WIDTH    :NATURAL
+   );
+   PORT (
+      SIGNAL data_in      : IN STD_LOGIC_VECTOR(DATA_WIDTH-1 DOWNTO 0);
+      SIGNAL distance_in  : IN UNSIGNED(DIST_WIDTH-1 DOWNTO 0);
+      SIGNAL data_out     : OUT STD_LOGIC_VECTOR(DATA_WIDTH-1 DOWNTO 0)
+   );
+end component;
+
+component SHIFT_RIGHT_A IS
+   GENERIC (
+      DATA_WIDTH    :NATURAL;
+      DIST_WIDTH    :NATURAL
+   );
+   PORT (
+      SIGNAL data_in      : IN STD_LOGIC_VECTOR(DATA_WIDTH-1 DOWNTO 0);
+      SIGNAL distance_in  : IN UNSIGNED(DIST_WIDTH-1 DOWNTO 0);
+      SIGNAL data_out     : OUT STD_LOGIC_VECTOR(DATA_WIDTH-1 DOWNTO 0)
+   );
+end component;
+
 --- For simulation ---
 
 component mem64 is
@@ -4849,7 +4782,7 @@ end component;
 component camera is
    Port ( clk_in      : in STD_LOGIC;
           SIOC        : out STD_LOGIC;
-          SIOD        : inout STD_LOGIC;
+          SIOD        : out STD_LOGIC;
           RESET       : out STD_LOGIC;
           PWDN        : out STD_LOGIC;
           XCLK        : out STD_LOGIC;
