@@ -63,7 +63,7 @@ Opensource tool chain normally supports only Verilog.
 
 You can convert ztachip rtl to verilog using ghdl
 
-Install GHDL ![here](https://github.com/ghdl/ghdl)
+Install [GHDL](https://github.com/ghdl/ghdl)
 
 Then convert RTL code from VHDL to verilog with command below
 
