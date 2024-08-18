@@ -23,7 +23,7 @@ The example provided with this repo is meant to be reference design and it is im
 
 - Your SOC may have different peripherals with new drivers to be implemented. All peripheral drivers are implemented in [SW/src/soc.cpp](../SW/src/soc.cpp)
 
-- Refer [here](HW/riscv/README.md) if you like to use a different RISCV implementation. ztachip by default uses [VexRiscv](https://github.com/SpinalHDL/VexRiscv)
+- Refer [here](../HW/riscv/README.md) if you like to use a different RISCV implementation. ztachip by default uses [VexRiscv](https://github.com/SpinalHDL/VexRiscv)
 
 
 
