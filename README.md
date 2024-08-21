@@ -296,19 +296,22 @@ make clean all -f makefile.kernels
 make clean all -f makefile.sim
 ```
 
+Copy the generated image <ztachip>/SW/build/ztachip_sim.hex to folder where you run your simulator. 
+
+This image will be loaded to the simulated memory.
+
 Then compile all RTL codes below for simulation
 ```
 HW/src
 HW/platform/simulation
 HW/simulation
+HW/riscv/sim
 ```
 The top component of your simulation is HW/simulation/main.vhd
 
-main:reset_in must be driven low for few clocks before going high.
+Provide clock to main:clk
 
-main:clk_x2_main must be twice the speed of main:clk_main and in phase.
-
-The main:led_out should blink everytime a test result is passed.
+main:led_out should blink everytime a test result is passed.
 
 
 # Contact
