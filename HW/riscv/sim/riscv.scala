@@ -185,6 +185,6 @@ case class riscv(config : RiscvConfig) extends Component{
 
 object riscv{
   def main(args: Array[String]) {
-    SpinalVerilog(riscv(RiscvConfig.default.copy()))
+    SpinalVhdl(riscv(RiscvConfig.default.copy()))
   }
 }
