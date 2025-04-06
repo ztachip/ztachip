@@ -6,6 +6,8 @@ cd $(dirname "$0")
 
 ZTACHIP_RTL=../../HW/src
 
+GHDL=./ghdl/bin/ghdl
+
 rm -r -f build
 
 rm -f *.v
@@ -13,7 +15,7 @@ rm -f *.v
 mkdir -p build
 
 # Import sources
-ghdl -i --std=08 --work=work --workdir=build -Pbuild \
+$GHDL -i --std=08 --work=work --workdir=build -Pbuild \
   "$ZTACHIP_RTL"/*.vhd \
   "$ZTACHIP_RTL"/alu/*.vhd \
   "$ZTACHIP_RTL"/dp/*.vhd \
@@ -44,7 +46,7 @@ ghdl -i --std=08 --work=work --workdir=build -Pbuild \
   "$ZTACHIP_RTL"/top/*.vhd
 
 # Top entity
-ghdl -m --std=08 --work=work --workdir=build soc_base 
+$GHDL -m --std=08 --work=work --workdir=build soc_base 
 
 # Synthesize: generate Verilog output
-ghdl synth --std=08 --work=work --workdir=build -Pbuild --out=verilog soc_base > soc.v
+$GHDL synth --std=08 --work=work --workdir=build -Pbuild --out=verilog soc_base > soc.v
