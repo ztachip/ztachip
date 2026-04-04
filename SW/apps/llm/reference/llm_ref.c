@@ -36,6 +36,39 @@ extern void kernel_llm_done();
 
 //#define TENSOR_IS_REORDER // Tensors are reordered for running on ztachip
 
+// Round INT32 to INT32 but keep just 12 bit MSB if numbers need more than 12-bit accuracy
+// This is to simulate when INT32 results from pcore get trasfered to outside of pcore memory
+// space
+
+static int32_t round12(int32_t v) {
+   int v2;
+   uint32_t mask;
+   int pos;
+   int shift;
+
+   if (v == 0)
+       return 0;
+   if (v < 0)
+      v2 = -v;
+   else
+      v2 = v;
+   mask = 0x80000000;
+   pos = 31;
+   while ((v2 & mask) == 0)
+   {
+      mask = mask >> 1;
+      pos--;
+   }
+   shift = pos - 11;
+   if (shift > 0) {
+      v2 = (v2 >> shift);
+      v2 = (v2 << shift);
+   }
+   if (v < 0)
+      v2 = -v2;
+   return v2;
+}
+
 #ifdef TENSOR_IS_REORDER
 inline uint32_t WV(uint32_t xx,uint32_t *e,uint32_t *e2,int *reshape) {
     uint32_t y=0;
@@ -106,8 +139,8 @@ void kernel_ref_llm_matmul_q4_exe(
                 sum += ((int32_t)((int8_t)lo))*((int32_t)((int16_t)x_v[j+k]));
                 sum += ((int32_t)((int8_t)hi))*((int32_t)((int16_t)x_v[j+k+1]));
             }
-            sumf = BF2F(F2BF((float)sum));
-            r += BF2F(x_s[b])*BF2F(w_s[WS(i*N2+b,N2,D)])*sumf;
+            sumf = round12(sum);
+            r += BF2F(x_s[b])*(FP16_2_F(w_s[WS(i*N2+b,N2,D)])*(float)sumf);
         }
         result[i] = F2BF(r);
     }
@@ -181,8 +214,9 @@ void kernel_ref_llm_matmul_q8_exe(
                 sum += ((int32_t)((int8_t)lo))*((int32_t)((int16_t)x_v[j+k]));
                 sum += ((int32_t)((int8_t)hi))*((int32_t)((int16_t)x_v[j+k+1]));
             }
-            sumf = BF2F(F2BF((float)sum));
-            r += BF2F(x_s[b])*BF2F(w_s[WS2(i*N2+b,N2,D)])*sumf;
+            sumf = round12(sum);
+//            sumf = sum;
+            r += BF2F(x_s[b])*FP16_2_F(w_s[WS2(i*N2+b,N2,D)])*sumf;
         }
         result[i] = F2BF(r);
     }
@@ -196,8 +230,9 @@ void kernel_ref_llm_matmul_q8_exe(
 
 void kernel_ref_llm_quantize_exe(int reqId,int N,float16_t *x,float16_t *s,int16_t *q) {
     int num_groups = N / GS_DEFAULT;
-//    float Q_MAX = 32767.0f;
-    float Q_MAX = 127.0f;
+    float Q_MAX = 2047.0f;
+    float s_reciprocal;
+//    float Q_MAX = 127.0f;
 
     for (int group = 0; group < num_groups; group++) {
         float wmax = 0.0;
@@ -211,15 +246,12 @@ void kernel_ref_llm_quantize_exe(int reqId,int N,float16_t *x,float16_t *s,int16
         // calculate and write the scaling factor
         float scale = wmax / Q_MAX;
         s[group] = F2BF(scale);
+        s_reciprocal = 1.0 / BF2F(s[group]);
 
         // calculate and write the quantized values
         for (int i = 0; i < GS_DEFAULT; i++) {
-            float quant_value = BF2F(x[group * GS_DEFAULT + i]) / scale;
+            float quant_value = BF2F(x[group * GS_DEFAULT + i]) * s_reciprocal;
             int quantized = (int)(quant_value); 
-            if(quantized > 32767)
-                quantized = 32767;
-            if(quantized < -32767)
-                quantized = -32767;
             q[group * GS_DEFAULT + i] = (int16_t)quantized;
         }
     }
@@ -262,7 +294,6 @@ void kernel_ref_llm_rms_exe(int reqId,int N,float16_t *x,bool x_is_fp16,float16_
 
 void kernel_ref_llm_dot_product_exe(int reqId,int N,int K,float16_t *x1,float16_t *_x2,int _x2_dim,float16_t *_y,float scale) {
     float sum;
-
     for(int i=0;i < K;i++) {
         sum = 0;
         for(int j=0;j < N;j++) {
@@ -281,7 +312,6 @@ void kernel_ref_llm_dot_product_exe(int reqId,int N,int K,float16_t *x1,float16_
 
 void kernel_ref_llm_dot_product2_exe(int reqId,int N,int _K,float16_t *x1,float16_t *x2,int x2_dim,float16_t *_y) {
     float sum;
-
     for(int i=0;i < N;i++) {
         sum = 0;
         for(int j=0;j < _K;j++) {
@@ -304,7 +334,6 @@ void kernel_ref_llm_rope_exe(
    float16_t *y
 ) {
     float v0,v1,y0,y1;
-
     for (int i = 0; i < N; i++) {
         v0 = BF2F(v[2*i]);
         v1 = BF2F(v[2*i+1]);
@@ -349,7 +378,6 @@ void kernel_ref_llm_residual_exe(
    )
 {
     float f;
-
     for (int i = 0; i < N; i++) {
         if(x_is_fp16)
             f = FP16_2_F(x[i]) + BF2F(xb[i]);

@@ -154,3 +154,15 @@ uint8_t *bmpRead(const char *filename,int *h,int *w) {
    return bitmapImage;
 }
 
+// Return a random number from 0->1
+
+static uint32_t seed=0x25111503;
+
+void randInit(uint32_t _seed) {
+   seed = _seed;
+}
+
+float randGen() {
+   seed = (seed * 1664525 + 1013904223);
+   return (float)(seed & 0xFFFFFF) / (float)0x1000000;
+}

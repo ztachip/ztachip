@@ -59,10 +59,10 @@ ENTITY sram_core IS
          SIGNAL fpu_write_wait_out       : OUT STD_LOGIC;
          SIGNAL fpu_read_in              : IN STD_LOGIC;
          SIGNAL fpu_read_wait_out        : OUT STD_LOGIC;
-         SIGNAL fpu_writedata_in         : IN STD_LOGIC_VECTOR(ddr_data_width_c-1 DOWNTO 0);
-         SIGNAL fpu_writebe_in           : IN STD_LOGIC_VECTOR(ddr_data_width_c/8-1 DOWNTO 0);
+         SIGNAL fpu_writedata_in         : IN STD_LOGIC_VECTOR(fpu_data_width_c-1 DOWNTO 0);
+         SIGNAL fpu_writebe_in           : IN STD_LOGIC_VECTOR(fpu_data_width_c/8-1 DOWNTO 0);
          SIGNAL fpu_readdatavalid_out    : OUT STD_LOGIC;
-         SIGNAL fpu_readdata_out         : OUT STD_LOGIC_VECTOR(ddr_data_width_c-1 DOWNTO 0);
+         SIGNAL fpu_readdata_out         : OUT STD_LOGIC_VECTOR(fpu_data_width_c-1 DOWNTO 0);
 
          -- AXI interface for RISCV to access
          SIGNAL axislave_araddr_in      : IN STD_LOGIC_VECTOR(31 downto 0);
@@ -86,7 +86,8 @@ type SOURCE is (SOURCE_NONE,SOURCE_AXI,SOURCE_DP,SOURCE_FPU);
 SIGNAL sram_write:STD_LOGIC_VECTOR(sram_num_bank_c-1 downto 0);
 SIGNAL sram_read:STD_LOGIC_VECTOR(sram_num_bank_c-1 downto 0);
 SIGNAL sram_readdatavalid:STD_LOGIC_VECTOR(sram_num_bank_c-1 downto 0);
-SIGNAL sram_readdata:dp_datas_t(sram_num_bank_c-1 downto 0);
+SIGNAL sram_readdata_0:STD_LOGIC_VECTOR(2*ddr_data_width_c-1 DOWNTO 0);
+SIGNAL sram_readdata_1:STD_LOGIC_VECTOR(2*ddr_data_width_c-1 DOWNTO 0);
 
 SIGNAL dp_read_vm_r:STD_LOGIC;
 SIGNAL dp_read_vm_rr:STD_LOGIC;
@@ -105,27 +106,27 @@ SIGNAL read_source_1_rrrr:SOURCE;
 
 SIGNAL read_addr_0:STD_LOGIC_VECTOR(sram_depth_c-1 DOWNTO 0);
 SIGNAL read_source_0:SOURCE;
-SIGNAL read_vector_0:dp_vector_t;
+SIGNAL read_vector_0:std_logic_vector(ddr_vector_depth_c+1-1 downto 0);
 SIGNAL read_gen_valid_0:STD_LOGIC;
 SIGNAL read_vm_0:STD_LOGIC;
 
 SIGNAL read_addr_1:STD_LOGIC_VECTOR(sram_depth_c-1 DOWNTO 0);
 SIGNAL read_source_1:SOURCE;
-SIGNAL read_vector_1:dp_vector_t;
+SIGNAL read_vector_1:std_logic_vector(ddr_vector_depth_c+1-1 downto 0);
 SIGNAL read_gen_valid_1:STD_LOGIC;
 SIGNAL read_vm_1:STD_LOGIC;
 
 SIGNAL write_addr_0:STD_LOGIC_VECTOR(sram_depth_c-1 DOWNTO 0);        
 SIGNAL write_source_0:SOURCE;
-SIGNAL write_vector_0:dp_vector_t;
-SIGNAL writedata_0:STD_LOGIC_VECTOR(ddr_data_width_c-1 DOWNTO 0);
-SIGNAL writebe_0:STD_LOGIC_VECTOR(ddr_data_width_c/8-1 DOWNTO 0);
+SIGNAL write_vector_0:std_logic_vector(ddr_vector_depth_c+1-1 downto 0);
+SIGNAL writedata_0:STD_LOGIC_VECTOR(2*ddr_data_width_c-1 DOWNTO 0);
+SIGNAL writebe_0:STD_LOGIC_VECTOR(2*ddr_data_width_c/8-1 DOWNTO 0);
 
 SIGNAL write_addr_1:STD_LOGIC_VECTOR(sram_depth_c-1 DOWNTO 0);        
 SIGNAL write_source_1:SOURCE;
-SIGNAL write_vector_1:dp_vector_t;
-SIGNAL writedata_1:STD_LOGIC_VECTOR(ddr_data_width_c-1 DOWNTO 0);
-SIGNAL writebe_1:STD_LOGIC_VECTOR(ddr_data_width_c/8-1 DOWNTO 0);
+SIGNAL write_vector_1:std_logic_vector(ddr_vector_depth_c+1-1 downto 0);
+SIGNAL writedata_1:STD_LOGIC_VECTOR(2*ddr_data_width_c-1 DOWNTO 0);
+SIGNAL writebe_1:STD_LOGIC_VECTOR(2*ddr_data_width_c/8-1 DOWNTO 0);
 
 SIGNAL axi_read:STD_LOGIC;
 SIGNAL axi_rd_addr:STD_LOGIC_VECTOR(sram_depth_c-1 DOWNTO 0);
@@ -164,13 +165,13 @@ begin
       if(dp_rd_addr_in(sram_depth_c-1)='0') then
          read_source_0 <= SOURCE_DP;
          read_addr_0 <= dp_rd_addr_in;
-         read_vector_0 <= dp_read_vector_in;
+         read_vector_0 <= "0" & dp_read_vector_in;
          read_gen_valid_0 <= dp_read_gen_valid_in;
          read_vm_0 <= dp_read_vm_in;
       else
          read_source_1 <= SOURCE_DP;
          read_addr_1 <= dp_rd_addr_in;
-         read_vector_1 <= dp_read_vector_in;
+         read_vector_1 <= "0" & dp_read_vector_in;
          read_gen_valid_1 <= dp_read_gen_valid_in;
          read_vm_1 <= dp_read_vm_in;
       end if;
@@ -180,13 +181,13 @@ begin
       if(fpu_rd_addr_in(sram_depth_c-1)='0') then
          read_source_0 <= SOURCE_FPU;
          read_addr_0 <= fpu_rd_addr_in;
-         read_vector_0 <= std_logic_vector(to_unsigned(ddr_vector_width_c-1,dp_vector_t'length));
+         read_vector_0 <= (others=>'1');
          read_gen_valid_0 <= '1';
          read_vm_0 <= '0'; 
       else
          read_source_1 <= SOURCE_FPU;
          read_addr_1 <= fpu_rd_addr_in;
-         read_vector_1 <= std_logic_vector(to_unsigned(ddr_vector_width_c-1,dp_vector_t'length));
+         read_vector_1 <= (others=>'1');
          read_gen_valid_1 <= '1';
          read_vm_1 <= '0';
       end if;
@@ -196,13 +197,13 @@ begin
       if(axi_rd_addr(sram_depth_c-1)='0') then
          read_source_0 <= SOURCE_AXI;
          read_addr_0 <= axi_rd_addr;
-         read_vector_0 <= std_logic_vector(to_unsigned(ddr_vector_width_c/2-1,dp_vector_t'length));
+         read_vector_0 <= "0" & std_logic_vector(to_unsigned(ddr_vector_width_c/2-1,dp_vector_t'length));
          read_gen_valid_0 <= '1';
          read_vm_0 <= '0';
       else
          read_source_1 <= SOURCE_AXI;
          read_addr_1 <= axi_rd_addr;
-         read_vector_1 <= std_logic_vector(to_unsigned(ddr_vector_width_c/2-1,dp_vector_t'length));
+         read_vector_1 <= "0" & std_logic_vector(to_unsigned(ddr_vector_width_c/2-1,dp_vector_t'length));
          read_gen_valid_1 <= '1';
          read_vm_1 <= '0';
       end if;
@@ -229,14 +230,14 @@ begin
       if(dp_wr_addr_in(sram_depth_c-1)='0') then
          write_addr_0 <= dp_wr_addr_in;        
          write_source_0 <= SOURCE_DP;
-         write_vector_0 <= dp_write_vector_in;
-         writedata_0 <= dp_writedata_in;
+         write_vector_0 <= "0" & dp_write_vector_in;
+         writedata_0 <= dp_writedata_in & dp_writedata_in;
          writebe_0 <= (others=>'1');
       else
          write_addr_1 <= dp_wr_addr_in;        
          write_source_1 <= SOURCE_DP;
-         write_vector_1 <= dp_write_vector_in;
-         writedata_1 <= dp_writedata_in;
+         write_vector_1 <= "0" & dp_write_vector_in;
+         writedata_1 <= dp_writedata_in & dp_writedata_in;
          writebe_1 <= (others=>'1');
       end if;
    end if;
@@ -244,13 +245,13 @@ begin
       if(fpu_wr_addr_in(sram_depth_c-1)='0') then
          write_addr_0 <= fpu_wr_addr_in;        
          write_source_0 <= SOURCE_FPU;
-         write_vector_0 <= std_logic_vector(to_unsigned(ddr_vector_width_c-1,dp_vector_t'length));
+         write_vector_0 <= (others=>'1');
          writedata_0 <= fpu_writedata_in;
          writebe_0 <= fpu_writebe_in;
       else
          write_addr_1 <= fpu_wr_addr_in;        
          write_source_1 <= SOURCE_FPU;
-         write_vector_1 <= std_logic_vector(to_unsigned(ddr_vector_width_c-1,dp_vector_t'length));
+         write_vector_1 <= (others=>'1');
          writedata_1 <= fpu_writedata_in;
          writebe_1 <= fpu_writebe_in;
       end if;
@@ -291,15 +292,15 @@ end process;
 
 -- MUX read access response
 
-process(sram_readdatavalid,sram_readdata,dp_read_vm_rrrr,read_source_0_rrrr,read_source_1_rrrr)
+process(sram_readdatavalid,sram_readdata_0,sram_readdata_1,dp_read_vm_rrrr,read_source_0_rrrr,read_source_1_rrrr)
 begin
    dp_readdatavalid_vm_out <= dp_read_vm_rrrr;
    if(read_source_0_rrrr=SOURCE_DP) then
       dp_readdatavalid_out <= '1';
-      dp_readdata_out(ddr_data_width_c-1 downto 0) <= sram_readdata(0);
+      dp_readdata_out(ddr_data_width_c-1 downto 0) <= sram_readdata_0(ddr_data_width_c-1 downto 0);
    elsif (read_source_1_rrrr=SOURCE_DP) then
       dp_readdatavalid_out <= '1';
-      dp_readdata_out(ddr_data_width_c-1 downto 0) <= sram_readdata(1);
+      dp_readdata_out(ddr_data_width_c-1 downto 0) <= sram_readdata_1(ddr_data_width_c-1 downto 0);
    else
       dp_readdatavalid_out <= '0';
       dp_readdata_out <= (others=>'0');
@@ -307,10 +308,10 @@ begin
 
    if(read_source_0_rrrr=SOURCE_AXI) then
       axi_readdatavalid <= '1';
-      axi_readdata <= sram_readdata(0)(31 downto 0);
+      axi_readdata <= sram_readdata_0(31 downto 0);
    elsif(read_source_1_rrrr=SOURCE_AXI) then
       axi_readdatavalid <= '1';
-      axi_readdata <= sram_readdata(1)(31 downto 0);
+      axi_readdata <= sram_readdata_1(31 downto 0);
    else
       axi_readdatavalid <= '0';
       axi_readdata <= (others=>'0');
@@ -318,10 +319,10 @@ begin
 
    if(read_source_0_rrrr=SOURCE_FPU) then
       fpu_readdatavalid_out <= '1';
-      fpu_readdata_out(ddr_data_width_c-1 downto 0) <= sram_readdata(0);
+      fpu_readdata_out <= sram_readdata_0;
    elsif(read_source_1_rrrr=SOURCE_FPU) then
       fpu_readdatavalid_out <= '1';
-      fpu_readdata_out(ddr_data_width_c-1 downto 0) <= sram_readdata(1);
+      fpu_readdata_out <= sram_readdata_1;
    else
       fpu_readdatavalid_out <= '0';   
       fpu_readdata_out <= (others=>'0');
@@ -392,43 +393,43 @@ axi_ifc_i: axi_ram_read
 
 
 sram_0_i : sram
-    GENERIC MAP(
-        DEPTH=>sram_bank_depth_c
-        )
-    PORT MAP (
-         clock_in => clock_in,
-         reset_in => reset_in,
-         dp_rd_addr_in => read_addr_0(sram_bank_depth_c-1 downto 0),
-         dp_wr_addr_in => write_addr_0(sram_bank_depth_c-1 downto 0),
-         dp_write_in => sram_write(0),
-         dp_write_vector_in=>write_vector_0,
-         dp_read_in=>sram_read(0),
-         dp_read_vector_in=>read_vector_0,
-         dp_read_gen_valid_in=>read_gen_valid_0,
-         dp_writedata_in=>writedata_0,
-         dp_writebe_in=>writebe_0,
-         dp_readdatavalid_out=>sram_readdatavalid(0),
-         dp_readdata_out => sram_readdata(0)
-    );
+   GENERIC MAP(
+      DEPTH=>sram_bank_depth_c
+   )
+   PORT MAP (
+      clock_in => clock_in,
+      reset_in => reset_in,
+      dp_rd_addr_in => read_addr_0(sram_bank_depth_c-1 downto 0),
+      dp_wr_addr_in => write_addr_0(sram_bank_depth_c-1 downto 0),
+      dp_write_in => sram_write(0),
+      dp_write_vector_in=>write_vector_0,
+      dp_read_in=>sram_read(0),
+      dp_read_vector_in=>read_vector_0,
+      dp_read_gen_valid_in=>read_gen_valid_0,
+      dp_writedata_in=>writedata_0,
+      dp_writebe_in=>writebe_0,
+      dp_readdatavalid_out=>sram_readdatavalid(0),
+      dp_readdata_out => sram_readdata_0
+   );
 
 sram_1_i : sram
-    GENERIC MAP(
-        DEPTH=>sram_bank_depth_c
-        )
-    PORT MAP (
-         clock_in => clock_in,
-         reset_in => reset_in,
-         dp_rd_addr_in => read_addr_1(sram_bank_depth_c-1 downto 0),
-         dp_wr_addr_in => write_addr_1(sram_bank_depth_c-1 downto 0),
-         dp_write_in => sram_write(1),
-         dp_write_vector_in=>write_vector_1,
-         dp_read_in=>sram_read(1),
-         dp_read_vector_in=>read_vector_1,
-         dp_read_gen_valid_in=>read_gen_valid_1,
-         dp_writedata_in=>writedata_1,
-         dp_writebe_in=>writebe_1,
-         dp_readdatavalid_out=>sram_readdatavalid(1),
-         dp_readdata_out => sram_readdata(1)
-    );
+   GENERIC MAP(
+      DEPTH=>sram_bank_depth_c
+   )
+   PORT MAP (
+      clock_in => clock_in,
+      reset_in => reset_in,
+      dp_rd_addr_in => read_addr_1(sram_bank_depth_c-1 downto 0),
+      dp_wr_addr_in => write_addr_1(sram_bank_depth_c-1 downto 0),
+      dp_write_in => sram_write(1),
+      dp_write_vector_in=>write_vector_1,
+      dp_read_in=>sram_read(1),
+      dp_read_vector_in=>read_vector_1,
+      dp_read_gen_valid_in=>read_gen_valid_1,
+      dp_writedata_in=>writedata_1,
+      dp_writebe_in=>writebe_1,
+      dp_readdatavalid_out=>sram_readdatavalid(1),
+      dp_readdata_out => sram_readdata_1
+   );
 
 END behavior;

@@ -43,7 +43,9 @@ ENTITY falu2 IS
         SIGNAL input_ena_in         : IN STD_LOGIC;
         SIGNAL input_eof_in         : IN STD_LOGIC;
         SIGNAL input_last_in        : IN STD_LOGIC;
+        SIGNAL input_last_be_in     : IN STD_LOGIC_VECTOR(fpu_data_width_c/8-1 downto 0);
         SIGNAL input_fast_in        : IN STD_LOGIC;
+        SIGNAL input_vector_in      : IN fpu_vector_t;
         SIGNAL A_addr               : IN unsigned(sram_depth_c-1 DOWNTO 0);
         SIGNAL A_precision          : IN unsigned(2 downto 0);
         SIGNAL A_floor              : IN STD_LOGIC;
@@ -54,9 +56,12 @@ ENTITY falu2 IS
         SIGNAL Y_in                 : IN fp32_t;
 
         SIGNAL output_ena_out       : OUT STD_LOGIC;
+        SIGNAL output_opcode_out    : OUT fpu_opcode_t;
         SIGNAL output_eof_out       : OUT STD_LOGIC;
         SIGNAL output_last_out      : OUT STD_LOGIC;
+        SIGNAL output_last_be_out   : OUT STD_LOGIC_VECTOR(fpu_data_width_c/8-1 downto 0);
         SIGNAL output_fast_out      : OUT STD_LOGIC;
+        SIGNAL output_vector_out    : OUT fpu_vector_t;
         SIGNAL output_addr_out      : OUT unsigned(sram_depth_c-1 DOWNTO 0);
         SIGNAL output_precision_out : OUT unsigned(2 downto 0);
         SIGNAL output_out           : OUT fp32_t
@@ -441,6 +446,45 @@ delay5_i:delay
         reset_in=>reset_in,
         in_in=>input_fast_in,
         out_out=>output_fast_out,
+        enable_in=>'1'
+    );
+
+delay6_i:delayi
+    generic map(
+        SIZE=>fpu_vector_t'length,
+        DEPTH=>LATENCY
+    )
+    port map(
+        clock_in=>clock_in,
+        reset_in=>reset_in,
+        in_in=>input_vector_in,
+        out_out=>output_vector_out,
+        enable_in=>'1'
+    );
+
+delay7_i:delayv
+    generic map(
+        DEPTH=>LATENCY,
+        SIZE=>fpu_data_width_c/8
+    )
+    port map(
+        clock_in=>clock_in,
+        reset_in=>reset_in,
+        in_in=>input_last_be_in,
+        out_out=>output_last_be_out,
+        enable_in=>'1'
+    );
+
+delay8_i:delayi
+    generic map(
+        DEPTH=>LATENCY,
+        SIZE=>opcode_in'length
+    )
+    port map(
+        clock_in=>clock_in,
+        reset_in=>reset_in,
+        in_in=>opcode_in,
+        out_out=>output_opcode_out,
         enable_in=>'1'
     );
 

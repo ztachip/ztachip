@@ -123,14 +123,14 @@ private:
 private:
     bool findKey(const char* key);
     bool findTensor(const char* key);
-private:
+public:
     ZtaStatus quantize(float* x, size_t sz, int N, int D,bool reorder,ZUF_QUANT quant);
+    uint8_t* m_qq;
+    float16_t* m_qs;
 private:
     uint8_t* m_top;
     size_t m_curr;
     size_t m_size;
-    uint8_t* m_qq;
-    float16_t* m_qs;
 private:
     uint32_t m_version;
     int64_t m_nTensors;

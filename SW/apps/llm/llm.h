@@ -60,6 +60,8 @@ public:
     ZtaStatus SetSamplingPolicyGreedy();
     void ClearStat();
     float GetStatTokPerSec();
+    uint32_t GetStatNumTokens();
+    void PrintDebugStat();
 private:
     void matmul(int req_id,int N,int D,int gs,int16_t *x_v,float16_t *x_s,WeightTensor *w,float16_t *result);
     float16_t* forward(int token, int pos);

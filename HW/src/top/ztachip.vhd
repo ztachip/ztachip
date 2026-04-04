@@ -223,10 +223,10 @@ SIGNAL fpu_write:STD_LOGIC;
 SIGNAL fpu_write_wait:STD_LOGIC;
 SIGNAL fpu_read:STD_LOGIC;
 SIGNAL fpu_read_wait:STD_LOGIC;
-SIGNAL fpu_writedata:STD_LOGIC_VECTOR(ddr_data_width_c-1 DOWNTO 0);
-SIGNAL fpu_writebe:STD_LOGIC_VECTOR(ddr_data_width_c/8-1 DOWNTO 0);
+SIGNAL fpu_writedata:STD_LOGIC_VECTOR(fpu_data_width_c-1 DOWNTO 0);
+SIGNAL fpu_writebe:STD_LOGIC_VECTOR(fpu_data_width_c/8-1 DOWNTO 0);
 SIGNAL fpu_readdatavalid:STD_LOGIC;
-SIGNAL fpu_readdata:STD_LOGIC_VECTOR(ddr_data_width_c-1 DOWNTO 0);
+SIGNAL fpu_readdata:STD_LOGIC_VECTOR(fpu_data_width_c-1 DOWNTO 0);
 
 -- Task control
 

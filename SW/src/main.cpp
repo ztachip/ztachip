@@ -25,13 +25,14 @@ extern int vision_ai(void);
 
 extern int chat();
 
+extern void test_llm();
+
 //-----------------------------------------
 // Application main entry
 // 2 execution cases: vision example or test suites.
 //-----------------------------------------
 
 int main() {
-
    ztaInit();
    GdiInit();
    NetInit(0x0a0a0a63); // My local IP=10.10.10.99
@@ -40,6 +41,7 @@ int main() {
    // Run unit tests against test vectors
    while(1){
       test();
+      // test_llm(); 
    }
 #endif
 

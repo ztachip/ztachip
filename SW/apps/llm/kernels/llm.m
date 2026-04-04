@@ -38,7 +38,7 @@
 void invsqrt(int cnt,float *x,float *y,float *temp,float *temp2)
 {
    >FPU.INVSQRT(n=cnt,y=(float *)y,x=(float *)x); // Initial estimate
-   
+
    >FPU.MAC(n=cnt,y=(float *)temp2,x1=(float *)x,x2=0.5);
 
    for(int i=0;i < 4;i++) {  
@@ -60,6 +60,7 @@ void invsqrt(int cnt,float *x,float *y,float *temp,float *temp2)
 
 static void reciprocal(int cnt,float *x,int xfmt,float *y,float *temp)
 {
+   if(cnt==1) {
    >FPU.RECIPROCAL(n=cnt,y=(float *)y,x=(xfmt)x);
 
    >FPU.MAC(N=cnt,y=(float *)temp,a=2.0,x1=(xfmt)x,x2=(float *)y,c=-1.0)...;
@@ -73,6 +74,21 @@ static void reciprocal(int cnt,float *x,int xfmt,float *y,float *temp)
    >FPU.MAC(N=cnt,y=(float *)temp,a=2.0,x1=(xfmt)x,x2=(float *)y,c=-1.0)...;
 
    >FPU.MAC(N=cnt,y=(float *)y,x1=(float *)temp,x2=(float *)y);
+   } else {
+   >FPU.V.RECIPROCAL(n=cnt,y=(float *)y,x=(xfmt)x);
+
+   >FPU.V.MAC(N=cnt,y=(float *)temp,a=2.0,x1=(xfmt)x,x2=(float *)y,c=-1.0)...;
+
+   >FPU.V.MAC(N=cnt,y=(float *)y,x1=(float *)temp,x2=(float *)y)...;
+
+   >FPU.V.MAC(N=cnt,y=(float *)temp,a=2.0,x1=(xfmt)x,x2=(float *)y,c=-1.0)...;
+
+   >FPU.V.MAC(N=cnt,y=(float *)y,x1=(float *)temp,x2=(float *)y)...;
+
+   >FPU.V.MAC(N=cnt,y=(float *)temp,a=2.0,x1=(xfmt)x,x2=(float *)y,c=-1.0)...;
+
+   >FPU.V.MAC(N=cnt,y=(float *)y,x1=(float *)temp,x2=(float *)y);
+   }
 }
 
 //--------------------------------------------------------------------------
@@ -85,27 +101,27 @@ static void reciprocal(int cnt,float *x,int xfmt,float *y,float *temp)
 //--------------------------------------------------------------------------
 
 static void exponent(int N,float *x,float *y,float *tmp1,float *tmp2,float *tmp3,float bias,int yfmt) { 
-   >FPU.MAC.FLOOR(n=N,y=(float *)tmp1,c=1.442695,x1=(float *)x); // tmp1= floor(x/ln2)
+   >FPU.V.MAC.FLOOR(n=N,y=(float *)tmp1,c=1.442695,x1=(float *)x); // tmp1= floor(x/ln2)
 
-   >FPU.MAC(n=N,y=(int16 *)tmp2,x1=(float *)tmp1); // tmp2= (int8_t)tmp1
+   >FPU.V.MAC(n=N,y=(int16 *)tmp2,x1=(float *)tmp1)...; // tmp2= (int8_t)tmp1
 
-   >FPU.EXP(n=N,y=(float *)tmp3,x=(int16 *)tmp2); //tmp3 = exp(tmp2) 
+   >FPU.V.EXP(n=N,y=(float *)tmp3,x=(int16 *)tmp2)...; //tmp3 = exp(tmp2) 
 
-   >FPU.MAC(n=N,y=(float *)x,a=(float *)x,c=-0.69314718,x1=(float *)tmp1); // x = x-tmp1*(ln2)
+   >FPU.V.MAC(n=N,y=(float *)x,a=(float *)x,c=-0.69314718,x1=(float *)tmp1)...; // x = x-tmp1*(ln2)
 
-   >FPU.MAC(n=N,y=(float *)y,a=0.00833333,c=0.00138889,x1=(float *)x); // y= 0.00833333 + x*0.00138889
+   >FPU.V.MAC(n=N,y=(float *)y,a=0.00833333,c=0.00138889,x1=(float *)x)...; // y= 0.00833333 + x*0.00138889
 
-   >FPU.MAC(n=N,y=(float *)y,a=0.04166667,x1=(float *)x,x2=(float *)y); // y= 0.04166667 + x*y
+   >FPU.V.MAC(n=N,y=(float *)y,a=0.04166667,x1=(float *)x,x2=(float *)y)...; // y= 0.04166667 + x*y
 
-   >FPU.MAC(n=N,y=(float *)y,a=0.16666667,x1=(float *)x,x2=(float *)y); // y=0.16666667 + x*y
+   >FPU.V.MAC(n=N,y=(float *)y,a=0.16666667,x1=(float *)x,x2=(float *)y)...; // y=0.16666667 + x*y
 
-   >FPU.MAC(n=N,y=(float *)y,a=0.5,x1=(float *)x,x2=(float *)y); // y=0.5 + x*y
+   >FPU.V.MAC(n=N,y=(float *)y,a=0.5,x1=(float *)x,x2=(float *)y)...; // y=0.5 + x*y
 
-   >FPU.MAC(n=N,y=(float *)y,a=1.0,x1=(float *)x,x2=(float *)y); // y=1 + x*y
+   >FPU.V.MAC(n=N,y=(float *)y,a=1.0,x1=(float *)x,x2=(float *)y)...; // y=1 + x*y
 
-   >FPU.MAC(n=N,y=(float *)y,a=1.0,x1=(float *)x,x2=(float *)y); // y=1 + x*y
+   >FPU.V.MAC(n=N,y=(float *)y,a=1.0,x1=(float *)x,x2=(float *)y)...; // y=1 + x*y
 
-   >FPU.MAC(n=N,y=(float *)y,a=(float)bias,x1=(float *)tmp3,x2=(float *)y); // y=y*tmp3
+   >FPU.V.MAC(n=N,y=(float *)y,a=(float)bias,x1=(float *)tmp3,x2=(float *)y); // y=y*tmp3
 }
 
 //----------------------------------------------------------------------------
@@ -240,7 +256,7 @@ static void matmul_q4(void *_p,int pid) {
 
                _end_ = (ii==(cnt2-1))?0:(fast?':':'.');
 
-               >FPU.MAC(N=cnt,y=(y_type)ws->s4,A=(a_type)a,c=(bfloat *)s2,x1=(float16 *)s1,x2=(zfloat *)s3) _end_;
+               >FPU.V.MAC(N=cnt,y=(y_type)ws->s4,A=(a_type)a,c=(bfloat *)s2,x1=(float16 *)s1,x2=(zfloat *)s3) _end_;
          }
          ztaTaskYield();
       }
@@ -367,7 +383,7 @@ static void matmul_q8(void *_p,int pid) {
 
                _end_ = (ii==(cnt2-1))?0:(fast?':':'.');
 
-               >FPU.MAC(N=cnt,y=(y_type)ws->s4,A=(a_type)a,c=(bfloat *)s2,x1=(float16 *)s1,x2=(zfloat *)s3) _end_;
+               >FPU.V.MAC(N=cnt,y=(y_type)ws->s4,A=(a_type)a,c=(bfloat *)s2,x1=(float16 *)s1,x2=(zfloat *)s3) _end_;
          }
          ztaTaskYield();
       }
@@ -505,12 +521,12 @@ void kernel_llm_quantize_exe(int reqId,int N,float16_t *x,float16_t *s,int16_t *
 
       > DTYPE(INT16)SCRATCH((uint32_t)ws->x,remain)[:] <= DTYPE(INT16)MEM((uint32_t)x,N)[i:i+remain-1];
 
-      > FPU.MAX.ABS(N=remain,y=(float *)ws->y,x=(bfloat *)ws->x,g=31);
+      > FPU.V.MAX.ABS(N=remain,y=(float *)ws->y,x=(bfloat *)ws->x,g=31);
 
       // Then divide the MAX by 2047, get result in FP16, this the the scaling factor used
       // when dequantize
-
-      >FPU.MAC(N=remain2,y=(bfloat *)ws->y16,x1=(float *)ws->y,x2=(float)4.8851978505e-4);
+//VUONG FAIL HERE
+      >FPU.V.MAC(N=remain2,y=(bfloat *)ws->y16,x1=(float *)ws->y,x2=(float)4.8851978505e-4);
 
       >DTYPE(INT16)MEM(y16,N/32)[j:j+remain2-1] <= DTYPE(INT16)SCRATCH((uint32_t)ws->y16,remain2)[:];
 
@@ -537,7 +553,7 @@ void kernel_llm_quantize_exe(int reqId,int N,float16_t *x,float16_t *s,int16_t *
 
          _end_ = (((m%8)==7) || group==(num_groups-1) || (m==(cnt2-1)))? 0 : '.';
 
-         > FPU.MAC(N=GS,y=(int16 *)qy,c=(float *)qc,x1=(bfloat *)qx) _end_;
+         > FPU.V.MAC(N=GS,y=(int16 *)qy,c=(float *)qc,x1=(bfloat *)qx) _end_;
       }
       >DTYPE(INT16)MEM(y,N)[i:(i+remain)-1] <= DTYPE(INT16)SCRATCH((uint32_t)ws->y2,remain)[:];    
       >BARRIER;
@@ -608,10 +624,12 @@ static void llm_dot_product_exe(void *_p,int pid)
 
    for(j=(pid==0)?0:sz;j < ((pid==0)?sz:req->K);j+=DOT_PRODUCT_BATCH2)
    {
-      cnt2 = req->K-j;
+      cnt2 = (pid==0)?sz:req->K-j;
       if(cnt2 >= DOT_PRODUCT_BATCH2) {
          cnt2 = DOT_PRODUCT_BATCH2;
       }
+      if(cnt2==0)
+         break;
 
       for(i=0;i < req->N;i += DOT_PRODUCT_BATCH)
       {
@@ -624,7 +642,8 @@ static void llm_dot_product_exe(void *_p,int pid)
             cnt = DOT_PRODUCT_BATCH;
             last = false;
          }
-         > DTYPE(INT16)SCRATCH((uint32_t)ws->x1,cnt)[:] <= DTYPE(INT16)MEM((uint32_t)req->x1,req->N)[i:(i+cnt)-1];
+      
+         > DTYPE(INT16)SCRATCH((uint32_t)ws->x1)[0:cnt-1] <= DTYPE(INT16)MEM((uint32_t)req->x1,req->N)[i:(i+cnt)-1];
 
          > DTYPE(INT16)SCRATCH((uint32_t)ws->x2,DOT_PRODUCT_BATCH2,DOT_PRODUCT_BATCH)[0:cnt2-1][0:cnt-1] <= DTYPE(INT16)MEM((uint32_t)req->_x2,req->K,req->_x2_dim)[j:j+cnt2-1][i:(i+cnt)-1];
 
@@ -652,7 +671,7 @@ static void llm_dot_product_exe(void *_p,int pid)
             // Below is the long dot product. A parameter is used to combine multiple dotproduct results
             // y = A+sum(x1*x2*scale)
 
-            >FPU.FMA(N=cnt,y=(yfmt)y,c=(float)scale,x1=(bfloat *)x1,x2=(bfloat *)x2,A=(Afmt)A) _end_;
+            >FPU.V.FMA(N=cnt,y=(yfmt)y,c=(float)scale,x1=(bfloat *)x1,x2=(bfloat *)x2,A=(Afmt)A) _end_;
          }
          ztaTaskYield();  
       }
@@ -688,7 +707,9 @@ void kernel_llm_dot_product_exe(int reqId,int N,int K,float16_t *x1,float16_t *_
 //--------------------------------------------------------------------------
 
 // Work space definition for this kernel
-#define DOT_PRODUCT_K_BATCH 64
+//#define DOT_PRODUCT_K_BATCH 64
+
+#define DOT_PRODUCT_K_BATCH 48
 
 #define DOT_PRODUCT_N_BATCH 32
 
@@ -698,6 +719,7 @@ typedef struct {
    float16_t   temp[DOT_PRODUCT_K_BATCH][DOT_PRODUCT_N_BATCH];
    float       sram_sum[DOT_PRODUCT_N_BATCH];
    float16_t   sram_sum2[DOT_PRODUCT_N_BATCH];
+   float16_t   temp2[16][DOT_PRODUCT_N_BATCH];
 } dot_product2_ws;
 
 typedef struct {
@@ -709,12 +731,14 @@ typedef struct {
    float16_t *_y;
 } REQUEST_DOT_PRODUCT2;
 
+// -->DP N=64 _K=1 x2_dim=192 
+
 static void llm_dot_product2_exe(void *_p,int pid)
 {
-   int i,j,k;
+   int i,j,k,kk;
    uint32_t resp;
    int K;
-   int cnt,cnt2;
+   int cnt,cnt2,cnt3,cnt4;
    int sz;
    dot_product2_ws *ws;
    int max_y;
@@ -730,15 +754,19 @@ static void llm_dot_product2_exe(void *_p,int pid)
       ws = (dot_product2_ws *)(SRAM_SIZE/2);
    }
 
+   assert((req->N%8)==0);
+
    sz = req->N/2; // Each heart doing half of N
 
-   K = ((req->_K+3)/4)*4; // SUM operation requires multiple of 4 number of entries
+   K = ((req->_K+7)/8)*8; // SUM operation requires multiple of 4 number of entries
 
    for(k=(pid==0)?0:sz;k < ((pid==0)?sz:req->N);k += DOT_PRODUCT_N_BATCH)
    {
       cnt2 = ((pid==0)?sz:req->N)-k;
       if(cnt2 > DOT_PRODUCT_N_BATCH)
          cnt2 = DOT_PRODUCT_N_BATCH;
+      if(cnt2==0)
+         break;
       
       for(j=0;j < K;j += DOT_PRODUCT_K_BATCH)
       {
@@ -754,15 +782,18 @@ static void llm_dot_product2_exe(void *_p,int pid)
 
          > DTYPE(INT16)SCRATCH((uint32_t)ws->sram_x1,cnt)[0:cnt-1] <= DTYPE(INT16)MEM((uint32_t)req->x1,req->_K)[j:j+cnt-1];
 
-         > DTYPE(INT16)SCRATCH((uint32_t)ws->temp,DOT_PRODUCT_K_BATCH,DOT_PRODUCT_N_BATCH)[0:cnt-1][0:cnt2-1]
+         cnt3 = 4;
+         cnt4 = (cnt+cnt3-1)/cnt3;
+
+         > FOR(L=0:cnt4-1) FOR(I=0:cnt3-1) FOR(J=0:NUM_PCORE-1) FOR(K=0:cnt2/NUM_PCORE-1) DTYPE(INT16) PCORE[J].THREAD[I].llm_dotproduct::x[L][K] 
          > <= 
-         > DTYPE(INT16)MEM((uint32_t)req->x2,req->_K,req->x2_dim)[j:j+cnt-1][k:k+cnt2-1];
+         > DTYPE(INT16)MEM((uint32_t)req->x2,req->_K,req->x2_dim)[j:j+cnt3*cnt4-1][k:k+cnt2-1];
 
          > BARRIER;
          
-         > FOR(I=0:cnt-1) DTYPE(INT16)SCRATCH((uint32_t)ws->sram_x2,DOT_PRODUCT_N_BATCH,DOT_PRODUCT_K_BATCH,1)[0:cnt2-1][I][:]
+         > FOR(J=0:cnt2/NUM_PCORE-1) FOR(L=0:cnt4-1) FOR(K=0:NUM_PCORE-1) FOR(I=0:cnt3-1) DTYPE(INT16)SCRATCH((uint32_t)ws->sram_x2,NUM_PCORE,DOT_PRODUCT_N_BATCH/NUM_PCORE,DOT_PRODUCT_K_BATCH/4,4)[K][J][L][I]
          > <=
-         > FOR(J=0:cnt-1) DTYPE(INT16)SCRATCH((uint32_t)ws->temp,DOT_PRODUCT_K_BATCH,DOT_PRODUCT_N_BATCH)[J][0:cnt2-1];
+         > FOR(K=0:cnt2/NUM_PCORE-1) FOR(L=0:cnt4-1) FOR(J=0:NUM_PCORE-1) FOR(I=0:cnt3-1) SCATTER DTYPE(INT16) PCORE[J].THREAD[I].llm_dotproduct::x[L][K];
 
          // Perform dot product 
          sum = (uint32_t)&ws->sram_sum[0];
@@ -786,9 +817,10 @@ static void llm_dot_product2_exe(void *_p,int pid)
             // _end_=: --> There are more SPU instructions to follow. : means start the next step immediately and
             //             not waiting for previous step to complete
 
-            _end_ = (i==(cnt2-1))?0:':';
+            _end_ = (i==(cnt2-1))?0:':'; 
+//            _end_ = (i==(cnt2-1))?0:'.';
 
-            >FPU.FMA(N=cnt,y=(yfmt)y,x1=(bfloat *)x2,x2=(bfloat *)x1,A=(Afmt)A) _end_;   
+            >FPU.V.FMA(N=cnt,y=(yfmt)y,x1=(bfloat *)x2,x2=(bfloat *)x1,A=(Afmt)A) _end_;   
          } 
          ztaTaskYield(); 
       }
@@ -807,7 +839,7 @@ void kernel_llm_dot_product2_exe(int reqId,int N,int _K,float16_t *x1,float16_t 
    req.x2 = x2;
    req.x2_dim = x2_dim;
    req._y = _y;
-   
+
    ztaDualHartExecute(llm_dot_product2_exe,&req);
 
    ztaJobDone(reqId);
@@ -848,32 +880,33 @@ void kernel_llm_cosine_exe(int reqId,int N,float *x,float scale,float *y)
       > DTYPE(INT16)SCRATCH((uint32_t)&ws->xin[0],2*cnt)[:] <= DTYPE(INT16)MEM((uint32_t)x,2*N)[2*i:2*i+2*cnt-1];
       
       // Calculate x=((x)mod2pi)−pi
-      
-      >FPU.MAC(N=cnt,y=(float *)ws->x,c=(float)scale,x1=(float *)ws->xin); // x = scale*x
+//VUONG TRY HERR
 
-      >FPU.MAC(N=cnt,y=(float *)ws->x,A=3.141592741,x1=(float *)ws->x); // x = x+pi
+      >FPU.V.MAC(N=cnt,y=(float *)ws->x,c=(float)scale,x1=(float *)ws->xin); // x = scale*x
 
-      >FPU.MAC.FLOOR(N=cnt,y=(float *)ws->tmp1,c=0.15915493667,x1=(float *)ws->x); // t1= floor(x/2pi)
+      >FPU.V.MAC(N=cnt,y=(float *)ws->x,A=3.141592741,x1=(float *)ws->x); // x = x+pi
 
-      >FPU.MAC.ABS(N=cnt,y=(float *)ws->tmp2,A=(float *)ws->x,c=-6.28318548,x1=(float *)ws->tmp1); // t2 = x-t1*(2*pi)
+      >FPU.V.MAC.FLOOR(N=cnt,y=(float *)ws->tmp1,c=0.15915493667,x1=(float *)ws->x); // t1= floor(x/2pi)
 
-      >FPU.MAC.ABS(N=cnt,y=(float *)ws->x,A=(float *)ws->tmp2,c=-3.14159274); // x = t2-pi 
+      >FPU.V.MAC.ABS(N=cnt,y=(float *)ws->tmp2,A=(float *)ws->x,c=-6.28318548,x1=(float *)ws->tmp1); // t2 = x-t1*(2*pi)
+
+      >FPU.V.MAC.ABS(N=cnt,y=(float *)ws->x,A=(float *)ws->tmp2,c=-3.14159274); // x = t2-pi 
       
       // Now approximate with Taylor expresion
       
-      >FPU.MAC(N=cnt,y=(float *)ws->x,A=-1.57079637,x1=(float *)ws->x); // x = x-pi/2
+      >FPU.V.MAC(N=cnt,y=(float *)ws->x,A=-1.57079637,x1=(float *)ws->x); // x = x-pi/2
 
-      >FPU.MAC(N=cnt,y=(float *)ws->x2,x1=(float *)ws->x,x2=(float *)ws->x); // x2 = x*x
+      >FPU.V.MAC(N=cnt,y=(float *)ws->x2,x1=(float *)ws->x,x2=(float *)ws->x); // x2 = x*x
 
-      >FPU.MAC(N=cnt,y=(float *)ws->y,A=0.000198412701,C=-0.0000027557301,x1=(float *)ws->x2); // y= 1/5040 + x2*(-1/362880)
+      >FPU.V.MAC(N=cnt,y=(float *)ws->y,A=0.000198412701,C=-0.0000027557301,x1=(float *)ws->x2); // y= 1/5040 + x2*(-1/362880)
 
-      >FPU.MAC(N=cnt,y=(float *)ws->y,A=-0.0083333338,x1=(float *)ws->x2,x2=(float *)ws->y); // y= -1/120 + x2*y
+      >FPU.V.MAC(N=cnt,y=(float *)ws->y,A=-0.0083333338,x1=(float *)ws->x2,x2=(float *)ws->y); // y= -1/120 + x2*y
 
-      >FPU.MAC(N=cnt,y=(float *)ws->y,A=0.166666672,x1=(float *)ws->x2,x2=(float *)ws->y); // y=1/6 + (x2*y)
+      >FPU.V.MAC(N=cnt,y=(float *)ws->y,A=0.166666672,x1=(float *)ws->x2,x2=(float *)ws->y); // y=1/6 + (x2*y)
 
-      >FPU.MAC(N=cnt,y=(float *)ws->y,A=-1.0,x1=(float *)ws->x2,x2=(float *)ws->y); // y=-1 + x2*y
+      >FPU.V.MAC(N=cnt,y=(float *)ws->y,A=-1.0,x1=(float *)ws->x2,x2=(float *)ws->y); // y=-1 + x2*y
 
-      >FPU.MAC(N=cnt,y=(float *)ws->y2,x1=(float *)ws->x,x2=(float *)ws->y); // y = y*x
+      >FPU.V.MAC(N=cnt,y=(float *)ws->y2,x1=(float *)ws->x,x2=(float *)ws->y); // y = y*x
 
       >DTYPE(INT16)MEM((uint32_t)y,2*N)[2*i:2*i+2*cnt-1] <= DTYPE(INT16)SCRATCH(((uint32_t)&ws->y2[0]),2*cnt)[0:2*cnt-1];   
       
@@ -904,31 +937,31 @@ void kernel_llm_sine_exe(int reqId,int N,float *x,float scale,float *y)
 
       // Calculate x=((x)mod2π)−π
   
-      >FPU.MAC(N=cnt,y=(float *)ws->x,C=(float)scale,x1=(float *)ws->xin); // x = scale*x
+      >FPU.V.MAC(N=cnt,y=(float *)ws->x,C=(float)scale,x1=(float *)ws->xin); // x = scale*x
 
-      >FPU.MAC(N=cnt,y=(float *)ws->x,A=4.712389,c=-1.0,x1=(float *)ws->x); // x = 1.5pi-x;
+      >FPU.V.MAC(N=cnt,y=(float *)ws->x,A=4.712389,c=-1.0,x1=(float *)ws->x); // x = 1.5pi-x;
 
-      >FPU.MAC.FLOOR(N=cnt,y=(float *)ws->tmp1,c=0.159154937,x1=(float *)ws->x); // t1= floor(x/2pi)
+      >FPU.V.MAC.FLOOR(N=cnt,y=(float *)ws->tmp1,c=0.159154937,x1=(float *)ws->x); // t1= floor(x/2pi)
 
-      >FPU.MAC.ABS(N=cnt,y=(float *)ws->tmp2,A=(float *)ws->x,c=-6.28318548,x1=(float *)ws->tmp1); // t2 = x-t1*(2*pi)
+      >FPU.V.MAC.ABS(N=cnt,y=(float *)ws->tmp2,A=(float *)ws->x,c=-6.28318548,x1=(float *)ws->tmp1); // t2 = x-t1*(2*pi)
 
-      >FPU.MAC.ABS(N=cnt,y=(float *)ws->x,A=(float *)ws->tmp2,c=-3.14159274); // x = t2-pi
+      >FPU.V.MAC.ABS(N=cnt,y=(float *)ws->x,A=(float *)ws->tmp2,c=-3.14159274); // x = t2-pi
   
       // Not approximate with Taylor expresion
   
-      >FPU.MAC(N=cnt,y=(float *)ws->x,A=-1.5707964,x1=(float *)ws->x); // x = x-pi/2
+      >FPU.V.MAC(N=cnt,y=(float *)ws->x,A=-1.5707964,x1=(float *)ws->x); // x = x-pi/2
 
-      >FPU.MAC(N=cnt,y=(float *)ws->x2,x1=(float *)ws->x,x2=(float *)ws->x); // x2 = x*x;
+      >FPU.V.MAC(N=cnt,y=(float *)ws->x2,x1=(float *)ws->x,x2=(float *)ws->x); // x2 = x*x;
 
-      >FPU.MAC(N=cnt,y=(float *)ws->y,A=0.000198412701,c=-0.000002755730,x1=(float *)ws->x2); // y= 1/5040 + x2*(-1/362880)
+      >FPU.V.MAC(N=cnt,y=(float *)ws->y,A=0.000198412701,c=-0.000002755730,x1=(float *)ws->x2); // y= 1/5040 + x2*(-1/362880)
 
-      >FPU.MAC(N=cnt,y=(float *)ws->y,A=-0.0083333338,x1=(float *)ws->x2,x2=(float *)ws->y); // y= -1/120 + x2*y
+      >FPU.V.MAC(N=cnt,y=(float *)ws->y,A=-0.0083333338,x1=(float *)ws->x2,x2=(float *)ws->y); // y= -1/120 + x2*y
 
-      >FPU.MAC(N=cnt,y=(float *)ws->y,A=0.166666672,x1=(float *)ws->x2,x2=(float *)ws->y); // y=1/6 + (x2*y)
+      >FPU.V.MAC(N=cnt,y=(float *)ws->y,A=0.166666672,x1=(float *)ws->x2,x2=(float *)ws->y); // y=1/6 + (x2*y)
 
-      >FPU.MAC(N=cnt,y=(float *)ws->y,A=-1.0,x1=(float *)ws->x2,x2=(float *)ws->y); // y=-1 + x2*y
+      >FPU.V.MAC(N=cnt,y=(float *)ws->y,A=-1.0,x1=(float *)ws->x2,x2=(float *)ws->y); // y=-1 + x2*y
       
-      >FPU.MAC(y=ws->y2,x1=(float *)ws->x,x2=(float *)ws->y); // y = y*x
+      >FPU.V.MAC(N=cnt,y=ws->y2,x1=(float *)ws->x,x2=(float *)ws->y); // y = y*x
 
       >DTYPE(INT16)MEM((uint32_t)y,2*N)[2*i:2*i+2*cnt-1] <= DTYPE(INT16)SCRATCH(((uint32_t)&ws->y2[0]),2*cnt)[0:2*cnt-1];   
 
@@ -1021,7 +1054,7 @@ void kernel_llm_SwiGLU_exe(int reqId,float16_t *hb,float16_t *hb2,int N)
 
       > DTYPE(INT16)SCRATCH((uint32_t)&ws->hb2[0],cnt)[:] <= DTYPE(INT16)MEM((uint32_t)hb2,N)[i:i+cnt-1];
 
-      >FPU.MAC(N=cnt,y=(float *)ws->tmp1,c=-1.0,x1=(bfloat *)ws->hb); // tmp1 = -hb
+      >FPU.V.MAC(N=cnt,y=(float *)ws->tmp1,c=-1.0,x1=(bfloat *)ws->hb); // tmp1 = -hb
 
       // tmp5 = expf(tmp1)
       exponent(cnt,
@@ -1035,9 +1068,9 @@ void kernel_llm_SwiGLU_exe(int reqId,float16_t *hb,float16_t *hb2,int N)
 
       reciprocal(cnt,ws->tmp5,FPU_SET_W_FP32|FPU_SET_M_ADDR,ws->tmp3,ws->tmp2); // tmp3 = 1/tmp1
 
-      >FPU.MAC(N=cnt,y=(float *)ws->tmp1,x1=(float *)ws->tmp3,x2=(bfloat *)ws->hb); // tmp1 = tmp3 * hb
+      >FPU.V.MAC(N=cnt,y=(float *)ws->tmp1,x1=(float *)ws->tmp3,x2=(bfloat *)ws->hb); // tmp1 = tmp3 * hb
 
-      >FPU.MAC(N=cnt,y=(bfloat *)ws->hb,x1=(float *)ws->tmp1,x2=(bfloat *)ws->hb2); // hb = tmp1 * hb2
+      >FPU.V.MAC(N=cnt,y=(bfloat *)ws->hb,x1=(float *)ws->tmp1,x2=(bfloat *)ws->hb2); // hb = tmp1 * hb2
 
       >DTYPE(INT16)MEM((uint32_t)hb,N)[i:i+cnt-1] <= DTYPE(INT16)SCRATCH(((uint32_t)&ws->hb[0]),cnt)[0:cnt-1];   
 
@@ -1108,9 +1141,9 @@ void kernel_llm_softmax_exe(int reqId,float16_t *x,int N)
       // A parameter of FPU.MAX is used to chain the FPU.MAX results together. Max from one batch passed to next batch
 
       if(i==0) {
-         >FPU.MAX(N=cnt2,y=(float *)&ws->max,x=(bfloat *)ws->x);
+         >FPU.V.MAX(N=cnt2,y=(float *)&ws->max,x=(bfloat *)ws->x);
       } else {
-         >FPU.MAX(N=cnt2,A=(float *)&ws->max,y=(float *)&ws->max,x=(bfloat *)ws->x);
+         >FPU.V.MAX(N=cnt2,A=(float *)&ws->max,y=(float *)&ws->max,x=(bfloat *)ws->x);
       }
    }
 
@@ -1123,7 +1156,7 @@ void kernel_llm_softmax_exe(int reqId,float16_t *x,int N)
       > DTYPE(INT16)SCRATCH((uint32_t)&ws->x[0],cnt)[:] <= DTYPE(INT16)MEM((uint32_t)x,N)[i:i+cnt-1];
 
       // temp1 = x - max
-      >FPU.MAC(N=cnt,y=(float *)ws->tmp1,A=(bfloat *)ws->x,c=(float *)&ws->max,x1=-1.0);
+      >FPU.V.MAC(N=cnt,y=(float *)ws->tmp1,A=(bfloat *)ws->x,c=(float *)&ws->max,x1=-1.0);
       
       // tmp2 = expf(tmp1)
       exponent(cnt,
@@ -1141,9 +1174,9 @@ void kernel_llm_softmax_exe(int reqId,float16_t *x,int N)
       // A parameter of FPU.SUM is used to chain the FPU.SUM results together. Sum from one batch is passed to next batch
 
       if(i==0) {
-         >FPU.SUM(N=cnt2,y=(float *)&ws->sum,x=(float *)ws->tmp2);
+         >FPU.V.SUM(N=cnt2,y=(float *)&ws->sum,x=(float *)ws->tmp2);
       } else {
-         >FPU.SUM(N=cnt2,y=(float *)&ws->sum,x=(float *)ws->tmp2,A=(float *)&ws->sum);
+         >FPU.V.SUM(N=cnt2,y=(float *)&ws->sum,x=(float *)ws->tmp2,A=(float *)&ws->sum);
       }
       >DTYPE(INT16)MEM((uint32_t)scratch,2*N)[2*i:2*i+2*cnt-1] <= DTYPE(INT16)SCRATCH(((uint32_t)&ws->tmp2[0]),2*cnt)[0:2*cnt-1];   
 
@@ -1162,7 +1195,7 @@ void kernel_llm_softmax_exe(int reqId,float16_t *x,int N)
       > DTYPE(INT16)SCRATCH((uint32_t)&ws->x[0],2*cnt)[:] <= DTYPE(INT16)MEM((uint32_t)scratch,2*N)[2*i:2*i+2*cnt-1];
 
       // temp1 = x - max_val
-      >FPU.MAC(N=cnt,y=(bfloat *)ws->tmp1,C=(float *)&ws->scale,x1=(float *)ws->x);
+      >FPU.V.MAC(N=cnt,y=(bfloat *)ws->tmp1,C=(float *)&ws->scale,x1=(float *)ws->x);
       
       >DTYPE(INT16)MEM((uint32_t)x,N)[i:i+cnt-1] <= DTYPE(INT16)SCRATCH(((uint32_t)&ws->tmp1[0]),cnt)[0:cnt-1];   
 
@@ -1227,9 +1260,9 @@ void kernel_llm_rms_exe(int reqId,int N,float16_t *x,bool x_is_fp16,float16_t *o
       > DTYPE(INT16)SCRATCH((uint32_t)&ws->x[0],cnt)[:] <= DTYPE(INT16)MEM((uint32_t)x,N)[i:i+cnt-1];
 
       if(i==0) {
-         >FPU.FMA(N=cnt,y=(float *)&ws->sum,x1=(xfmt)ws->x,x2=(xfmt)ws->x,A=0.0);
+         >FPU.V.FMA(N=cnt,y=(float *)&ws->sum,x1=(xfmt)ws->x,x2=(xfmt)ws->x,A=0.0);
       } else {
-         >FPU.FMA(N=cnt,y=(float *)&ws->sum,x1=(xfmt)ws->x,x2=(xfmt)ws->x,A=(float *)&ws->sum);
+         >FPU.V.FMA(N=cnt,y=(float *)&ws->sum,x1=(xfmt)ws->x,x2=(xfmt)ws->x,A=(float *)&ws->sum);
       }
    }
 
@@ -1250,13 +1283,13 @@ void kernel_llm_rms_exe(int reqId,int N,float16_t *x,bool x_is_fp16,float16_t *o
 
       // o[j] = weight[j] * (ss * x[j]);
 
-      >FPU.MAC(N=cnt,y=(bfloat *)ws->o,c=(float *)&ws->ss2,x1=(xfmt)ws->x,x2=(float *)ws->w);
+      >FPU.V.MAC(N=cnt,y=(bfloat *)ws->o,c=(float *)&ws->ss2,x1=(xfmt)ws->x,x2=(float *)ws->w);
 
       >DTYPE(INT16)MEM((uint32_t)o,N)[i:i+cnt-1] <= DTYPE(INT16)SCRATCH(((uint32_t)&ws->o[0]),cnt)[0:cnt-1];   
 
       > BARRIER; 
    }
-   ztaJobDone(0);
+   ztaJobDone(reqId);
 }
 
 //--------------------------------------------------------------------------
@@ -1316,13 +1349,13 @@ void kernel_llm_rope_exe(
 
       > DTYPE(INT16)SCRATCH((uint32_t)&ws->v1[0],cnt)[:] <= DTYPE(INT16)SCRATCH((uint32_t)&ws->v[0],cnt,2,1)[:][1][:];
 
-      >FPU.MAC(N=cnt,y=(float *)ws->y0,x1=(bfloat *)ws->v0,x2=(float *)ws->fcr); // y0[N]=v0[N]*fcr[N]
+      >FPU.V.MAC(N=cnt,y=(float *)ws->y0,x1=(bfloat *)ws->v0,x2=(float *)ws->fcr); // y0[N]=v0[N]*fcr[N]
 
-      >FPU.MAC(N=cnt,y=(bfloat *)ws->y0,A=(float *)ws->y0,c=-1.0,x1=(bfloat *)ws->v1,x2=(float *)ws->fci); // y0[N]=y0[N]-v1[N]*fci[N]
+      >FPU.V.MAC(N=cnt,y=(bfloat *)ws->y0,A=(float *)ws->y0,c=-1.0,x1=(bfloat *)ws->v1,x2=(float *)ws->fci); // y0[N]=y0[N]-v1[N]*fci[N]
 
-      >FPU.MAC(N=cnt,y=(float *)ws->y1,x1=(bfloat *)ws->v0,x2=(float *)ws->fci); // y1[N]=v0[N]*fci[N]
+      >FPU.V.MAC(N=cnt,y=(float *)ws->y1,x1=(bfloat *)ws->v0,x2=(float *)ws->fci); // y1[N]=v0[N]*fci[N]
 
-      >FPU.MAC(N=cnt,y=(bfloat *)ws->y1,A=(float *)ws->y1,x1=(bfloat *)ws->v1,x2=(float *)ws->fcr); // y1[N]=y1[N]+v1[N]*fcr[N]
+      >FPU.V.MAC(N=cnt,y=(bfloat *)ws->y1,A=(float *)ws->y1,x1=(bfloat *)ws->v1,x2=(float *)ws->fcr); // y1[N]=y1[N]+v1[N]*fcr[N]
 
       > DTYPE(INT16)SCRATCH((uint32_t)&ws->y[0],cnt,2,1)[:][0][:] <= DTYPE(INT16)SCRATCH((uint32_t)&ws->y0[0],cnt)[:];
       
@@ -1384,7 +1417,7 @@ void kernel_llm_residual_exe(
 
       > DTYPE(INT16)SCRATCH((uint32_t)&ws->xb[0],cnt)[:] <= DTYPE(INT16)MEM((uint32_t)xb,N)[i:i+cnt-1];
 
-      >FPU.MAC(N=cnt,y=(bfloat *)ws->x,A=(xfmt)ws->x,x1=(bfloat *)ws->xb);
+      >FPU.V.MAC(N=cnt,y=(bfloat *)ws->x,A=(xfmt)ws->x,x1=(bfloat *)ws->xb);
 
       >DTYPE(INT16)MEM((uint32_t)y,N)[i:i+cnt-1] <= DTYPE(INT16)SCRATCH(((uint32_t)&ws->x[0]),cnt)[0:cnt-1];   
 
@@ -1477,9 +1510,9 @@ int kernel_llm_find_k_max(float16_t *x,uint32_t _N,int K, float scale,int *top,f
 
    >DTYPE(INT16)SCRATCH((uint32_t)&ws->x[toggle][0],MAX_K_BATCH)[:] <= DTYPE(INT16)MEM((uint32_t)x,_N)[0:MAX_K_BATCH-1];
 
-   >FPU.MAC(N=MAX_K_BATCH,y=(bfloat *)ws->x[toggle],c=(float)scale,x1=(bfloat *)ws->x[toggle]);
+   >FPU.V.MAC(N=MAX_K_BATCH,y=(bfloat *)ws->x[toggle],c=(float)scale,x1=(bfloat *)ws->x[toggle]);
 
-   >FPU.MAX(N=MAX_K_BATCH,y=(bfloat *)ws->y[toggle],x=(bfloat *)ws->x[toggle],g=63);
+   >FPU.V.MAX(N=MAX_K_BATCH,y=(bfloat *)ws->y[toggle],x=(bfloat *)ws->x[toggle],g=63);
 
    for (int i = 0; i < N; i+=MAX_K_BATCH) {
       cnt = N-i;
@@ -1498,9 +1531,9 @@ int kernel_llm_find_k_max(float16_t *x,uint32_t _N,int K, float scale,int *top,f
 
          >DTYPE(INT16)SCRATCH((uint32_t)&ws->x[!toggle][0],cnt2)[:] <= DTYPE(INT16)MEM((uint32_t)x,_N)[i+MAX_K_BATCH:i+MAX_K_BATCH+cnt2-1];
 
-         >FPU.MAC(N=cnt2,y=(bfloat *)ws->x[!toggle],c=(float)scale,x1=(bfloat *)ws->x[!toggle]);
+         >FPU.V.MAC(N=cnt2,y=(bfloat *)ws->x[!toggle],c=(float)scale,x1=(bfloat *)ws->x[!toggle]);
 
-         >FPU.MAX(N=cnt2,y=(bfloat *)ws->y[!toggle],x=(bfloat *)ws->x[!toggle],g=63);
+         >FPU.V.MAX(N=cnt2,y=(bfloat *)ws->y[!toggle],x=(bfloat *)ws->x[!toggle],g=63);
       }
 
       FLUSH_DATA_CACHE();
@@ -1556,7 +1589,7 @@ int kernel_llm_find_max(float16_t *x,uint32_t N) {
 
       > DTYPE(INT16)SCRATCH((uint32_t)&ws->x[0],cnt)[:] <= DTYPE(INT16)MEM((uint32_t)x,N)[i:i+cnt-1];
 
-      >FPU.MAX(N=cnt,y=(bfloat *)ws->y,x=(bfloat *)ws->x);
+      >FPU.V.MAX(N=cnt,y=(bfloat *)ws->y,x=(bfloat *)ws->x);
 
       kernel_llm_done();
 
@@ -1591,7 +1624,7 @@ int kernel_llm_find_max(float16_t *x,uint32_t N) {
 
    cnt2=(MAX_GROUP_SZ-1);
 
-   >FPU.MAX(N=cnt,y=(bfloat *)ws->y,x=(bfloat *)ws->x,g=(FPU_SET_M_VALUE|FPU_SET_W_FP32)cnt2);
+   >FPU.V.MAX(N=cnt,y=(bfloat *)ws->y,x=(bfloat *)ws->x,g=(FPU_SET_M_VALUE|FPU_SET_W_FP32)cnt2);
 
    kernel_llm_done();
 
@@ -1632,8 +1665,11 @@ void kernel_tick()
    uint32_t resp;
    ztaJobDone(98); 
    for(;;) {
-      if(ztaReadResponse(&resp) && resp==98)
-         break;
+      if(ztaReadResponse(&resp))
+      {
+         if(resp==98)
+            break;
+      }
    }
    mytick = Time2Get();
 }
@@ -1643,8 +1679,11 @@ uint32_t kernel_tock()
    uint32_t resp;
    ztaJobDone(98); 
    for(;;) {
-      if(ztaReadResponse(&resp) && resp==98)
-         break;
+      if(ztaReadResponse(&resp))
+      {
+         if(resp==98)
+            break;
+      }
    }
    return (((int)Time2Get()-(int)mytick))/120;
 }

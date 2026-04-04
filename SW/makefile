@@ -38,6 +38,7 @@ SRCS = 	base/newlib.c \
 	base/task.S \
 	base/net.cpp \
 	src/test.cpp \
+	src/test_llm.cpp \
 	src/vision_ai.cpp \
 	src/mpy.cpp \
 	apps/main/kernels/main.m.c \

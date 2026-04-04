@@ -88,14 +88,8 @@ round <= input_shift(input_shift'length-fp12_mantissa_width_c-1);
 
 
 process(round_r,mantissa_r,sign_rrr,exp_rr)
-variable mantissa_v:STD_LOGIC_VECTOR(fp12_mantissa_width_c-1 DOWNTO 0);
 begin
-    if(round_r='1' and mantissa_r /= (mantissa_r'range => '1')) then
-        mantissa_v := std_logic_vector(unsigned(mantissa_r)+to_unsigned(1,mantissa_r'length));
-    else
-        mantissa_v := mantissa_r;
-    end if;
-    output_out <= sign_rrr & std_logic_vector(exp_rr) & mantissa_v;
+    output_out <= sign_rrr & std_logic_vector(exp_rr) & mantissa_r;
 end process;
 
 -- Determine exponent by finding leading '1'

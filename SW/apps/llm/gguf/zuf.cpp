@@ -113,7 +113,6 @@ ZtaStatus ZUF::Open(const char* fname) {
     uint32_t size;
     uint32_t ver;
 
-    printf("Downloading model file %s from TFTP server@10.10.10.10 \r\n",fname);
     if (m_buf)
         free(m_buf);
 #ifdef __WIN32__

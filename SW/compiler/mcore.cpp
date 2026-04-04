@@ -238,6 +238,7 @@ cMcoreTerm::cMcoreTerm()
    m_maxNumThreads = NUM_THREAD_PER_CORE;
    m_dataModel = 0;
    m_repeat = false;
+   m_scatter = false;
    m_latest = false;
    m_stream = false;
    m_datatype = "";
@@ -1184,7 +1185,7 @@ int cMcoreTerm::GenPcoreTensor(FILE *out, int _parm, cMcoreRange *_parmRange, ch
       GEN(out, DPREG_TOTALCOUNT, dp_template, 0, temp);
    }
    mode = 0;
-   if (m_concurrent.size() > 0)
+   if (m_concurrent.size() > 0 || m_scatter)
       mode |= (1 << DP_MODE_SCATTER);
    mode |= (m_id << DP_MODE_BUSID);
 
@@ -2636,6 +2637,13 @@ char *cMcore::scan_term(char *line, cMcoreTerm *term)
          line = scan_remap(line, &term->m_remap);
          line = scan_name(line, token);
       }
+      else if(strcasecmp(token,TOKEN_SCATTER) == 0) 
+      {
+         if (term->m_scatter)
+            error(cMcore::M_currLine, "Multiple SCATTER");
+         term->m_scatter = true;
+         line = scan_name(line, token);      
+      }
       else
          break;
    }
@@ -3019,14 +3027,7 @@ char *cMcore::decode(char *line, FILE *out, int *cmd)
       *cmd = CMD_TRANSFER;
       return scan_transfer(out, line);
    }
-   if (strcasestr(token, TOKEN_FMA) || 
-      strcasestr(token, TOKEN_MAC) || 
-      strcasestr(token, TOKEN_EXP) || 
-      strcasestr(token,TOKEN_RECIPROCAL) ||
-      strcasestr(token,TOKEN_INVSQRT) ||
-      strcasestr(token,TOKEN_MAX) ||
-      strcasestr(token,TOKEN_SUM) 
-      )
+   if(strcasestr(token, TOKEN_FPU))
    {
       *cmd = CMD_FPU;
       return scan_fpu(out, line);

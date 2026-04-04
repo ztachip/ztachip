@@ -494,6 +494,8 @@
 
 #define FPU_SET_P_CNT    5
 
+#define FPU_SET_P_CNTV   7
+
 #define FPU_SET_P_C2     6
 
 #define FPU_SET_W_BFLOAT 0

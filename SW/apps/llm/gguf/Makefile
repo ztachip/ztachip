@@ -11,7 +11,7 @@ CFLAGS= \
 -fno-strict-aliasing \
 -I.
 
-OBJ = quant.o gguf.o zuf.o
+OBJ = quant.o gguf.o zuf.o ../../../base/net.o ../../../src/soc.o
 
 %.o: %.cpp
 	$(CC) $(CFLAGS) -c -o $@ $<

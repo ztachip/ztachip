@@ -126,3 +126,9 @@ _kernel_ void llm_q8::matmul() {
 _kernel_ void llm_q8::matmul_end() { 
    y = CONV_BFLOAT(acc);
 }
+
+vint16 llm_dotproduct::x[12];
+
+_kernel_ void llm_dotproduct::dummy() {
+    x[0]=x[0];
+}

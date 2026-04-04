@@ -47,7 +47,7 @@
 #define kernel_llm_softmax_exe kernel_ref_llm_softmax_exe
 #define kernel_llm_find_max kernel_ref_llm_find_max
 #define kernel_llm_scale_exe kernel_ref_llm_scale_exe
-#define kernel_llm_find_k_max kernel_ref_llm_find_k_max
+#define kernel_llm_find_k_max
 #endif
 
 #ifdef __WIN32__
@@ -62,7 +62,7 @@ int TIMEGET()
 #define TIMEGET TimeGet
 #endif
 
-#define K_MAX  50 // Maximum number of highest priority tokens to be chosen from during sampling
+#define K_MAX  100 // Maximum number of highest priority tokens to be chosen from during sampling
 
 // Constructor of LLAMA object
 
@@ -513,14 +513,13 @@ float16_t* llama::forward(int token, int pos) {
                             &m_runtime.q[kv_dim]);
         // multihead attention. iterate over all heads
         int h;
-        
         for (h = 0; h < (int)m_config.n_heads; h++) {
             // get the query vector for this head
             float16_t* q = m_runtime.q + (h * head_size);
             // attention scores for this head
             // iterate over all timesteps, including the current one
             k_start = m_runtime.key_cache + (loff + (h / kv_mul) * head_size);
-          
+
             kernel_llm_dot_product_exe(-1,head_size,(pos+1),q,k_start,kv_dim,m_runtime.att,m_config.inv_sqrtf_head_size);
 
             kernel_llm_softmax_exe(-1,m_runtime.att,pos + 1);
@@ -634,7 +633,7 @@ int llama::sampling(float16_t* _logits) {
     }
 
     seed = (seed * 1664525 + 1013904223);
-    randf = (seed & 0xFFFFFF) / (float)0x1000000;
+    randf = (float)(seed & 0xFFFFFF) / (float)0x1000000;
     for (select=0,accum=0.0;select < ksz;select++)
     {
         accum += topp[select];
@@ -788,4 +787,10 @@ void llama::ClearStat() {
 
 float llama::GetStatTokPerSec() {
     return (float)((m_stat.numTokens)/(float)(m_stat.totalTime)*1000);
+}
+
+// Get statistics about number of tokens
+
+uint32_t llama::GetStatNumTokens() {
+    return (uint32_t)(m_stat.numTokens);
 }

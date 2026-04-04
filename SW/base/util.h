@@ -25,6 +25,10 @@ extern "C" {
 #include <stdint.h>
 #include "types.h"
 
+extern void randInit(uint32_t _seed);
+
+extern float randGen();
+
 // Some common macros
 
 #define ROUND(a,b)  ((((a)+(b)-1)/(b))*(b))

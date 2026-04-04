@@ -664,11 +664,21 @@ subtype fp16_t is std_logic_vector(15 downto 0);
 
 subtype fp32_t is std_logic_vector(31 downto 0);
 
+type fp32s_t is array(natural range <>) of fp32_t;
+
 -------
 -- FPU type definitions
 ------
 
+constant fpu_vector_depth_c :integer:=4;
+
+constant fpu_vector_width_c :integer:=(2**fpu_vector_depth_c);
+
+constant fpu_data_width_c   :integer:=(8*fpu_vector_width_c);
+
 subtype fpu_opcode_t is unsigned(3 downto 0); 
+
+subtype fpu_vector_t is unsigned(2 downto 0);
 
 --------
 -- DP Read latency
@@ -1086,6 +1096,7 @@ constant register2_fpu_set_P_X          :integer:=3; -- P subfield to set X para
 constant register2_fpu_set_P_Y          :integer:=4; -- P subfield to set Y parameter
 constant register2_fpu_set_P_CNT        :integer:=5; -- P subfield to set CNT parameter
 constant register2_fpu_set_P_C2         :integer:=6; -- P subfield to set C2 parameter
+constant register2_fpu_set_P_CNTV       :integer:=7; -- P subfield to set vector mode
 constant register2_fpu_set_W_BFLOAT     :integer:=0; -- W subfield for BFLOAT data type
 constant register2_fpu_set_W_FP32       :integer:=16; -- W subfield for FP32 data type.
 constant register2_fpu_set_W_INT16      :integer:=32; -- W subfield for INT16 data type.
@@ -1110,8 +1121,6 @@ constant register2_fpu_exe_A_MASK_c:std_logic_vector:="100000";
 constant register2_fpu_exe_F_MASK_c:std_logic_vector:="010000";
 
 constant register2_fpu_exe_X_MASK_c:std_logic_vector:="001111";
-
-
 
 constant register2_fpu_exe_mac_c:integer:=1; -- A = B + C*X*Y;
 
@@ -1526,10 +1535,10 @@ COMPONENT sram_core IS
         SIGNAL fpu_write_wait_out       : OUT STD_LOGIC;
         SIGNAL fpu_read_in              : IN STD_LOGIC;
         SIGNAL fpu_read_wait_out        : OUT STD_LOGIC;
-        SIGNAL fpu_writedata_in         : IN STD_LOGIC_VECTOR(ddr_data_width_c-1 DOWNTO 0);
-        SIGNAL fpu_writebe_in           : IN STD_LOGIC_VECTOR(ddr_data_width_c/8-1 DOWNTO 0);
+        SIGNAL fpu_writedata_in         : IN STD_LOGIC_VECTOR(fpu_data_width_c-1 DOWNTO 0);
+        SIGNAL fpu_writebe_in           : IN STD_LOGIC_VECTOR(fpu_data_width_c/8-1 DOWNTO 0);
         SIGNAL fpu_readdatavalid_out    : OUT STD_LOGIC;
-        SIGNAL fpu_readdata_out         : OUT STD_LOGIC_VECTOR(ddr_data_width_c-1 DOWNTO 0);
+        SIGNAL fpu_readdata_out         : OUT STD_LOGIC_VECTOR(fpu_data_width_c-1 DOWNTO 0);
 
         -- AXI interface for RISCV to access
         SIGNAL axislave_araddr_in      : IN STD_LOGIC_VECTOR(31 downto 0);
@@ -1557,14 +1566,14 @@ COMPONENT sram IS
         SIGNAL dp_rd_addr_in        : IN STD_LOGIC_VECTOR(DEPTH-1 DOWNTO 0);
         SIGNAL dp_wr_addr_in        : IN STD_LOGIC_VECTOR(DEPTH-1 DOWNTO 0);        
         SIGNAL dp_write_in          : IN STD_LOGIC;
-        SIGNAL dp_write_vector_in   : IN dp_vector_t;
+        SIGNAL dp_write_vector_in   : IN std_logic_vector(ddr_vector_depth_c+1-1 downto 0);
         SIGNAL dp_read_in           : IN STD_LOGIC;
-        SIGNAL dp_read_vector_in    : IN dp_vector_t;
+        SIGNAL dp_read_vector_in    : IN std_logic_vector(ddr_vector_depth_c+1-1 downto 0);
         SIGNAL dp_read_gen_valid_in : IN STD_LOGIC;
-        SIGNAL dp_writedata_in      : IN STD_LOGIC_VECTOR(ddr_data_width_c-1 DOWNTO 0);
-        SIGNAL dp_writebe_in        : IN STD_LOGIC_VECTOR(ddr_data_width_c/8-1 DOWNTO 0);
+        SIGNAL dp_writedata_in      : IN STD_LOGIC_VECTOR(2*ddr_data_width_c-1 DOWNTO 0);
+        SIGNAL dp_writebe_in        : IN STD_LOGIC_VECTOR(2*ddr_data_byte_width_c-1 DOWNTO 0);
         SIGNAL dp_readdatavalid_out : OUT STD_LOGIC;
-        SIGNAL dp_readdata_out      : OUT STD_LOGIC_VECTOR(ddr_data_width_c-1 DOWNTO 0)
+        SIGNAL dp_readdata_out      : OUT STD_LOGIC_VECTOR(2*ddr_data_width_c-1 DOWNTO 0)
     );
 END COMPONENT;
 
@@ -1591,10 +1600,10 @@ COMPONENT fpu IS
         SIGNAL fpu_write_wait_in        : IN STD_LOGIC;
         SIGNAL fpu_read_out             : OUT STD_LOGIC;
         SIGNAL fpu_read_wait_in         : IN STD_LOGIC;
-        SIGNAL fpu_writedata_out        : OUT STD_LOGIC_VECTOR(ddr_data_width_c-1 DOWNTO 0);
-        SIGNAL fpu_writebe_out          : OUT STD_LOGIC_VECTOR(ddr_data_width_c/8-1 downto 0);
+        SIGNAL fpu_writedata_out        : OUT STD_LOGIC_VECTOR(fpu_data_width_c-1 DOWNTO 0);
+        SIGNAL fpu_writebe_out          : OUT STD_LOGIC_VECTOR(fpu_data_width_c/8-1 downto 0);
         SIGNAL fpu_readdatavalid_in     : IN STD_LOGIC;
-        SIGNAL fpu_readdata_in          : IN STD_LOGIC_VECTOR(ddr_data_width_c-1 DOWNTO 0);
+        SIGNAL fpu_readdata_in          : IN STD_LOGIC_VECTOR(fpu_data_width_c-1 DOWNTO 0);
 
         SIGNAL fpu_busy_vm_out          : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
 
@@ -1606,7 +1615,7 @@ COMPONENT fpu IS
     );
 END COMPONENT;
 
-COMPONENT falu_core IS
+COMPONENT falu_vector IS
     PORT (
         SIGNAL clock_in             : IN STD_LOGIC;
         SIGNAL reset_in             : IN STD_LOGIC;
@@ -1616,7 +1625,49 @@ COMPONENT falu_core IS
         SIGNAL input_ena_in         : IN STD_LOGIC;
         SIGNAL input_eof_in         : IN STD_LOGIC;
         SIGNAL input_last_in        : IN STD_LOGIC;
+        SIGNAL input_last_be_in     : IN STD_LOGIC_VECTOR(fpu_data_width_c/8-1 downto 0);
         SIGNAL input_fast_in        : IN STD_LOGIC;
+        SIGNAL input_vector_in      : IN fpu_vector_t;
+        SIGNAL A_addr               : IN unsigned(sram_depth_c-1 DOWNTO 0);
+        SIGNAL A_precision          : IN unsigned(2 downto 0);
+        SIGNAL A_int                : IN STD_LOGIC;
+        SIGNAL A_floor              : IN STD_LOGIC;
+        SIGNAL A_abs                : IN STD_LOGIC;
+        SIGNAL B_in                 : IN fp32s_t(fpu_gen_max_c-1 downto 0);
+        SIGNAL C_in                 : IN fp32_t;
+        SIGNAL C2_in                : IN fp32_t;
+        SIGNAL X_in                 : IN fp32s_t(fpu_gen_max_c-1 downto 0);
+        SIGNAL Y_in                 : IN fp32s_t(fpu_gen_max_c-1 downto 0);
+
+        SIGNAL output_ena_out       : OUT STD_LOGIC;
+        SIGNAL output_opcode_out    : OUT fpu_opcode_t;
+        SIGNAL output_eof_out       : OUT STD_LOGIC;
+        SIGNAL output_last_out      : OUT STD_LOGIC;
+        SIGNAL output_last_be_out   : OUT STD_LOGIC_VECTOR(fpu_data_width_c/8-1 downto 0);
+        SIGNAL output_fast_out      : OUT STD_LOGIC;
+        SIGNAL output_vector_out    : OUT fpu_vector_t;
+        SIGNAL output_addr_out      : OUT unsigned(sram_depth_c-1 DOWNTO 0);
+        SIGNAL output_precision_out : OUT unsigned(2 downto 0);
+        SIGNAL output_out           : OUT fp32s_t(fpu_gen_max_c-1 downto 0)
+    );
+END COMPONENT;
+
+COMPONENT falu_core IS
+    GENERIC (
+        INSTANCE:integer
+    );
+    PORT (
+        SIGNAL clock_in             : IN STD_LOGIC;
+        SIGNAL reset_in             : IN STD_LOGIC;
+
+        SIGNAL step_in              : IN unsigned(sram_depth_c-1 DOWNTO 0);
+        SIGNAL opcode_in            : IN fpu_opcode_t;
+        SIGNAL input_ena_in         : IN STD_LOGIC;
+        SIGNAL input_eof_in         : IN STD_LOGIC;
+        SIGNAL input_last_in        : IN STD_LOGIC;
+        SIGNAL input_last_be_in     : IN STD_LOGIC_VECTOR(fpu_data_width_c/8-1 DOWNTO 0);
+        SIGNAL input_fast_in        : IN STD_LOGIC;
+        SIGNAL input_vector_in      : IN fpu_vector_t;
         SIGNAL A_addr               : IN unsigned(sram_depth_c-1 DOWNTO 0);
         SIGNAL A_precision          : IN unsigned(2 downto 0);
         SIGNAL A_int                : IN STD_LOGIC;
@@ -1629,9 +1680,12 @@ COMPONENT falu_core IS
         SIGNAL Y_in                 : IN fp32_t;
 
         SIGNAL output_ena_out       : OUT STD_LOGIC;
+        SIGNAL output_opcode_out    : OUT fpu_opcode_t;
         SIGNAL output_eof_out       : OUT STD_LOGIC;
         SIGNAL output_last_out      : OUT STD_LOGIC;
+        SIGNAL output_last_be_out   : OUT STD_LOGIC_VECTOR(fpu_data_width_c/8-1 DOWNTO 0);
         SIGNAL output_fast_out      : OUT STD_LOGIC;
+        SIGNAL output_vector_out    : OUT fpu_vector_t;
         SIGNAL output_addr_out      : OUT unsigned(sram_depth_c-1 DOWNTO 0);
         SIGNAL output_precision_out : OUT unsigned(2 downto 0);
         SIGNAL output_out           : OUT fp32_t
@@ -1648,7 +1702,9 @@ COMPONENT falu IS
         SIGNAL input_ena_in         : IN STD_LOGIC;
         SIGNAL input_eof_in         : IN STD_LOGIC;
         SIGNAL input_last_in        : IN STD_LOGIC;
+        SIGNAL input_last_be_in     : IN STD_LOGIC_VECTOR(fpu_data_width_c/8-1 DOWNTO 0);
         SIGNAL input_fast_in        : IN STD_LOGIC;
+        SIGNAL input_vector_in      : IN fpu_vector_t;
         SIGNAL A_addr               : IN unsigned(sram_depth_c-1 DOWNTO 0);
         SIGNAL A_precision          : IN unsigned(2 downto 0);
         SIGNAL A_int                : IN STD_LOGIC;
@@ -1665,7 +1721,9 @@ COMPONENT falu IS
         SIGNAL output_opcode_out    : OUT fpu_opcode_t;
         SIGNAL output_eof_out       : OUT STD_LOGIC;
         SIGNAL output_last_out      : OUT STD_LOGIC;
+        SIGNAL output_last_be_out   : OUT STD_LOGIC_VECTOR(fpu_data_width_c/8-1 DOWNTO 0);
         SIGNAL output_fast_out      : OUT STD_LOGIC;
+        SIGNAL output_vector_out    : OUT fpu_vector_t;
         SIGNAL output_addr_out      : OUT unsigned(sram_depth_c-1 DOWNTO 0);
         SIGNAL output_precision_out : OUT unsigned(2 downto 0);
         SIGNAL output_out           : OUT fp32_t;
@@ -1683,7 +1741,9 @@ COMPONENT falu2 IS
         SIGNAL input_ena_in         : IN STD_LOGIC;
         SIGNAL input_eof_in         : IN STD_LOGIC;
         SIGNAL input_last_in        : IN STD_LOGIC;
+        SIGNAL input_last_be_in     : IN STD_LOGIC_VECTOR(fpu_data_width_c/8-1 DOWNTO 0);
         SIGNAL input_fast_in        : IN STD_LOGIC;
+        SIGNAL input_vector_in      : IN fpu_vector_t;
         SIGNAL A_addr               : IN unsigned(sram_depth_c-1 DOWNTO 0);
         SIGNAL A_precision          : IN unsigned(2 downto 0);
         SIGNAL A_floor              : IN STD_LOGIC;
@@ -1694,9 +1754,12 @@ COMPONENT falu2 IS
         SIGNAL Y_in                 : IN fp32_t;
 
         SIGNAL output_ena_out       : OUT STD_LOGIC;
+        SIGNAL output_opcode_out    : OUT fpu_opcode_t;
         SIGNAL output_eof_out       : OUT STD_LOGIC;
         SIGNAL output_last_out      : OUT STD_LOGIC;
+        SIGNAL output_last_be_out   : OUT STD_LOGIC_VECTOR(fpu_data_width_c/8-1 DOWNTO 0);
         SIGNAL output_fast_out      : OUT STD_LOGIC;
+        SIGNAL output_vector_out    : OUT fpu_vector_t;
         SIGNAL output_addr_out      : OUT unsigned(sram_depth_c-1 DOWNTO 0);
         SIGNAL output_precision_out : OUT unsigned(2 downto 0);
         SIGNAL output_out           : OUT fp32_t

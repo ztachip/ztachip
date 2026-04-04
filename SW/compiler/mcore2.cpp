@@ -285,6 +285,7 @@ static int scan_fma(
    bool x2_valid=false;
    bool c_valid=false;
    uint32_t postProc=0;
+   bool vector=false;
 
    if(strcasestr(opcode.c_str(),"FLOOR")) {
       postProc=FPU_EXE_FLOOR;
@@ -292,9 +293,15 @@ static int scan_fma(
    if(strcasestr(opcode.c_str(),"ABS")) {
       postProc+=FPU_EXE_ABS;
    }
+   if(strcasestr(opcode.c_str(),TOKEN_FPU_VECTOR)) {
+      vector = true;
+   }
    for(i=0;i < (int)names.size();i++) {
       if(strcasecmp(names[i].c_str(),"N")==0) {
-         fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=(uint32_t)(%s);",FPU_SET_P_CNT,REG_FPU_SET,parms[i].c_str());    
+         if(!vector)
+            fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=(uint32_t)(%s);",FPU_SET_P_CNT,REG_FPU_SET,parms[i].c_str());  
+         else
+            fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=(uint32_t)(%s);",FPU_SET_P_CNTV,REG_FPU_SET,parms[i].c_str());                
       } else {
          if(strcasecmp(names[i].c_str(),"y")==0) {
             _attr = FPU_SET_P_A;
@@ -326,14 +333,16 @@ static int scan_fma(
    if(!c_valid && !x1_valid && !x2_valid)
       error(cMcore::M_currLine, "Missing parameter");
    fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=0;",FPU_SET_W_FP32|FPU_SET_M_VALUE|FPU_SET_P_B,REG_FPU_SET);
+
    if(!a_valid)
-      fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=0;",FPU_SET_W_FP32|FPU_SET_M_VALUE|FPU_SET_P_C2,REG_FPU_SET);
+      fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=0;",FPU_SET_W_BFLOAT|FPU_SET_M_VALUE|FPU_SET_P_C2,REG_FPU_SET);
    if(!x1_valid)
-      fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=0x3f800000;",FPU_SET_W_FP32|FPU_SET_M_VALUE|FPU_SET_P_X,REG_FPU_SET);
+      fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=0x3f80;",FPU_SET_W_BFLOAT|FPU_SET_M_VALUE|FPU_SET_P_X,REG_FPU_SET);
    if(!x2_valid)
-      fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=0x3f800000;",FPU_SET_W_FP32|FPU_SET_M_VALUE|FPU_SET_P_Y,REG_FPU_SET);
+      fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=0x3f80;",FPU_SET_W_BFLOAT|FPU_SET_M_VALUE|FPU_SET_P_Y,REG_FPU_SET);
    if(!c_valid)
-      fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=0x3f800000;",FPU_SET_W_FP32|FPU_SET_M_VALUE|FPU_SET_P_C,REG_FPU_SET);
+      fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=0x3f80;",FPU_SET_W_BFLOAT|FPU_SET_M_VALUE|FPU_SET_P_C,REG_FPU_SET);
+
    genEXE(out,FPU_EXE_FMA+postProc,end);
    fprintf(out,"\n");
    return 0;
@@ -363,6 +372,7 @@ static int scan_mac(
    bool x2_valid=false;
    bool c_valid=false;
    uint32_t postProc=0;
+   bool vector=false;
 
    if(strcasestr(opcode.c_str(),"FLOOR")) {
       postProc=FPU_EXE_FLOOR;
@@ -370,9 +380,15 @@ static int scan_mac(
    if(strcasestr(opcode.c_str(),"ABS")) {
       postProc+=FPU_EXE_ABS;
    }
+   if(strcasestr(opcode.c_str(),TOKEN_FPU_VECTOR)) {
+      vector = true;
+   }
    for(i=0;i < (int)names.size();i++) {
       if(strcasecmp(names[i].c_str(),"N")==0) {
-         fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=(uint32_t)(%s);",FPU_SET_P_CNT,REG_FPU_SET,parms[i].c_str());    
+         if(!vector)
+            fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=(uint32_t)(%s);",FPU_SET_P_CNT,REG_FPU_SET,parms[i].c_str());    
+         else
+            fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=(uint32_t)(%s);",FPU_SET_P_CNTV,REG_FPU_SET,parms[i].c_str());    
       } else {
          if(strcasecmp(names[i].c_str(),"y")==0) {
             _attr = FPU_SET_P_A;
@@ -403,14 +419,16 @@ static int scan_mac(
       error(cMcore::M_currLine, "Missing parameter");
    if(!c_valid && !x1_valid && !x2_valid)
       error(cMcore::M_currLine, "Missing parameter");
+
    if(!a_valid)
-      fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=0;",FPU_SET_W_FP32|FPU_SET_M_VALUE|FPU_SET_P_B,REG_FPU_SET);
+      fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=0;",FPU_SET_W_BFLOAT|FPU_SET_M_VALUE|FPU_SET_P_B,REG_FPU_SET);
    if(!x1_valid)
-      fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=0x3f800000;",FPU_SET_W_FP32|FPU_SET_M_VALUE|FPU_SET_P_X,REG_FPU_SET);
+      fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=0x3f80;",FPU_SET_W_BFLOAT|FPU_SET_M_VALUE|FPU_SET_P_X,REG_FPU_SET);
    if(!x2_valid)
-      fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=0x3f800000;",FPU_SET_W_FP32|FPU_SET_M_VALUE|FPU_SET_P_Y,REG_FPU_SET);
+      fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=0x3f80;",FPU_SET_W_BFLOAT|FPU_SET_M_VALUE|FPU_SET_P_Y,REG_FPU_SET);
    if(!c_valid)
-      fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=0x3f800000;",FPU_SET_W_FP32|FPU_SET_M_VALUE|FPU_SET_P_C,REG_FPU_SET);
+      fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=0x3f80;",FPU_SET_W_BFLOAT|FPU_SET_M_VALUE|FPU_SET_P_C,REG_FPU_SET);
+
    genEXE(out,FPU_EXE_MAC+postProc,end);
    fprintf(out,"\n");
    return 0;
@@ -435,12 +453,19 @@ static int scan_exp(
    bool y_valid=false;
    bool x_valid=false;
    uint32_t oc;
+   bool vector=false;
 
    oc = FPU_EXE_EXP;
 
+   if(strcasestr(opcode.c_str(),TOKEN_FPU_VECTOR)) {
+      vector = true;
+   }
    for(i=0;i < (int)names.size();i++) {
       if(strcasecmp(names[i].c_str(),"N")==0) {
-         fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=(uint32_t)(%s);",FPU_SET_P_CNT,REG_FPU_SET,parms[i].c_str());    
+         if(!vector)
+            fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=(uint32_t)(%s);",FPU_SET_P_CNT,REG_FPU_SET,parms[i].c_str());    
+         else
+            fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=(uint32_t)(%s);",FPU_SET_P_CNTV,REG_FPU_SET,parms[i].c_str());    
       } else {
          if(strcasecmp(names[i].c_str(),"y")==0) {
             _attr = FPU_SET_P_A;
@@ -481,12 +506,19 @@ static int scan_reciprocal(
    bool y_valid=false;
    bool x_valid=false;
    uint32_t oc;
+   bool vector=false;
 
    oc = FPU_EXE_RECIPROCAL;
 
+   if(strcasestr(opcode.c_str(),TOKEN_FPU_VECTOR)) {
+      vector = true;
+   }
    for(i=0;i < (int)names.size();i++) {
       if(strcasecmp(names[i].c_str(),"N")==0) {
-         fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=(uint32_t)(%s);",FPU_SET_P_CNT,REG_FPU_SET,parms[i].c_str());    
+         if(!vector)
+            fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=(uint32_t)(%s);",FPU_SET_P_CNT,REG_FPU_SET,parms[i].c_str());    
+         else
+            fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=(uint32_t)(%s);",FPU_SET_P_CNTV,REG_FPU_SET,parms[i].c_str());    
       } else {
          if(strcasecmp(names[i].c_str(),"y")==0) {
             _attr = FPU_SET_P_A;
@@ -527,12 +559,20 @@ static int scan_invsqrt(
    bool y_valid=false;
    bool x_valid=false;
    uint32_t oc;
+   bool vector=false;
 
    oc = FPU_EXE_INVSQRT;
 
+   if(strcasestr(opcode.c_str(),TOKEN_FPU_VECTOR)) {
+      vector = true;
+   }
+
    for(i=0;i < (int)names.size();i++) {
       if(strcasecmp(names[i].c_str(),"N")==0) {
-         fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=(uint32_t)(%s);",FPU_SET_P_CNT,REG_FPU_SET,parms[i].c_str());    
+         if(!vector)
+            fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=(uint32_t)(%s);",FPU_SET_P_CNT,REG_FPU_SET,parms[i].c_str());  
+         else  
+            fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=(uint32_t)(%s);",FPU_SET_P_CNTV,REG_FPU_SET,parms[i].c_str());    
       } else {
          if(strcasecmp(names[i].c_str(),"y")==0) {
             _attr = FPU_SET_P_A;
@@ -579,14 +619,21 @@ static int scan_max(
    bool a_valid=false;
    bool group_valid=false;
    uint32_t postProc=0;
+   bool vector=false;
 
    if(strcasestr(opcode.c_str(),"ABS")) {
       postProc = FPU_EXE_ABS;
       abs=true;
    }
+   if(strcasestr(opcode.c_str(),TOKEN_FPU_VECTOR)) {
+      vector = true;
+   }
    for(i=0;i < (int)names.size();i++) {
       if(strcasecmp(names[i].c_str(),"N")==0) {
-         fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=(uint32_t)(%s);",FPU_SET_P_CNT,REG_FPU_SET,parms[i].c_str());    
+         if(!vector)
+            fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=(uint32_t)(%s);",FPU_SET_P_CNT,REG_FPU_SET,parms[i].c_str());  
+         else  
+            fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=(uint32_t)(%s);",FPU_SET_P_CNTV,REG_FPU_SET,parms[i].c_str());    
       } else {
          if(strcasecmp(names[i].c_str(),"y")==0) {
             _attr = FPU_SET_P_A;
@@ -646,13 +693,20 @@ static int scan_sum(
    bool x_valid=false;
    bool a_valid=false;
    uint32_t postProc=0;
+   bool vector=false;
 
    if(strcasestr(opcode.c_str(),"ABS")) {
       postProc = FPU_EXE_ABS;
    }
+   if(strcasestr(opcode.c_str(),TOKEN_FPU_VECTOR)) {
+      vector = true;
+   }
    for(i=0;i < (int)names.size();i++) {
       if(strcasecmp(names[i].c_str(),"N")==0) {
-         fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=(uint32_t)(%s);",FPU_SET_P_CNT,REG_FPU_SET,parms[i].c_str());    
+         if(!vector)
+            fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=(uint32_t)(%s);",FPU_SET_P_CNT,REG_FPU_SET,parms[i].c_str()); 
+         else   
+            fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=(uint32_t)(%s);",FPU_SET_P_CNTV,REG_FPU_SET,parms[i].c_str());    
       } else {
          if(strcasecmp(names[i].c_str(),"y")==0) {
             _attr = FPU_SET_P_A;
@@ -694,27 +748,27 @@ char *cMcore::scan_fpu(FILE *out, char *line) {
    char end;
 
    line = parse(line,end,opcode,names,parms,types,isPointers);
-   if(strcasestr(opcode.c_str(),TOKEN_FMA)) {
+   if(strcasestr(opcode.c_str(),TOKEN_FPU_FMA)) {
       if(scan_fma(out,opcode,names,parms,types,isPointers,end) != 0)
          return 0;
    }
-   else if(strcasestr(opcode.c_str(),TOKEN_MAC)) {
+   else if(strcasestr(opcode.c_str(),TOKEN_FPU_MAC)) {
       if(scan_mac(out,opcode,names,parms,types,isPointers,end) != 0)
          return 0;
    }
-   else if(strcasestr(opcode.c_str(),TOKEN_EXP)) {
+   else if(strcasestr(opcode.c_str(),TOKEN_FPU_EXP)) {
       if(scan_exp(out,opcode,names,parms,types,isPointers,end) != 0)
          return 0;   
-   } else if(strcasestr(opcode.c_str(),TOKEN_RECIPROCAL)) {
+   } else if(strcasestr(opcode.c_str(),TOKEN_FPU_RECIPROCAL)) {
       if(scan_reciprocal(out,opcode,names,parms,types,isPointers,end) != 0)
          return 0;
-   } else if(strcasestr(opcode.c_str(),TOKEN_INVSQRT)) {
+   } else if(strcasestr(opcode.c_str(),TOKEN_FPU_INVSQRT)) {
       if(scan_invsqrt(out,opcode,names,parms,types,isPointers,end) != 0)
          return 0;   
-   } else if(strcasestr(opcode.c_str(),TOKEN_MAX)) {
+   } else if(strcasestr(opcode.c_str(),TOKEN_FPU_MAX)) {
       if(scan_max(out,opcode,names,parms,types,isPointers,end) != 0)
          return 0;  
-   } else if(strcasestr(opcode.c_str(),TOKEN_SUM)) {
+   } else if(strcasestr(opcode.c_str(),TOKEN_FPU_SUM)) {
       if(scan_sum(out,opcode,names,parms,types,isPointers,end) != 0)
          return 0;  
    } else {

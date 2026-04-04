@@ -44,6 +44,7 @@ LIBRARY ieee;
 USE ieee.std_logic_1164.all;
 use IEEE.numeric_std.all;
 use work.ztachip_pkg.all;
+use work.config.all;
 
 ENTITY falu IS
     PORT (
@@ -55,7 +56,9 @@ ENTITY falu IS
         SIGNAL input_ena_in         : IN STD_LOGIC;
         SIGNAL input_eof_in         : IN STD_LOGIC;
         SIGNAL input_last_in        : IN STD_LOGIC;
+        SIGNAL input_last_be_in     : IN STD_LOGIC_VECTOR(fpu_data_width_c/8-1 downto 0);
         SIGNAL input_fast_in        : IN STD_LOGIC;
+        SIGNAL input_vector_in      : IN fpu_vector_t;
         SIGNAL A_addr               : IN unsigned(sram_depth_c-1 DOWNTO 0);
         SIGNAL A_precision          : IN unsigned(2 downto 0);
         SIGNAL A_int                : IN STD_LOGIC;
@@ -72,7 +75,9 @@ ENTITY falu IS
         SIGNAL output_opcode_out    : OUT fpu_opcode_t;
         SIGNAL output_eof_out       : OUT STD_LOGIC;
         SIGNAL output_last_out      : OUT STD_LOGIC;
+        SIGNAL output_last_be_out   : OUT STD_LOGIC_VECTOR(fpu_data_width_c/8-1 downto 0);
         SIGNAL output_fast_out      : OUT STD_LOGIC;
+        SIGNAL output_vector_out    : OUT fpu_vector_t;
         SIGNAL output_addr_out      : OUT unsigned(sram_depth_c-1 DOWNTO 0);
         SIGNAL output_precision_out : OUT unsigned(2 downto 0);
         SIGNAL output_out           : OUT fp32_t;
@@ -356,6 +361,31 @@ delay8_i:delayv
         enable_in=>'1'
     );
 
+delay9_i:delayi
+    generic map(
+        DEPTH=>LATENCY+OUTPUT_LATENCY+1,
+        SIZE=>fpu_vector_t'length
+    )
+    port map(
+        clock_in=>clock_in,
+        reset_in=>reset_in,
+        in_in=>input_vector_in,
+        out_out=>output_vector_out,
+        enable_in=>'1'
+    );
+
+delay10_i:delayv
+    generic map(
+        DEPTH=>LATENCY+OUTPUT_LATENCY+1,
+        SIZE=>fpu_data_width_c/8
+    )
+    port map(
+        clock_in=>clock_in,
+        reset_in=>reset_in,
+        in_in=>input_last_be_in,
+        out_out=>output_last_be_out,
+        enable_in=>'1'
+    );
 
 -------------------------------------------------------------
 -- Process chain to approximate reciprocal
@@ -415,11 +445,18 @@ inv_sqrt_delay_i:delayv
 -------------------------------------------------------------
 
 process(B)
-variable exp_v:signed(7 downto 0);
+variable exp_v:signed(15 downto 0);
+variable B_v:signed(15 downto 0);
 begin
-exp_v := signed(B(7 downto 0))+to_signed(127,8);
+B_v := signed(B(15 downto 0));
+if(B_v < to_signed(-126,16)) then
+    B_v := to_signed(-126,16);
+elsif(B_v > to_signed(127,16)) then
+    B_v := to_signed(127,16);
+end if;
+exp_v := B_v+to_signed(127,16);
 exp(31) <= '0'; -- Sign is 0
-exp(30 downto 23) <= std_logic_vector(exp_v);
+exp(30 downto 23) <= std_logic_vector(exp_v(7 downto 0));
 exp(22 downto 0) <= (others=>'0');
 end process;
 

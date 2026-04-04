@@ -58,11 +58,16 @@ constant main_clock_c:integer:=125000000;
 
 ---------------------------------------------------------------
 -- Enable/disable FPU. This option is required to run LLM models
+-- FPU will take more resources
 ----------------------------------------------------------------
  
 constant fpu_enabled_c:boolean:=TRUE;
 
 --constant fpu_enabled_c:boolean:=FALSE;
+
+constant fpu_gen_depth_c:integer:=1;
+
+constant fpu_gen_max_c:integer:=2**fpu_gen_depth_c; --Number of FPUs to be instantiated
 
 ---------------------------------------------------------------
 -- Max tensor size in log2

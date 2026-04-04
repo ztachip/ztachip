@@ -185,8 +185,8 @@ begin
 axi_read_inst: axi_read 
    GENERIC MAP (
       DATA_WIDTH=>RAM_BYTE_WIDTH*8,
-      FIFO_DEPTH=>6,
-      FIFO_DATA_DEPTH=>6
+      FIFO_DEPTH=>8,
+      FIFO_DATA_DEPTH=>8
    )
    PORT MAP
    (

@@ -61,13 +61,15 @@
 #define TOKEN_VAR             "VAR"
 #define TOKEN_DTYPE           "DTYPE"
 #define TOKEN_REMAP           "REMAP"
-#define TOKEN_FMA             "FPU.FMA"
-#define TOKEN_MAC             "FPU.MAC"
-#define TOKEN_EXP             "FPU.EXP"
-#define TOKEN_RECIPROCAL      "FPU.RECIPROCAL"
-#define TOKEN_MAX             "FPU.MAX"
-#define TOKEN_SUM             "FPU.SUM"
-#define TOKEN_INVSQRT         "FPU.INVSQRT"
+#define TOKEN_FPU             "FPU"
+#define TOKEN_FPU_VECTOR      ".V"
+#define TOKEN_FPU_FMA         ".FMA"
+#define TOKEN_FPU_MAC         ".MAC"
+#define TOKEN_FPU_EXP         ".EXP"
+#define TOKEN_FPU_RECIPROCAL  ".RECIPROCAL"
+#define TOKEN_FPU_MAX         ".MAX"
+#define TOKEN_FPU_SUM         ".SUM"
+#define TOKEN_FPU_INVSQRT     ".INVSQRT"
 
 
 class cMcoreRange;
@@ -194,6 +196,7 @@ public:
    int m_var;
    bool m_isSource;
    int m_spuCount;
+   bool m_scatter; 
    std::vector<cMcoreSpecifier> m_remap;
 };
 

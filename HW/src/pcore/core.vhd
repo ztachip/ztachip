@@ -752,7 +752,11 @@ begin
             dp_rd_addr_step_r <= dp_rd_addr_step;
             dp_rd_share_r <= dp_rd_share;
             
-            if (pid_gen_max_c < vector_width_c) and dp_core_read='1' and dp_read_scatter_in/=scatter_none_c then
+            if (pid_gen_max_c < vector_width_c) and 
+               dp_core_read='1' and 
+               dp_read_scatter_in/=scatter_none_c and
+               dp_read_vector_in=std_logic_vector(to_unsigned(ddr_vector_width_c-1,dp_vector_t'length)) then
+               -- Slow down scatter mode since we dont have enough PCORE to keep up
                dp_core_read_wait_r <= '1';
             else
                dp_core_read_wait_r <= '0';
