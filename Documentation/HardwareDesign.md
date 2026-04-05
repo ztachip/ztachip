@@ -134,7 +134,9 @@ to DDR external memory can occur at the same time as data transfer from the scra
 
 - [Y_fifo_i](../HW/src/util/fifo.vhd) used to store Y parameters associated with B+C*X*Y opcode. FPU executions are pipelined with all data input being prefetched and pipelined.
 
-- [falu_core](../HW/src/fpu/falu_core.vhd) performs float functions (float32/bfloat) and aggregate functions (MAX/SUM/DOT_PRODUCT_SUM)
+- [falu_vector](../HW/src/fpu/falu_vector.vhd) Perform FPU operations in vector mode by nstantiating an array of falu_core. 
+
+- [falu_core](../HW/src/fpu/falu_core.vhd) Perform FPU operations for each vector elements 
 
 - [falu](../HW/src/fpu/falu.vhd) performs all falu_core functions except for the SUM opcode which is executed by falu2 instead.
 
@@ -155,6 +157,12 @@ Aggregate functions are also better supported by FPU. Aggregate functions are in
 - SUM
 
 - DOT-PRODUCT-SUM
+
+FPU operates in vector mode. FPU input/output are vectors of float numbers. FPU vector width is configured in [config.vhd](../HW/src/config.vhd) as fpu_gen_max_c.
+
+FPU execution is fully pipelined. For example, for the all important FMA operations found in LLM attention stage, it can execute up to 2*fpu_gen_max_c float operations (FMA=1ADD+1MUL) per clock cycle.
+
+Data fetching is streamed to FPU from SRAM. Data fetching are overlapped with execution, therefore adding no delay to FPU execution.
 
 FPU operates from SRAM memory space only
 

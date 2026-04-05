@@ -7,7 +7,7 @@
    viewBox="0 0 153 78"
    version="1.1"
    id="svg360"
-   inkscape:version="1.4.2 (f4327f4, 2025-05-13)"
+   inkscape:version="1.2.1 (9c6d41e410, 2022-07-14)"
    sodipodi:docname="hw_fpu.svg"
    inkscape:export-filename="hw_alu.png"
    inkscape:export-xdpi="96"
@@ -29,7 +29,7 @@
      inkscape:document-units="mm"
      showgrid="false"
      inkscape:zoom="2"
-     inkscape:cx="260"
+     inkscape:cx="260.25"
      inkscape:cy="191.25"
      inkscape:window-width="1920"
      inkscape:window-height="991"
@@ -48,7 +48,7 @@
        x2="201.10001"
        y2="390"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.2466881,0,0,1.2730827,-126.65246,-459.60721)" />
+       gradientTransform="matrix(1.2850083,0,0,1.3890485,-131.18662,-502.3865)" />
     <linearGradient
        id="linearGradient19213"
        inkscape:swatch="solid">
@@ -112,17 +112,7 @@
        xlink:href="#linearGradient19213"
        id="linearGradient7"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(0.59248999,0,0,0.77330933,-0.94594283,-258.40812)"
-       x1="118.40001"
-       y1="390"
-       x2="201.10001"
-       y2="390" />
-    <linearGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient19213"
-       id="linearGradient8"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(0.20290801,0,0,0.27614333,47.994476,-65.042438)"
+       gradientTransform="matrix(0.70010346,0,0,1.1193561,-16.2851,-396.73984)"
        x1="118.40001"
        y1="390"
        x2="201.10001"
@@ -137,18 +127,48 @@
        y1="390"
        x2="201.10001"
        y2="390" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient19213"
+       id="linearGradient527"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.58165907,0,0,0.64846293,2.5945682,-210.30274)"
+       x1="118.40001"
+       y1="390"
+       x2="201.10001"
+       y2="390" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient19213"
+       id="linearGradient560"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.20290801,0,0,0.27614333,48.151074,-65.362611)"
+       x1="118.40001"
+       y1="390"
+       x2="201.10001"
+       y2="390" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient19213"
+       id="linearGradient620"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.56889236,0,0,0.64854201,3.2449929,-212.97941)"
+       x1="118.40001"
+       y1="390"
+       x2="201.10001"
+       y2="390" />
   </defs>
   <g
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1">
     <rect
-       style="fill:none;fill-opacity:1;stroke:url(#linearGradient19215);stroke-width:0.137779;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
+       style="fill:none;fill-opacity:1;stroke:url(#linearGradient19215);stroke-width:0.146113;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
        id="rect10796"
-       width="103.02264"
-       height="53.643967"
-       x="20.994762"
-       y="10.073338" />
+       width="106.1893"
+       height="58.530426"
+       x="20.998928"
+       y="10.077505" />
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52777px;font-family:sans-serif;-inkscape-font-specification:sans-serif;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
@@ -229,19 +249,26 @@
        x="33.423237"
        y="41.096157" />
     <rect
-       style="fill:#ffffff;fill-opacity:1;stroke:url(#linearGradient7);stroke-width:0.334533;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
+       style="fill:#ffffff;fill-opacity:1;stroke:url(#linearGradient7);stroke-width:0.437509;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
        id="rect10796-6-3-4-9-95-8-5-6-6-2-6-4"
-       width="48.961636"
-       height="32.584991"
-       x="69.223488"
-       y="26.890169" />
+       width="57.854492"
+       height="47.166389"
+       x="66.629143"
+       y="16.226032" />
     <rect
-       style="fill:#ffffff;fill-opacity:1;stroke:url(#linearGradient8);stroke-width:0.116987;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
-       id="rect10796-6-3-4-9-95-8-5-6-6-2-6-4-4"
-       width="16.767723"
-       height="11.635872"
-       x="72.025162"
-       y="36.835575" />
+       style="fill:#ffffff;fill-opacity:1;stroke:url(#linearGradient527);stroke-width:0.303528;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
+       id="rect10796-6-3-4-9-95-8-5-6-6-2-6-4-4-4"
+       width="48.066597"
+       height="27.324331"
+       x="71.481277"
+       y="28.935736" />
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:url(#linearGradient620);stroke-width:0.300197;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
+       id="rect10796-6-3-4-9-95-8-5-6-6-2-6-4-4-4-7"
+       width="47.011597"
+       height="27.327662"
+       x="70.61972"
+       y="26.288252" />
     <rect
        style="fill:#ffffff;fill-opacity:1;stroke:url(#linearGradient9);stroke-width:0.116987;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
        id="rect10796-6-3-4-9-95-8-5-6-6-2-6-4-4-1"
@@ -249,6 +276,13 @@
        height="11.635872"
        x="97.160583"
        y="36.57098" />
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:url(#linearGradient560);stroke-width:0.116987;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
+       id="rect10796-6-3-4-9-95-8-5-6-6-2-6-4-4-1-0"
+       width="16.767723"
+       height="11.635872"
+       x="72.181755"
+       y="36.5154" />
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52777px;font-family:sans-serif;-inkscape-font-specification:sans-serif;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
@@ -296,14 +330,25 @@
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52777px;font-family:sans-serif;-inkscape-font-specification:sans-serif;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
-       x="69.982285"
-       y="30.480431"
+       x="67.204163"
+       y="19.500221"
        id="text7597-2-4-8-4-1"><tspan
          sodipodi:role="line"
          id="tspan7595-6-9-9-3-3"
          style="stroke-width:0"
-         x="69.982285"
-         y="30.480431">falu_core</tspan></text>
+         x="67.204163"
+         y="19.500221">falu_vector</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52777px;font-family:sans-serif;-inkscape-font-specification:sans-serif;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
+       x="70.867699"
+       y="29.380974"
+       id="text7597-2-4-8-4-1-1"><tspan
+         sodipodi:role="line"
+         id="tspan7595-6-9-9-3-3-3"
+         style="stroke-width:0"
+         x="70.867699"
+         y="29.380974">falu_core</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52777px;font-family:sans-serif;-inkscape-font-specification:sans-serif;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
@@ -346,28 +391,28 @@
        d="m 19.417193,42.120305 c 8.998338,0 8.893707,0 8.893707,0"
        id="path833-2" />
     <path
-       style="fill:#ffffff;stroke:#a4a4a4;stroke-width:0.435084;stroke-linecap:square;paint-order:fill markers stroke"
-       d="m 60.538526,44.341604 c 8.614616,0 8.514447,0 8.514447,0"
+       style="fill:#ffffff;stroke:#a4a4a4;stroke-width:0.379682;stroke-linecap:square;paint-order:fill markers stroke"
+       d="m 60.495361,44.209312 c 6.560393,0 6.48411,0 6.48411,0"
        id="path833-2-8" />
     <path
        style="fill:#ffffff;stroke:#a4a4a4;stroke-width:0.885068;stroke-linecap:square;paint-order:fill markers stroke"
-       d="m 80.877091,54.021238 c 35.648719,0 35.234249,0 35.234249,0"
+       d="m 80.877091,50.912384 c 35.648719,0 35.234249,0 35.234249,0"
        id="path833-2-8-0" />
     <path
        style="fill:#ffffff;stroke:#a4a4a4;stroke-width:0.42569;stroke-linecap:square;paint-order:fill markers stroke"
        d="m 88.894281,42.480259 c 8.246661,0 8.150778,0 8.150778,0"
        id="path833-2-8-0-3" />
     <path
-       style="fill:#ececec;stroke:#a4a4a4;stroke-width:0.70096;stroke-linecap:square;stroke-dasharray:none;paint-order:fill markers stroke"
-       d="m 114.74714,42.201046 h 15.90668"
+       style="fill:#ececec;stroke:#a4a4a4;stroke-width:0.712024;stroke-linecap:square;stroke-dasharray:none;paint-order:fill markers stroke"
+       d="m 114.22949,42.201046 h 16.41282"
        id="path7045" />
     <path
-       style="fill:#ececec;stroke:#a4a4a4;stroke-width:0.541629;stroke-linecap:square;stroke-dasharray:none;paint-order:fill markers stroke"
-       d="m 80.697485,53.654798 0.09389,-4.825462"
+       style="fill:#ececec;stroke:#a4a4a4;stroke-width:0.473363;stroke-linecap:square;stroke-dasharray:none;paint-order:fill markers stroke"
+       d="m 80.662695,50.911463 0.16347,-2.116917"
        id="path7045-4-0" />
     <path
-       style="fill:#ececec;stroke:#a4a4a4;stroke-width:0.588701;stroke-linecap:square;stroke-dasharray:none;paint-order:fill markers stroke"
-       d="m 116.18752,53.89313 0.0459,-11.65665"
+       style="fill:#ececec;stroke:#a4a4a4;stroke-width:0.572259;stroke-linecap:square;stroke-dasharray:none;paint-order:fill markers stroke"
+       d="m 116.17927,50.329508 0.0624,-8.101281"
        id="path7045-4-0-6" />
   </g>
 </svg>
