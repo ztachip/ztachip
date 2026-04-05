@@ -198,6 +198,11 @@ static void matmul_q4(void *_p,int pid) {
       s=2*(LLM_GS/2)*VECTOR_WIDTH*y/VECTOR_WIDTH;
       e=2*(LLM_GS/2)*VECTOR_WIDTH*(y+cnt)/VECTOR_WIDTH;
       fast = (cnt >= 32)?2:0;
+
+      > $W_SCALE_D := DTYPE(INT16)SCRATCH((uint32_t)ws->s1,NUM_PCORE,cnt)[$][0:cnt-1];
+      
+      > $W_SCALE_S := DTYPE(INT16)MEM(req->w_s,req->N/req->GS,req->D)[$][y:y+cnt-1];
+
       for(x=0;x < N;x+=NUM_PCORE) 
       {
          cnt2 = N-x;
@@ -209,7 +214,7 @@ static void matmul_q4(void *_p,int pid) {
          > $W_S := DTYPE(INT8)MEM(req->w_v,FACTOR/2,(req->N/req->GS),2*(req->D/VECTOR_WIDTH)*(LLM_GS/2)*VECTOR_WIDTH)[$][x:x+cnt2-1][s:e-1];
          > $W_D := DTYPE(INT8)PCORE[0:cnt2-1].THREAD[0:nth-1].llm::w[0:LLM_GS-1][:];
 
-         for(gs=0;gs < FACTOR;gs+=2) {
+         for(gs=0;gs < FACTOR;gs+=2) { 
 
             // Cannot fit the whole group in PCORE
             // So do dot product in multiple steps and add results together
@@ -228,10 +233,10 @@ static void matmul_q4(void *_p,int pid) {
          }
 
          // Send scales of weights to SRAM,  
-         > DTYPE(INT16)SCRATCH((uint32_t)ws->s1,cnt2,cnt)[0:cnt2-1][0:cnt-1] <= DTYPE(INT16)MEM(req->w_s,req->N/req->GS,req->D)[x:x+cnt2-1][y:y+cnt-1];
+         > $W_SCALE_D[0:cnt2-1] <= $W_SCALE_S[x:x+cnt2-1];
 
          // Send scales of x to SRAM,
-         > DTYPE(INT16)SCRATCH((uint32_t)ws->s2,cnt2)[:] <= DTYPE(INT16)MEM(req->x_s,req->N/req->GS)[x:x+cnt2-1];  
+         > DTYPE(INT16)SCRATCH((uint32_t)ws->s2,NUM_PCORE)[0:cnt2-1] <= DTYPE(INT16)MEM(req->x_s,req->N/req->GS)[x:x+cnt2-1];  
 
          // Send results from HART0 to SRAM
          > DTYPE(BFLOAT)SCRATCH((uint32_t)ws->s3,cnt2,cnt)[0:cnt2-1][0:cnt-1] <= DTYPE(BFLOAT)PCORE[:].THREAD[0:nth-1].llm::y[0:VECTOR_WIDTH-1];      
