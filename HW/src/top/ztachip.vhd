@@ -403,6 +403,7 @@ pcore_read_data_valid2 <= pcore_read_data_valid and pcore_read_gen_valid2;
 process(reset_in,clock_in)
 variable vm_v:integer;
 variable sram_vm_v:integer;
+variable counter_v:dp_counter_t;
 begin
     if reset_in = '0' then
         pcore_write_counter_r <= (others=>(others=>'0'));
@@ -416,15 +417,14 @@ begin
                 else
                     vm_v:=1;
                 end if;
-                if dp_pcore_write_vector=std_logic_vector(to_unsigned(ddr_vector_width_c/4-1,ddr_vector_depth_c)) then
-                   pcore_write_counter_r(vm_v) <= pcore_write_counter_r(vm_v)+(ddr_vector_width_c/4);
-                elsif dp_pcore_write_vector=std_logic_vector(to_unsigned(ddr_vector_width_c/2-1,ddr_vector_depth_c)) then
-                   pcore_write_counter_r(vm_v) <= pcore_write_counter_r(vm_v)+(ddr_vector_width_c/2);
-                elsif dp_pcore_write_vector=std_logic_vector(to_unsigned(ddr_vector_width_c-1,ddr_vector_depth_c)) then
-                   pcore_write_counter_r(vm_v) <= pcore_write_counter_r(vm_v)+(ddr_vector_width_c);
-                else
-                   pcore_write_counter_r(vm_v) <= pcore_write_counter_r(vm_v)+1;
-                end if;
+                counter_v := pcore_write_counter_r(vm_v)+1;
+                FOR I in 0 to ddr_vector_depth_c-1 loop
+                    if dp_pcore_write_vector=std_logic_vector(to_unsigned(ddr_vector_width_c/(2**I)-1,ddr_vector_depth_c)) then
+                        counter_v := pcore_write_counter_r(vm_v)+(ddr_vector_width_c/(2**I));
+                        exit;
+                    end if;
+                end loop;
+                pcore_write_counter_r(vm_v) <= counter_v;
             end if;
             if dp_sram_write_enable='1' and dp_sram_write_wait='0' then
                 if dp_sram_write_vm='0' then
@@ -432,26 +432,25 @@ begin
                 else
                     sram_vm_v:=1;
                 end if;
-                if dp_sram_write_vector=std_logic_vector(to_unsigned(ddr_vector_width_c/4-1,ddr_vector_depth_c)) then
-                   sram_write_counter_r(sram_vm_v) <= sram_write_counter_r(sram_vm_v)+(ddr_vector_width_c/4);
-                elsif dp_sram_write_vector=std_logic_vector(to_unsigned(ddr_vector_width_c/2-1,ddr_vector_depth_c)) then
-                   sram_write_counter_r(sram_vm_v) <= sram_write_counter_r(sram_vm_v)+(ddr_vector_width_c/2);
-                elsif dp_sram_write_vector=std_logic_vector(to_unsigned(ddr_vector_width_c-1,ddr_vector_depth_c)) then
-                   sram_write_counter_r(sram_vm_v) <= sram_write_counter_r(sram_vm_v)+(ddr_vector_width_c);
-                else
-                   sram_write_counter_r(sram_vm_v) <= sram_write_counter_r(sram_vm_v)+1;
-                end if;
+
+                counter_v := sram_write_counter_r(sram_vm_v)+1;
+                FOR I in 0 to ddr_vector_depth_c-1 loop
+                    if dp_sram_write_vector=std_logic_vector(to_unsigned(ddr_vector_width_c/(2**I)-1,ddr_vector_depth_c)) then
+                        counter_v := sram_write_counter_r(sram_vm_v)+(ddr_vector_width_c/(2**I));
+                        exit;
+                    end if;
+                end loop;
+                sram_write_counter_r(sram_vm_v) <= counter_v;
             end if;
             if ddr_write_enable='1' and ddr_write_wait_2='0' then
-                if ddr_write_vector=std_logic_vector(to_unsigned(ddr_vector_width_c/4-1,ddr_vector_depth_c)) then
-                   ddr_write_counter_r <= ddr_write_counter_r+(ddr_vector_width_c/4);
-                elsif ddr_write_vector=std_logic_vector(to_unsigned(ddr_vector_width_c/2-1,ddr_vector_depth_c)) then
-                   ddr_write_counter_r <= ddr_write_counter_r+(ddr_vector_width_c/2);
-                elsif ddr_write_vector=std_logic_vector(to_unsigned(ddr_vector_width_c-1,ddr_vector_depth_c)) then
-                   ddr_write_counter_r <= ddr_write_counter_r+(ddr_vector_width_c);
-                else
-                   ddr_write_counter_r <= ddr_write_counter_r+1;
-                end if;
+                counter_v := ddr_write_counter_r+1;
+                FOR I in 0 to ddr_vector_depth_c-1 loop
+                    if ddr_write_vector=std_logic_vector(to_unsigned(ddr_vector_width_c/(2**I)-1,ddr_vector_depth_c)) then
+                        counter_v := ddr_write_counter_r+(ddr_vector_width_c/(2**I));
+                        exit;
+                    end if;
+                end loop;
+                ddr_write_counter_r <= counter_v;
             end if;
         end if;
     end if;

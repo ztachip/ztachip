@@ -463,16 +463,16 @@ architecture rtl of soc_base is
    SIGNAL ZTA_DATA_bready:STD_LOGIC;
    SIGNAL ZTA_DATA_bresp:STD_LOGIC_VECTOR(1 downto 0);
    SIGNAL ZTA_DATA_bvalid:STD_LOGIC;
-   SIGNAL ZTA_DATA_rdata:STD_LOGIC_VECTOR(63 downto 0);
+   SIGNAL ZTA_DATA_rdata:STD_LOGIC_VECTOR(ddr_data_width_c-1 downto 0);
    SIGNAL ZTA_DATA_rid:STD_LOGIC_VECTOR(0 downto 0);
    SIGNAL ZTA_DATA_rlast:STD_LOGIC;
    SIGNAL ZTA_DATA_rready:STD_LOGIC;
    SIGNAL ZTA_DATA_rresp:STD_LOGIC_VECTOR(1 downto 0);
    SIGNAL ZTA_DATA_rvalid:STD_LOGIC;
-   SIGNAL ZTA_DATA_wdata:STD_LOGIC_VECTOR(63 downto 0);
+   SIGNAL ZTA_DATA_wdata:STD_LOGIC_VECTOR(ddr_data_width_c-1 downto 0);
    SIGNAL ZTA_DATA_wlast:STD_LOGIC;
    SIGNAL ZTA_DATA_wready:STD_LOGIC;
-   SIGNAL ZTA_DATA_wstrb:STD_LOGIC_VECTOR(7 downto 0);
+   SIGNAL ZTA_DATA_wstrb:STD_LOGIC_VECTOR(ddr_data_byte_width_c-1 downto 0);
    SIGNAL ZTA_DATA_wvalid:STD_LOGIC;
 
    SIGNAL s_wdata:STD_LOGIC_VECTOR(31 downto 0);
@@ -501,16 +501,16 @@ architecture rtl of soc_base is
    SIGNAL SDRAM_bready2:STD_LOGIC;
    SIGNAL SDRAM_bresp2:STD_LOGIC_VECTOR(1 downto 0);
    SIGNAL SDRAM_bvalid2:STD_LOGIC;
-   SIGNAL SDRAM_rdata2:STD_LOGIC_VECTOR(127 downto 0);
+   SIGNAL SDRAM_rdata2:STD_LOGIC_VECTOR(exmem_data_width_c-1 downto 0);
    SIGNAL SDRAM_rlast2:STD_LOGIC;
    SIGNAL SDRAM_rready2:STD_LOGIC;
    SIGNAL SDRAM_rresp2:STD_LOGIC_VECTOR(1 downto 0);
    SIGNAL SDRAM_rvalid2:STD_LOGIC;
-   SIGNAL SDRAM_wdata2:STD_LOGIC_VECTOR(127 downto 0);
+   SIGNAL SDRAM_wdata2:STD_LOGIC_VECTOR(exmem_data_width_c-1 downto 0);
    SIGNAL SDRAM_wdata_mask2:STD_LOGIC_VECTOR(1 downto 0);
    SIGNAL SDRAM_wlast2:STD_LOGIC;
    SIGNAL SDRAM_wready2:STD_LOGIC;
-   SIGNAL SDRAM_wstrb2:STD_LOGIC_VECTOR(15 downto 0);
+   SIGNAL SDRAM_wstrb2:STD_LOGIC_VECTOR(exmem_data_width_c/8-1 downto 0);
    SIGNAL SDRAM_wvalid2:STD_LOGIC;
 
    SIGNAL VIDEO_tdata:STD_LOGIC_VECTOR(31 downto 0);

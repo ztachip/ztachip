@@ -26,6 +26,7 @@ LIBRARY ieee;
 USE ieee.std_logic_1164.all;
 use IEEE.numeric_std.all;
 use work.ztachip_pkg.all;
+use work.config.all;
 
 entity axi_merge_write is
    generic (
@@ -46,9 +47,9 @@ entity axi_merge_write is
       axislavew_awlen_in           : IN axi_awlen_t;
       axislavew_awvalid_in         : IN axi_awvalid_t;
       axislavew_wvalid_in          : IN axi_wvalid_t;
-      axislavew_wdata_in           : IN axi_wdata64_t;
+      axislavew_wdata_in           : IN axi_wdata_t(ddr_data_width_c-1 downto 0);
       axislavew_wlast_in           : IN axi_wlast_t;
-      axislavew_wstrb_in           : IN axi_wstrb8_t;
+      axislavew_wstrb_in           : IN axi_wstrb_t(ddr_data_byte_width_c-1 downto 0);
       axislavew_awready_out        : OUT axi_awready_t;
       axislavew_wready_out         : OUT axi_wready_t;
       axislavew_bresp_out          : OUT axi_bresp_t;
@@ -89,10 +90,10 @@ entity axi_merge_write is
       aximaster_awlen_out          : OUT axi_awlen_t;
       aximaster_awvalid_out        : OUT axi_awvalid_t;
       aximaster_wvalid_out         : OUT axi_wvalid_t;
-      aximaster_wdata_out          : OUT axi_wdata128_t;
+      aximaster_wdata_out          : OUT axi_wdata_t(exmem_data_width_c-1 downto 0);
       aximaster_wdata_mask_out     : OUT std_logic_vector(1 downto 0);
       aximaster_wlast_out          : OUT axi_wlast_t;
-      aximaster_wstrb_out          : OUT axi_wstrb16_t;
+      aximaster_wstrb_out          : OUT axi_wstrb_t(exmem_data_width_c/8-1 downto 0);
       aximaster_awready_in         : IN axi_awready_t;
       aximaster_wready_in          : IN axi_wready_t;
       aximaster_bresp_in           : IN axi_bresp_t;
@@ -119,9 +120,16 @@ SIGNAL slave_awaddrs:axi_awaddrs_t(MAX_SLAVE_PORT-1 downto 0);
 SIGNAL slave_awlens:axi_awlens_t(MAX_SLAVE_PORT-1 downto 0);
 SIGNAL slave_awvalids:axi_awvalids_t(MAX_SLAVE_PORT-1 downto 0);
 SIGNAL slave_wvalids:axi_wvalids_t(MAX_SLAVE_PORT-1 downto 0);
-SIGNAL slave_wdatas:axi_wdata128s_t(MAX_SLAVE_PORT-1 downto 0);
+
+SIGNAL slave_wdatas_S0:axi_wdata_t(exmem_data_width_c-1 downto 0);
+SIGNAL slave_wdatas_S1:axi_wdata_t(exmem_data_width_c-1 downto 0);
+SIGNAL slave_wdatas_S2:axi_wdata_t(exmem_data_width_c-1 downto 0);
+
 SIGNAL slave_wlasts:axi_wlasts_t(MAX_SLAVE_PORT-1 downto 0);
-SIGNAL slave_wstrbs:axi_wstrb16s_t(MAX_SLAVE_PORT-1 downto 0);
+SIGNAL slave_wstrbs_S0:axi_wstrb_t(exmem_data_width_c/8-1 downto 0);
+SIGNAL slave_wstrbs_S1:axi_wstrb_t(exmem_data_width_c/8-1 downto 0);
+SIGNAL slave_wstrbs_S2:axi_wstrb_t(exmem_data_width_c/8-1 downto 0);
+
 SIGNAL slave_awreadys:axi_awreadys_t(MAX_SLAVE_PORT-1 downto 0);
 SIGNAL slave_wreadys:axi_wreadys_t(MAX_SLAVE_PORT-1 downto 0);
 SIGNAL slave_bresps:axi_bresps_t(MAX_SLAVE_PORT-1 downto 0);
@@ -140,9 +148,9 @@ SIGNAL slavew_awaddr:axi_awaddr_t;
 SIGNAL slavew_awlen:axi_awlen_t;
 SIGNAL slavew_awvalid:axi_awvalid_t;
 SIGNAL slavew_wvalid:axi_wvalid_t;
-SIGNAL slavew_wdata:axi_wdata128_t;
+SIGNAL slavew_wdata:axi_wdata_t(exmem_data_width_c-1 downto 0);
 SIGNAL slavew_wlast:axi_wlast_t;
-SIGNAL slavew_wstrb:axi_wstrb16_t;
+SIGNAL slavew_wstrb:axi_wstrb_t(exmem_data_width_c/8-1 downto 0);
 SIGNAL slavew_awready:axi_awready_t;
 SIGNAL slavew_wready:axi_wready_t;
 SIGNAL slavew_bresp:axi_bresp_t;
@@ -161,10 +169,10 @@ SIGNAL master_awaddr:axi_awaddr_t;
 SIGNAL master_awlen:axi_awlen_t;
 SIGNAL master_awvalid:axi_awvalid_t;
 SIGNAL master_wvalid:axi_wvalid_t;
-SIGNAL master_wdata:axi_wdata128_t;
+SIGNAL master_wdata:axi_wdata_t(exmem_data_width_c-1 downto 0);
 SIGNAL master_wdata_mask:std_logic_vector(1 downto 0);
 SIGNAL master_wlast:axi_wlast_t;
-SIGNAL master_wstrb:axi_wstrb16_t;
+SIGNAL master_wstrb:axi_wstrb_t(exmem_data_width_c/8-1 downto 0);
 SIGNAL master_awready:axi_awready_t;
 SIGNAL master_wready:axi_wready_t;
 SIGNAL master_bresp:axi_bresp_t;
@@ -229,11 +237,12 @@ aximaster_awqos_out <= master_awqos;
 aximaster_awsize_out <= master_awsize;
 aximaster_bready_out <= master_bready;
    
+GEN1_RESIZE:IF ddr_data_width_c < exmem_data_width_c GENERATE
 slavew_i: axi_resize_write
    generic map(
       CCD => FALSE, 
-      SLAVE_DATA_WIDTH=>64,
-      MASTER_DATA_WIDTH=>128,
+      SLAVE_DATA_WIDTH=>ddr_data_width_c,
+      MASTER_DATA_WIDTH=>exmem_data_width_c,
       FIFO_DEPTH=>FIFO_W_CMD_DEPTH,
       FIFO_DATA_DEPTH=>FIFO_W_DATA_DEPTH
    )
@@ -288,13 +297,75 @@ slavew_i: axi_resize_write
       aximaster_awsize_out=>slavew_awsize,
       aximaster_bready_out=>slavew_bready
    );
-    
+end generate GEN1_RESIZE;   
 
+GEN1_NO_RESIZE:IF ddr_data_width_c = exmem_data_width_c GENERATE
+slavew_i: axi_write
+   generic map(
+      CCD => FALSE, 
+      DATA_WIDTH=>ddr_data_width_c,
+      FIFO_DEPTH=>FIFO_W_CMD_DEPTH,
+      FIFO_DATA_DEPTH=>FIFO_W_DATA_DEPTH
+   )
+   port map
+   (
+      clock_in=>clock_in,
+      reset_in=>reset_in,
+
+      -- Slace port
+      axislave_clock_in=>clock_in,
+      axislave_awaddr_in=>axislavew_awaddr_in,
+      axislave_awlen_in=>axislavew_awlen_in,
+      axislave_awvalid_in=>axislavew_awvalid_in,
+      axislave_wvalid_in=>axislavew_wvalid_in,
+      axislave_wdata_in=>axislavew_wdata_in,
+      axislave_wlast_in=>axislavew_wlast_in,
+      axislave_wstrb_in=>axislavew_wstrb_in,
+      axislave_awready_out=>axislavew_awready_out,
+      axislave_wready_out=>axislavew_wready_out,
+      axislave_bresp_out=>axislavew_bresp_out,
+      axislave_bid_out=>axislavew_bid_out,
+      axislave_bvalid_out=>axislavew_bvalid_out,
+      axislave_awburst_in=>axislavew_awburst_in,
+      axislave_awcache_in=>axislavew_awcache_in,
+      axislave_awid_in=>axislavew_awid_in,
+      axislave_awlock_in=>axislavew_awlock_in,
+      axislave_awprot_in=>axislavew_awprot_in,
+      axislave_awqos_in=>axislavew_awqos_in,
+      axislave_awsize_in=>axislavew_awsize_in,
+      axislave_bready_in=>axislavew_bready_in,
+
+      -- Master port #1
+      aximaster_clock_in=>clock_in,
+      aximaster_awaddr_out=>slavew_awaddr,
+      aximaster_awlen_out=>slavew_awlen,
+      aximaster_awvalid_out=>slavew_awvalid,
+      aximaster_wvalid_out=>slavew_wvalid,
+      aximaster_wdata_out=>slavew_wdata,
+      aximaster_wlast_out=>slavew_wlast,
+      aximaster_wstrb_out=>slavew_wstrb,
+      aximaster_awready_in=>slavew_awready,
+      aximaster_wready_in=>slavew_wready,
+      aximaster_bresp_in=>slavew_bresp,
+      aximaster_bid_in=>slavew_bid,
+      aximaster_bvalid_in=>slavew_bvalid,
+      aximaster_awburst_out=>slavew_awburst,
+      aximaster_awcache_out=>slavew_awcache,
+      aximaster_awid_out=>slavew_awid,
+      aximaster_awlock_out=>slavew_awlock,
+      aximaster_awprot_out=>slavew_awprot,
+      aximaster_awqos_out=>slavew_awqos,
+      aximaster_awsize_out=>slavew_awsize,
+      aximaster_bready_out=>slavew_bready
+   );
+end generate GEN1_NO_RESIZE;  
+
+GEN_SLAVE_RESIZE:IF 64 < exmem_data_width_c GENERATE
 slave_i0: axi_resize_write
    generic map(
       CCD => FALSE, 
       SLAVE_DATA_WIDTH=>64,
-      MASTER_DATA_WIDTH=>128,
+      MASTER_DATA_WIDTH=>exmem_data_width_c,
       FIFO_DEPTH=>FIFO_CMD_DEPTH(0),
       FIFO_DATA_DEPTH=>FIFO_DATA_DEPTH(0)
    )
@@ -332,9 +403,9 @@ slave_i0: axi_resize_write
       aximaster_awlen_out=>slave_awlens(0),
       aximaster_awvalid_out=>slave_awvalids(0),
       aximaster_wvalid_out=>slave_wvalids(0),
-      aximaster_wdata_out=>slave_wdatas(0),
+      aximaster_wdata_out=>slave_wdatas_S0,
       aximaster_wlast_out=>slave_wlasts(0),
-      aximaster_wstrb_out=>slave_wstrbs(0),
+      aximaster_wstrb_out=>slave_wstrbs_S0,
       aximaster_awready_in=>slave_awreadys(0),
       aximaster_wready_in=>slave_wreadys(0),
       aximaster_bresp_in=>slave_bresps(0),
@@ -349,12 +420,74 @@ slave_i0: axi_resize_write
       aximaster_awsize_out=>slave_awsizes(0),
       aximaster_bready_out=>slave_breadys(0)
    );
+end generate GEN_SLAVE_RESIZE;
+
+GEN_SLAVE_NO_RESIZE:IF 64 = exmem_data_width_c GENERATE
+slave_i0: axi_write
+   generic map(
+      CCD => FALSE, 
+      DATA_WIDTH=>64,
+      FIFO_DEPTH=>FIFO_CMD_DEPTH(0),
+      FIFO_DATA_DEPTH=>FIFO_DATA_DEPTH(0)
+   )
+   port map
+   (
+      clock_in=>clock_in,
+      reset_in=>reset_in,
+
+      -- Slace port
+      axislave_clock_in=>clock_in,
+      axislave_awaddr_in=>axislave_awaddrs_in(0),
+      axislave_awlen_in=>axislave_awlens_in(0),
+      axislave_awvalid_in=>axislave_awvalids_in(0),
+      axislave_wvalid_in=>axislave_wvalids_in(0),
+      axislave_wdata_in=>axislave_wdatas_in(0),
+      axislave_wlast_in=>axislave_wlasts_in(0),
+      axislave_wstrb_in=>axislave_wstrbs_in(0),
+      axislave_awready_out=>axislave_awreadys_out(0),
+      axislave_wready_out=>axislave_wreadys_out(0),
+      axislave_bresp_out=>axislave_bresps_out(0),
+      axislave_bid_out=>axislave_bids_out(0),
+      axislave_bvalid_out=>axislave_bvalids_out(0),
+      axislave_awburst_in=>axislave_awbursts_in(0),
+      axislave_awcache_in=>axislave_awcaches_in(0),
+      axislave_awid_in=>axislave_awids_in(0),
+      axislave_awlock_in=>axislave_awlocks_in(0),
+      axislave_awprot_in=>axislave_awprots_in(0),
+      axislave_awqos_in=>axislave_awqoss_in(0),
+      axislave_awsize_in=>axislave_awsizes_in(0),
+      axislave_bready_in=>axislave_breadys_in(0),
+      
+      -- Master port #1
+      aximaster_clock_in=>clock_in,
+      aximaster_awaddr_out=>slave_awaddrs(0),
+      aximaster_awlen_out=>slave_awlens(0),
+      aximaster_awvalid_out=>slave_awvalids(0),
+      aximaster_wvalid_out=>slave_wvalids(0),
+      aximaster_wdata_out=>slave_wdatas_S0,
+      aximaster_wlast_out=>slave_wlasts(0),
+      aximaster_wstrb_out=>slave_wstrbs_S0,
+      aximaster_awready_in=>slave_awreadys(0),
+      aximaster_wready_in=>slave_wreadys(0),
+      aximaster_bresp_in=>slave_bresps(0),
+      aximaster_bid_in=>slave_bids(0),
+      aximaster_bvalid_in=>slave_bvalids(0),
+      aximaster_awburst_out=>slave_awbursts(0),
+      aximaster_awcache_out=>slave_awcaches(0),
+      aximaster_awid_out=>slave_awids(0),
+      aximaster_awlock_out=>slave_awlocks(0),
+      aximaster_awprot_out=>slave_awprots(0),
+      aximaster_awqos_out=>slave_awqoss(0),
+      aximaster_awsize_out=>slave_awsizes(0),
+      aximaster_bready_out=>slave_breadys(0)
+   );
+end generate GEN_SLAVE_NO_RESIZE;
 
 slave_i1: axi_resize_write
    generic map(
       CCD => FALSE, 
       SLAVE_DATA_WIDTH=>32,
-      MASTER_DATA_WIDTH=>128,
+      MASTER_DATA_WIDTH=>exmem_data_width_c,
       FIFO_DEPTH=>FIFO_CMD_DEPTH(1),
       FIFO_DATA_DEPTH=>FIFO_DATA_DEPTH(1)
    )
@@ -392,9 +525,9 @@ slave_i1: axi_resize_write
       aximaster_awlen_out=>slave_awlens(1),
       aximaster_awvalid_out=>slave_awvalids(1),
       aximaster_wvalid_out=>slave_wvalids(1),
-      aximaster_wdata_out=>slave_wdatas(1),
+      aximaster_wdata_out=>slave_wdatas_S1,
       aximaster_wlast_out=>slave_wlasts(1),
-      aximaster_wstrb_out=>slave_wstrbs(1),
+      aximaster_wstrb_out=>slave_wstrbs_S1,
       aximaster_awready_in=>slave_awreadys(1),
       aximaster_wready_in=>slave_wreadys(1),
       aximaster_bresp_in=>slave_bresps(1),
@@ -414,7 +547,7 @@ slave_i2: axi_resize_write
    generic map(
       CCD => FALSE, 
       SLAVE_DATA_WIDTH=>32,
-      MASTER_DATA_WIDTH=>128,
+      MASTER_DATA_WIDTH=>exmem_data_width_c,
       FIFO_DEPTH=>FIFO_CMD_DEPTH(2),
       FIFO_DATA_DEPTH=>FIFO_DATA_DEPTH(2)
    )
@@ -452,9 +585,9 @@ slave_i2: axi_resize_write
       aximaster_awlen_out=>slave_awlens(2),
       aximaster_awvalid_out=>slave_awvalids(2),
       aximaster_wvalid_out=>slave_wvalids(2),
-      aximaster_wdata_out=>slave_wdatas(2),
+      aximaster_wdata_out=>slave_wdatas_S2,
       aximaster_wlast_out=>slave_wlasts(2),
-      aximaster_wstrb_out=>slave_wstrbs(2),
+      aximaster_wstrb_out=>slave_wstrbs_S2,
       aximaster_awready_in=>slave_awreadys(2),
       aximaster_wready_in=>slave_wreadys(2),
       aximaster_bresp_in=>slave_bresps(2),
@@ -629,7 +762,9 @@ end process;
 -----
 
 process(pend_data_empty,pend_data_read,
-        slave_wdatas,slave_wlasts,slave_wvalids,slave_wstrbs,
+        slave_wdatas_S0,slave_wdatas_S1,slave_wdatas_S2,
+        slave_wlasts,slave_wvalids,
+        slave_wstrbs_S0,slave_wstrbs_S1,slave_wstrbs_S2,
         slavew_wvalid,slavew_wlast,slavew_wdata,
         slavew_wstrb,
         master_wready,master_awready,curr)
@@ -644,8 +779,8 @@ begin
    if(pend_data_empty='0' and pend_data_read(S0)='1' and slave_wvalids(S0)='1') then
       master_wlast <= slave_wlasts(S0);
       master_wvalid <= slave_wvalids(S0);   
-      master_wdata <= slave_wdatas(S0);
-      master_wstrb <= slave_wstrbs(S0);
+      master_wdata <= slave_wdatas_S0;
+      master_wstrb <= slave_wstrbs_S0;
       master_wdata_mask(0) <= '1';
       master_wdata_mask(1) <= '1';
       slave_wreadys(S0) <= master_wready;
@@ -653,16 +788,16 @@ begin
    elsif(pend_data_empty='0' and pend_data_read(S1)='1' and slave_wvalids(S1)='1') then
       master_wlast <= slave_wlasts(S1);
       master_wvalid <= slave_wvalids(S1);
-      master_wdata <= slave_wdatas(S1);
-      master_wstrb <= slave_wstrbs(S1);
+      master_wdata <= slave_wdatas_S1;
+      master_wstrb <= slave_wstrbs_S1;
       master_wdata_mask <= (others=>'0');
       slave_wreadys(S1) <= master_wready; 
       pend_data_rd <= master_wready and slave_wlasts(S1); 
    elsif(pend_data_empty='0' and pend_data_read(S2)='1' and slave_wvalids(S2)='1') then
       master_wlast <= slave_wlasts(S2);
       master_wvalid <= slave_wvalids(S2);
-      master_wdata <= slave_wdatas(S2);
-      master_wstrb <= slave_wstrbs(S2);
+      master_wdata <= slave_wdatas_S2;
+      master_wstrb <= slave_wstrbs_S2;
       master_wdata_mask <= (others=>'0');
       slave_wreadys(S2) <= master_wready; 
       pend_data_rd <= master_wready and slave_wlasts(S2); 

@@ -9,7 +9,7 @@
 #include "py/gc.h"
 #include "py/mperrno.h"
 #include "shared/runtime/pyexec.h"
-#include "SW/src/mpy.h"
+#include "mpy.h"
 
 void *__dso_handle=0;
 

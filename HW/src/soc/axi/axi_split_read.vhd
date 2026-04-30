@@ -52,7 +52,7 @@ entity axi_split_read is
       axislave_rid_out        : OUT axi_rid_t;          
       axislave_rvalid_out     : OUT axi_rvalid_t;
       axislave_rlast_out      : OUT axi_rlast_t;
-      axislave_rdata_out      : OUT axi_rdata_t;
+      axislave_rdata_out      : OUT axi_rdata32_t;
       axislave_rresp_out      : OUT axi_rresp_t;
       axislave_arready_out    : OUT axi_arready_t;
       axislave_rready_in      : IN axi_rready_t;
@@ -71,7 +71,7 @@ entity axi_split_read is
       aximaster_rids_in       : IN axi_rids_t(NUM_MASTER_PORT-1 downto 0):=(others=>(others=>'0'));
       aximaster_rvalids_in    : IN axi_rvalids_t(NUM_MASTER_PORT-1 downto 0):=(others=>'0');
       aximaster_rlasts_in     : IN axi_rlasts_t(NUM_MASTER_PORT-1 downto 0):=(others=>'0');
-      aximaster_rdatas_in     : IN axi_rdatas_t(NUM_MASTER_PORT-1 downto 0):=(others=>(others=>'0'));
+      aximaster_rdatas_in     : IN axi_rdata32s_t(NUM_MASTER_PORT-1 downto 0):=(others=>(others=>'0'));
       aximaster_rresps_in     : IN axi_rresps_t(NUM_MASTER_PORT-1 downto 0):=(others=>(others=>'0'));
       aximaster_arreadys_in   : IN axi_arreadys_t(NUM_MASTER_PORT-1 downto 0):=(others=>'0');
       aximaster_rreadys_out   : OUT axi_rreadys_t(NUM_MASTER_PORT-1 downto 0);
@@ -85,7 +85,7 @@ architecture rtl of axi_split_read is
 SIGNAL rid:axi_rid_t;              
 SIGNAL rvalid:axi_rvalid_t;
 SIGNAL rlast:axi_rlast_t;
-SIGNAL rdata:axi_rdata_t;
+SIGNAL rdata:axi_rdata32_t;
 SIGNAL rresp:axi_rresp_t;
 SIGNAL arready:axi_arready_t;
 
@@ -100,7 +100,7 @@ SIGNAL axislave_arqos:axi_arqos_t;
 SIGNAL axislave_rid:axi_rid_t;          
 SIGNAL axislave_rvalid:axi_rvalid_t;
 SIGNAL axislave_rlast:axi_rlast_t;
-SIGNAL axislave_rdata:axi_rdata_t;
+SIGNAL axislave_rdata:axi_rdata32_t;
 SIGNAL axislave_rresp:axi_rresp_t;
 SIGNAL axislave_arready:axi_arready_t;
 SIGNAL axislave_rready:axi_rready_t;
@@ -130,7 +130,7 @@ SIGNAL rready:std_logic;
 SIGNAL axislave_rid_r:axi_rid_t;          
 SIGNAL axislave_rvalid_r:axi_rvalid_t;
 SIGNAL axislave_rlast_r:axi_rlast_t;
-SIGNAL axislave_rdata_r:axi_rdata_t;
+SIGNAL axislave_rdata_r:axi_rdata32_t;
 SIGNAL axislave_rresp_r:axi_rresp_t;
 
 constant M0:integer:=0;

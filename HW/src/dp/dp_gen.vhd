@@ -538,45 +538,35 @@ else
 if clock_in'event and clock_in='1' then
    for I in 0 to ddr_vector_depth_c-1 loop
       depth_v := ddr_vector_depth_c-I;
-
-      if (pre_instruction_source_in.count(depth_v-1 downto 0)=to_unsigned(2**depth_v-1,depth_v)) and 
-         (pre_instruction_bus_id_source_in=to_unsigned(dp_bus_id_register_c,dp_bus_id_t'length)) and
-         (pre_instruction_source_in.scatter='1') then
-         if pre_instruction_source_in.burstStride=to_unsigned(vector_width_c,dp_addr_width_c) then
-            src_is_scatter_r(I) <= scatter_vector_c;
-         elsif pre_instruction_source_in.burstStride=to_unsigned(register_size_c,dp_addr_width_c) then
-            src_is_scatter_r(I) <= scatter_thread_c;
+      if(depth_v > core_vector_depth_c and pre_instruction_bus_id_source_in=to_unsigned(dp_bus_id_register_c,dp_bus_id_t'length)) then
+         -- Vector width cannot be greater than vector width of pcores
+         src_is_scatter_r(I) <= scatter_none_c;
+         src_is_vector_r(I) <= '0';
+      else
+         if (pre_instruction_source_in.count(depth_v-1 downto 0)=to_unsigned(2**depth_v-1,depth_v)) and 
+            (pre_instruction_bus_id_source_in=to_unsigned(dp_bus_id_register_c,dp_bus_id_t'length)) and
+            (pre_instruction_source_in.scatter='1') then
+            if pre_instruction_source_in.burstStride=to_unsigned(vector_width_c,dp_addr_width_c) then
+               src_is_scatter_r(I) <= scatter_vector_c;
+            elsif pre_instruction_source_in.burstStride=to_unsigned(register_size_c,dp_addr_width_c) then
+               src_is_scatter_r(I) <= scatter_thread_c;
+            else
+               src_is_scatter_r(I) <= scatter_none_c;
+            end if;
          else
             src_is_scatter_r(I) <= scatter_none_c;
          end if;
-      else
-         src_is_scatter_r(I) <= scatter_none_c;
-      end if;
 
-      if (pre_instruction_dest_in.count(depth_v-1 downto 0)=to_unsigned(2**depth_v-1,depth_v)) and 
-         (pre_instruction_bus_id_dest_in=to_unsigned(dp_bus_id_register_c,dp_bus_id_t'length)) and
-         (pre_instruction_dest_in.scatter='1') then
-         if pre_instruction_dest_in.burstStride=to_unsigned(vector_width_c,dp_addr_width_c) then
-            dst_is_scatter_r(I) <= scatter_vector_c;
-         elsif pre_instruction_dest_in.burstStride=to_unsigned(register_size_c,dp_addr_width_c) then
-            dst_is_scatter_r(I) <= scatter_thread_c;
-         else
-            dst_is_scatter_r(I) <= scatter_none_c;
-         end if;
-      else
-         dst_is_scatter_r(I) <= scatter_none_c;
-      end if;
-
-      if pre_instruction_bus_id_source_in=to_unsigned(dp_bus_id_ddr_c,dp_bus_id_t'length) then
-         if pre_instruction_source_in.burstStride=to_unsigned(0,pre_instruction_source_in.burstStride'length) or
-           (pre_instruction_source_in.burstStride=to_unsigned(1,pre_instruction_source_in.burstStride'length) and
-            pre_instruction_source_in.count(depth_v-1 downto 0)=to_unsigned(2**depth_v-1,depth_v)) then
-            src_is_vector_r(I) <= '1';
-         else
-            src_is_vector_r(I) <= '0';
-         end if;
-      elsif pre_instruction_source_in.burstStride=to_unsigned(0,pre_instruction_source_in.burstStride'length) or
-           (pre_instruction_source_in.stride0(depth_v-1 downto 0)=to_unsigned(0,depth_v) and 
+         if pre_instruction_bus_id_source_in=to_unsigned(dp_bus_id_ddr_c,dp_bus_id_t'length) then
+            if pre_instruction_source_in.burstStride=to_unsigned(0,pre_instruction_source_in.burstStride'length) or
+            (pre_instruction_source_in.burstStride=to_unsigned(1,pre_instruction_source_in.burstStride'length) and
+               pre_instruction_source_in.count(depth_v-1 downto 0)=to_unsigned(2**depth_v-1,depth_v)) then
+               src_is_vector_r(I) <= '1';
+            else
+               src_is_vector_r(I) <= '0';
+            end if;
+         elsif pre_instruction_source_in.burstStride=to_unsigned(0,pre_instruction_source_in.burstStride'length) or
+            (pre_instruction_source_in.stride0(depth_v-1 downto 0)=to_unsigned(0,depth_v) and 
             pre_instruction_source_in.stride1(depth_v-1 downto 0)=to_unsigned(0,depth_v) and 
             pre_instruction_source_in.stride2(depth_v-1 downto 0)=to_unsigned(0,depth_v) and 
             pre_instruction_source_in.stride3(depth_v-1 downto 0)=to_unsigned(0,depth_v) and 
@@ -585,35 +575,56 @@ if clock_in'event and clock_in='1' then
             pre_instruction_source_in.count(depth_v-1 downto 0)=to_unsigned(2**depth_v-1,depth_v) and 
             pre_instruction_source_in.burst_max(depth_v-1 downto 0)=to_unsigned(2**depth_v-1,depth_v) and
             pre_instruction_source_in.bar(depth_v-1 downto 0)=to_unsigned(0,depth_v)
-       ) then
-          src_is_vector_r(I) <= '1';
-       else
-          src_is_vector_r(I) <= '0';
-       end if;
+         ) then
+            src_is_vector_r(I) <= '1';
+         else
+            src_is_vector_r(I) <= '0';
+         end if;
+      end if;
 
-       if pre_instruction_bus_id_dest_in=to_unsigned(dp_bus_id_ddr_c,dp_bus_id_t'length) then
-          if pre_instruction_dest_in.burstStride=to_unsigned(0,pre_instruction_dest_in.burstStride'length) or
-            (pre_instruction_dest_in.burstStride=to_unsigned(1,pre_instruction_dest_in.burstStride'length) and
-             pre_instruction_dest_in.count(depth_v-1 downto 0)=to_unsigned(2**depth_v-1,depth_v)) then
-          dst_is_vector_r(I) <= '1';
-       else
-          dst_is_vector_r(I) <= '0';
-       end if;
-    elsif pre_instruction_dest_in.burstStride=to_unsigned(0,pre_instruction_dest_in.burstStride'length) or
-         (pre_instruction_dest_in.stride0(depth_v-1 downto 0)=to_unsigned(0,depth_v) and 
-          pre_instruction_dest_in.stride1(depth_v-1 downto 0)=to_unsigned(0,depth_v) and 
-          pre_instruction_dest_in.stride2(depth_v-1 downto 0)=to_unsigned(0,depth_v) and 
-          pre_instruction_dest_in.stride3(depth_v-1 downto 0)=to_unsigned(0,depth_v) and 
-          pre_instruction_dest_in.stride4(depth_v-1 downto 0)=to_unsigned(0,depth_v) and 
-          pre_instruction_dest_in.burstStride=to_unsigned(1,pre_instruction_dest_in.burstStride'length) and
-          pre_instruction_dest_in.count(depth_v-1 downto 0)=to_unsigned(2**depth_v-1,depth_v) and 
-          pre_instruction_dest_in.burst_max(depth_v-1 downto 0)=to_unsigned(2**depth_v-1,depth_v) and 
-          pre_instruction_dest_in.bar(depth_v-1 downto 0)=to_unsigned(0,depth_v)) then
-       dst_is_vector_r(I) <= '1';
-   else
-       dst_is_vector_r(I) <= '0';
-   end if;
-end loop;
+      if(depth_v > core_vector_depth_c and pre_instruction_bus_id_dest_in=to_unsigned(dp_bus_id_register_c,dp_bus_id_t'length)) then
+         -- Vector width cannot be greater than vector width of pcores
+         dst_is_scatter_r(I) <= scatter_none_c;
+         dst_is_vector_r(I) <= '0';
+      else
+         if (pre_instruction_dest_in.count(depth_v-1 downto 0)=to_unsigned(2**depth_v-1,depth_v)) and 
+            (pre_instruction_bus_id_dest_in=to_unsigned(dp_bus_id_register_c,dp_bus_id_t'length)) and
+            (pre_instruction_dest_in.scatter='1') then
+            if pre_instruction_dest_in.burstStride=to_unsigned(vector_width_c,dp_addr_width_c) then
+               dst_is_scatter_r(I) <= scatter_vector_c;
+            elsif pre_instruction_dest_in.burstStride=to_unsigned(register_size_c,dp_addr_width_c) then
+               dst_is_scatter_r(I) <= scatter_thread_c;
+            else
+               dst_is_scatter_r(I) <= scatter_none_c;
+            end if;
+         else
+            dst_is_scatter_r(I) <= scatter_none_c;
+         end if;
+
+         if pre_instruction_bus_id_dest_in=to_unsigned(dp_bus_id_ddr_c,dp_bus_id_t'length) then
+            if pre_instruction_dest_in.burstStride=to_unsigned(0,pre_instruction_dest_in.burstStride'length) or
+               (pre_instruction_dest_in.burstStride=to_unsigned(1,pre_instruction_dest_in.burstStride'length) and
+               pre_instruction_dest_in.count(depth_v-1 downto 0)=to_unsigned(2**depth_v-1,depth_v)) then
+               dst_is_vector_r(I) <= '1';
+            else
+               dst_is_vector_r(I) <= '0';
+            end if;
+         elsif pre_instruction_dest_in.burstStride=to_unsigned(0,pre_instruction_dest_in.burstStride'length) or
+               (pre_instruction_dest_in.stride0(depth_v-1 downto 0)=to_unsigned(0,depth_v) and 
+               pre_instruction_dest_in.stride1(depth_v-1 downto 0)=to_unsigned(0,depth_v) and 
+               pre_instruction_dest_in.stride2(depth_v-1 downto 0)=to_unsigned(0,depth_v) and 
+               pre_instruction_dest_in.stride3(depth_v-1 downto 0)=to_unsigned(0,depth_v) and 
+               pre_instruction_dest_in.stride4(depth_v-1 downto 0)=to_unsigned(0,depth_v) and 
+               pre_instruction_dest_in.burstStride=to_unsigned(1,pre_instruction_dest_in.burstStride'length) and
+               pre_instruction_dest_in.count(depth_v-1 downto 0)=to_unsigned(2**depth_v-1,depth_v) and 
+               pre_instruction_dest_in.burst_max(depth_v-1 downto 0)=to_unsigned(2**depth_v-1,depth_v) and 
+               pre_instruction_dest_in.bar(depth_v-1 downto 0)=to_unsigned(0,depth_v)) then
+            dst_is_vector_r(I) <= '1';
+         else
+            dst_is_vector_r(I) <= '0';
+         end if;
+      end if;
+   end loop;
 end if;
 end if;
 end process;
@@ -625,30 +636,22 @@ end process;
 process(src_is_vector_r,src_is_scatter_r,dst_is_vector_r,dst_is_scatter_r,instruction_source_in,instruction_dest_in,
         instruction_bus_id_source_in,instruction_bus_id_dest_in)
 begin
-if ((src_is_vector_r(0)='1' or src_is_scatter_r(0)/=scatter_none_c) and instruction_source_in.double_precision='0') and 
-   ((dst_is_vector_r(0)='1' or dst_is_scatter_r(0)/=scatter_none_c) and instruction_dest_in.double_precision='0') then
-   src_vector <= std_logic_vector(to_unsigned(ddr_vector_width_c-1,src_vector'length));
-   dst_vector <= std_logic_vector(to_unsigned(ddr_vector_width_c-1,src_vector'length));
-   src_scatter <= src_is_scatter_r(0);
-   dst_scatter <= dst_is_scatter_r(0);
-elsif (src_is_vector_r(1)='1' or src_is_scatter_r(1)/=scatter_none_c) and 
-      (dst_is_vector_r(1)='1' or dst_is_scatter_r(1)/=scatter_none_c) then
-   src_vector <= std_logic_vector(to_unsigned(ddr_vector_width_c/2-1,src_vector'length));
-   dst_vector <= std_logic_vector(to_unsigned(ddr_vector_width_c/2-1,src_vector'length));
-   src_scatter <= src_is_scatter_r(1);
-   dst_scatter <= dst_is_scatter_r(1);
-elsif (src_is_vector_r(2)='1' or src_is_scatter_r(2)/=scatter_none_c) and 
-      (dst_is_vector_r(2)='1' or dst_is_scatter_r(2)/=scatter_none_c) then
-   src_vector <= std_logic_vector(to_unsigned(ddr_vector_width_c/4-1,src_vector'length));
-   dst_vector <= std_logic_vector(to_unsigned(ddr_vector_width_c/4-1,src_vector'length));
-   src_scatter <= src_is_scatter_r(2);
-   dst_scatter <= dst_is_scatter_r(2);
-else
-   src_vector <= std_logic_vector(to_unsigned(0,src_vector'length));
-   dst_vector <= std_logic_vector(to_unsigned(0,src_vector'length));
-   src_scatter <= scatter_none_c;
-   dst_scatter <= scatter_none_c;
-end if;
+
+src_vector <= std_logic_vector(to_unsigned(0,src_vector'length));
+dst_vector <= std_logic_vector(to_unsigned(0,src_vector'length));
+src_scatter <= scatter_none_c;
+dst_scatter <= scatter_none_c;
+
+FOR I in 0 to ddr_vector_depth_c-1 LOOP
+   if ((src_is_vector_r(I)='1' or src_is_scatter_r(I)/=scatter_none_c) and (I>0 or instruction_source_in.double_precision='0')) and 
+      ((dst_is_vector_r(I)='1' or dst_is_scatter_r(I)/=scatter_none_c) and (I>0 or instruction_dest_in.double_precision='0')) then
+      src_vector <= std_logic_vector(to_unsigned(ddr_vector_width_c/(2**I)-1,src_vector'length));
+      dst_vector <= std_logic_vector(to_unsigned(ddr_vector_width_c/(2**I)-1,src_vector'length));
+      src_scatter <= src_is_scatter_r(I);
+      dst_scatter <= dst_is_scatter_r(I);
+      exit;
+   end if;
+END LOOP;
 end process;
 
 
@@ -1033,20 +1036,18 @@ begin
                 else
                    s_burstpos_end_rrr <= unsigned(remain_v(s_burstpos_end_rrr'length-1 downto 0));
                 end if;
+
                 s_burstStride_r <= s_template_r.burstStride(dp_addr_width_c-1 downto 0);
                 burstRemain_v := unsigned('0' & (std_logic_vector(s_template_r.burst_max(dp_addr_width_c-2 downto 0))))-unsigned(std_logic_vector(s_burstpos_r));
-                if unsigned(src_vector_r)=to_unsigned(ddr_vector_width_c/4-1,ddr_vector_depth_c) then
-                   s_burstRemain_r(burstRemain_v'length-ddr_vector_depth_c+2-1 downto 0) <= burstRemain_v(burstRemain_v'length-1 downto ddr_vector_depth_c-2);
-                   s_burstRemain_r(burstRemain_v'length-1 downto burstRemain_v'length-ddr_vector_depth_c+2) <= (others=>'0');
-                elsif unsigned(src_vector_r)=to_unsigned(ddr_vector_width_c/2-1,ddr_vector_depth_c) then
-                   s_burstRemain_r(burstRemain_v'length-ddr_vector_depth_c+1-1 downto 0) <= burstRemain_v(burstRemain_v'length-1 downto ddr_vector_depth_c-1);
-                   s_burstRemain_r(burstRemain_v'length-1 downto burstRemain_v'length-ddr_vector_depth_c+1) <= (others=>'0');
-                elsif unsigned(src_vector_r)=to_unsigned(ddr_vector_width_c-1,ddr_vector_depth_c) then
-                   s_burstRemain_r(burstRemain_v'length-ddr_vector_depth_c-1 downto 0) <= burstRemain_v(burstRemain_v'length-1 downto ddr_vector_depth_c);
-                   s_burstRemain_r(burstRemain_v'length-1 downto burstRemain_v'length-ddr_vector_depth_c) <= (others=>'0');
-                else
-                   s_burstRemain_r <= burstRemain_v;
-                end if;
+                FOR I in 0 to ddr_vector_depth_c-1 LOOP
+                   if unsigned(src_vector_r)=to_unsigned(ddr_vector_width_c/2**(ddr_vector_depth_c-I-1)-1,ddr_vector_depth_c) then
+                     burstRemain_v(burstRemain_v'length-ddr_vector_depth_c+(ddr_vector_depth_c-I-1)-1 downto 0) := burstRemain_v(burstRemain_v'length-1 downto ddr_vector_depth_c-(ddr_vector_depth_c-I-1));
+                     burstRemain_v(burstRemain_v'length-1 downto burstRemain_v'length-ddr_vector_depth_c+(ddr_vector_depth_c-I-1)) := (others=>'0');
+                     exit;
+                   end if;
+                END LOOP;
+                s_burstRemain_r <= burstRemain_v;
+
                 s_valid_r <= (s_i0_valid and s_i1_valid and s_i2_valid and s_i3_valid and s_i4_valid and s_burst_valid) and
                              (s_i0_start_valid and s_i1_start_valid and s_i2_start_valid and s_i3_start_valid and s_i4_start_valid and s_burst_start_valid);
                 if s_valid_r='0' then
@@ -1203,19 +1204,18 @@ begin
                 end if;
 
                 d_burstStride_r <= d_template_r.burstStride;
+
                 burstRemain_v := unsigned('0' & std_logic_vector(d_burst_max_r(dp_addr_width_c-2 downto 0)))-unsigned(std_logic_vector(d_burstpos_r));
-                if unsigned(dst_vector_r)=to_unsigned(ddr_vector_width_c/4-1,ddr_vector_depth_c) then
-                   d_burstRemain_r(burstRemain_v'length-ddr_vector_depth_c+2-1 downto 0) <= burstRemain_v(burstRemain_v'length-1 downto ddr_vector_depth_c-2);
-                   d_burstRemain_r(burstRemain_v'length-1 downto burstRemain_v'length-ddr_vector_depth_c+2) <= (others=>'0');
-                elsif unsigned(dst_vector_r)=to_unsigned(ddr_vector_width_c/2-1,ddr_vector_depth_c) then
-                   d_burstRemain_r(burstRemain_v'length-ddr_vector_depth_c+1-1 downto 0) <= burstRemain_v(burstRemain_v'length-1 downto ddr_vector_depth_c-1);
-                   d_burstRemain_r(burstRemain_v'length-1 downto burstRemain_v'length-ddr_vector_depth_c+1) <= (others=>'0');
-                elsif unsigned(dst_vector_r)=to_unsigned(ddr_vector_width_c-1,ddr_vector_depth_c) then                
-                   d_burstRemain_r(burstRemain_v'length-ddr_vector_depth_c-1 downto 0) <= burstRemain_v(burstRemain_v'length-1 downto ddr_vector_depth_c);
-                   d_burstRemain_r(burstRemain_v'length-1 downto burstRemain_v'length-ddr_vector_depth_c) <= (others=>'0');
-                else
-                   d_burstRemain_r <= burstRemain_v;
-                end if;
+
+                FOR I in 0 to ddr_vector_depth_c-1 LOOP
+                  if unsigned(dst_vector_r)=to_unsigned(ddr_vector_width_c/2**(ddr_vector_depth_c-I-1)-1,ddr_vector_depth_c) then  
+                      burstRemain_v(burstRemain_v'length-ddr_vector_depth_c+(ddr_vector_depth_c-I-1)-1 downto 0) := burstRemain_v(burstRemain_v'length-1 downto ddr_vector_depth_c-(ddr_vector_depth_c-I-1));
+                      burstRemain_v(burstRemain_v'length-1 downto burstRemain_v'length-ddr_vector_depth_c+(ddr_vector_depth_c-I-1)) := (others=>'0');
+                      exit;
+                  end if;   
+                END LOOP;
+                d_burstRemain_r <= burstRemain_v;
+
                 d_valid_r <= (d_i0_valid and d_i1_valid and d_i2_valid and d_i3_valid and d_i4_valid and d_burst_valid);
                 if d_valid_r='0' then
                     d_gen_burstlen_r <= (others=>'0');
@@ -1257,6 +1257,8 @@ variable half_v:std_logic_vector(register_width_c-1 downto 0);
 variable burst_min_v:unsigned(dp_addr_width_c+1-1 downto 0);
 variable burst_stride_v:unsigned(dp_addr_width_c-1 downto 0);
 variable totallen_v:unsigned(dp_addr_width_c-1 downto 0);
+variable count_v:unsigned(dp_addr_width_c-1 downto 0);
+variable burst_v:unsigned(dp_addr_width_c-1 downto 0);
 begin
    if reset_in = '0' then
       running_r <= '0';
@@ -1379,18 +1381,16 @@ begin
                   s_template_r.bar <= instruction_source_in.bar;
                   s_template_r.burst_max_len <= instruction_source_in.burst_max_len;
                     
-                  if src_vector=std_logic_vector(to_unsigned(ddr_vector_width_c-1,dp_vector_t'length)) then
-                     s_template_r.count(s_template_r.count'length-ddr_vector_depth_c-1 downto 0) <= instruction_source_in.count(instruction_source_in.count'length-1 downto ddr_vector_depth_c);
-                     s_template_r.count(s_template_r.count'length-1 downto s_template_r.count'length-ddr_vector_depth_c) <= (others=>'0');
-                  elsif src_vector=std_logic_vector(to_unsigned(ddr_vector_width_c/2-1,dp_vector_t'length)) then
-                     s_template_r.count(s_template_r.count'length-ddr_vector_depth_c+1-1 downto 0) <= instruction_source_in.count(instruction_source_in.count'length-1 downto ddr_vector_depth_c-1);
-                     s_template_r.count(s_template_r.count'length-1 downto s_template_r.count'length-ddr_vector_depth_c+1) <= (others=>'0');
-                  elsif src_vector=std_logic_vector(to_unsigned(ddr_vector_width_c/4-1,dp_vector_t'length)) then
-                     s_template_r.count(s_template_r.count'length-ddr_vector_depth_c+2-1 downto 0) <= instruction_source_in.count(instruction_source_in.count'length-1 downto ddr_vector_depth_c-2);
-                     s_template_r.count(s_template_r.count'length-1 downto s_template_r.count'length-ddr_vector_depth_c+2) <= (others=>'0');                    
-                  else
-                     s_template_r.count <= instruction_source_in.count;
-                  end if;
+
+                  count_v := instruction_source_in.count;
+                  FOR I in 0 to ddr_vector_depth_c-1 LOOP
+                     if src_vector=std_logic_vector(to_unsigned(ddr_vector_width_c/(2**I)-1,dp_vector_t'length)) then
+                        count_v(s_template_r.count'length-ddr_vector_depth_c+I-1 downto 0) := instruction_source_in.count(instruction_source_in.count'length-1 downto ddr_vector_depth_c-I);
+                        count_v(s_template_r.count'length-1 downto s_template_r.count'length-ddr_vector_depth_c+I) := (others=>'0');
+                        exit;
+                     end if;
+                  END LOOP;
+                  s_template_r.count <= count_v;
 
                   if source_double_precision='1' then
                      burst_min_v := instruction_source_in.burst_min sll 1;
@@ -1404,33 +1404,19 @@ begin
                   else
                      src_is_burst_r <= '0';
                   end if;
-                  if src_vector=std_logic_vector(to_unsigned(ddr_vector_width_c-1,dp_vector_t'length)) then
-                     if src_is_scatter_r(0)=scatter_none_c then
-                        burst_stride_v := to_unsigned(1*ddr_vector_width_c/1,s_template_r.burstStride'length);
-                     elsif src_is_scatter_r(0)=scatter_vector_c then
-                        burst_stride_v := to_unsigned(vector_width_c*ddr_vector_width_c/1,s_template_r.burstStride'length);
-                     else
-                        burst_stride_v := to_unsigned(register_size_c*ddr_vector_width_c/1,s_template_r.burstStride'length);
+                  burst_stride_v := instruction_source_in.burstStride;
+                  FOR I in 0 to ddr_vector_depth_c-1 loop
+                     if src_vector=std_logic_vector(to_unsigned(ddr_vector_width_c/(2**I)-1,dp_vector_t'length)) then
+                        if src_is_scatter_r(I)=scatter_none_c then
+                           burst_stride_v := to_unsigned(1*ddr_vector_width_c/(2**I),s_template_r.burstStride'length);
+                        elsif src_is_scatter_r(I)=scatter_vector_c then
+                           burst_stride_v := to_unsigned(vector_width_c*ddr_vector_width_c/(2**I),s_template_r.burstStride'length);
+                        else
+                           burst_stride_v := to_unsigned(register_size_c*ddr_vector_width_c/(2**I),s_template_r.burstStride'length);
+                        end if;
+                        exit;
                      end if;
-                  elsif src_vector=std_logic_vector(to_unsigned(ddr_vector_width_c/2-1,dp_vector_t'length)) then
-                     if src_is_scatter_r(1)=scatter_none_c then
-                        burst_stride_v := to_unsigned(1*ddr_vector_width_c/2,s_template_r.burstStride'length);
-                     elsif src_is_scatter_r(1)=scatter_vector_c then
-                        burst_stride_v := to_unsigned(vector_width_c*ddr_vector_width_c/2,s_template_r.burstStride'length);
-                     else
-                        burst_stride_v := to_unsigned(register_size_c*ddr_vector_width_c/2,s_template_r.burstStride'length);
-                     end if;
-                  elsif src_vector=std_logic_vector(to_unsigned(ddr_vector_width_c/4-1,dp_vector_t'length)) then
-                     if src_is_scatter_r(1)=scatter_none_c then
-                        burst_stride_v := to_unsigned(1*ddr_vector_width_c/4,s_template_r.burstStride'length);
-                     elsif src_is_scatter_r(1)=scatter_vector_c then
-                        burst_stride_v := to_unsigned(vector_width_c*ddr_vector_width_c/4,s_template_r.burstStride'length);
-                     else
-                        burst_stride_v := to_unsigned(register_size_c*ddr_vector_width_c/4,s_template_r.burstStride'length);
-                     end if;
-                  else
-                     burst_stride_v := instruction_source_in.burstStride;
-                  end if;                   
+                  end loop;                 
                   s_template_r.burstStride <= burst_stride_v;
                   if source_double_precision='1' then
                      s_burstpos_stride_r <= burst_stride_v sll 1;
@@ -1462,18 +1448,15 @@ begin
                   d_template_r.burst_max_index <= instruction_dest_in.burst_max_index;
                   d_template_r.burst_max_len <= instruction_dest_in.burst_max_len;
 
-                  if dst_vector=std_logic_vector(to_unsigned(ddr_vector_width_c-1,dp_vector_t'length)) then
-                     d_template_r.count(d_template_r.count'length-ddr_vector_depth_c-1 downto 0) <= instruction_dest_in.count(instruction_dest_in.count'length-1 downto ddr_vector_depth_c);
-                     d_template_r.count(d_template_r.count'length-1 downto d_template_r.count'length-ddr_vector_depth_c) <= (others=>'0');
-                  elsif dst_vector=std_logic_vector(to_unsigned(ddr_vector_width_c/2-1,dp_vector_t'length)) then
-                     d_template_r.count(d_template_r.count'length-ddr_vector_depth_c+1-1 downto 0) <= instruction_dest_in.count(instruction_dest_in.count'length-1 downto ddr_vector_depth_c-1);
-                     d_template_r.count(d_template_r.count'length-1 downto d_template_r.count'length-ddr_vector_depth_c+1) <= (others=>'0');
-                  elsif dst_vector=std_logic_vector(to_unsigned(ddr_vector_width_c/4-1,dp_vector_t'length)) then
-                     d_template_r.count(d_template_r.count'length-ddr_vector_depth_c+2-1 downto 0) <= instruction_dest_in.count(instruction_dest_in.count'length-1 downto ddr_vector_depth_c-2);
-                     d_template_r.count(d_template_r.count'length-1 downto d_template_r.count'length-ddr_vector_depth_c+2) <= (others=>'0');
-                  else
-                     d_template_r.count <= instruction_dest_in.count;
-                  end if;
+                  count_v := instruction_dest_in.count;
+                  FOR I in 0 to ddr_vector_depth_c-1 LOOP
+                     if dst_vector=std_logic_vector(to_unsigned(ddr_vector_width_c/(2**I)-1,dp_vector_t'length)) then
+                        count_v(d_template_r.count'length-ddr_vector_depth_c+I-1 downto 0) := instruction_dest_in.count(instruction_dest_in.count'length-1 downto ddr_vector_depth_c-I);
+                        count_v(d_template_r.count'length-1 downto d_template_r.count'length-ddr_vector_depth_c+I) := (others=>'0');
+                        exit;
+                     end if;
+                  END LOOP;
+                  d_template_r.count <= count_v;
 
                   if instruction_dest_in.burstStride=to_unsigned(1,instruction_dest_in.burstStride'length) then
                      dst_is_burst_r <= '1';
@@ -1481,33 +1464,20 @@ begin
                      dst_is_burst_r <= '0';
                   end if;
 
-                  if dst_vector=std_logic_vector(to_unsigned(ddr_vector_width_c-1,dp_vector_t'length)) then
-                     if dst_is_scatter_r(0)=scatter_none_c then
-                        d_template_r.burstStride <= to_unsigned(1*ddr_vector_width_c/1,s_template_r.burstStride'length);
-                     elsif dst_is_scatter_r(0)=scatter_vector_c then
-                        d_template_r.burstStride <= to_unsigned(vector_width_c*ddr_vector_width_c/1,d_template_r.burstStride'length);
-                     else
-                        d_template_r.burstStride <= to_unsigned(register_size_c*ddr_vector_width_c/1,d_template_r.burstStride'length);
+                  burst_v := instruction_dest_in.burstStride;
+                  FOR I in 0 to ddr_vector_depth_c-1 LOOP
+                     if dst_vector=std_logic_vector(to_unsigned(ddr_vector_width_c/(2**I)-1,dp_vector_t'length)) then 
+                        if dst_is_scatter_r(0)=scatter_none_c then
+                           burst_v := to_unsigned(1*ddr_vector_width_c/(2**I),s_template_r.burstStride'length);
+                        elsif dst_is_scatter_r(0)=scatter_vector_c then
+                           burst_v := to_unsigned(vector_width_c*ddr_vector_width_c/(2**I),d_template_r.burstStride'length);
+                        else
+                           burst_v := to_unsigned(register_size_c*ddr_vector_width_c/(2**I),d_template_r.burstStride'length);
+                        end if; 
+                        exit;                   
                      end if;
-                  elsif dst_vector=std_logic_vector(to_unsigned(ddr_vector_width_c/2-1,dp_vector_t'length)) then
-                     if dst_is_scatter_r(1)=scatter_none_c then
-                        d_template_r.burstStride <= to_unsigned(1*ddr_vector_width_c/2,s_template_r.burstStride'length);
-                     elsif dst_is_scatter_r(1)=scatter_vector_c then
-                        d_template_r.burstStride <= to_unsigned(vector_width_c*ddr_vector_width_c/2,d_template_r.burstStride'length);
-                     else
-                        d_template_r.burstStride <= to_unsigned(register_size_c*ddr_vector_width_c/2,d_template_r.burstStride'length);
-                     end if;
-                  elsif dst_vector=std_logic_vector(to_unsigned(ddr_vector_width_c/4-1,dp_vector_t'length)) then
-                     if dst_is_scatter_r(1)=scatter_none_c then
-                        d_template_r.burstStride <= to_unsigned(1*ddr_vector_width_c/4,s_template_r.burstStride'length);
-                     elsif dst_is_scatter_r(1)=scatter_vector_c then
-                        d_template_r.burstStride <= to_unsigned(vector_width_c*ddr_vector_width_c/4,d_template_r.burstStride'length);
-                     else
-                        d_template_r.burstStride <= to_unsigned(register_size_c*ddr_vector_width_c/4,d_template_r.burstStride'length);
-                     end if;
-                  else
-                     d_template_r.burstStride <= instruction_dest_in.burstStride;
-                  end if;
+                  END LOOP;
+                  d_template_r.burstStride <= burst_v;
 
                   src_vector_r <= src_vector; 
                   dst_vector_r <= dst_vector;
@@ -1545,18 +1515,14 @@ begin
                   src_double_r <= source_double_precision;
                   dst_double_r <= dest_double_precision;
 
-                  if dst_vector=std_logic_vector(to_unsigned(ddr_vector_width_c-1,dp_vector_t'length)) then
-                     totallen_v(dp_addr_width_c-1 downto dp_addr_width_c-ddr_vector_depth_c) := to_unsigned(0,ddr_vector_depth_c);
-                     totallen_v(dp_addr_width_c-ddr_vector_depth_c-1 downto 0) := instruction_gen_len_in(dp_addr_width_c-1 downto ddr_vector_depth_c)-1;
-                  elsif dst_vector=std_logic_vector(to_unsigned(ddr_vector_width_c/2-1,dp_vector_t'length)) then
-                     totallen_v(dp_addr_width_c-1 downto dp_addr_width_c-ddr_vector_depth_c+1) := to_unsigned(0,ddr_vector_depth_c-1);
-                     totallen_v(dp_addr_width_c-ddr_vector_depth_c+1-1 downto 0) := instruction_gen_len_in(dp_addr_width_c-1 downto ddr_vector_depth_c-1)-1;
-                  elsif dst_vector=std_logic_vector(to_unsigned(ddr_vector_width_c/4-1,dp_vector_t'length)) then
-                     totallen_v(dp_addr_width_c-1 downto dp_addr_width_c-ddr_vector_depth_c+2) := to_unsigned(0,ddr_vector_depth_c-2);
-                     totallen_v(dp_addr_width_c-ddr_vector_depth_c+2-1 downto 0) := instruction_gen_len_in(dp_addr_width_c-1 downto ddr_vector_depth_c-2)-1;
-                  else
-                     totallen_v := instruction_gen_len_in-1;
-                  end if;
+                  totallen_v := instruction_gen_len_in-1;
+                  FOR I in 0 to ddr_vector_depth_c-1 LOOP
+                     if dst_vector=std_logic_vector(to_unsigned(ddr_vector_width_c/(2**I)-1,dp_vector_t'length)) then
+                        totallen_v(dp_addr_width_c-1 downto dp_addr_width_c-ddr_vector_depth_c+I) := to_unsigned(0,ddr_vector_depth_c-I);
+                        totallen_v(dp_addr_width_c-ddr_vector_depth_c+I-1 downto 0) := instruction_gen_len_in(dp_addr_width_c-1 downto ddr_vector_depth_c-I)-1;
+                        exit;
+                     end if;
+                  END LOOP;
                   totallen_r <= totallen_v;
                   currlen_r <= totallen_v;
                   if unsigned(totallen_v)=len_zero_v then
@@ -1572,25 +1538,15 @@ begin
                   dp_dst_data_model_r <= instruction_data_model_dest_in;
                   dp_thread_r <= instruction_thread_in;
                   dp_mcast_r <= instruction_mcast_in;
-
                   if source_double_precision='1' then
-                     data_r <=  instruction_data_in(2*data_width_c-1 downto data_width_c) & 
-                                instruction_data_in(1*data_width_c-1 downto 0) &
-                                instruction_data_in(2*data_width_c-1 downto data_width_c) &
-                                instruction_data_in(1*data_width_c-1 downto 0) &
-                                instruction_data_in(2*data_width_c-1 downto data_width_c) &
-                                instruction_data_in(1*data_width_c-1 downto 0) &
-                                instruction_data_in(2*data_width_c-1 downto data_width_c) &
-                                instruction_data_in(1*data_width_c-1 downto 0);
+                     FOR I in 0 to ddr_vector_width_c/2-1 LOOP
+                        data_r((I+1)*(2*data_width_c)-1 downto I*(2*data_width_c)) <= instruction_data_in(2*data_width_c-1 downto data_width_c) & 
+                                                                                      instruction_data_in(1*data_width_c-1 downto 0);
+                     END LOOP;
                   else
-                     data_r <=  instruction_data_in(data_width_c-1 downto 0) & 
-                                instruction_data_in(data_width_c-1 downto 0) & 
-                                instruction_data_in(data_width_c-1 downto 0) & 
-                                instruction_data_in(data_width_c-1 downto 0) &
-                                instruction_data_in(data_width_c-1 downto 0) &
-                                instruction_data_in(data_width_c-1 downto 0) &
-                                instruction_data_in(data_width_c-1 downto 0) &
-                                instruction_data_in(data_width_c-1 downto 0);
+                     FOR I in 0 to ddr_vector_width_c-1 LOOP
+                        data_r((I+1)*(data_width_c)-1 downto I*(data_width_c)) <= instruction_data_in(data_width_c-1 downto 0);
+                     END LOOP;
                   end if;
                   repeat_r <= instruction_repeat_in;
 

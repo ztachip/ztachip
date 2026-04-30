@@ -73,6 +73,7 @@ read_vhdl ../../src/util/afifo.vhd
 read_vhdl ../../src/util/afifo2.vhd
 read_vhdl ../../src/util/adder.vhd
 read_vhdl ../../src/fpu/falu_core.vhd
+read_vhdl ../../src/fpu/falu_vector.vhd
 read_vhdl ../../src/fpu/falu2.vhd
 read_vhdl ../../src/fpu/falu.vhd
 read_vhdl ../../src/fpu/fp12.vhd

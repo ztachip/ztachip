@@ -24,6 +24,7 @@
 #include "soc.h"
 #include "../base/zta.h"
 #include "../base/util.h"
+#include "../base/net.h"
 #include "../apps/color/color.h"
 #include "../apps/color/kernels/color.h"
 #include "../apps/of/of.h"
@@ -38,8 +39,7 @@
 #include "../apps/equalize/equalize.h"
 #include "../apps/gdi/gdi.h"
 #include "../apps/nn/tf.h"
-#include "mpy.h"
-
+#include "../../micropython/ztachip_port/mpy.h"
 static std::vector<MPY_HANDLE> tensorLst;
 static std::vector<MPY_HANDLE> tensorDisplayLst;
 static std::vector<MPY_HANDLE> tensorCameraLst;
@@ -53,6 +53,7 @@ static std::vector<MPY_HANDLE> graphLst;
 void MPY_Init() {
    ztaInit();
    GdiInit();
+   NetInit(0x0a0a0a63); // My local IP=10.10.10.99
    DisplayInit(DISPLAY_WIDTH,DISPLAY_HEIGHT);
    CameraInit(WEBCAM_WIDTH,WEBCAM_HEIGHT);
 }
@@ -89,6 +90,29 @@ void MPY_LedSet(uint32_t ledState) {
 uint32_t MPY_PushButtonState() {
    return PushButtonGetState();
 }
+
+// Get number of characters available in UART RX FIFO
+int MPY_UartReadAvail() {
+   return (int)APB[APB_UART_READ_AVAIL];
+}
+
+// Get UART character received
+uint8_t MPY_UartRead() {
+   return (uint8_t)APB[APB_UART_READ];
+}
+
+// Get FIFO room available for UART to accept new transmit characters
+
+int MPY_UartWriteAvail() {
+   return (int)APB[APB_UART_WRITE_AVAIL];
+}
+
+// Transmit a character on UART
+void MPY_UartWrite(const uint8_t ch) {
+   APB[APB_UART_WRITE]=(uint32_t)ch; 
+}
+
+
 
 // Get time
 uint32_t MPY_GetTimeMsec() {

@@ -45,15 +45,11 @@
 
 //#define MAX_TENSOR_LOG2_SIZE  24 
 
-//#define MAX_TENSOR_LOG2_SIZE  28 
-
 //---------------------------------------------------------------
 // Enable/disable FPU. This option is required to run LLM models
 // This must match fpu_enabled_c defined on config.vhd
 //----------------------------------------------------------------
  
 #define FPU_ENABLED TRUE
-
-//#define FPU_ENABLED FALSE
 
 #endif

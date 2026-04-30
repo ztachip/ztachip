@@ -298,7 +298,7 @@ aximaster_arcache_out <= axislave_cmd_rec_read.arcache;
 aximaster_arprot_out <= axislave_cmd_rec_read.arprot;
 aximaster_arqos_out <= axislave_cmd_rec_read.arqos;
 aximaster_arburst_out <= axislave_cmd_rec_read.arburst;
-aximaster_arsize_out <= "100";
+aximaster_arsize_out <= std_logic_vector(to_unsigned(log2(exmem_data_width_c/8),aximaster_arsize_out'length));
 
 -- Set input to master resp_fifo
 axislave_resp_rec_write.rid <= aximaster_rid_r;

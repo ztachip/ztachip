@@ -87,6 +87,9 @@ record
     last:std_logic;
 end record;
 
+subtype byteenable_t is std_logic_vector(ddr_data_byte_width_c/8-1 DOWNTO 0);
+type byteenables_t is array(natural range <>) of byteenable_t;
+
 ---- Constants
 ----
 
@@ -117,19 +120,7 @@ SIGNAL beginburst_r:STD_LOGIC;
 SIGNAL wr_ddr_addr:std_logic_vector(ddr_bus_width_c-1 downto 0);
 SIGNAL write_next_addr_r:std_logic_vector(ddr_bus_width_c-1 downto 0);
 
-SIGNAL w_x1:STD_LOGIC_VECTOR(ddr_data_byte_width_c/8-1 DOWNTO 0);
-SIGNAL w_x2:STD_LOGIC_VECTOR(ddr_data_byte_width_c/8-1 DOWNTO 0);
-SIGNAL w_x4:STD_LOGIC_VECTOR(ddr_data_byte_width_c/8-1 DOWNTO 0);
-SIGNAL w_x8:STD_LOGIC_VECTOR(ddr_data_byte_width_c/8-1 DOWNTO 0);
-
-SIGNAL w_mask1:STD_LOGIC_VECTOR(ddr_data_byte_width_c/8-1 DOWNTO 0);
-SIGNAL w_mask2:STD_LOGIC_VECTOR(ddr_data_byte_width_c/8-1 DOWNTO 0);
-SIGNAL w_mask3:STD_LOGIC_VECTOR(ddr_data_byte_width_c/8-1 DOWNTO 0);
-SIGNAL w_mask4:STD_LOGIC_VECTOR(ddr_data_byte_width_c/8-1 DOWNTO 0);
-SIGNAL w_mask5:STD_LOGIC_VECTOR(ddr_data_byte_width_c/8-1 DOWNTO 0);
-SIGNAL w_mask6:STD_LOGIC_VECTOR(ddr_data_byte_width_c/8-1 DOWNTO 0);
-SIGNAL w_mask7:STD_LOGIC_VECTOR(ddr_data_byte_width_c/8-1 DOWNTO 0);
-SIGNAL w_mask8:STD_LOGIC_VECTOR(ddr_data_byte_width_c/8-1 DOWNTO 0);
+SIGNAL w_mask:STD_LOGIC_VECTOR(ddr_vector_width_c-1 downto 0);
 
 SIGNAL write_complete:STD_LOGIC;
 SIGNAL write_over_complete:STD_LOGIC;
@@ -191,7 +182,7 @@ ddr_awqos_out <= "0000";
 
 ddr_bready_out <= '1';
 
-ddr_awsize_out <= "011";
+ddr_awsize_out <= std_logic_vector(to_unsigned(ddr_vector_depth_c,ddr_awsize_out'length));
 
 
 -- Condition to move to next transaction...
@@ -312,277 +303,59 @@ begin
    end if;
 end process;
 
-process(write_vector_in)
+process(write_end_in,write_vector_in)
 begin
-   if unsigned(write_vector_in)=to_unsigned(ddr_vector_width_c/2-1,write_vector_in'length) then
-      w_x1 <= (others=>'1');
-      w_x2 <= (others=>'1');
-      w_x4 <= (others=>'1');
-      w_x8 <= (others=>'0');
-   elsif unsigned(write_vector_in)=to_unsigned(ddr_vector_width_c/4-1,write_vector_in'length) then
-      w_x1 <= (others=>'1');
-      w_x2 <= (others=>'1');
-      w_x4 <= (others=>'0');
-      w_x8 <= (others=>'0');
-   elsif unsigned(write_vector_in)=to_unsigned(ddr_vector_width_c/8-1,write_vector_in'length) then
-      w_x1 <= (others=>'1');
-      w_x2 <= (others=>'0');
-      w_x4 <= (others=>'0');
-      w_x8 <= (others=>'0');
-   else
-      w_x1 <= (others=>'1');
-      w_x2 <= (others=>'1');
-      w_x4 <= (others=>'1');
-      w_x8 <= (others=>'1');
-   end if;
+    if(write_end_in >= to_unsigned(1,vector_t'length)) then
+        w_mask(0) <= '1';
+    else
+        w_mask(0) <= '0';
+    end if;
+    FOR I in 1 to ddr_vector_width_c-1 LOOP
+        w_mask(I) <= '0';
+        FOR J in 1 to ddr_vector_depth_c loop
+            if (I >= 2**(ddr_vector_depth_c-J)) then
+                w_mask(I) <= write_vector_in(ddr_vector_depth_c-J);
+                exit;
+            end if;
+        end loop;
+        if(write_end_in < to_unsigned(I+1,vector_t'length)) then
+            w_mask(I) <= '0';
+        end if;
+    END LOOP;
 end process;
-
-w_mask1 <= (others=>'1') when (write_end_in >= to_unsigned(1,vector_t'length)) else (others=>'0');
-w_mask2 <= (others=>'1') when (write_end_in >= to_unsigned(2,vector_t'length)) else (others=>'0');
-w_mask3 <= (others=>'1') when (write_end_in >= to_unsigned(3,vector_t'length)) else (others=>'0');
-w_mask4 <= (others=>'1') when (write_end_in >= to_unsigned(4,vector_t'length)) else (others=>'0');
-w_mask5 <= (others=>'1') when (write_end_in >= to_unsigned(5,vector_t'length)) else (others=>'0');
-w_mask6 <= (others=>'1') when (write_end_in >= to_unsigned(6,vector_t'length)) else (others=>'0');
-w_mask7 <= (others=>'1') when (write_end_in >= to_unsigned(7,vector_t'length)) else (others=>'0');
-w_mask8 <= (others=>'1') when (write_end_in >= to_unsigned(8,vector_t'length)) else (others=>'0');
 
 ---
 -- Generate byteenable mask
 ----
 
-process(write2,write_vector_in,write_addr_in,write_data_r,write_data_in,byteenable_r,w_x1,w_x2,w_x4,w_x8,
-        w_mask1,w_mask2,w_mask3,w_mask4,w_mask5,w_mask6,w_mask7,w_mask8)
+process(write2,write_vector_in,write_addr_in,write_data_r,write_data_in,byteenable_r,w_mask)
+variable i_v:integer;
 begin
 if(write2='1') then
-    case write_addr_in(ddr_vector_depth_c-1 downto ddr_vector_depth_c-3) is
-        when "000" =>
-            byteenable(16*ddr_data_byte_width_c/8-1 downto 15*ddr_data_byte_width_c/8) <= byteenable_r(16*ddr_data_byte_width_c/8-1 downto 15*ddr_data_byte_width_c/8);
-            byteenable(15*ddr_data_byte_width_c/8-1 downto 14*ddr_data_byte_width_c/8) <= byteenable_r(15*ddr_data_byte_width_c/8-1 downto 14*ddr_data_byte_width_c/8);
-            byteenable(14*ddr_data_byte_width_c/8-1 downto 13*ddr_data_byte_width_c/8) <= byteenable_r(14*ddr_data_byte_width_c/8-1 downto 13*ddr_data_byte_width_c/8);
-            byteenable(13*ddr_data_byte_width_c/8-1 downto 12*ddr_data_byte_width_c/8) <= byteenable_r(13*ddr_data_byte_width_c/8-1 downto 12*ddr_data_byte_width_c/8);
-            byteenable(12*ddr_data_byte_width_c/8-1 downto 11*ddr_data_byte_width_c/8) <= byteenable_r(12*ddr_data_byte_width_c/8-1 downto 11*ddr_data_byte_width_c/8);
-            byteenable(11*ddr_data_byte_width_c/8-1 downto 10*ddr_data_byte_width_c/8) <= byteenable_r(11*ddr_data_byte_width_c/8-1 downto 10*ddr_data_byte_width_c/8);
-            byteenable(10*ddr_data_byte_width_c/8-1 downto 9*ddr_data_byte_width_c/8)  <= byteenable_r(10*ddr_data_byte_width_c/8-1 downto 9*ddr_data_byte_width_c/8);
-            byteenable(9*ddr_data_byte_width_c/8-1  downto 8*ddr_data_byte_width_c/8)  <= byteenable_r(9*ddr_data_byte_width_c/8-1  downto 8*ddr_data_byte_width_c/8);
-            byteenable(8*ddr_data_byte_width_c/8-1  downto 7*ddr_data_byte_width_c/8)  <= (w_mask8 and w_x8) or byteenable_r(8*ddr_data_byte_width_c/8-1 downto 7*ddr_data_byte_width_c/8);
-            byteenable(7*ddr_data_byte_width_c/8-1  downto 6*ddr_data_byte_width_c/8)  <= (w_mask7 and w_x8) or byteenable_r(7*ddr_data_byte_width_c/8-1 downto 6*ddr_data_byte_width_c/8);
-            byteenable(6*ddr_data_byte_width_c/8-1  downto 5*ddr_data_byte_width_c/8)  <= (w_mask6 and w_x8) or byteenable_r(6*ddr_data_byte_width_c/8-1 downto 5*ddr_data_byte_width_c/8);
-            byteenable(5*ddr_data_byte_width_c/8-1  downto 4*ddr_data_byte_width_c/8)  <= (w_mask5 and w_x8) or byteenable_r(5*ddr_data_byte_width_c/8-1 downto 4*ddr_data_byte_width_c/8);
-            byteenable(4*ddr_data_byte_width_c/8-1  downto 3*ddr_data_byte_width_c/8)  <= (w_mask4 and w_x4) or byteenable_r(4*ddr_data_byte_width_c/8-1 downto 3*ddr_data_byte_width_c/8);
-            byteenable(3*ddr_data_byte_width_c/8-1  downto 2*ddr_data_byte_width_c/8)  <= (w_mask3 and w_x4) or byteenable_r(3*ddr_data_byte_width_c/8-1 downto 2*ddr_data_byte_width_c/8);
-            byteenable(2*ddr_data_byte_width_c/8-1  downto 1*ddr_data_byte_width_c/8)  <= (w_mask2 and w_x2) or byteenable_r(2*ddr_data_byte_width_c/8-1 downto 1*ddr_data_byte_width_c/8);
-            byteenable(1*ddr_data_byte_width_c/8-1  downto 0*ddr_data_byte_width_c/8)  <= (w_mask1 and w_x1) or byteenable_r(1*ddr_data_byte_width_c/8-1 downto 0*ddr_data_byte_width_c/8);
-        when "001" =>
-            byteenable(16*ddr_data_byte_width_c/8-1 downto 15*ddr_data_byte_width_c/8) <= byteenable_r(16*ddr_data_byte_width_c/8-1 downto 15*ddr_data_byte_width_c/8);
-            byteenable(15*ddr_data_byte_width_c/8-1 downto 14*ddr_data_byte_width_c/8) <= byteenable_r(15*ddr_data_byte_width_c/8-1 downto 14*ddr_data_byte_width_c/8);
-            byteenable(14*ddr_data_byte_width_c/8-1 downto 13*ddr_data_byte_width_c/8) <= byteenable_r(14*ddr_data_byte_width_c/8-1 downto 13*ddr_data_byte_width_c/8);
-            byteenable(13*ddr_data_byte_width_c/8-1 downto 12*ddr_data_byte_width_c/8) <= byteenable_r(13*ddr_data_byte_width_c/8-1 downto 12*ddr_data_byte_width_c/8);
-            byteenable(12*ddr_data_byte_width_c/8-1 downto 11*ddr_data_byte_width_c/8) <= byteenable_r(12*ddr_data_byte_width_c/8-1 downto 11*ddr_data_byte_width_c/8);
-            byteenable(11*ddr_data_byte_width_c/8-1 downto 10*ddr_data_byte_width_c/8) <= byteenable_r(11*ddr_data_byte_width_c/8-1 downto 10*ddr_data_byte_width_c/8);
-            byteenable(10*ddr_data_byte_width_c/8-1  downto 9*ddr_data_byte_width_c/8) <= byteenable_r(10*ddr_data_byte_width_c/8-1  downto 9*ddr_data_byte_width_c/8);
-            byteenable(9*ddr_data_byte_width_c/8-1  downto 8*ddr_data_byte_width_c/8)  <= (w_mask8 and w_x8) or byteenable_r(9*ddr_data_byte_width_c/8-1 downto 8*ddr_data_byte_width_c/8);
-            byteenable(8*ddr_data_byte_width_c/8-1  downto 7*ddr_data_byte_width_c/8)  <= (w_mask7 and w_x8) or byteenable_r(8*ddr_data_byte_width_c/8-1 downto 7*ddr_data_byte_width_c/8);
-            byteenable(7*ddr_data_byte_width_c/8-1  downto 6*ddr_data_byte_width_c/8)  <= (w_mask6 and w_x8) or byteenable_r(7*ddr_data_byte_width_c/8-1 downto 6*ddr_data_byte_width_c/8);
-            byteenable(6*ddr_data_byte_width_c/8-1  downto 5*ddr_data_byte_width_c/8)  <= (w_mask5 and w_x8) or byteenable_r(6*ddr_data_byte_width_c/8-1 downto 5*ddr_data_byte_width_c/8);
-            byteenable(5*ddr_data_byte_width_c/8-1  downto 4*ddr_data_byte_width_c/8)  <= (w_mask4 and w_x4) or byteenable_r(5*ddr_data_byte_width_c/8-1 downto 4*ddr_data_byte_width_c/8);
-            byteenable(4*ddr_data_byte_width_c/8-1  downto 3*ddr_data_byte_width_c/8)  <= (w_mask3 and w_x4) or byteenable_r(4*ddr_data_byte_width_c/8-1 downto 3*ddr_data_byte_width_c/8);
-            byteenable(3*ddr_data_byte_width_c/8-1  downto 2*ddr_data_byte_width_c/8)  <= (w_mask2 and w_x2) or byteenable_r(3*ddr_data_byte_width_c/8-1 downto 2*ddr_data_byte_width_c/8);
-            byteenable(2*ddr_data_byte_width_c/8-1  downto 1*ddr_data_byte_width_c/8)  <= (w_mask1 and w_x1) or byteenable_r(2*ddr_data_byte_width_c/8-1 downto 1*ddr_data_byte_width_c/8);
-            byteenable(1*ddr_data_byte_width_c/8-1  downto 0*ddr_data_byte_width_c/8)  <= byteenable_r(1*ddr_data_byte_width_c/8-1 downto 0*ddr_data_byte_width_c/8);
-        when "010" =>
-            byteenable(16*ddr_data_byte_width_c/8-1 downto 15*ddr_data_byte_width_c/8) <= byteenable_r(16*ddr_data_byte_width_c/8-1 downto 15*ddr_data_byte_width_c/8);
-            byteenable(15*ddr_data_byte_width_c/8-1 downto 14*ddr_data_byte_width_c/8) <= byteenable_r(15*ddr_data_byte_width_c/8-1 downto 14*ddr_data_byte_width_c/8);
-            byteenable(14*ddr_data_byte_width_c/8-1 downto 13*ddr_data_byte_width_c/8) <= byteenable_r(14*ddr_data_byte_width_c/8-1 downto 13*ddr_data_byte_width_c/8);
-            byteenable(13*ddr_data_byte_width_c/8-1 downto 12*ddr_data_byte_width_c/8) <= byteenable_r(13*ddr_data_byte_width_c/8-1 downto 12*ddr_data_byte_width_c/8);
-            byteenable(12*ddr_data_byte_width_c/8-1 downto 11*ddr_data_byte_width_c/8)  <= byteenable_r(12*ddr_data_byte_width_c/8-1 downto 11*ddr_data_byte_width_c/8);
-            byteenable(11*ddr_data_byte_width_c/8-1  downto 10*ddr_data_byte_width_c/8) <= byteenable_r(11*ddr_data_byte_width_c/8-1  downto 10*ddr_data_byte_width_c/8);
-            byteenable(10*ddr_data_byte_width_c/8-1  downto 9*ddr_data_byte_width_c/8)  <= (w_mask8 and w_x8) or byteenable_r(10*ddr_data_byte_width_c/8-1 downto 9*ddr_data_byte_width_c/8);
-            byteenable(9*ddr_data_byte_width_c/8-1  downto 8*ddr_data_byte_width_c/8)  <= (w_mask7 and w_x8) or byteenable_r(9*ddr_data_byte_width_c/8-1 downto 8*ddr_data_byte_width_c/8);
-            byteenable(8*ddr_data_byte_width_c/8-1  downto 7*ddr_data_byte_width_c/8)  <= (w_mask6 and w_x8) or byteenable_r(8*ddr_data_byte_width_c/8-1 downto 7*ddr_data_byte_width_c/8);
-            byteenable(7*ddr_data_byte_width_c/8-1  downto 6*ddr_data_byte_width_c/8)  <= (w_mask5 and w_x8) or byteenable_r(7*ddr_data_byte_width_c/8-1 downto 6*ddr_data_byte_width_c/8);
-            byteenable(6*ddr_data_byte_width_c/8-1  downto 5*ddr_data_byte_width_c/8)  <= (w_mask4 and w_x4) or byteenable_r(6*ddr_data_byte_width_c/8-1 downto 5*ddr_data_byte_width_c/8);
-            byteenable(5*ddr_data_byte_width_c/8-1  downto 4*ddr_data_byte_width_c/8)  <= (w_mask3 and w_x4) or byteenable_r(5*ddr_data_byte_width_c/8-1 downto 4*ddr_data_byte_width_c/8);
-            byteenable(4*ddr_data_byte_width_c/8-1  downto 3*ddr_data_byte_width_c/8)  <= (w_mask2 and w_x2) or byteenable_r(4*ddr_data_byte_width_c/8-1 downto 3*ddr_data_byte_width_c/8);
-            byteenable(3*ddr_data_byte_width_c/8-1  downto 2*ddr_data_byte_width_c/8)  <= (w_mask1 and w_x1) or byteenable_r(3*ddr_data_byte_width_c/8-1 downto 2*ddr_data_byte_width_c/8);
-            byteenable(2*ddr_data_byte_width_c/8-1  downto 1*ddr_data_byte_width_c/8)  <= byteenable_r(2*ddr_data_byte_width_c/8-1 downto 1*ddr_data_byte_width_c/8);
-            byteenable(1*ddr_data_byte_width_c/8-1 downto 0*ddr_data_byte_width_c/8) <= byteenable_r(1*ddr_data_byte_width_c/8-1 downto 0*ddr_data_byte_width_c/8);
-        when "011" =>
-            byteenable(16*ddr_data_byte_width_c/8-1 downto 15*ddr_data_byte_width_c/8) <= byteenable_r(16*ddr_data_byte_width_c/8-1 downto 15*ddr_data_byte_width_c/8);
-            byteenable(15*ddr_data_byte_width_c/8-1 downto 14*ddr_data_byte_width_c/8) <= byteenable_r(15*ddr_data_byte_width_c/8-1 downto 14*ddr_data_byte_width_c/8);
-            byteenable(14*ddr_data_byte_width_c/8-1 downto 13*ddr_data_byte_width_c/8) <= byteenable_r(14*ddr_data_byte_width_c/8-1 downto 13*ddr_data_byte_width_c/8);
-            byteenable(13*ddr_data_byte_width_c/8-1 downto 12*ddr_data_byte_width_c/8)  <= byteenable_r(13*ddr_data_byte_width_c/8-1 downto 12*ddr_data_byte_width_c/8);
-            byteenable(12*ddr_data_byte_width_c/8-1  downto 11*ddr_data_byte_width_c/8)  <= byteenable_r(12*ddr_data_byte_width_c/8-1  downto 11*ddr_data_byte_width_c/8);
-            byteenable(11*ddr_data_byte_width_c/8-1  downto 10*ddr_data_byte_width_c/8)  <= (w_mask8 and w_x8) or byteenable_r(11*ddr_data_byte_width_c/8-1 downto 10*ddr_data_byte_width_c/8);
-            byteenable(10*ddr_data_byte_width_c/8-1  downto 9*ddr_data_byte_width_c/8)  <= (w_mask7 and w_x8) or byteenable_r(10*ddr_data_byte_width_c/8-1 downto 9*ddr_data_byte_width_c/8);
-            byteenable(9*ddr_data_byte_width_c/8-1  downto 8*ddr_data_byte_width_c/8)  <= (w_mask6 and w_x8) or byteenable_r(9*ddr_data_byte_width_c/8-1 downto 8*ddr_data_byte_width_c/8);
-            byteenable(8*ddr_data_byte_width_c/8-1  downto 7*ddr_data_byte_width_c/8)  <= (w_mask5 and w_x8) or byteenable_r(8*ddr_data_byte_width_c/8-1 downto 7*ddr_data_byte_width_c/8);
-            byteenable(7*ddr_data_byte_width_c/8-1  downto 6*ddr_data_byte_width_c/8)  <= (w_mask4 and w_x4) or byteenable_r(7*ddr_data_byte_width_c/8-1 downto 6*ddr_data_byte_width_c/8);
-            byteenable(6*ddr_data_byte_width_c/8-1  downto 5*ddr_data_byte_width_c/8)  <= (w_mask3 and w_x4) or byteenable_r(6*ddr_data_byte_width_c/8-1 downto 5*ddr_data_byte_width_c/8);
-            byteenable(5*ddr_data_byte_width_c/8-1  downto 4*ddr_data_byte_width_c/8)  <= (w_mask2 and w_x2) or byteenable_r(5*ddr_data_byte_width_c/8-1 downto 4*ddr_data_byte_width_c/8);
-            byteenable(4*ddr_data_byte_width_c/8-1  downto 3*ddr_data_byte_width_c/8)  <= (w_mask1 and w_x1) or byteenable_r(4*ddr_data_byte_width_c/8-1 downto 3*ddr_data_byte_width_c/8);
-            byteenable(3*ddr_data_byte_width_c/8-1  downto 2*ddr_data_byte_width_c/8)  <= byteenable_r(3*ddr_data_byte_width_c/8-1 downto 2*ddr_data_byte_width_c/8);
-            byteenable(2*ddr_data_byte_width_c/8-1 downto 1*ddr_data_byte_width_c/8) <= byteenable_r(2*ddr_data_byte_width_c/8-1 downto 1*ddr_data_byte_width_c/8);
-            byteenable(1*ddr_data_byte_width_c/8-1 downto 0*ddr_data_byte_width_c/8) <= byteenable_r(1*ddr_data_byte_width_c/8-1 downto 0*ddr_data_byte_width_c/8);
-        when "100" =>
-            byteenable(16*ddr_data_byte_width_c/8-1 downto 15*ddr_data_byte_width_c/8) <= byteenable_r(16*ddr_data_byte_width_c/8-1 downto 15*ddr_data_byte_width_c/8);
-            byteenable(15*ddr_data_byte_width_c/8-1 downto 14*ddr_data_byte_width_c/8) <= byteenable_r(15*ddr_data_byte_width_c/8-1 downto 14*ddr_data_byte_width_c/8);
-            byteenable(14*ddr_data_byte_width_c/8-1 downto 13*ddr_data_byte_width_c/8)  <= byteenable_r(14*ddr_data_byte_width_c/8-1 downto 13*ddr_data_byte_width_c/8);
-            byteenable(13*ddr_data_byte_width_c/8-1  downto 12*ddr_data_byte_width_c/8)  <= byteenable_r(13*ddr_data_byte_width_c/8-1  downto 12*ddr_data_byte_width_c/8);
-            byteenable(12*ddr_data_byte_width_c/8-1  downto 11*ddr_data_byte_width_c/8)  <= (w_mask8 and w_x8) or byteenable_r(12*ddr_data_byte_width_c/8-1 downto 11*ddr_data_byte_width_c/8);
-            byteenable(11*ddr_data_byte_width_c/8-1  downto 10*ddr_data_byte_width_c/8)  <= (w_mask7 and w_x8) or byteenable_r(11*ddr_data_byte_width_c/8-1 downto 10*ddr_data_byte_width_c/8);
-            byteenable(10*ddr_data_byte_width_c/8-1  downto 9*ddr_data_byte_width_c/8)  <= (w_mask6 and w_x8) or byteenable_r(10*ddr_data_byte_width_c/8-1 downto 9*ddr_data_byte_width_c/8);
-            byteenable(9*ddr_data_byte_width_c/8-1  downto 8*ddr_data_byte_width_c/8)  <= (w_mask5 and w_x8) or byteenable_r(9*ddr_data_byte_width_c/8-1 downto 8*ddr_data_byte_width_c/8);
-            byteenable(8*ddr_data_byte_width_c/8-1  downto 7*ddr_data_byte_width_c/8)  <= (w_mask4 and w_x4) or byteenable_r(8*ddr_data_byte_width_c/8-1 downto 7*ddr_data_byte_width_c/8);
-            byteenable(7*ddr_data_byte_width_c/8-1  downto 6*ddr_data_byte_width_c/8)  <= (w_mask3 and w_x4) or byteenable_r(7*ddr_data_byte_width_c/8-1 downto 6*ddr_data_byte_width_c/8);
-            byteenable(6*ddr_data_byte_width_c/8-1  downto 5*ddr_data_byte_width_c/8)  <= (w_mask2 and w_x2) or byteenable_r(6*ddr_data_byte_width_c/8-1 downto 5*ddr_data_byte_width_c/8);
-            byteenable(5*ddr_data_byte_width_c/8-1  downto 4*ddr_data_byte_width_c/8)  <= (w_mask1 and w_x1) or byteenable_r(5*ddr_data_byte_width_c/8-1 downto 4*ddr_data_byte_width_c/8);
-            byteenable(4*ddr_data_byte_width_c/8-1  downto 3*ddr_data_byte_width_c/8)  <= byteenable_r(4*ddr_data_byte_width_c/8-1 downto 3*ddr_data_byte_width_c/8);
-            byteenable(3*ddr_data_byte_width_c/8-1 downto 2*ddr_data_byte_width_c/8) <= byteenable_r(3*ddr_data_byte_width_c/8-1 downto 2*ddr_data_byte_width_c/8);
-            byteenable(2*ddr_data_byte_width_c/8-1 downto 1*ddr_data_byte_width_c/8) <= byteenable_r(2*ddr_data_byte_width_c/8-1 downto 1*ddr_data_byte_width_c/8);
-            byteenable(1*ddr_data_byte_width_c/8-1 downto 0*ddr_data_byte_width_c/8) <= byteenable_r(1*ddr_data_byte_width_c/8-1 downto 0*ddr_data_byte_width_c/8);
-        when "101" =>
-            byteenable(16*ddr_data_byte_width_c/8-1 downto 15*ddr_data_byte_width_c/8) <= byteenable_r(16*ddr_data_byte_width_c/8-1 downto 15*ddr_data_byte_width_c/8);
-            byteenable(15*ddr_data_byte_width_c/8-1 downto 14*ddr_data_byte_width_c/8)  <= byteenable_r(15*ddr_data_byte_width_c/8-1 downto 14*ddr_data_byte_width_c/8);
-            byteenable(14*ddr_data_byte_width_c/8-1  downto 13*ddr_data_byte_width_c/8)  <= byteenable_r(14*ddr_data_byte_width_c/8-1  downto 13*ddr_data_byte_width_c/8);
-            byteenable(13*ddr_data_byte_width_c/8-1  downto 12*ddr_data_byte_width_c/8)  <= (w_mask8 and w_x8) or byteenable_r(13*ddr_data_byte_width_c/8-1 downto 12*ddr_data_byte_width_c/8);
-            byteenable(12*ddr_data_byte_width_c/8-1  downto 11*ddr_data_byte_width_c/8)  <= (w_mask7 and w_x8) or byteenable_r(12*ddr_data_byte_width_c/8-1 downto 11*ddr_data_byte_width_c/8);
-            byteenable(11*ddr_data_byte_width_c/8-1  downto 10*ddr_data_byte_width_c/8)  <= (w_mask6 and w_x8) or byteenable_r(11*ddr_data_byte_width_c/8-1 downto 10*ddr_data_byte_width_c/8);
-            byteenable(10*ddr_data_byte_width_c/8-1  downto 9*ddr_data_byte_width_c/8)  <= (w_mask5 and w_x8) or byteenable_r(10*ddr_data_byte_width_c/8-1 downto 9*ddr_data_byte_width_c/8);
-            byteenable(9*ddr_data_byte_width_c/8-1  downto 8*ddr_data_byte_width_c/8)  <= (w_mask4 and w_x4) or byteenable_r(9*ddr_data_byte_width_c/8-1 downto 8*ddr_data_byte_width_c/8);
-            byteenable(8*ddr_data_byte_width_c/8-1  downto 7*ddr_data_byte_width_c/8)  <= (w_mask3 and w_x4) or byteenable_r(8*ddr_data_byte_width_c/8-1 downto 7*ddr_data_byte_width_c/8);
-            byteenable(7*ddr_data_byte_width_c/8-1  downto 6*ddr_data_byte_width_c/8)  <= (w_mask2 and w_x2) or byteenable_r(7*ddr_data_byte_width_c/8-1 downto 6*ddr_data_byte_width_c/8);
-            byteenable(6*ddr_data_byte_width_c/8-1  downto 5*ddr_data_byte_width_c/8)  <= (w_mask1 and w_x1) or byteenable_r(6*ddr_data_byte_width_c/8-1 downto 5*ddr_data_byte_width_c/8);
-            byteenable(5*ddr_data_byte_width_c/8-1  downto 4*ddr_data_byte_width_c/8)  <= byteenable_r(5*ddr_data_byte_width_c/8-1 downto 4*ddr_data_byte_width_c/8);
-            byteenable(4*ddr_data_byte_width_c/8-1 downto 3*ddr_data_byte_width_c/8) <= byteenable_r(4*ddr_data_byte_width_c/8-1 downto 3*ddr_data_byte_width_c/8);
-            byteenable(3*ddr_data_byte_width_c/8-1 downto 2*ddr_data_byte_width_c/8) <= byteenable_r(3*ddr_data_byte_width_c/8-1 downto 2*ddr_data_byte_width_c/8);
-            byteenable(2*ddr_data_byte_width_c/8-1 downto 1*ddr_data_byte_width_c/8) <= byteenable_r(2*ddr_data_byte_width_c/8-1 downto 1*ddr_data_byte_width_c/8);
-            byteenable(1*ddr_data_byte_width_c/8-1 downto 0*ddr_data_byte_width_c/8) <= byteenable_r(1*ddr_data_byte_width_c/8-1 downto 0*ddr_data_byte_width_c/8);
-        when "110" =>
-            byteenable(16*ddr_data_byte_width_c/8-1 downto 15*ddr_data_byte_width_c/8)  <= byteenable_r(16*ddr_data_byte_width_c/8-1 downto 15*ddr_data_byte_width_c/8);
-            byteenable(15*ddr_data_byte_width_c/8-1  downto 14*ddr_data_byte_width_c/8)  <= byteenable_r(15*ddr_data_byte_width_c/8-1  downto 14*ddr_data_byte_width_c/8);
-            byteenable(14*ddr_data_byte_width_c/8-1  downto 13*ddr_data_byte_width_c/8)  <= (w_mask8 and w_x8) or byteenable_r(14*ddr_data_byte_width_c/8-1 downto 13*ddr_data_byte_width_c/8);
-            byteenable(13*ddr_data_byte_width_c/8-1  downto 12*ddr_data_byte_width_c/8)  <= (w_mask7 and w_x8) or byteenable_r(13*ddr_data_byte_width_c/8-1 downto 12*ddr_data_byte_width_c/8);
-            byteenable(12*ddr_data_byte_width_c/8-1  downto 11*ddr_data_byte_width_c/8)  <= (w_mask6 and w_x8) or byteenable_r(12*ddr_data_byte_width_c/8-1 downto 11*ddr_data_byte_width_c/8);
-            byteenable(11*ddr_data_byte_width_c/8-1  downto 10*ddr_data_byte_width_c/8)  <= (w_mask5 and w_x8) or byteenable_r(11*ddr_data_byte_width_c/8-1 downto 10*ddr_data_byte_width_c/8);
-            byteenable(10*ddr_data_byte_width_c/8-1  downto 9*ddr_data_byte_width_c/8)  <= (w_mask4 and w_x4) or byteenable_r(10*ddr_data_byte_width_c/8-1 downto 9*ddr_data_byte_width_c/8);
-            byteenable(9*ddr_data_byte_width_c/8-1  downto 8*ddr_data_byte_width_c/8)  <= (w_mask3 and w_x4) or byteenable_r(9*ddr_data_byte_width_c/8-1 downto 8*ddr_data_byte_width_c/8);
-            byteenable(8*ddr_data_byte_width_c/8-1  downto 7*ddr_data_byte_width_c/8)  <= (w_mask2 and w_x2) or byteenable_r(8*ddr_data_byte_width_c/8-1 downto 7*ddr_data_byte_width_c/8);
-            byteenable(7*ddr_data_byte_width_c/8-1  downto 6*ddr_data_byte_width_c/8)  <= (w_mask1 and w_x1) or byteenable_r(7*ddr_data_byte_width_c/8-1 downto 6*ddr_data_byte_width_c/8);
-            byteenable(6*ddr_data_byte_width_c/8-1  downto 5*ddr_data_byte_width_c/8)  <= byteenable_r(6*ddr_data_byte_width_c/8-1 downto 5*ddr_data_byte_width_c/8);
-            byteenable(5*ddr_data_byte_width_c/8-1 downto 4*ddr_data_byte_width_c/8) <= byteenable_r(5*ddr_data_byte_width_c/8-1 downto 4*ddr_data_byte_width_c/8);
-            byteenable(4*ddr_data_byte_width_c/8-1 downto 3*ddr_data_byte_width_c/8) <= byteenable_r(4*ddr_data_byte_width_c/8-1 downto 3*ddr_data_byte_width_c/8);
-            byteenable(3*ddr_data_byte_width_c/8-1 downto 2*ddr_data_byte_width_c/8) <= byteenable_r(3*ddr_data_byte_width_c/8-1 downto 2*ddr_data_byte_width_c/8);
-            byteenable(2*ddr_data_byte_width_c/8-1 downto 1*ddr_data_byte_width_c/8) <= byteenable_r(2*ddr_data_byte_width_c/8-1 downto 1*ddr_data_byte_width_c/8);
-            byteenable(1*ddr_data_byte_width_c/8-1 downto 0*ddr_data_byte_width_c/8) <= byteenable_r(1*ddr_data_byte_width_c/8-1 downto 0*ddr_data_byte_width_c/8);
-        when others =>
-            byteenable(16*ddr_data_byte_width_c/8-1  downto 15*ddr_data_byte_width_c/8)  <= byteenable_r(16*ddr_data_byte_width_c/8-1  downto 15*ddr_data_byte_width_c/8);
-            byteenable(15*ddr_data_byte_width_c/8-1  downto 14*ddr_data_byte_width_c/8)  <= (w_mask8 and w_x8) or byteenable_r(15*ddr_data_byte_width_c/8-1 downto 14*ddr_data_byte_width_c/8);
-            byteenable(14*ddr_data_byte_width_c/8-1  downto 13*ddr_data_byte_width_c/8)  <= (w_mask7 and w_x8) or byteenable_r(14*ddr_data_byte_width_c/8-1 downto 13*ddr_data_byte_width_c/8);
-            byteenable(13*ddr_data_byte_width_c/8-1  downto 12*ddr_data_byte_width_c/8)  <= (w_mask6 and w_x8) or byteenable_r(13*ddr_data_byte_width_c/8-1 downto 12*ddr_data_byte_width_c/8);
-            byteenable(12*ddr_data_byte_width_c/8-1  downto 11*ddr_data_byte_width_c/8)  <= (w_mask5 and w_x8) or byteenable_r(12*ddr_data_byte_width_c/8-1 downto 11*ddr_data_byte_width_c/8);
-            byteenable(11*ddr_data_byte_width_c/8-1  downto 10*ddr_data_byte_width_c/8)  <= (w_mask4 and w_x4) or byteenable_r(11*ddr_data_byte_width_c/8-1 downto 10*ddr_data_byte_width_c/8);
-            byteenable(10*ddr_data_byte_width_c/8-1  downto 9*ddr_data_byte_width_c/8)  <= (w_mask3 and w_x4) or byteenable_r(10*ddr_data_byte_width_c/8-1 downto 9*ddr_data_byte_width_c/8);
-            byteenable(9*ddr_data_byte_width_c/8-1  downto 8*ddr_data_byte_width_c/8)  <= (w_mask2 and w_x2) or byteenable_r(9*ddr_data_byte_width_c/8-1 downto 8*ddr_data_byte_width_c/8);
-            byteenable(8*ddr_data_byte_width_c/8-1  downto 7*ddr_data_byte_width_c/8)  <= (w_mask1 and w_x1) or byteenable_r(8*ddr_data_byte_width_c/8-1 downto 7*ddr_data_byte_width_c/8);
-            byteenable(7*ddr_data_byte_width_c/8-1  downto 6*ddr_data_byte_width_c/8)  <= byteenable_r(7*ddr_data_byte_width_c/8-1 downto 6*ddr_data_byte_width_c/8);
-            byteenable(6*ddr_data_byte_width_c/8-1 downto 5*ddr_data_byte_width_c/8) <= byteenable_r(6*ddr_data_byte_width_c/8-1 downto 5*ddr_data_byte_width_c/8);
-            byteenable(5*ddr_data_byte_width_c/8-1 downto 4*ddr_data_byte_width_c/8) <= byteenable_r(5*ddr_data_byte_width_c/8-1 downto 4*ddr_data_byte_width_c/8);
-            byteenable(4*ddr_data_byte_width_c/8-1 downto 3*ddr_data_byte_width_c/8) <= byteenable_r(4*ddr_data_byte_width_c/8-1 downto 3*ddr_data_byte_width_c/8);
-            byteenable(3*ddr_data_byte_width_c/8-1 downto 2*ddr_data_byte_width_c/8) <= byteenable_r(3*ddr_data_byte_width_c/8-1 downto 2*ddr_data_byte_width_c/8);
-            byteenable(2*ddr_data_byte_width_c/8-1 downto 1*ddr_data_byte_width_c/8) <= byteenable_r(2*ddr_data_byte_width_c/8-1 downto 1*ddr_data_byte_width_c/8);
-            byteenable(1*ddr_data_byte_width_c/8-1 downto 0*ddr_data_byte_width_c/8)  <= byteenable_r(1*ddr_data_byte_width_c/8-1 downto 0*ddr_data_byte_width_c/8);
-    end case;
+    i_v := to_integer(unsigned(write_addr_in(ddr_vector_depth_c-1 downto 0)));
+    byteenable <= byteenable_r;
+    byteenable(ddr_vector_width_c+i_v-1 downto i_v)  <= w_mask or byteenable_r(ddr_vector_width_c+i_v-1 downto i_v);
 else
-   byteenable <= byteenable_r;
+    byteenable <= byteenable_r;
 end if;
 end process;
 
 process(write_data_r,write2,write_addr_in,write_data_in,write_vector_in)
+variable I:integer;
 begin
 write_data <= write_data_r;
 if(write2='1') then
-    case write_addr_in(ddr_vector_depth_c-1 downto ddr_vector_depth_c-3) is
-        when "000" =>
-            if unsigned(write_vector_in)=to_unsigned(ddr_vector_width_c/2-1,write_vector_in'length) then
-                write_data(ddr_data_width_c/2+0*ddr_data_width_c/8-1 downto 0*ddr_data_width_c/8) <= write_data_in(ddr_data_width_c/2-1 downto 0);
-            elsif unsigned(write_vector_in)=to_unsigned(ddr_vector_width_c/4-1,write_vector_in'length) then 
-                write_data(ddr_data_width_c/4+0*ddr_data_width_c/8-1 downto 0*ddr_data_width_c/8) <= write_data_in(ddr_data_width_c/4-1 downto 0);
-            elsif unsigned(write_vector_in)=to_unsigned(ddr_vector_width_c/8-1,write_vector_in'length) then
-                write_data(ddr_data_width_c/8+0*ddr_data_width_c/8-1 downto 0*ddr_data_width_c/8) <= write_data_in(ddr_data_width_c/8-1 downto 0);
-            else
-                write_data(ddr_data_width_c/1+0*ddr_data_width_c/8-1 downto 0*ddr_data_width_c/8) <= write_data_in(ddr_data_width_c/1-1 downto 0);
-            end if;
-        when "001" =>
-            if unsigned(write_vector_in)=to_unsigned(ddr_vector_width_c/2-1,write_vector_in'length) then
-                write_data(ddr_data_width_c/2+1*ddr_data_width_c/8-1 downto 1*ddr_data_width_c/8) <= write_data_in(ddr_data_width_c/2-1 downto 0);
-            elsif unsigned(write_vector_in)=to_unsigned(ddr_vector_width_c/4-1,write_vector_in'length) then 
-                write_data(ddr_data_width_c/4+1*ddr_data_width_c/8-1 downto 1*ddr_data_width_c/8) <= write_data_in(ddr_data_width_c/4-1 downto 0);
-            elsif unsigned(write_vector_in)=to_unsigned(ddr_vector_width_c/8-1,write_vector_in'length) then
-                write_data(ddr_data_width_c/8+1*ddr_data_width_c/8-1 downto 1*ddr_data_width_c/8) <= write_data_in(ddr_data_width_c/8-1 downto 0);
-            else
-                write_data(ddr_data_width_c/1+1*ddr_data_width_c/8-1 downto 1*ddr_data_width_c/8) <= write_data_in(ddr_data_width_c/1-1 downto 0);
-            end if;
-        when "010" =>
-            if unsigned(write_vector_in)=to_unsigned(ddr_vector_width_c/2-1,write_vector_in'length) then
-                write_data(ddr_data_width_c/2+2*ddr_data_width_c/8-1 downto 2*ddr_data_width_c/8) <= write_data_in(ddr_data_width_c/2-1 downto 0);
-            elsif unsigned(write_vector_in)=to_unsigned(ddr_vector_width_c/4-1,write_vector_in'length) then 
-                write_data(ddr_data_width_c/4+2*ddr_data_width_c/8-1 downto 2*ddr_data_width_c/8) <= write_data_in(ddr_data_width_c/4-1 downto 0);
-            elsif unsigned(write_vector_in)=to_unsigned(ddr_vector_width_c/8-1,write_vector_in'length) then
-               write_data(ddr_data_width_c/8+2*ddr_data_width_c/8-1 downto 2*ddr_data_width_c/8) <= write_data_in(ddr_data_width_c/8-1 downto 0);
-            else
-               write_data(ddr_data_width_c/1+2*ddr_data_width_c/8-1 downto 2*ddr_data_width_c/8) <= write_data_in(ddr_data_width_c/1-1 downto 0);
-            end if;
-        when "011" =>
-            if unsigned(write_vector_in)=to_unsigned(ddr_vector_width_c/2-1,write_vector_in'length) then
-                write_data(ddr_data_width_c/2+3*ddr_data_width_c/8-1 downto 3*ddr_data_width_c/8) <= write_data_in(ddr_data_width_c/2-1 downto 0);
-            elsif unsigned(write_vector_in)=to_unsigned(ddr_vector_width_c/4-1,write_vector_in'length) then 
-                write_data(ddr_data_width_c/4+3*ddr_data_width_c/8-1 downto 3*ddr_data_width_c/8) <= write_data_in(ddr_data_width_c/4-1 downto 0);
-            elsif unsigned(write_vector_in)=to_unsigned(ddr_vector_width_c/8-1,write_vector_in'length) then
-               write_data(ddr_data_width_c/8+3*ddr_data_width_c/8-1 downto 3*ddr_data_width_c/8) <= write_data_in(ddr_data_width_c/8-1 downto 0);
-            else
-               write_data(ddr_data_width_c/1+3*ddr_data_width_c/8-1 downto 3*ddr_data_width_c/8) <= write_data_in(ddr_data_width_c/1-1 downto 0);
-            end if;
-        when "100" =>
-            if unsigned(write_vector_in)=to_unsigned(ddr_vector_width_c/2-1,write_vector_in'length) then
-                write_data(ddr_data_width_c/2+4*ddr_data_width_c/8-1 downto 4*ddr_data_width_c/8) <= write_data_in(ddr_data_width_c/2-1 downto 0);
-            elsif unsigned(write_vector_in)=to_unsigned(ddr_vector_width_c/4-1,write_vector_in'length) then 
-                write_data(ddr_data_width_c/4+4*ddr_data_width_c/8-1 downto 4*ddr_data_width_c/8) <= write_data_in(ddr_data_width_c/4-1 downto 0);
-            elsif unsigned(write_vector_in)=to_unsigned(ddr_vector_width_c/8-1,write_vector_in'length) then
-               write_data(ddr_data_width_c/8+4*ddr_data_width_c/8-1 downto 4*ddr_data_width_c/8) <= write_data_in(ddr_data_width_c/8-1 downto 0);
-            else
-               write_data(ddr_data_width_c/1+4*ddr_data_width_c/8-1 downto 4*ddr_data_width_c/8) <= write_data_in(ddr_data_width_c/1-1 downto 0);
-            end if;
-        when "101" =>
-            if unsigned(write_vector_in)=to_unsigned(ddr_vector_width_c/2-1,write_vector_in'length) then
-                write_data(ddr_data_width_c/2+5*ddr_data_width_c/8-1 downto 5*ddr_data_width_c/8) <= write_data_in(ddr_data_width_c/2-1 downto 0);
-            elsif unsigned(write_vector_in)=to_unsigned(ddr_vector_width_c/4-1,write_vector_in'length) then 
-                write_data(ddr_data_width_c/4+5*ddr_data_width_c/8-1 downto 5*ddr_data_width_c/8) <= write_data_in(ddr_data_width_c/4-1 downto 0);
-            elsif unsigned(write_vector_in)=to_unsigned(ddr_vector_width_c/8-1,write_vector_in'length) then
-               write_data(ddr_data_width_c/8+5*ddr_data_width_c/8-1 downto 5*ddr_data_width_c/8) <= write_data_in(ddr_data_width_c/8-1 downto 0);
-            else
-               write_data(ddr_data_width_c/1+5*ddr_data_width_c/8-1 downto 5*ddr_data_width_c/8) <= write_data_in(ddr_data_width_c/1-1 downto 0);
-            end if;
-        when "110" =>
-            if unsigned(write_vector_in)=to_unsigned(ddr_vector_width_c/2-1,write_vector_in'length) then
-                write_data(ddr_data_width_c/2+6*ddr_data_width_c/8-1 downto 6*ddr_data_width_c/8) <= write_data_in(ddr_data_width_c/2-1 downto 0);
-            elsif unsigned(write_vector_in)=to_unsigned(ddr_vector_width_c/4-1,write_vector_in'length) then 
-                write_data(ddr_data_width_c/4+6*ddr_data_width_c/8-1 downto 6*ddr_data_width_c/8) <= write_data_in(ddr_data_width_c/4-1 downto 0);
-            elsif unsigned(write_vector_in)=to_unsigned(ddr_vector_width_c/8-1,write_vector_in'length) then
-               write_data(ddr_data_width_c/8+6*ddr_data_width_c/8-1 downto 6*ddr_data_width_c/8) <= write_data_in(ddr_data_width_c/8-1 downto 0);
-            else
-               write_data(ddr_data_width_c/1+6*ddr_data_width_c/8-1 downto 6*ddr_data_width_c/8) <= write_data_in(ddr_data_width_c/1-1 downto 0);
-            end if;
-        when others =>
-            if unsigned(write_vector_in)=to_unsigned(ddr_vector_width_c/2-1,write_vector_in'length) then
-                write_data(ddr_data_width_c/2+7*ddr_data_width_c/8-1 downto 7*ddr_data_width_c/8) <= write_data_in(ddr_data_width_c/2-1 downto 0);
-            elsif unsigned(write_vector_in)=to_unsigned(ddr_vector_width_c/4-1,write_vector_in'length) then 
-                write_data(ddr_data_width_c/4+7*ddr_data_width_c/8-1 downto 7*ddr_data_width_c/8) <= write_data_in(ddr_data_width_c/4-1 downto 0);
-            elsif unsigned(write_vector_in)=to_unsigned(ddr_vector_width_c/8-1,write_vector_in'length) then
-               write_data(ddr_data_width_c/8+7*ddr_data_width_c/8-1 downto 7*ddr_data_width_c/8) <= write_data_in(ddr_data_width_c/8-1 downto 0);
-            else
-               write_data(ddr_data_width_c/1+7*ddr_data_width_c/8-1 downto 7*ddr_data_width_c/8) <= write_data_in(ddr_data_width_c/1-1 downto 0);
-            end if;
-    end case;
+    FOR I in 0 to ddr_vector_width_c-1 LOOP
+        if(I=to_integer(unsigned(write_addr_in(ddr_vector_depth_c-1 downto 0)))) then
+            FOR J in 0 to ddr_vector_depth_c LOOP
+                if unsigned(write_vector_in)=to_unsigned(2**J-1,write_vector_in'length) then
+                    write_data(ddr_data_width_c/(2**(ddr_vector_depth_c-J))+I*data_width_c-1 downto I*data_width_c) <= write_data_in(ddr_data_width_c/(2**(ddr_vector_depth_c-J))-1 downto 0);
+                    exit;
+                end if;
+            END LOOP;
+            exit;
+        end if;
+    END LOOP;
 end if;
 end process;
 

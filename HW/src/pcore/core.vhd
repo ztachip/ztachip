@@ -88,11 +88,11 @@ ARCHITECTURE core_behavior of core IS
 
 constant cid_gen_max_c:integer:=((pid_gen_max_c+pid_max_c-1)/pid_max_c);
 
-SIGNAL dp_write_vector_r:dp_vector_t;
-SIGNAL dp_write_vector_rr:dp_vector_t;
-SIGNAL dp_write_vector_rrr:dp_vector_t;
-SIGNAL dp_write_vector_rrrr:dp_vector_t;
-SIGNAL dp_write_vector_rrrrr:dp_vector_t;
+SIGNAL dp_write_vector_r:std_logic_vector(core_vector_depth_c-1 downto 0);
+SIGNAL dp_write_vector_rr:std_logic_vector(core_vector_depth_c-1 downto 0);
+SIGNAL dp_write_vector_rrr:std_logic_vector(core_vector_depth_c-1 downto 0);
+SIGNAL dp_write_vector_rrrr:std_logic_vector(core_vector_depth_c-1 downto 0);
+SIGNAL dp_write_vector_rrrrr:std_logic_vector(core_vector_depth_c-1 downto 0);
 
 SIGNAL dp_write_scatter_r:scatter_t;
 SIGNAL dp_write_scatter_rr:scatter_t;
@@ -154,18 +154,18 @@ SIGNAL dp_wr_mcast_rrr:mcast_t:=(others=>'1');
 SIGNAL dp_wr_mcast_rrrr:mcast_t:=(others=>'1');
 SIGNAL dp_wr_mcast_rrrrr:mcast_t:=(others=>'1');
 
-SIGNAL dp_writedata_r:dp_datax_t;
-SIGNAL dp_writedata_rr:dp_datax_t;
-SIGNAL dp_writedata_rrr:dp_datax_t;
-SIGNAL dp_writedata_rrrr:dp_datax_t;
-SIGNAL dp_writedata_rrrrr:dp_datax_t;
+SIGNAL dp_writedata_r:std_logic_vector(core_data_width_c-1 downto 0);
+SIGNAL dp_writedata_rr:std_logic_vector(core_data_width_c-1 downto 0);
+SIGNAL dp_writedata_rrr:std_logic_vector(core_data_width_c-1 downto 0);
+SIGNAL dp_writedata_rrrr:std_logic_vector(core_data_width_c-1 downto 0);
+SIGNAL dp_writedata_rrrrr:std_logic_vector(core_data_width_c-1 downto 0);
 
-SIGNAL writedata2:dp_datax_t;
+SIGNAL writedata2:std_logic_vector(core_data_width_c-1 downto 0);
 
 SIGNAL dp_stream_read_req_r:unsigned(7 downto 0);
 SIGNAL dp_stream_read_done_r:unsigned(7 downto 0);
 
-SIGNAL dp_read_vector_r:dp_vector_t;
+SIGNAL dp_read_vector_r:std_logic_vector(core_vector_depth_c-1 downto 0);
 SIGNAL dp_read_scatter_r:scatter_t;
 SIGNAL dp_read_data_flow_r:data_flow_t;
 SIGNAL dp_read_data_flow2_r:data_flow_t;
@@ -207,7 +207,7 @@ SIGNAL dp_read_r:STD_LOGIC;
 SIGNAL dp_read_gen_valid_r:STD_LOGIC;
 SIGNAL dp_rd_page2:page2_t;
 SIGNAL dp_wr_page2:page2_t;
-SIGNAL writedata:dp_datax_t;
+SIGNAL writedata:std_logic_vector(core_data_width_c-1 downto 0);
 SIGNAL dp_readdatavalid:STD_LOGIC;
 SIGNAL dp_readdatavalidv:STD_LOGIC_VECTOR(cid_gen_max_c-1 downto 0);
 SIGNAL dp_read_gen_valid:STD_LOGIC;
@@ -222,8 +222,8 @@ SIGNAL dp_read_data_flow:data_flow_t;
 SIGNAL dp_read_data_type:dp_data_type_t;
 SIGNAL dp_read_stream:STD_LOGIC;
 SIGNAL dp_read_stream_id:stream_id_t;
-SIGNAL dp_readdata:dp_datax_t;
-SIGNAL dp_readdata2:dp_datax_t;
+SIGNAL dp_readdata:std_logic_vector(core_data_width_c-1 downto 0);
+SIGNAL dp_readdata2:std_logic_vector(core_data_width_c-1 downto 0);
 SIGNAL dp_readdatavalid2_r:STD_LOGIC;
 SIGNAL dp_readdatavalid2_rr:STD_LOGIC;
 SIGNAL dp_readdatavalid2_rrr:STD_LOGIC;
@@ -242,28 +242,28 @@ SIGNAL dp_read_stream2_rrr:STD_LOGIC;
 SIGNAL dp_read_stream2_rrrr:STD_LOGIC;
 SIGNAL dp_read_stream2_rrrrr:STD_LOGIC;
 SIGNAL dp_read_stream2_rrrrrr:STD_LOGIC;
-SIGNAL dp_readdata2_r:dp_datax_t;
-SIGNAL dp_readdata2_rr:dp_datax_t;
-SIGNAL dp_readdata2_rrr:dp_datax_t;
-SIGNAL dp_readdata2_rrrr:dp_datax_t;
-SIGNAL dp_readdata2_rrrrr:dp_datax_t;
-SIGNAL dp_readdata2_rrrrrr:dp_datax_t;
+SIGNAL dp_readdata2_r:std_logic_vector(core_data_width_c-1 downto 0);
+SIGNAL dp_readdata2_rr:std_logic_vector(core_data_width_c-1 downto 0);
+SIGNAL dp_readdata2_rrr:std_logic_vector(core_data_width_c-1 downto 0);
+SIGNAL dp_readdata2_rrrr:std_logic_vector(core_data_width_c-1 downto 0);
+SIGNAL dp_readdata2_rrrrr:std_logic_vector(core_data_width_c-1 downto 0);
+SIGNAL dp_readdata2_rrrrrr:std_logic_vector(core_data_width_c-1 downto 0);
 
 SIGNAL stream_read_id:stream_id_t;
-SIGNAL stream_read_input:dp_datax_t;
-SIGNAL stream_read_output:dp_datax_t;
+SIGNAL stream_read_input:std_logic_vector(core_data_width_c-1 downto 0);
+SIGNAL stream_read_output:std_logic_vector(core_data_width_c-1 downto 0);
 
 SIGNAL stream_write_id:stream_id_t;
-SIGNAL stream_write_input:dp_datax_t;
-SIGNAL stream_write_output:dp_datax_t;
+SIGNAL stream_write_input:std_logic_vector(core_data_width_c-1 downto 0);
+SIGNAL stream_write_output:std_logic_vector(core_data_width_c-1 downto 0);
 
-SIGNAL dp_read_vector:unsigned(ddr_vector_depth_c-1 downto 0);
-SIGNAL dp_read_vaddr:STD_LOGIC_VECTOR(ddr_vector_depth_c-1 downto 0);
+SIGNAL dp_read_vector:unsigned(core_vector_depth_c-1 downto 0);
+SIGNAL dp_read_vaddr:STD_LOGIC_VECTOR(core_vector_depth_c-1 downto 0);
 
 --- Stream variables
 
-SIGNAL output:dp_datax_t;
-SIGNAL stream_output_r:dp_data_t;
+SIGNAL output:std_logic_vector(core_data_width_c-1 downto 0);
+SIGNAL stream_output_r:std_logic_vector(core_data_width_c-1 downto 0);
 
 SIGNAL spe_wr:STD_LOGIC;
 SIGNAL spe_addr:std_logic_vector(stream_lookup_depth_c-1 downto 0);
@@ -283,7 +283,6 @@ SIGNAL dp_write_stream_rrrrr:STD_LOGIC;
 SIGNAL dp_write_stream_id_r:stream_id_t;
 
 subtype regno_t is unsigned(register_depth_c-1 downto 0);
-constant all_zeros_c:std_logic_vector(ddr_vector_depth_c-1 downto 0):=(others=>'0');
 
 SIGNAL instruction_mu:STD_LOGIC_VECTOR(mu_instruction_width_c-1 DOWNTO 0);
 SIGNAL instruction_imu:STD_LOGIC_VECTOR(imu_instruction_width_c-1 DOWNTO 0);
@@ -305,7 +304,7 @@ SIGNAL i_y_neg:STD_LOGIC_VECTOR(pid_gen_max_c-1 downto 0);
 SIGNAL i_y_zero:STD_LOGIC_VECTOR(pid_gen_max_c-1 downto 0);
 
 ---
--- Convert from short integer to integer
+-- Convert from INT8(DDR) integer to INT16(PCORE)
 ---
 
 subtype short2int_retval_t is std_logic_vector(register_width_c-1 downto 0);
@@ -320,7 +319,7 @@ return int_v;
 end function short2int;
 
 ---
--- Convert from unsigned short integer to integer
+-- Convert from UINT8(DDR) integer to INT16(PCORE)
 ---
 
 subtype ushort2int_retval_t is std_logic_vector(register_width_c-1 downto 0);
@@ -335,7 +334,7 @@ begin
 end function ushort2int;
 
 ---
--- Convert from integer to short integer
+-- Convert from INT16(PCORE) to INT8(DDR)
 ----
 
 subtype int2short_retval_t is std_logic_vector(data_width_c-1 downto 0);
@@ -349,7 +348,7 @@ begin
 end function int2short;
 
 ---
--- Convert from bfloat12 to bfloat16
+-- Convert from bfloat12(PCORE) to bfloat16(DDR)
 ----
 subtype int2bfloat_retval_t is std_logic_vector(2*data_width_c-1 downto 0);
 function int2bfloat(
@@ -379,7 +378,7 @@ stream_write_input <= dp_writedata_r; -- Stream processor only works with single
 ---
 
 GEN_STREAM:
-FOR I in 0 to ddr_vector_width_c-1 GENERATE
+FOR I in 0 to core_vector_width_c-1 GENERATE
 stream_i: stream
    PORT MAP(clock_in =>clock_in,
             reset_in =>reset_in,
@@ -400,7 +399,7 @@ END GENERATE GEN_STREAM;
 ---
 
 GEN_STREAM_1:
-FOR I in 0 to ddr_vector_width_c-1 GENERATE
+FOR I in 0 to core_vector_width_c-1 GENERATE
 stream_i1: stream
    PORT MAP(clock_in =>clock_in,
             reset_in =>reset_in,
@@ -441,7 +440,7 @@ dp_readdatavalid_out <= dp_readdatavalid2_rrrrrr;
 dp_read_gen_valid_out <= dp_read_gen_valid2_rrrrrr;
 dp_readdata_vm_out <= dp_readdata_vm_rrrrrr;
 
-dp_readdata_out(ddr_data_width_c-1 DOWNTO 0) <= stream_output_r;
+dp_readdata_out <= stream_output_r(dp_readdata_out'length-1 downto 0);
 
 output <= stream_read_output when dp_read_stream2_rrrrr='1' else dp_readdata2_rrrrr;
 
@@ -460,7 +459,7 @@ begin
     else
         if clock_in'event and clock_in='1' then
             if dp_read_data_flow2_rrrrr=std_logic_vector(to_unsigned(data_flow_direct_c,data_flow_t'length)) then
-               for I in 0 to ddr_vector_width_c-1 loop
+               for I in 0 to core_vector_width_c-1 loop
                   stream_output_r((I+1)*data_width_c-1 downto I*data_width_c) <= int2short(output((I+1)*register_width_c-1 downto I*register_width_c));
                end loop;
             else
@@ -606,22 +605,20 @@ begin
 if dp_write_data_flow_in=std_logic_vector(to_unsigned(data_flow_direct_c,data_flow_t'length)) then
    -- Each 8-bit data lane from DP bus is sent to a data lane in PCORE
    if dp_write_data_type_in=dp_data_type_integer_c then
-      for I in 0 to ddr_vector_width_c-1 loop
+      for I in 0 to core_vector_width_c-1 loop
          writedata((I+1)*register_width_c-1 downto I*register_width_c) <= short2int(dp_writedata_in((I+1)*data_width_c-1 downto I*data_width_c));
       end loop;
    else
-      for I in 0 to ddr_vector_width_c-1 loop
+      for I in 0 to core_vector_width_c-1 loop
          writedata((I+1)*register_width_c-1 downto I*register_width_c) <= ushort2int(dp_writedata_in((I+1)*data_width_c-1 downto I*data_width_c));
       end loop;
    end if;
 else
   -- Each 16-bit data lane from DP bus is sent to a data lane in PCORE
-  for I in 0 to ddr_vector_width_c/2-1 loop
-     writedata((I+1)*register_width_c-1 downto I*register_width_c) <= std_logic_vector(resize(signed(dp_writedata_in((2*I+2)*data_width_c-1 downto (2*I+0)*data_width_c)),register_width_c));
-  end loop;
-  for I in ddr_vector_width_c/2 to ddr_vector_width_c-1 loop
-     writedata((I+1)*register_width_c-1 downto I*register_width_c) <= (others=>'0');
-  end loop;
+   writedata <= (others=>'0');
+   for I in 0 to ddr_vector_width_c/2-1 loop
+      writedata((I+1)*register_width_c-1 downto I*register_width_c) <= std_logic_vector(resize(signed(dp_writedata_in((2*I+2)*data_width_c-1 downto (2*I+0)*data_width_c)),register_width_c));
+   end loop;
 end if;
 end process;
 
@@ -755,7 +752,7 @@ begin
             if (pid_gen_max_c < vector_width_c) and 
                dp_core_read='1' and 
                dp_read_scatter_in/=scatter_none_c and
-               dp_read_vector_in=std_logic_vector(to_unsigned(ddr_vector_width_c-1,dp_vector_t'length)) then
+               dp_read_vector_in=std_logic_vector(to_unsigned(core_vector_width_c-1,dp_vector_t'length)) then
                -- Slow down scatter mode since we dont have enough PCORE to keep up
                dp_core_read_wait_r <= '1';
             else
@@ -767,7 +764,8 @@ begin
 
             dp_read_r <= dp_core_read;
             dp_read_gen_valid_r <= dp_read_gen_valid_in;
-            dp_read_vector_r <= dp_read_vector_in;
+            -- DP engine should never ask for a vector larger than vector_width_c of PCOREs
+            dp_read_vector_r <= dp_read_vector_in(core_vector_depth_c-1 downto 0);
             dp_read_scatter_r <= dp_read_scatter_in;
             dp_read_data_flow_r <= dp_read_data_flow_in;
             dp_read_data_type_r <= dp_read_data_type_in;
@@ -872,7 +870,8 @@ begin
                 dp_config_r <= '0';
                 dp_wr_mcast_r <= dp_wr_mcast_in;
                 dp_wr_vm_r <= dp_wr_vm;
-                dp_write_vector_r <= dp_write_vector_in;
+                -- DP shoud never ask for vector larger than vector_width_c
+                dp_write_vector_r <= dp_write_vector_in(core_vector_depth_c-1 downto 0);
                 dp_write_scatter_r <= dp_write_scatter_in;
                 dp_write_stream_r <= dp_write_stream_in;
                 dp_write_stream_id_r <= dp_write_stream_id_in;

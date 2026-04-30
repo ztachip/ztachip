@@ -70,7 +70,8 @@ subtype axi_arqos_t is std_logic_vector(3 downto 0);
 subtype axi_rid_t is std_logic_vector(0 downto 0);             
 subtype axi_rvalid_t is std_logic;
 subtype axi_rlast_t is std_logic;
-subtype axi_rdata_t is std_logic_vector(31 downto 0);
+subtype axi_rdata_t is std_logic_vector;
+subtype axi_rdata32_t is std_logic_vector(31 downto 0);
 subtype axi_rdata64_t is std_logic_vector(63 downto 0);
 subtype axi_rdata128_t is std_logic_vector(127 downto 0);
 subtype axi_rresp_t is std_logic_vector(1 downto 0);
@@ -90,7 +91,7 @@ type axi_arqoss_t is array(natural range <>) of axi_arqos_t;
 type axi_rids_t is array(natural range <>) of axi_rid_t;
 type axi_rvalids_t is array(natural range <>) of axi_rvalid_t;
 type axi_rlasts_t is array(natural range <>) of axi_rlast_t;
-type axi_rdatas_t is array(natural range <>) of axi_rdata_t;
+type axi_rdata32s_t is array(natural range <>) of axi_rdata32_t;
 type axi_rdata64s_t is array(natural range <>) of axi_rdata64_t;
 type axi_rdata128s_t is array(natural range <>) of axi_rdata128_t;
 type axi_rresps_t is array(natural range <>) of axi_rresp_t;
@@ -107,11 +108,13 @@ subtype axi_awaddr_t is std_logic_vector(31 downto 0);
 subtype axi_awlen_t is std_logic_vector(7 downto 0);
 subtype axi_awvalid_t is std_logic;
 subtype axi_wvalid_t is std_logic;
-subtype axi_wdata_t is std_logic_vector(31 downto 0);
+subtype axi_wdata_t is std_logic_vector;
+subtype axi_wdata32_t is std_logic_vector(31 downto 0);
 subtype axi_wdata64_t is std_logic_vector(63 downto 0);
 subtype axi_wdata128_t is std_logic_vector(127 downto 0);
 subtype axi_wlast_t is std_logic;
-subtype axi_wstrb_t is std_logic_vector(3 downto 0);
+subtype axi_wstrb_t is std_logic_vector;
+subtype axi_wstrb4_t is std_logic_vector(3 downto 0);
 subtype axi_wstrb8_t is std_logic_vector(7 downto 0);
 subtype axi_wstrb16_t is std_logic_vector(15 downto 0);
 subtype axi_awready_t is std_logic;
@@ -132,11 +135,11 @@ type axi_awaddrs_t is array(natural range <>) of axi_awaddr_t;
 type axi_awlens_t is array(natural range <>) of axi_awlen_t;
 type axi_awvalids_t is array(natural range <>) of axi_awvalid_t;
 type axi_wvalids_t is array(natural range <>) of axi_wvalid_t;
-type axi_wdatas_t is array(natural range <>) of axi_wdata_t;
+type axi_wdata32s_t is array(natural range <>) of axi_wdata32_t;
 type axi_wdata64s_t is array(natural range <>) of axi_wdata64_t;
 type axi_wdata128s_t is array(natural range <>) of axi_wdata128_t;
 type axi_wlasts_t is array(natural range <>) of axi_wlast_t;
-type axi_wstrbs_t is array(natural range <>) of axi_wstrb_t;
+type axi_wstrb4s_t is array(natural range <>) of axi_wstrb4_t;
 type axi_wstrb8s_t is array(natural range <>) of axi_wstrb8_t;
 type axi_wstrb16s_t is array(natural range <>) of axi_wstrb16_t;
 type axi_awreadys_t is array(natural range <>) of axi_awready_t;
@@ -195,6 +198,12 @@ constant register_depth_c   :integer:=(5+vector_depth_c);    -- Address width to
 
 constant register_size_c    :integer:=(2**register_depth_c);
 
+constant core_vector_depth_c :integer:=vector_depth_c;
+
+constant core_vector_width_c :integer:=vector_width_c;
+
+constant core_data_width_c  :integer:=(register_width_c*core_vector_width_c);
+
 constant fu_latency_c       :integer:=6;   -- Floating point math unit execusion latency 
 
 constant pipeline_latency_c :integer:=9;    -- Number of cycles to start a thread instruction IN the pipeline
@@ -208,8 +217,6 @@ constant ddr_data_width_c   :integer:=(data_width_c*ddr_vector_width_c);
 constant ddr_data_byte_width_c: integer:=(ddr_data_width_c/8);
 
 constant ddr_burstlen_width_c: integer:=4;
-
-constant ddrx_data_width_c  :integer:=(register_width_c*ddr_vector_width_c);
 
 constant ddr_max_burstlen_c:integer:=6;
 
@@ -670,8 +677,6 @@ type fp32s_t is array(natural range <>) of fp32_t;
 -- FPU type definitions
 ------
 
-constant fpu_vector_depth_c :integer:=4;
-
 constant fpu_vector_width_c :integer:=(2**fpu_vector_depth_c);
 
 constant fpu_data_width_c   :integer:=(8*fpu_vector_width_c);
@@ -897,8 +902,6 @@ subtype dp_vector_t is std_logic_vector(ddr_vector_depth_c-1 downto 0); -- DP ve
 type dp_vectors_t is array(natural range <>) of dp_vector_t; -- array of DP vector depth
 subtype dp_fork_t is std_logic_vector(fork_max_c-1 downto 0); -- DP fork
 type dp_forks_t is array(natural range <>) of dp_fork_t; -- array of DP fork
-subtype dp_datax_t is STD_LOGIC_VECTOR(ddrx_data_width_c-1 DOWNTO 0);
-type dp_dataxs_t is array(natural range <>) of dp_datax_t;
 
 -----------
 -- DP condition definitions...
@@ -1509,7 +1512,9 @@ COMPONENT sram_core IS
     PORT (
         SIGNAL clock_in                : IN STD_LOGIC;
         SIGNAL reset_in                : IN STD_LOGIC;
+
         -- DP interface
+        
         SIGNAL dp_rd_addr_in           : IN STD_LOGIC_VECTOR(sram_depth_c-1 DOWNTO 0);
         SIGNAL dp_wr_addr_in           : IN STD_LOGIC_VECTOR(sram_depth_c-1 DOWNTO 0);        
         SIGNAL dp_rd_fork_in           : IN dp_fork_t;
@@ -1522,13 +1527,13 @@ COMPONENT sram_core IS
         SIGNAL dp_read_vm_in           : IN STD_LOGIC;
         SIGNAL dp_read_vector_in       : IN dp_vector_t;
         SIGNAL dp_read_gen_valid_in    : IN STD_LOGIC;
-        SIGNAL dp_writedata_in         : IN STD_LOGIC_VECTOR(fork_max_c*ddr_data_width_c-1 DOWNTO 0);
+        SIGNAL dp_writedata_in         : IN STD_LOGIC_VECTOR(ddr_data_width_c-1 DOWNTO 0);
         SIGNAL dp_readdatavalid_out    : OUT STD_LOGIC;
         SIGNAL dp_readdatavalid_vm_out : OUT STD_LOGIC;
-        SIGNAL dp_readdata_out         : OUT STD_LOGIC_VECTOR(fork_max_c*ddr_data_width_c-1 DOWNTO 0);
+        SIGNAL dp_readdata_out         : OUT STD_LOGIC_VECTOR(ddr_data_width_c-1 DOWNTO 0);
 
-         -- FPU interface
-         
+        -- FPU interface
+        
         SIGNAL fpu_rd_addr_in           : IN STD_LOGIC_VECTOR(sram_depth_c-1 DOWNTO 0);
         SIGNAL fpu_wr_addr_in           : IN STD_LOGIC_VECTOR(sram_depth_c-1 DOWNTO 0);        
         SIGNAL fpu_write_in             : IN STD_LOGIC;
@@ -1557,23 +1562,24 @@ END COMPONENT;
 
 COMPONENT sram IS
     GENERIC(
-        DEPTH : integer
+        DEPTH : integer;
+        SRAM_VECTOR_DEPTH:integer
         );
     PORT (
         SIGNAL clock_in             : IN STD_LOGIC;
         SIGNAL reset_in             : IN STD_LOGIC;
         -- DP interface
-        SIGNAL dp_rd_addr_in        : IN STD_LOGIC_VECTOR(DEPTH-1 DOWNTO 0);
+         SIGNAL dp_rd_addr_in        : IN STD_LOGIC_VECTOR(DEPTH-1 DOWNTO 0);
         SIGNAL dp_wr_addr_in        : IN STD_LOGIC_VECTOR(DEPTH-1 DOWNTO 0);        
         SIGNAL dp_write_in          : IN STD_LOGIC;
-        SIGNAL dp_write_vector_in   : IN std_logic_vector(ddr_vector_depth_c+1-1 downto 0);
+        SIGNAL dp_write_vector_in   : IN std_logic_vector(SRAM_VECTOR_DEPTH-1 downto 0);
         SIGNAL dp_read_in           : IN STD_LOGIC;
-        SIGNAL dp_read_vector_in    : IN std_logic_vector(ddr_vector_depth_c+1-1 downto 0);
+        SIGNAL dp_read_vector_in    : IN std_logic_vector(SRAM_VECTOR_DEPTH-1 downto 0);
         SIGNAL dp_read_gen_valid_in : IN STD_LOGIC;
-        SIGNAL dp_writedata_in      : IN STD_LOGIC_VECTOR(2*ddr_data_width_c-1 DOWNTO 0);
-        SIGNAL dp_writebe_in        : IN STD_LOGIC_VECTOR(2*ddr_data_byte_width_c-1 DOWNTO 0);
+        SIGNAL dp_writedata_in      : IN STD_LOGIC_VECTOR((8*(2**SRAM_VECTOR_DEPTH))-1 DOWNTO 0);
+        SIGNAL dp_writebe_in        : IN STD_LOGIC_VECTOR((2**SRAM_VECTOR_DEPTH)-1 DOWNTO 0);
         SIGNAL dp_readdatavalid_out : OUT STD_LOGIC;
-        SIGNAL dp_readdata_out      : OUT STD_LOGIC_VECTOR(2*ddr_data_width_c-1 DOWNTO 0)
+        SIGNAL dp_readdata_out      : OUT STD_LOGIC_VECTOR((8*(2**SRAM_VECTOR_DEPTH))-1 DOWNTO 0)
     );
 END COMPONENT;
 
@@ -2167,7 +2173,7 @@ COMPONENT axi_merge_read is
         axislavew_rid_out       : OUT axi_rid_t:=(others=>'0');
         axislavew_rvalid_out    : OUT axi_rvalid_t;
         axislavew_rlast_out     : OUT axi_rlast_t;
-        axislavew_rdata_out     : OUT axi_rdata64_t;
+        axislavew_rdata_out     : OUT axi_rdata_t(ddr_data_width_c-1 downto 0);
         axislavew_rresp_out     : OUT axi_rresp_t;
         axislavew_arready_out   : OUT axi_arready_t;
         axislavew_rready_in     : IN axi_rready_t:='0';
@@ -2203,7 +2209,7 @@ COMPONENT axi_merge_read is
         aximaster_rid_in        : IN axi_rid_t;              
         aximaster_rvalid_in     : IN axi_rvalid_t;
         aximaster_rlast_in      : IN axi_rlast_t;
-        aximaster_rdata_in      : IN axi_rdata128_t;
+        aximaster_rdata_in      : IN axi_rdata_t(exmem_data_width_c-1 downto 0);
         aximaster_rresp_in      : IN axi_rresp_t;
         aximaster_arready_in    : IN axi_arready_t;
         aximaster_rready_out    : OUT axi_rready_t;
@@ -2229,9 +2235,9 @@ component axi_merge_write is
         axislavew_awlen_in           : IN axi_awlen_t;
         axislavew_awvalid_in         : IN axi_awvalid_t;
         axislavew_wvalid_in          : IN axi_wvalid_t;
-        axislavew_wdata_in           : IN axi_wdata64_t;
+        axislavew_wdata_in           : IN axi_wdata_t(ddr_data_width_c-1 downto 0);
         axislavew_wlast_in           : IN axi_wlast_t;
-        axislavew_wstrb_in           : IN axi_wstrb8_t;
+        axislavew_wstrb_in           : IN axi_wstrb_t(ddr_data_byte_width_c-1 downto 0);
         axislavew_awready_out        : OUT axi_awready_t;
         axislavew_wready_out         : OUT axi_wready_t;
         axislavew_bresp_out          : OUT axi_bresp_t;
@@ -2271,10 +2277,10 @@ component axi_merge_write is
         aximaster_awlen_out          : OUT axi_awlen_t;
         aximaster_awvalid_out        : OUT axi_awvalid_t;
         aximaster_wvalid_out         : OUT axi_wvalid_t;
-        aximaster_wdata_out          : OUT axi_wdata128_t;
+        aximaster_wdata_out          : OUT axi_wdata_t(exmem_data_width_c-1 downto 0);
         aximaster_wdata_mask_out     : OUT std_logic_vector(1 downto 0);
         aximaster_wlast_out          : OUT axi_wlast_t;
-        aximaster_wstrb_out          : OUT axi_wstrb16_t;
+        aximaster_wstrb_out          : OUT axi_wstrb_t(exmem_data_width_c/8-1 downto 0);
         aximaster_awready_in         : IN axi_awready_t;
         aximaster_wready_in          : IN axi_wready_t;
         aximaster_bresp_in           : IN axi_bresp_t;
@@ -2316,7 +2322,7 @@ component axi_split_read is
       axislave_rid_out        : OUT axi_rid_t;          
       axislave_rvalid_out     : OUT axi_rvalid_t;
       axislave_rlast_out      : OUT axi_rlast_t;
-      axislave_rdata_out      : OUT axi_rdata_t;
+      axislave_rdata_out      : OUT axi_rdata32_t;
       axislave_rresp_out      : OUT axi_rresp_t;
       axislave_arready_out    : OUT axi_arready_t;
       axislave_rready_in      : IN axi_rready_t;
@@ -2335,7 +2341,7 @@ component axi_split_read is
       aximaster_rids_in       : IN axi_rids_t(NUM_MASTER_PORT-1 downto 0):=(others=>(others=>'0'));
       aximaster_rvalids_in    : IN axi_rvalids_t(NUM_MASTER_PORT-1 downto 0):=(others=>'0');
       aximaster_rlasts_in     : IN axi_rlasts_t(NUM_MASTER_PORT-1 downto 0):=(others=>'0');
-      aximaster_rdatas_in     : IN axi_rdatas_t(NUM_MASTER_PORT-1 downto 0):=(others=>(others=>'0'));
+      aximaster_rdatas_in     : IN axi_rdata32s_t(NUM_MASTER_PORT-1 downto 0):=(others=>(others=>'0'));
       aximaster_rresps_in     : IN axi_rresps_t(NUM_MASTER_PORT-1 downto 0):=(others=>(others=>'0'));
       aximaster_arreadys_in   : IN axi_arreadys_t(NUM_MASTER_PORT-1 downto 0):=(others=>'0');
       aximaster_rreadys_out   : OUT axi_rreadys_t(NUM_MASTER_PORT-1 downto 0);
@@ -2361,9 +2367,9 @@ component axi_split_write is
       axislave_awlen_in          : IN axi_awlen_t;
       axislave_awvalid_in        : IN axi_awvalid_t;
       axislave_wvalid_in         : IN axi_wvalid_t;
-      axislave_wdata_in          : IN axi_wdata_t;
+      axislave_wdata_in          : IN axi_wdata32_t;
       axislave_wlast_in          : IN axi_wlast_t;
-      axislave_wstrb_in          : IN axi_wstrb_t;
+      axislave_wstrb_in          : IN axi_wstrb4_t;
       axislave_awready_out       : OUT axi_awready_t;
       axislave_wready_out        : OUT axi_wready_t;
       axislave_bresp_out         : OUT axi_bresp_t;
@@ -2383,9 +2389,9 @@ component axi_split_write is
       aximaster_awlens_out       : OUT axi_awlens_t(NUM_MASTER_PORT-1 downto 0);
       aximaster_awvalids_out     : OUT axi_awvalids_t(NUM_MASTER_PORT-1 downto 0);
       aximaster_wvalids_out      : OUT axi_wvalids_t(NUM_MASTER_PORT-1 downto 0);
-      aximaster_wdatas_out       : OUT axi_wdatas_t(NUM_MASTER_PORT-1 downto 0);
+      aximaster_wdatas_out       : OUT axi_wdata32s_t(NUM_MASTER_PORT-1 downto 0);
       aximaster_wlasts_out       : OUT axi_wlasts_t(NUM_MASTER_PORT-1 downto 0);
-      aximaster_wstrbs_out       : OUT axi_wstrbs_t(NUM_MASTER_PORT-1 downto 0);
+      aximaster_wstrbs_out       : OUT axi_wstrb4s_t(NUM_MASTER_PORT-1 downto 0);
       aximaster_awreadys_in      : IN axi_awreadys_t(NUM_MASTER_PORT-1 downto 0):=(others=>'0');
       aximaster_wreadys_in       : IN axi_wreadys_t(NUM_MASTER_PORT-1 downto 0):=(others=>'0');
       aximaster_bresps_in        : IN axi_bresps_t(NUM_MASTER_PORT-1 downto 0):=(others=>(others=>'0'));
@@ -2428,7 +2434,7 @@ component axi_split is
       axislave_rid_out       : OUT axi_rid_t;
       axislave_rvalid_out    : OUT axi_rvalid_t;
       axislave_rlast_out     : OUT axi_rlast_t;
-      axislave_rdata_out     : OUT axi_rdata_t;
+      axislave_rdata_out     : OUT axi_rdata32_t;
       axislave_rresp_out     : OUT axi_rresp_t;
       axislave_arready_out   : OUT axi_arready_t;
       axislave_rready_in     : IN axi_rready_t;
@@ -2439,9 +2445,9 @@ component axi_split is
       axislave_awlen_in      : IN axi_awlen_t:=(others=>'0');
       axislave_awvalid_in    : IN axi_awvalid_t:='0';
       axislave_wvalid_in     : IN axi_wvalid_t:='0';
-      axislave_wdata_in      : IN axi_wdata_t:=(others=>'0');
+      axislave_wdata_in      : IN axi_wdata32_t:=(others=>'0');
       axislave_wlast_in      : IN axi_wlast_t:='0';
-      axislave_wstrb_in      : IN axi_wstrb_t:=(others=>'0');
+      axislave_wstrb_in      : IN axi_wstrb4_t:=(others=>'0');
       axislave_awready_out   : OUT axi_awready_t;
       axislave_wready_out    : OUT axi_wready_t;
       axislave_bresp_out     : OUT axi_bresp_t;
@@ -2468,7 +2474,7 @@ component axi_split is
       aximaster0_rid_in      : IN axi_rid_t:=(others=>'0');              
       aximaster0_rvalid_in   : IN axi_rvalid_t:='0';
       aximaster0_rlast_in    : IN axi_rlast_t:='0';
-      aximaster0_rdata_in    : IN axi_rdata_t:=(others=>'0');
+      aximaster0_rdata_in    : IN axi_rdata32_t:=(others=>'0');
       aximaster0_rresp_in    : IN axi_rresp_t:=(others=>'0');
       aximaster0_arready_in  : IN axi_arready_t:='0';
       aximaster0_rready_out  : OUT axi_rready_t;
@@ -2479,9 +2485,9 @@ component axi_split is
       aximaster0_awlen_out   : OUT axi_awlen_t;
       aximaster0_awvalid_out : OUT axi_awvalid_t;
       aximaster0_wvalid_out  : OUT axi_wvalid_t;
-      aximaster0_wdata_out   : OUT axi_wdata_t;
+      aximaster0_wdata_out   : OUT axi_wdata32_t;
       aximaster0_wlast_out   : OUT axi_wlast_t;
-      aximaster0_wstrb_out   : OUT axi_wstrb_t;
+      aximaster0_wstrb_out   : OUT axi_wstrb4_t;
       aximaster0_awready_in  : IN axi_awready_t:='0';
       aximaster0_wready_in   : IN axi_wready_t:='0';
       aximaster0_bresp_in    : IN axi_bresp_t:=(others=>'0');
@@ -2508,7 +2514,7 @@ component axi_split is
       aximaster1_rid_in      : IN axi_rid_t:=(others=>'0');              
       aximaster1_rvalid_in   : IN axi_rvalid_t:='0';
       aximaster1_rlast_in    : IN axi_rlast_t:='0';
-      aximaster1_rdata_in    : IN axi_rdata_t:=(others=>'0');
+      aximaster1_rdata_in    : IN axi_rdata32_t:=(others=>'0');
       aximaster1_rresp_in    : IN axi_rresp_t:=(others=>'0');
       aximaster1_arready_in  : IN axi_arready_t:='0';
       aximaster1_rready_out  : OUT axi_rready_t;
@@ -2519,9 +2525,9 @@ component axi_split is
       aximaster1_awlen_out   : OUT axi_awlen_t;
       aximaster1_awvalid_out : OUT axi_awvalid_t;
       aximaster1_wvalid_out  : OUT axi_wvalid_t;
-      aximaster1_wdata_out   : OUT axi_wdata_t;
+      aximaster1_wdata_out   : OUT axi_wdata32_t;
       aximaster1_wlast_out   : OUT axi_wlast_t;
-      aximaster1_wstrb_out   : OUT axi_wstrb_t;
+      aximaster1_wstrb_out   : OUT axi_wstrb4_t;
       aximaster1_awready_in  : IN axi_awready_t:='0';
       aximaster1_wready_in   : IN axi_wready_t:='0';
       aximaster1_bresp_in    : IN axi_bresp_t:=(others=>'0');
@@ -2548,7 +2554,7 @@ component axi_split is
       aximaster2_rid_in      : IN axi_rid_t:=(others=>'0');              
       aximaster2_rvalid_in   : IN axi_rvalid_t:='0';
       aximaster2_rlast_in    : IN axi_rlast_t:='0';
-      aximaster2_rdata_in    : IN axi_rdata_t:=(others=>'0');
+      aximaster2_rdata_in    : IN axi_rdata32_t:=(others=>'0');
       aximaster2_rresp_in    : IN axi_rresp_t:=(others=>'0');
       aximaster2_arready_in  : IN axi_arready_t:='0';
       aximaster2_rready_out  : OUT axi_rready_t;
@@ -2559,9 +2565,9 @@ component axi_split is
       aximaster2_awlen_out   : OUT axi_awlen_t;
       aximaster2_awvalid_out : OUT axi_awvalid_t;
       aximaster2_wvalid_out  : OUT axi_wvalid_t;
-      aximaster2_wdata_out   : OUT axi_wdata_t;
+      aximaster2_wdata_out   : OUT axi_wdata32_t;
       aximaster2_wlast_out   : OUT axi_wlast_t;
-      aximaster2_wstrb_out   : OUT axi_wstrb_t;
+      aximaster2_wstrb_out   : OUT axi_wstrb4_t;
       aximaster2_awready_in  : IN axi_awready_t:='0';
       aximaster2_wready_in   : IN axi_wready_t:='0';
       aximaster2_bresp_in    : IN axi_bresp_t:=(others=>'0');
@@ -2588,7 +2594,7 @@ component axi_split is
       aximaster3_rid_in      : IN axi_rid_t:=(others=>'0');              
       aximaster3_rvalid_in   : IN axi_rvalid_t:='0';
       aximaster3_rlast_in    : IN axi_rlast_t:='0';
-      aximaster3_rdata_in    : IN axi_rdata_t:=(others=>'0');
+      aximaster3_rdata_in    : IN axi_rdata32_t:=(others=>'0');
       aximaster3_rresp_in    : IN axi_rresp_t:=(others=>'0');
       aximaster3_arready_in  : IN axi_arready_t:='0';
       aximaster3_rready_out  : OUT axi_rready_t;
@@ -2599,9 +2605,9 @@ component axi_split is
       aximaster3_awlen_out   : OUT axi_awlen_t;
       aximaster3_awvalid_out : OUT axi_awvalid_t;
       aximaster3_wvalid_out  : OUT axi_wvalid_t;
-      aximaster3_wdata_out   : OUT axi_wdata_t;
+      aximaster3_wdata_out   : OUT axi_wdata32_t;
       aximaster3_wlast_out   : OUT axi_wlast_t;
-      aximaster3_wstrb_out   : OUT axi_wstrb_t;
+      aximaster3_wstrb_out   : OUT axi_wstrb4_t;
       aximaster3_awready_in  : IN axi_awready_t:='0';
       aximaster3_wready_in   : IN axi_wready_t:='0';
       aximaster3_bresp_in    : IN axi_bresp_t:=(others=>'0');
@@ -2628,7 +2634,7 @@ component axi_split is
       aximaster4_rid_in      : IN axi_rid_t:=(others=>'0');              
       aximaster4_rvalid_in   : IN axi_rvalid_t:='0';
       aximaster4_rlast_in    : IN axi_rlast_t:='0';
-      aximaster4_rdata_in    : IN axi_rdata_t:=(others=>'0');
+      aximaster4_rdata_in    : IN axi_rdata32_t:=(others=>'0');
       aximaster4_rresp_in    : IN axi_rresp_t:=(others=>'0');
       aximaster4_arready_in  : IN axi_arready_t:='0';
       aximaster4_rready_out  : OUT axi_rready_t;
@@ -2639,9 +2645,9 @@ component axi_split is
       aximaster4_awlen_out   : OUT axi_awlen_t;
       aximaster4_awvalid_out : OUT axi_awvalid_t;
       aximaster4_wvalid_out  : OUT axi_wvalid_t;
-      aximaster4_wdata_out   : OUT axi_wdata_t;
+      aximaster4_wdata_out   : OUT axi_wdata32_t;
       aximaster4_wlast_out   : OUT axi_wlast_t;
-      aximaster4_wstrb_out   : OUT axi_wstrb_t;
+      aximaster4_wstrb_out   : OUT axi_wstrb4_t;
       aximaster4_awready_in  : IN axi_awready_t:='0';
       aximaster4_wready_in   : IN axi_wready_t:='0';
       aximaster4_bresp_in    : IN axi_bresp_t:=(others=>'0');
@@ -2675,7 +2681,7 @@ component axi_apb_bridge is
         axislave_rid_out           : OUT axi_rid_t;         
         axislave_rvalid_out        : OUT axi_rvalid_t;
         axislave_rlast_out         : OUT axi_rlast_t;
-        axislave_rdata_out         : OUT axi_rdata_t;
+        axislave_rdata_out         : OUT axi_rdata32_t;
         axislave_rresp_out         : OUT axi_rresp_t;
         axislave_arready_out       : OUT axi_arready_t;
         axislave_rready_in         : IN axi_rready_t;
@@ -2686,9 +2692,9 @@ component axi_apb_bridge is
         axislave_awlen_in          : IN axi_awlen_t;
         axislave_awvalid_in        : IN axi_awvalid_t;
         axislave_wvalid_in         : IN axi_wvalid_t;
-        axislave_wdata_in          : IN axi_wdata_t;
+        axislave_wdata_in          : IN axi_wdata32_t;
         axislave_wlast_in          : IN axi_wlast_t;
-        axislave_wstrb_in          : IN axi_wstrb_t;
+        axislave_wstrb_in          : IN axi_wstrb4_t;
         axislave_awready_out       : OUT axi_awready_t;
         axislave_wready_out        : OUT axi_wready_t;
         axislave_bresp_out         : OUT axi_bresp_t;
@@ -2894,7 +2900,7 @@ component axi_merge is
         axislavew_rid_out       : OUT axi_rid_t;
         axislavew_rvalid_out    : OUT axi_rvalid_t;
         axislavew_rlast_out     : OUT axi_rlast_t;
-        axislavew_rdata_out     : OUT axi_rdata64_t;
+        axislavew_rdata_out     : OUT axi_rdata_t(ddr_data_width_c-1 downto 0);
         axislavew_rresp_out     : OUT axi_rresp_t;
         axislavew_arready_out   : OUT axi_arready_t;
         axislavew_rready_in     : IN axi_rready_t:='0';
@@ -2905,9 +2911,9 @@ component axi_merge is
         axislavew_awlen_in      : IN axi_awlen_t;
         axislavew_awvalid_in    : IN axi_awvalid_t;
         axislavew_wvalid_in     : IN axi_wvalid_t;
-        axislavew_wdata_in      : IN axi_wdata64_t;
+        axislavew_wdata_in      : IN axi_wdata_t(ddr_data_width_c-1 downto 0);
         axislavew_wlast_in      : IN axi_wlast_t;
-        axislavew_wstrb_in      : IN axi_wstrb8_t;
+        axislavew_wstrb_in      : IN axi_wstrb_t(ddr_data_byte_width_c-1 downto 0);
         axislavew_awready_out   : OUT axi_awready_t;
         axislavew_wready_out    : OUT axi_wready_t;
         axislavew_bresp_out     : OUT axi_bresp_t;
@@ -2972,7 +2978,7 @@ component axi_merge is
         axislave1_rid_out       : OUT axi_rid_t;
         axislave1_rvalid_out    : OUT axi_rvalid_t;
         axislave1_rlast_out     : OUT axi_rlast_t;
-        axislave1_rdata_out     : OUT axi_rdata_t;
+        axislave1_rdata_out     : OUT axi_rdata32_t;
         axislave1_rresp_out     : OUT axi_rresp_t;
         axislave1_arready_out   : OUT axi_arready_t;
         axislave1_rready_in     : IN axi_rready_t;
@@ -2983,9 +2989,9 @@ component axi_merge is
         axislave1_awlen_in      : IN axi_awlen_t;
         axislave1_awvalid_in    : IN axi_awvalid_t;
         axislave1_wvalid_in     : IN axi_wvalid_t;
-        axislave1_wdata_in      : IN axi_wdata_t;
+        axislave1_wdata_in      : IN axi_wdata32_t;
         axislave1_wlast_in      : IN axi_wlast_t;
-        axislave1_wstrb_in      : IN axi_wstrb_t;
+        axislave1_wstrb_in      : IN axi_wstrb4_t;
         axislave1_awready_out   : OUT axi_awready_t;
         axislave1_wready_out    : OUT axi_wready_t;
         axislave1_bresp_out     : OUT axi_bresp_t;
@@ -3011,7 +3017,7 @@ component axi_merge is
         axislave2_rid_out       : OUT axi_rid_t;
         axislave2_rvalid_out    : OUT axi_rvalid_t;
         axislave2_rlast_out     : OUT axi_rlast_t;
-        axislave2_rdata_out     : OUT axi_rdata_t;
+        axislave2_rdata_out     : OUT axi_rdata32_t;
         axislave2_rresp_out     : OUT axi_rresp_t;
         axislave2_arready_out   : OUT axi_arready_t;
         axislave2_rready_in     : IN axi_rready_t;
@@ -3022,9 +3028,9 @@ component axi_merge is
         axislave2_awlen_in          : IN axi_awlen_t;
         axislave2_awvalid_in        : IN axi_awvalid_t;
         axislave2_wvalid_in         : IN axi_wvalid_t;
-        axislave2_wdata_in          : IN axi_wdata_t;
+        axislave2_wdata_in          : IN axi_wdata32_t;
         axislave2_wlast_in          : IN axi_wlast_t;
-        axislave2_wstrb_in          : IN axi_wstrb_t;
+        axislave2_wstrb_in          : IN axi_wstrb4_t;
         axislave2_awready_out       : OUT axi_awready_t;
         axislave2_wready_out        : OUT axi_wready_t;
         axislave2_bresp_out         : OUT axi_bresp_t;
@@ -3050,7 +3056,7 @@ component axi_merge is
         ddr_rid_in                  : IN axi_rid_t;              
         ddr_rvalid_in               : IN axi_rvalid_t;
         ddr_rlast_in                : IN axi_rlast_t;
-        ddr_rdata_in                : IN axi_rdata128_t;
+        ddr_rdata_in                : IN axi_rdata_t(exmem_data_width_c-1 downto 0);
         ddr_rresp_in                : IN axi_rresp_t;
         ddr_arready_in              : IN axi_arready_t;
         ddr_rready_out              : OUT axi_rready_t;
@@ -3061,10 +3067,10 @@ component axi_merge is
         ddr_awlen_out               : OUT axi_awlen_t;
         ddr_awvalid_out             : OUT axi_awvalid_t;
         ddr_wvalid_out              : OUT axi_wvalid_t;
-        ddr_wdata_out               : OUT axi_wdata128_t;
+        ddr_wdata_out               : OUT axi_wdata_t(exmem_data_width_c-1 downto 0);
         ddr_wdata_mask_out          : OUT std_logic_vector(1 downto 0);
         ddr_wlast_out               : OUT axi_wlast_t;
-        ddr_wstrb_out               : OUT axi_wstrb16_t;
+        ddr_wstrb_out               : OUT axi_wstrb_t(exmem_data_width_c/8-1 downto 0);
         ddr_awready_in              : IN axi_awready_t;
         ddr_wready_in               : IN axi_wready_t;
         ddr_bresp_in                : IN axi_bresp_t;
@@ -4105,31 +4111,31 @@ COMPONENT register_bank IS
         SIGNAL wr_lane_in             : IN STD_LOGIC_VECTOR(vector_width_c-1 DOWNTO 0);
 
         -- DP interface
-        SIGNAL dp_rd_vector_in        : IN unsigned(ddr_vector_depth_c-1 downto 0);
+        SIGNAL dp_rd_vector_in        : IN unsigned(core_vector_depth_c-1 downto 0);
         SIGNAL dp_rd_scatter_in       : IN scatter_t;
-        SIGNAL dp_rd_scatter_cnt_in   : IN unsigned(ddr_vector_depth_c-1 downto 0);
-        SIGNAL dp_rd_scatter_vector_in: IN unsigned(ddr_vector_depth_c-1 downto 0);
+        SIGNAL dp_rd_scatter_cnt_in   : IN unsigned(core_vector_depth_c-1 downto 0);
+        SIGNAL dp_rd_scatter_vector_in: IN unsigned(core_vector_depth_c-1 downto 0);
         SIGNAL dp_rd_gen_valid_in     : IN STD_LOGIC;
         SIGNAL dp_rd_data_flow_in     : IN data_flow_t;
         SIGNAL dp_rd_data_type_in     : IN dp_data_type_t;
         SIGNAL dp_rd_stream_in        : IN std_logic;
         SIGNAL dp_rd_stream_id_in     : stream_id_t;
         SIGNAL dp_rd_addr_in          : IN STD_LOGIC_VECTOR(bus_width_c-1 DOWNTO 0);
-        SIGNAL dp_wr_vector_in        : IN unsigned(ddr_vector_depth_c-1 downto 0);
+        SIGNAL dp_wr_vector_in        : IN unsigned(core_vector_depth_c-1 downto 0);
         SIGNAL dp_wr_addr_in          : IN STD_LOGIC_VECTOR(bus_width_c-1 DOWNTO 0);
         SIGNAL dp_write_in            : IN STD_LOGIC;
         SIGNAL dp_write_vm_in         : IN STD_LOGIC;
         SIGNAL dp_read_in             : IN STD_LOGIC;
         SIGNAL dp_read_vm_in          : IN STD_LOGIC;
-        SIGNAL dp_writedata_in        : IN STD_LOGIC_VECTOR(ddrx_data_width_c-1 DOWNTO 0);
-        SIGNAL dp_readdata_out        : OUT STD_LOGIC_VECTOR(ddrx_data_width_c-1 DOWNTO 0);
+        SIGNAL dp_writedata_in        : IN STD_LOGIC_VECTOR(core_data_width_c-1 DOWNTO 0);
+        SIGNAL dp_readdata_out        : OUT STD_LOGIC_VECTOR(core_data_width_c-1 DOWNTO 0);
         SIGNAL dp_readdata_vm_out     : OUT STD_LOGIC;
         SIGNAL dp_readena_out         : OUT STD_LOGIC;
-        SIGNAL dp_read_vector_out     : OUT unsigned(ddr_vector_depth_c-1 downto 0);
-        SIGNAL dp_read_vaddr_out      : OUT STD_LOGIC_VECTOR(ddr_vector_depth_c-1 downto 0);
+        SIGNAL dp_read_vector_out     : OUT unsigned(core_vector_depth_c-1 downto 0);
+        SIGNAL dp_read_vaddr_out      : OUT STD_LOGIC_VECTOR(core_vector_depth_c-1 downto 0);
         SIGNAL dp_read_scatter_out    : OUT scatter_t;
-        SIGNAL dp_read_scatter_cnt_out: OUT unsigned(ddr_vector_depth_c-1 downto 0);
-        SIGNAL dp_read_scatter_vector_out : OUT unsigned(ddr_vector_depth_c-1 downto 0);
+        SIGNAL dp_read_scatter_cnt_out: OUT unsigned(core_vector_depth_c-1 downto 0);
+        SIGNAL dp_read_scatter_vector_out : OUT unsigned(core_vector_depth_c-1 downto 0);
         SIGNAL dp_read_gen_valid_out  : OUT STD_LOGIC;
         SIGNAL dp_read_data_flow_out  : OUT data_flow_t;
         SIGNAL dp_read_data_type_out  : OUT dp_data_type_t;
@@ -4160,22 +4166,22 @@ COMPONENT register_file IS
         SIGNAL wr_lane_in           : IN STD_LOGIC_VECTOR(vector_width_c-1 DOWNTO 0);
 
         -- DP interface
-        SIGNAL dp_rd_vector_in      : IN unsigned(ddr_vector_depth_c-1 downto 0);
+        SIGNAL dp_rd_vector_in      : IN unsigned(core_vector_depth_c-1 downto 0);
         SIGNAL dp_rd_scatter_in     : IN scatter_t;
-        SIGNAL dp_rd_scatter_cnt_in : IN unsigned(ddr_vector_depth_c-1 downto 0);
-        SIGNAL dp_rd_scatter_vector_in: IN unsigned(ddr_vector_depth_c-1 downto 0);
+        SIGNAL dp_rd_scatter_cnt_in : IN unsigned(core_vector_depth_c-1 downto 0);
+        SIGNAL dp_rd_scatter_vector_in: IN unsigned(core_vector_depth_c-1 downto 0);
         SIGNAL dp_rd_gen_valid_in   : IN STD_LOGIC;
         SIGNAL dp_rd_data_flow_in   : IN data_flow_t;
         SIGNAL dp_rd_data_type_in   : IN dp_data_type_t;
         SIGNAL dp_rd_stream_in      : IN std_logic;
         SIGNAL dp_rd_stream_id_in   : stream_id_t;
         SIGNAL dp_rd_addr_in        : IN STD_LOGIC_VECTOR(bus_width_c-1 DOWNTO 0);
-        SIGNAL dp_wr_vector_in      : IN unsigned(ddr_vector_depth_c-1 downto 0);
+        SIGNAL dp_wr_vector_in      : IN unsigned(core_vector_depth_c-1 downto 0);
         SIGNAL dp_wr_addr_in        : IN STD_LOGIC_VECTOR(bus_width_c-1 DOWNTO 0);
         SIGNAL dp_write_in          : IN STD_LOGIC;
         SIGNAL dp_read_in           : IN STD_LOGIC;
-        SIGNAL dp_writedata_in      : IN STD_LOGIC_VECTOR(ddrx_data_width_c-1 DOWNTO 0);
-        SIGNAL dp_readdata_out      : OUT STD_LOGIC_VECTOR(ddrx_data_width_c-1 DOWNTO 0);
+        SIGNAL dp_writedata_in      : IN STD_LOGIC_VECTOR(core_data_width_c-1 DOWNTO 0);
+        SIGNAL dp_readdata_out      : OUT STD_LOGIC_VECTOR(core_data_width_c-1 DOWNTO 0);
         SIGNAL dp_readena_out       : OUT STD_LOGIC
         );
 END COMPONENT;
@@ -4213,7 +4219,7 @@ COMPONENT instr IS
             SIGNAL dp_config_in             : IN STD_LOGIC;
             SIGNAL dp_wr_addr_in            : IN STD_LOGIC_VECTOR(local_bus_width_c-1 DOWNTO 0);  
             SIGNAL dp_write_in              : IN STD_LOGIC;
-            SIGNAL dp_writedata_in          : IN STD_LOGIC_VECTOR(ddrx_data_width_c-1 DOWNTO 0);
+            SIGNAL dp_writedata_in          : IN STD_LOGIC_VECTOR(core_data_width_c-1 DOWNTO 0);
             
             -- Busy status
             
@@ -4510,22 +4516,22 @@ COMPONENT pcore IS
         SIGNAL dp_wr_mcast_in           : IN mcast_t;    
         SIGNAL dp_write_in              : IN STD_LOGIC;
         SIGNAL dp_write_gen_valid_in    : IN STD_LOGIC;
-        SIGNAL dp_write_vector_in       : IN dp_vector_t;
+        SIGNAL dp_write_vector_in       : IN std_logic_vector(core_vector_depth_c-1 downto 0);
         SIGNAL dp_write_scatter_in      : IN scatter_t;
         SIGNAL dp_read_in               : IN STD_LOGIC;
-        SIGNAL dp_read_vector_in        : IN dp_vector_t;
+        SIGNAL dp_read_vector_in        : IN std_logic_vector(core_vector_depth_c-1 downto 0);
         SIGNAL dp_read_scatter_in       : IN scatter_t;
         SIGNAL dp_read_gen_valid_in     : IN STD_LOGIC;
         SIGNAL dp_read_data_flow_in     : IN data_flow_t;
         SIGNAL dp_read_data_type_in     : IN dp_data_type_t;
         SIGNAL dp_read_stream_in        : IN std_logic;
         SIGNAL dp_read_stream_id_in     : IN stream_id_t;
-        SIGNAL dp_writedata_in          : IN STD_LOGIC_VECTOR(ddrx_data_width_c-1 DOWNTO 0);
-        SIGNAL dp_readdata_out          : OUT STD_LOGIC_VECTOR(ddrx_data_width_c-1 DOWNTO 0);
+        SIGNAL dp_writedata_in          : IN STD_LOGIC_VECTOR(core_data_width_c-1 DOWNTO 0);
+        SIGNAL dp_readdata_out          : OUT STD_LOGIC_VECTOR(core_data_width_c-1 DOWNTO 0);
         SIGNAL dp_readdata_vm_out       : OUT STD_LOGIC;
         SIGNAL dp_readena_out           : OUT STD_LOGIC;
-        SIGNAL dp_read_vector_out       : OUT unsigned(ddr_vector_depth_c-1 downto 0);
-        SIGNAL dp_read_vaddr_out        : OUT STD_LOGIC_VECTOR(ddr_vector_depth_c-1 downto 0);
+        SIGNAL dp_read_vector_out       : OUT unsigned(core_vector_depth_c-1 downto 0);
+        SIGNAL dp_read_vaddr_out        : OUT STD_LOGIC_VECTOR(core_vector_depth_c-1 downto 0);
         SIGNAL dp_read_gen_valid_out    : OUT STD_LOGIC;
         SIGNAL dp_read_data_flow_out    : OUT data_flow_t;
         SIGNAL dp_read_data_type_out    : OUT dp_data_type_t;
@@ -4560,21 +4566,21 @@ COMPONENT cell IS
         SIGNAL dp_wr_mcast_in        : IN mcast_t;
         SIGNAL dp_write_in           : IN STD_LOGIC;
         SIGNAL dp_write_gen_valid_in : IN STD_LOGIC;
-        SIGNAL dp_write_vector_in    : IN dp_vector_t;
+        SIGNAL dp_write_vector_in    : IN std_logic_vector(core_vector_depth_c-1 downto 0);
         SIGNAL dp_write_scatter_in   : IN scatter_t;
         SIGNAL dp_read_in            : IN STD_LOGIC;
-        SIGNAL dp_read_vector_in     : IN dp_vector_t;
+        SIGNAL dp_read_vector_in     : IN std_logic_vector(core_vector_depth_c-1 downto 0);
         SIGNAL dp_read_scatter_in    : IN scatter_t;
         SIGNAL dp_read_gen_valid_in  : IN STD_LOGIC;
         SIGNAL dp_read_data_flow_in  : IN data_flow_t;
         SIGNAL dp_read_data_type_in  : IN dp_data_type_t;
         SIGNAL dp_read_stream_in     : IN STD_LOGIC;
         SIGNAL dp_read_stream_id_in  : IN stream_id_t;
-        SIGNAL dp_writedata_in       : IN STD_LOGIC_VECTOR(ddrx_data_width_c-1 DOWNTO 0);
-        SIGNAL dp_readdata_out       : OUT STD_LOGIC_VECTOR(ddrx_data_width_c-1 DOWNTO 0);
+        SIGNAL dp_writedata_in       : IN STD_LOGIC_VECTOR(core_data_width_c-1 DOWNTO 0);
+        SIGNAL dp_readdata_out       : OUT STD_LOGIC_VECTOR(core_data_width_c-1 DOWNTO 0);
         SIGNAL dp_readdata_vm_out    : OUT STD_LOGIC;
-        SIGNAL dp_read_vector_out    : OUT unsigned(ddr_vector_depth_c-1 downto 0);
-        SIGNAL dp_read_vaddr_out     : OUT STD_LOGIC_VECTOR(ddr_vector_depth_c-1 downto 0);
+        SIGNAL dp_read_vector_out    : OUT unsigned(core_vector_depth_c-1 downto 0);
+        SIGNAL dp_read_vaddr_out     : OUT STD_LOGIC_VECTOR(core_vector_depth_c-1 downto 0);
         SIGNAL dp_readdata_valid_out : OUT STD_LOGIC;
         SIGNAL dp_read_gen_valid_out : OUT STD_LOGIC;
         SIGNAL dp_read_data_flow_out : OUT data_flow_t;

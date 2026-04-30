@@ -442,6 +442,7 @@ variable scatter_v:scatter_t;
 variable data_flow_v:data_flow_t;
 variable end_v:vectors_t(FORK-1 downto 0);
 variable burstlen2_v:burstlen2_t;
+variable burstlen3_v:burstlen_t;
 variable stream_v:std_logic;
 variable stream_id_v:stream_id_t;
 variable req_p0_0_v:unsigned(FIFO_DEPTH-1 downto 0);
@@ -703,31 +704,23 @@ begin
                    len_v := len_v+end_v(I)'length;
                 end loop;
                 burstlen2_v := resize(bus_burstlen_v,burstlen2_v'length);
-                if unsigned(vector_v)=to_unsigned(1,ddr_vector_depth_c) then 
-                   if burstlen2_v > to_unsigned((ddr_vector_width_c/2)*(ddr_max_burstlen_c-1),burstlen2_v'length) then
-                      burstlen2_v := to_unsigned((ddr_vector_width_c/2)*(ddr_max_burstlen_c-1)-1,burstlen2_v'length);
-                   end if;
-                   bus_burstlen3_r <= burstlen2_v(burstlen_t'length-1 downto 0);
-                   bus_burstlen2_r <= burstlen2_v sll 1;
-                elsif unsigned(vector_v)=to_unsigned(3,ddr_vector_depth_c) then
-                   if burstlen2_v > to_unsigned((ddr_vector_width_c/4)*(ddr_max_burstlen_c-1),burstlen2_v'length) then
-                      burstlen2_v := to_unsigned((ddr_vector_width_c/4)*(ddr_max_burstlen_c-1)-1,burstlen2_v'length);
-                   end if;
-                   bus_burstlen3_r <= burstlen2_v(burstlen_t'length-1 downto 0);
-                   bus_burstlen2_r <= burstlen2_v sll 2;
-                elsif unsigned(vector_v)=to_unsigned(7,ddr_vector_depth_c) then -- vsize=1
-                   if burstlen2_v > to_unsigned((ddr_vector_width_c/8)*(ddr_max_burstlen_c-1),burstlen2_v'length) then
-                      burstlen2_v := to_unsigned((ddr_vector_width_c/8)*(ddr_max_burstlen_c-1)-1,burstlen2_v'length);
-                   end if;
-                   bus_burstlen3_r <= burstlen2_v(burstlen_t'length-1 downto 0);
-                   bus_burstlen2_r <= burstlen2_v sll 3;
-                else
-                   if burstlen2_v > to_unsigned(ddr_vector_width_c*(ddr_max_burstlen_c-1),burstlen2_v'length) then
-                      burstlen2_v := to_unsigned(ddr_vector_width_c*(ddr_max_burstlen_c-1)-1,burstlen2_v'length);
-                   end if;
-                   bus_burstlen3_r <= burstlen2_v(burstlen_t'length-1 downto 0);
-                   bus_burstlen2_r <= burstlen2_v;
+                if burstlen2_v > to_unsigned(ddr_vector_width_c*(ddr_max_burstlen_c-1),burstlen2_v'length) then
+                    burstlen2_v := to_unsigned(ddr_vector_width_c*(ddr_max_burstlen_c-1)-1,burstlen2_v'length);
                 end if;
+                burstlen3_v := burstlen2_v(burstlen_t'length-1 downto 0);
+                FOR I in 1 to ddr_vector_depth_c LOOP
+                    if unsigned(vector_v)=to_unsigned((2**I)-1,ddr_vector_depth_c) then 
+                        burstlen2_v := resize(bus_burstlen_v,burstlen2_v'length);
+                        if burstlen2_v > to_unsigned((ddr_vector_width_c/(2**I))*(ddr_max_burstlen_c-1),burstlen2_v'length) then
+                            burstlen2_v := to_unsigned((ddr_vector_width_c/(2**I))*(ddr_max_burstlen_c-1)-1,burstlen2_v'length);
+                        end if;
+                        burstlen3_v := burstlen2_v(burstlen_t'length-1 downto 0);
+                        burstlen2_v := burstlen2_v sll I;
+                        exit;
+                    end if;
+                END LOOP;
+                bus_burstlen3_r <= burstlen3_v;
+                bus_burstlen2_r <= burstlen2_v;
 
                 bus_burstlen_r <= bus_burstlen_v;
                 bus_addr_r <= bus_addr_v;

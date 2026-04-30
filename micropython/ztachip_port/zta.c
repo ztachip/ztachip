@@ -1,8 +1,7 @@
 // Include MicroPython API.
 #include "py/runtime.h"
-#include "SW/src/mpy.h"
-
 #include "py/mphal.h"
+#include "mpy.h"
 
 // Constant definition
 

@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "../base/ztalib.h"
+#include "../base/config.h"
 #include "../apps/gdi/gdi.h"
 #include "soc.h"
 #include "../base/net.h"
@@ -27,6 +28,8 @@ extern int chat();
 
 extern void test_llm();
 
+extern "C" void test_dma();
+
 //-----------------------------------------
 // Application main entry
 // 2 execution cases: vision example or test suites.
@@ -41,7 +44,10 @@ int main() {
    // Run unit tests against test vectors
    while(1){
       test();
-      // test_llm(); 
+#ifdef FPU_ENABLED
+      test_llm();
+#endif 
+      test_dma();
    }
 #endif
 

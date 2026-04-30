@@ -56,22 +56,22 @@ ENTITY pcore IS
         SIGNAL dp_wr_mcast_in          : IN mcast_t;        
         SIGNAL dp_write_in             : IN STD_LOGIC;
         SIGNAL dp_write_gen_valid_in   : IN STD_LOGIC;
-        SIGNAL dp_write_vector_in      : IN dp_vector_t;
+        SIGNAL dp_write_vector_in      : IN std_logic_vector(core_vector_depth_c-1 downto 0);
         SIGNAL dp_write_scatter_in     : IN scatter_t;
         SIGNAL dp_read_in              : IN STD_LOGIC;
-        SIGNAL dp_read_vector_in       : IN dp_vector_t;
+        SIGNAL dp_read_vector_in       : IN std_logic_vector(core_vector_depth_c-1 downto 0);
         SIGNAL dp_read_scatter_in      : IN scatter_t;
         SIGNAL dp_read_gen_valid_in    : IN STD_LOGIC;
         SIGNAL dp_read_data_flow_in    : IN data_flow_t;
         SIGNAL dp_read_data_type_in    : IN dp_data_type_t;
         SIGNAL dp_read_stream_in       : IN std_logic;
         SIGNAL dp_read_stream_id_in    : IN stream_id_t;
-        SIGNAL dp_writedata_in         : IN STD_LOGIC_VECTOR(ddrx_data_width_c-1 DOWNTO 0);
-        SIGNAL dp_readdata_out         : OUT STD_LOGIC_VECTOR(ddrx_data_width_c-1 DOWNTO 0);
+        SIGNAL dp_writedata_in         : IN STD_LOGIC_VECTOR(core_data_width_c-1 DOWNTO 0);
+        SIGNAL dp_readdata_out         : OUT STD_LOGIC_VECTOR(core_data_width_c-1 DOWNTO 0);
         SIGNAL dp_readdata_vm_out      : OUT STD_LOGIC;
         SIGNAL dp_readena_out          : OUT STD_LOGIC;
-        SIGNAL dp_read_vector_out      : OUT unsigned(ddr_vector_depth_c-1 downto 0);
-        SIGNAL dp_read_vaddr_out       : OUT STD_LOGIC_VECTOR(ddr_vector_depth_c-1 downto 0);
+        SIGNAL dp_read_vector_out      : OUT unsigned(core_vector_depth_c-1 downto 0);
+        SIGNAL dp_read_vaddr_out       : OUT STD_LOGIC_VECTOR(core_vector_depth_c-1 downto 0);
 
         SIGNAL dp_read_gen_valid_out   : OUT STD_LOGIC;
         SIGNAL dp_read_data_flow_out   : OUT data_flow_t;
@@ -156,15 +156,15 @@ SIGNAL i_wr_vm:STD_LOGIC;
 SIGNAL i_wr_addr1:iregister_addr_t;
 SIGNAL i_wr_data1:iregister_t;
 
-SIGNAL dp_readdata_r:STD_LOGIC_VECTOR(ddrx_data_width_c-1 downto 0);
-SIGNAL dp_readdata2_r:STD_LOGIC_VECTOR(ddrx_data_width_c-1 downto 0);
+SIGNAL dp_readdata_r:STD_LOGIC_VECTOR(core_data_width_c-1 downto 0);
+SIGNAL dp_readdata2_r:STD_LOGIC_VECTOR(core_data_width_c-1 downto 0);
 SIGNAL dp_readena_r:STD_LOGIC;
 SIGNAL dp_readdata_vm_r:STD_LOGIC;
 SIGNAL dp_read_gen_valid2_r:STD_LOGIC;
 SIGNAL dp_read_data_flow2_r:data_flow_t;
 SIGNAL dp_read_data_type2_r:dp_data_type_t;
-SIGNAL dp_read_vector2_r:unsigned(ddr_vector_depth_c-1 downto 0);
-SIGNAL dp_read_vaddr2_r:std_logic_vector(ddr_vector_depth_c-1 downto 0);
+SIGNAL dp_read_vector2_r:unsigned(core_vector_depth_c-1 downto 0);
+SIGNAL dp_read_vaddr2_r:std_logic_vector(core_vector_depth_c-1 downto 0);
 SIGNAL dp_read_stream2_r:std_logic;
 SIGNAL dp_read_stream_id2_r:stream_id_t;
 
@@ -193,13 +193,13 @@ SIGNAL dp_rd_addr:STD_LOGIC_VECTOR(local_bus_width_c-1 DOWNTO 0);
 SIGNAL dp_wr_addr:STD_LOGIC_VECTOR(local_bus_width_c-1 DOWNTO 0);
 SIGNAL dp_wr_mcast:mcast_t;        
 SIGNAL dp_write:STD_LOGIC;
-SIGNAL dp_write_vector:unsigned(ddr_vector_depth_c-1 downto 0);
+SIGNAL dp_write_vector:unsigned(core_vector_depth_c-1 downto 0);
 SIGNAL dp_write_scatter:scatter_t;
 SIGNAL dp_write_share:std_logic;
 SIGNAL dp_write_step:STD_LOGIC_VECTOR(local_bus_width_c-1 downto 0);
 SIGNAL dp_write_gen_valid:STD_LOGIC;
 SIGNAL dp_read:STD_LOGIC;
-SIGNAL dp_read_vector:unsigned(ddr_vector_depth_c-1 downto 0);
+SIGNAL dp_read_vector:unsigned(core_vector_depth_c-1 downto 0);
 SIGNAL dp_read_scatter:scatter_t;
 SIGNAL dp_read_share:std_logic;
 SIGNAL dp_read_step:STD_LOGIC_VECTOR(local_bus_width_c-1 downto 0);
@@ -208,29 +208,29 @@ SIGNAL dp_read_data_flow:data_flow_t;
 SIGNAL dp_read_data_type:dp_data_type_t;
 SIGNAL dp_read_stream:std_logic;
 SIGNAL dp_read_stream_id:stream_id_t;
-SIGNAL dp_writedata:STD_LOGIC_VECTOR(ddrx_data_width_c-1 DOWNTO 0);
-SIGNAL read_scatter_cnt:unsigned(ddr_vector_depth_c-1 downto 0);
-SIGNAL read_scatter_vector:unsigned(ddr_vector_depth_c-1 downto 0);
-SIGNAL write_scatter_cnt:unsigned(ddr_vector_depth_c-1 downto 0);
-SIGNAL write_scatter_vector:unsigned(ddr_vector_depth_c-1 downto 0);
-SIGNAL write_scatter_curr:unsigned(ddr_vector_depth_c-1 downto 0);
-SIGNAL write_scatter_curr_r:unsigned(ddr_vector_depth_c-1 downto 0);
+SIGNAL dp_writedata:STD_LOGIC_VECTOR(core_data_width_c-1 DOWNTO 0);
+SIGNAL read_scatter_cnt:unsigned(core_vector_depth_c-1 downto 0);
+SIGNAL read_scatter_vector:unsigned(core_vector_depth_c-1 downto 0);
+SIGNAL write_scatter_cnt:unsigned(core_vector_depth_c-1 downto 0);
+SIGNAL write_scatter_vector:unsigned(core_vector_depth_c-1 downto 0);
+SIGNAL write_scatter_curr:unsigned(core_vector_depth_c-1 downto 0);
+SIGNAL write_scatter_curr_r:unsigned(core_vector_depth_c-1 downto 0);
 
-SIGNAL gen_read_vector_r:unsigned(ddr_vector_depth_c-1 downto 0);
+SIGNAL gen_read_vector_r:unsigned(core_vector_depth_c-1 downto 0);
 SIGNAL gen_read_scatter_r:scatter_t;
 SIGNAL gen_read_share_r:std_logic;
 SIGNAL gen_read_step_r:std_logic_vector(local_bus_width_c-1 downto 0);
-SIGNAL gen_read_scatter_cnt_r:unsigned(ddr_vector_depth_c-1 downto 0);
-SIGNAL gen_read_scatter_vector_r:unsigned(ddr_vector_depth_c-1 downto 0);
+SIGNAL gen_read_scatter_cnt_r:unsigned(core_vector_depth_c-1 downto 0);
+SIGNAL gen_read_scatter_vector_r:unsigned(core_vector_depth_c-1 downto 0);
 SIGNAL gen_read_gen_valid_r:STD_LOGIC;
 SIGNAL gen_read_data_flow_r:data_flow_t;
 SIGNAL gen_read_data_type_r:dp_data_type_t;
 SIGNAL gen_read_stream_r:std_logic;
 SIGNAL gen_read_stream_id_r:stream_id_t;
 SIGNAL gen_rd_addr_r:STD_LOGIC_VECTOR(local_bus_width_c-1 DOWNTO 0);
-SIGNAL gen_write_vector_r:unsigned(ddr_vector_depth_c-1 downto 0);
+SIGNAL gen_write_vector_r:unsigned(core_vector_depth_c-1 downto 0);
 SIGNAL gen_wr_addr_r:STD_LOGIC_VECTOR(local_bus_width_c-1 DOWNTO 0);
-SIGNAL gen_writedata_r:STD_LOGIC_VECTOR(ddrx_data_width_c-1 DOWNTO 0);
+SIGNAL gen_writedata_r:STD_LOGIC_VECTOR(core_data_width_c-1 DOWNTO 0);
 
 SIGNAL dp_rd_vm_r:STD_LOGIC;
 SIGNAL dp_rd_fork_r:STD_LOGIC;
@@ -241,12 +241,12 @@ SIGNAL dp_wr_addr_r:STD_LOGIC_VECTOR(local_bus_width_c-1 DOWNTO 0);
 SIGNAL dp_wr_mcast_r:mcast_t;        
 SIGNAL dp_write_r:STD_LOGIC;
 SIGNAL dp_write_gen_valid_r:STD_LOGIC;
-SIGNAL dp_write_vector_r:unsigned(ddr_vector_depth_c-1 downto 0);
+SIGNAL dp_write_vector_r:unsigned(core_vector_depth_c-1 downto 0);
 SIGNAL dp_write_scatter_r:scatter_t;
 SIGNAL dp_write_share_r:std_logic;
 SIGNAL dp_write_step_r:STD_LOGIC_VECTOR(local_bus_width_c-1 downto 0);
 SIGNAL dp_read_r:STD_LOGIC;
-SIGNAL dp_read_vector_r:unsigned(ddr_vector_depth_c-1 downto 0);
+SIGNAL dp_read_vector_r:unsigned(core_vector_depth_c-1 downto 0);
 SIGNAL dp_read_scatter_r:scatter_t;
 SIGNAL dp_read_share_r:std_logic;
 SIGNAL dp_read_step_r:std_logic_vector(local_bus_width_c-1 DOWNTO 0);
@@ -255,25 +255,25 @@ SIGNAL dp_read_data_flow_r:data_flow_t;
 SIGNAL dp_read_data_type_r:dp_data_type_t;
 SIGNAL dp_read_stream_r:std_logic;
 SIGNAL dp_read_stream_id_r:stream_id_t;
-SIGNAL dp_writedata_r:STD_LOGIC_VECTOR(ddrx_data_width_c-1 DOWNTO 0);
-SIGNAL read_scatter_cnt_r:unsigned(ddr_vector_depth_c-1 downto 0);
-SIGNAL read_scatter_vector_r:unsigned(ddr_vector_depth_c-1 downto 0);
-SIGNAL write_scatter_cnt_r:unsigned(ddr_vector_depth_c-1 downto 0);
-SIGNAL write_scatter_vector_r:unsigned(ddr_vector_depth_c-1 downto 0);
+SIGNAL dp_writedata_r:STD_LOGIC_VECTOR(core_data_width_c-1 DOWNTO 0);
+SIGNAL read_scatter_cnt_r:unsigned(core_vector_depth_c-1 downto 0);
+SIGNAL read_scatter_vector_r:unsigned(core_vector_depth_c-1 downto 0);
+SIGNAL write_scatter_cnt_r:unsigned(core_vector_depth_c-1 downto 0);
+SIGNAL write_scatter_vector_r:unsigned(core_vector_depth_c-1 downto 0);
 
 SIGNAL read_match:STD_LOGIC;
 SIGNAL write_match:STD_LOGIC;
 
 SIGNAL dp_readena_vm:std_logic;
 
-SIGNAL dp_read_vector_vm:unsigned(ddr_vector_depth_c-1 downto 0);
+SIGNAL dp_read_vector_vm:unsigned(core_vector_depth_c-1 downto 0);
 
-SIGNAL dp_read_vaddr_vm:std_logic_vector(ddr_vector_depth_c-1 downto 0);
+SIGNAL dp_read_vaddr_vm:std_logic_vector(core_vector_depth_c-1 downto 0);
 
 SIGNAL dp_read_scatter_vm:scatter_t;
-SIGNAL dp_read_scatter_cnt_vm:unsigned(ddr_vector_depth_c-1 downto 0);
-SIGNAL dp_read_scatter_vector_vm:unsigned(ddr_vector_depth_c-1 downto 0);
-SIGNAL dp_readdata_vm:STD_LOGIC_VECTOR(ddrx_data_width_c-1 downto 0);
+SIGNAL dp_read_scatter_cnt_vm:unsigned(core_vector_depth_c-1 downto 0);
+SIGNAL dp_read_scatter_vector_vm:unsigned(core_vector_depth_c-1 downto 0);
+SIGNAL dp_readdata_vm:STD_LOGIC_VECTOR(core_data_width_c-1 downto 0);
 SIGNAL dp_readdata_vm_vm:STD_LOGIC;
 SIGNAL dp_read_gen_valid_vm:STD_LOGIC;
 SIGNAL dp_read_data_flow_vm:data_flow_t;
@@ -322,18 +322,18 @@ SIGNAL dp_wr_mcast_in_r:mcast_t;
 SIGNAL dp_write_in_r:STD_LOGIC;
 SIGNAL dp_wr_fork_in_r:STD_LOGIC;
 SIGNAL dp_write_gen_valid_in_r:STD_LOGIC;
-SIGNAL dp_write_vector_in_r:dp_vector_t;
+SIGNAL dp_write_vector_in_r:std_logic_vector(core_vector_depth_c-1 downto 0);
 SIGNAL dp_write_scatter_in_r:scatter_t;
 SIGNAL dp_rd_fork_in_r:STD_LOGIC;
 SIGNAL dp_read_in_r:STD_LOGIC;
-SIGNAL dp_read_vector_in_r:dp_vector_t;
+SIGNAL dp_read_vector_in_r:std_logic_vector(core_vector_depth_c-1 downto 0);
 SIGNAL dp_read_scatter_in_r:scatter_t;
 SIGNAL dp_read_gen_valid_in_r:STD_LOGIC;
 SIGNAL dp_read_data_flow_in_r:data_flow_t;
 SIGNAL dp_read_data_type_in_r:dp_data_type_t;
 SIGNAL dp_read_stream_in_r:std_logic;
 SIGNAL dp_read_stream_id_in_r:stream_id_t;
-SIGNAL dp_writedata_in_r:STD_LOGIC_VECTOR(ddrx_data_width_c-1 DOWNTO 0);
+SIGNAL dp_writedata_in_r:STD_LOGIC_VECTOR(core_data_width_c-1 DOWNTO 0);
 SIGNAL dp_config_in_r:STD_LOGIC;
 
 BEGIN
@@ -742,7 +742,7 @@ end process;
 -----
 
 process(dp_write_scatter,dp_write_share,dp_write_step,write_scatter_cnt,write_scatter_curr,write_scatter_vector,dp_writedata_in_r,dp_writedata_r)
-variable cnt_v:unsigned(ddr_vector_depth_c-1 downto 0);
+variable cnt_v:unsigned(core_vector_depth_c-1 downto 0);
 begin
 cnt_v := write_scatter_curr;
 if dp_write_scatter/=scatter_none_c then
@@ -752,7 +752,7 @@ if dp_write_scatter/=scatter_none_c then
    else
       dp_writedata(register_width_c-1 downto 0) <= dp_writedata_r(register_width_c-1 downto 0);
    end if;
-   dp_writedata(ddrx_data_width_c-1 downto register_width_c) <= (others=>'0');
+   dp_writedata(core_data_width_c-1 downto register_width_c) <= (others=>'0');
 else
    dp_writedata <= dp_writedata_in_r;
 end if;
@@ -820,7 +820,7 @@ end process;
 
 
 process(clock_in,reset_in)
-variable cnt_v:unsigned(ddr_vector_depth_c-1 downto 0);
+variable cnt_v:unsigned(core_vector_depth_c-1 downto 0);
 begin
     if reset_in='0' then
        instruction_mu_r <= (others=>'0');
@@ -865,7 +865,7 @@ end process;
 ----
 
 process(clock_in,reset_in)
-variable cnt_v:unsigned(ddr_vector_depth_c-1 downto 0);
+variable cnt_v:unsigned(core_vector_depth_c-1 downto 0);
 begin
     if reset_in='0' then
         dp_readena_r <= '0';

@@ -25,6 +25,7 @@ use std.standard.all;
 LIBRARY ieee;
 USE ieee.std_logic_1164.all;
 use IEEE.numeric_std.all;
+use work.config.all;
 use work.ztachip_pkg.all;
 
 ENTITY sram_core IS
@@ -86,8 +87,8 @@ type SOURCE is (SOURCE_NONE,SOURCE_AXI,SOURCE_DP,SOURCE_FPU);
 SIGNAL sram_write:STD_LOGIC_VECTOR(sram_num_bank_c-1 downto 0);
 SIGNAL sram_read:STD_LOGIC_VECTOR(sram_num_bank_c-1 downto 0);
 SIGNAL sram_readdatavalid:STD_LOGIC_VECTOR(sram_num_bank_c-1 downto 0);
-SIGNAL sram_readdata_0:STD_LOGIC_VECTOR(2*ddr_data_width_c-1 DOWNTO 0);
-SIGNAL sram_readdata_1:STD_LOGIC_VECTOR(2*ddr_data_width_c-1 DOWNTO 0);
+SIGNAL sram_readdata_0:STD_LOGIC_VECTOR(fpu_data_width_c-1 DOWNTO 0);
+SIGNAL sram_readdata_1:STD_LOGIC_VECTOR(fpu_data_width_c-1 DOWNTO 0);
 
 SIGNAL dp_read_vm_r:STD_LOGIC;
 SIGNAL dp_read_vm_rr:STD_LOGIC;
@@ -106,33 +107,38 @@ SIGNAL read_source_1_rrrr:SOURCE;
 
 SIGNAL read_addr_0:STD_LOGIC_VECTOR(sram_depth_c-1 DOWNTO 0);
 SIGNAL read_source_0:SOURCE;
-SIGNAL read_vector_0:std_logic_vector(ddr_vector_depth_c+1-1 downto 0);
+SIGNAL read_vector_0:std_logic_vector(fpu_vector_depth_c-1 downto 0);
 SIGNAL read_gen_valid_0:STD_LOGIC;
 SIGNAL read_vm_0:STD_LOGIC;
 
 SIGNAL read_addr_1:STD_LOGIC_VECTOR(sram_depth_c-1 DOWNTO 0);
 SIGNAL read_source_1:SOURCE;
-SIGNAL read_vector_1:std_logic_vector(ddr_vector_depth_c+1-1 downto 0);
+SIGNAL read_vector_1:std_logic_vector(fpu_vector_depth_c-1 downto 0);
 SIGNAL read_gen_valid_1:STD_LOGIC;
 SIGNAL read_vm_1:STD_LOGIC;
 
 SIGNAL write_addr_0:STD_LOGIC_VECTOR(sram_depth_c-1 DOWNTO 0);        
 SIGNAL write_source_0:SOURCE;
-SIGNAL write_vector_0:std_logic_vector(ddr_vector_depth_c+1-1 downto 0);
-SIGNAL writedata_0:STD_LOGIC_VECTOR(2*ddr_data_width_c-1 DOWNTO 0);
-SIGNAL writebe_0:STD_LOGIC_VECTOR(2*ddr_data_width_c/8-1 DOWNTO 0);
+SIGNAL write_vector_0:std_logic_vector(fpu_vector_depth_c-1 downto 0);
+SIGNAL writedata_0:STD_LOGIC_VECTOR(fpu_data_width_c-1 DOWNTO 0);
+SIGNAL writebe_0:STD_LOGIC_VECTOR(fpu_data_width_c/8-1 DOWNTO 0);
 
 SIGNAL write_addr_1:STD_LOGIC_VECTOR(sram_depth_c-1 DOWNTO 0);        
 SIGNAL write_source_1:SOURCE;
-SIGNAL write_vector_1:std_logic_vector(ddr_vector_depth_c+1-1 downto 0);
-SIGNAL writedata_1:STD_LOGIC_VECTOR(2*ddr_data_width_c-1 DOWNTO 0);
-SIGNAL writebe_1:STD_LOGIC_VECTOR(2*ddr_data_width_c/8-1 DOWNTO 0);
+SIGNAL write_vector_1:std_logic_vector(fpu_vector_depth_c-1 downto 0);
+SIGNAL writedata_1:STD_LOGIC_VECTOR(fpu_data_width_c-1 DOWNTO 0);
+SIGNAL writebe_1:STD_LOGIC_VECTOR(fpu_data_width_c/8-1 DOWNTO 0);
 
 SIGNAL axi_read:STD_LOGIC;
 SIGNAL axi_rd_addr:STD_LOGIC_VECTOR(sram_depth_c-1 DOWNTO 0);
 SIGNAL axi_readdata:STD_LOGIC_VECTOR(31 DOWNTO 0);
 SIGNAL axi_readdatavalid:STD_LOGIC;
 BEGIN
+
+-- Compile-time check
+assert (fpu_data_width_c=ddr_data_width_c*2) or (fpu_data_width_c=ddr_data_width_c) 
+    report "Error: fpu_data_width_c must be equal ddr_data_width_c or equal ddr_data_width_c*2"
+    severity failure;
 
 dp_read_wait_out <= '1' when (dp_read_in='1') and (read_source_0/=SOURCE_DP) and (read_source_1/=SOURCE_DP) else '0';
 
@@ -165,13 +171,15 @@ begin
       if(dp_rd_addr_in(sram_depth_c-1)='0') then
          read_source_0 <= SOURCE_DP;
          read_addr_0 <= dp_rd_addr_in;
-         read_vector_0 <= "0" & dp_read_vector_in;
+         read_vector_0 <= (others=>'0');
+         read_vector_0(dp_read_vector_in'length-1 downto 0) <= dp_read_vector_in;
          read_gen_valid_0 <= dp_read_gen_valid_in;
          read_vm_0 <= dp_read_vm_in;
       else
          read_source_1 <= SOURCE_DP;
          read_addr_1 <= dp_rd_addr_in;
-         read_vector_1 <= "0" & dp_read_vector_in;
+         read_vector_1 <= (others=>'0');
+         read_vector_1(dp_read_vector_in'length-1 downto 0) <= dp_read_vector_in;
          read_gen_valid_1 <= dp_read_gen_valid_in;
          read_vm_1 <= dp_read_vm_in;
       end if;
@@ -197,13 +205,15 @@ begin
       if(axi_rd_addr(sram_depth_c-1)='0') then
          read_source_0 <= SOURCE_AXI;
          read_addr_0 <= axi_rd_addr;
-         read_vector_0 <= "0" & std_logic_vector(to_unsigned(ddr_vector_width_c/2-1,dp_vector_t'length));
+         read_vector_0 <= (others=>'0');
+         read_vector_0(dp_vector_t'length-1 downto 0) <= std_logic_vector(to_unsigned(ddr_vector_width_c/2-1,dp_vector_t'length));
          read_gen_valid_0 <= '1';
          read_vm_0 <= '0';
       else
          read_source_1 <= SOURCE_AXI;
          read_addr_1 <= axi_rd_addr;
-         read_vector_1 <= "0" & std_logic_vector(to_unsigned(ddr_vector_width_c/2-1,dp_vector_t'length));
+         read_vector_1 <= (others=>'0');
+         read_vector_1(dp_vector_t'length-1 downto 0) <= std_logic_vector(to_unsigned(ddr_vector_width_c/2-1,dp_vector_t'length));
          read_gen_valid_1 <= '1';
          read_vm_1 <= '0';
       end if;
@@ -230,14 +240,20 @@ begin
       if(dp_wr_addr_in(sram_depth_c-1)='0') then
          write_addr_0 <= dp_wr_addr_in;        
          write_source_0 <= SOURCE_DP;
-         write_vector_0 <= "0" & dp_write_vector_in;
-         writedata_0 <= dp_writedata_in & dp_writedata_in;
+         write_vector_0 <= (others=>'0');
+         write_vector_0(dp_write_vector_in'length-1 downto 0) <= dp_write_vector_in;
+         FOR I in 1 to (fpu_data_width_c/ddr_data_width_c) LOOP
+            writedata_0(I*ddr_data_width_c-1 downto (I-1)*ddr_data_width_c) <= dp_writedata_in;
+         END LOOP;
          writebe_0 <= (others=>'1');
       else
          write_addr_1 <= dp_wr_addr_in;        
          write_source_1 <= SOURCE_DP;
-         write_vector_1 <= "0" & dp_write_vector_in;
-         writedata_1 <= dp_writedata_in & dp_writedata_in;
+         write_vector_1 <= (others=>'0');
+         write_vector_1(dp_write_vector_in'length-1 downto 0) <= dp_write_vector_in;
+         FOR I in 1 to (fpu_data_width_c/ddr_data_width_c) LOOP
+            writedata_1(I*ddr_data_width_c-1 downto (I-1)*ddr_data_width_c) <= dp_writedata_in;
+         END LOOP;
          writebe_1 <= (others=>'1');
       end if;
    end if;
@@ -394,7 +410,8 @@ axi_ifc_i: axi_ram_read
 
 sram_0_i : sram
    GENERIC MAP(
-      DEPTH=>sram_bank_depth_c
+      DEPTH=>sram_bank_depth_c,
+      SRAM_VECTOR_DEPTH=>fpu_vector_depth_c
    )
    PORT MAP (
       clock_in => clock_in,
@@ -414,7 +431,8 @@ sram_0_i : sram
 
 sram_1_i : sram
    GENERIC MAP(
-      DEPTH=>sram_bank_depth_c
+      DEPTH=>sram_bank_depth_c,
+      SRAM_VECTOR_DEPTH=>fpu_vector_depth_c
    )
    PORT MAP (
       clock_in => clock_in,

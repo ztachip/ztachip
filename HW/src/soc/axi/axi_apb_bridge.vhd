@@ -46,7 +46,7 @@ entity axi_apb_bridge is
         axislave_rid_out           : OUT axi_rid_t;         
         axislave_rvalid_out        : OUT axi_rvalid_t;
         axislave_rlast_out         : OUT axi_rlast_t;
-        axislave_rdata_out         : OUT axi_rdata_t;
+        axislave_rdata_out         : OUT axi_rdata32_t;
         axislave_rresp_out         : OUT axi_rresp_t;
         axislave_arready_out       : OUT axi_arready_t;
         axislave_rready_in         : IN axi_rready_t;
@@ -58,9 +58,9 @@ entity axi_apb_bridge is
         axislave_awlen_in          : IN axi_awlen_t;
         axislave_awvalid_in        : IN axi_awvalid_t;
         axislave_wvalid_in         : IN axi_wvalid_t;
-        axislave_wdata_in          : IN axi_wdata_t;
+        axislave_wdata_in          : IN axi_wdata32_t;
         axislave_wlast_in          : IN axi_wlast_t;
-        axislave_wstrb_in          : IN axi_wstrb_t;
+        axislave_wstrb_in          : IN axi_wstrb4_t;
         axislave_awready_out       : OUT axi_awready_t;
         axislave_wready_out        : OUT axi_wready_t;
         axislave_bresp_out         : OUT axi_bresp_t;
@@ -96,10 +96,10 @@ SIGNAL wcmd_empty:STD_LOGIC;
 SIGNAL wcmd_full:STD_LOGIC;
 
 
-SIGNAL wdata_write_rec:STD_LOGIC_VECTOR(axi_wdata_t'length-1 DOWNTO 0);
+SIGNAL wdata_write_rec:STD_LOGIC_VECTOR(axi_wdata32_t'length-1 DOWNTO 0);
 SIGNAL wdata_write:STD_LOGIC;
 SIGNAL wdata_read:STD_LOGIC;
-SIGNAL wdata_read_rec:STD_LOGIC_VECTOR(axi_wdata_t'length-1 DOWNTO 0);
+SIGNAL wdata_read_rec:STD_LOGIC_VECTOR(axi_wdata32_t'length-1 DOWNTO 0);
 SIGNAL wdata_empty:STD_LOGIC;
 SIGNAL wdata_full:STD_LOGIC;
 
@@ -118,10 +118,10 @@ SIGNAL rcmd_write_rec:STD_LOGIC_VECTOR(axi_araddr_t'length+axi_arid_t'length-1 D
 SIGNAL rcmd_empty:STD_LOGIC;
 SIGNAL rcmd_full:STD_LOGIC;
 
-SIGNAL rresp_write_rec:STD_LOGIC_VECTOR(axi_rdata_t'length+axi_rid_t'length-1 downto 0);
+SIGNAL rresp_write_rec:STD_LOGIC_VECTOR(axi_rdata32_t'length+axi_rid_t'length-1 downto 0);
 SIGNAL rresp_write:STD_LOGIC;
 SIGNAL rresp_read:STD_LOGIC;
-SIGNAL rresp_read_rec:STD_LOGIC_VECTOR(axi_rdata_t'length+axi_rid_t'length-1 downto 0);
+SIGNAL rresp_read_rec:STD_LOGIC_VECTOR(axi_rdata32_t'length+axi_rid_t'length-1 downto 0);
 SIGNAL rresp_empty:STD_LOGIC;
 SIGNAL rresp_full:STD_LOGIC;
 
@@ -281,7 +281,7 @@ axislave_bvalid_out <= not wresp_empty;
 wresp_read <= '1' when (axislave_bready_in='1' and wresp_empty='0') else '0';
 
 -- Send out read response
-axislave_rdata_out <= rresp_read_rec(axi_rdata_t'length-1 downto 0);
+axislave_rdata_out <= rresp_read_rec(axi_rdata32_t'length-1 downto 0);
 axislave_rid_out <= rresp_read_rec(rresp_read_rec'length-1 downto axislave_rdata_out'length);
 axislave_rvalid_out <= not rresp_empty;
 axislave_rlast_out <= '1';
@@ -294,13 +294,13 @@ apb_paddr_out <= paddr_r;
 
 apb_pwrite_out <=  write_in_progress_r;
 
-apb_pwdata_out <= wdata_read_rec(axi_wdata_t'length-1 downto 0);
+apb_pwdata_out <= wdata_read_rec(axi_wdata32_t'length-1 downto 0);
 
 -- Latch read response from APB
 
-rresp_write_rec(rresp_write_rec'length-1 downto axi_rdata_t'length) <= rcmd_read_rec(rcmd_read_rec'length-1 downto axi_araddr_t'length);
+rresp_write_rec(rresp_write_rec'length-1 downto axi_rdata32_t'length) <= rcmd_read_rec(rcmd_read_rec'length-1 downto axi_araddr_t'length);
 
-rresp_write_rec(axi_rdata_t'length-1 downto 0) <= apb_prdata_in;
+rresp_write_rec(axi_rdata32_t'length-1 downto 0) <= apb_prdata_in;
 
 -- Latch write response
 

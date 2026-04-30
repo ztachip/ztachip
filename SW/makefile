@@ -78,6 +78,7 @@ SRCS = 	base/newlib.c \
 	apps/llm/gguf/zuf.cpp \
 	apps/gdi/gdi.cpp \
 	apps/test/kernels/test.m.c \
+	apps/test/kernels/test_dma.m.c \
 	thirdparty/FatFs/ff.c \
 	src/sdmm.c \
 	src/chat.cpp \

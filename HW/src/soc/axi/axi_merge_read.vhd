@@ -26,6 +26,7 @@ LIBRARY ieee;
 USE ieee.std_logic_1164.all;
 use IEEE.numeric_std.all;
 use work.ztachip_pkg.all;
+use work.config.all;
 
 entity axi_merge_read is
    generic (
@@ -52,7 +53,7 @@ entity axi_merge_read is
       axislavew_rid_out       : OUT axi_rid_t:=(others=>'0');
       axislavew_rvalid_out    : OUT axi_rvalid_t;
       axislavew_rlast_out     : OUT axi_rlast_t;
-      axislavew_rdata_out     : OUT axi_rdata64_t;
+      axislavew_rdata_out     : OUT axi_rdata_t(ddr_data_width_c-1 downto 0);
       axislavew_rresp_out     : OUT axi_rresp_t;
       axislavew_arready_out   : OUT axi_arready_t;
       axislavew_rready_in     : IN axi_rready_t:='0';
@@ -90,7 +91,7 @@ entity axi_merge_read is
       aximaster_rid_in        : IN axi_rid_t;              
       aximaster_rvalid_in     : IN axi_rvalid_t;
       aximaster_rlast_in      : IN axi_rlast_t;
-      aximaster_rdata_in      : IN axi_rdata128_t;
+      aximaster_rdata_in      : IN axi_rdata_t(exmem_data_width_c-1 downto 0);
       aximaster_rresp_in      : IN axi_rresp_t;
       aximaster_arready_in    : IN axi_arready_t;
       aximaster_rready_out   : OUT axi_rready_t;
@@ -116,7 +117,9 @@ SIGNAL slave_arqoss:axi_arqoss_t(MAX_SLAVE_PORT-1 downto 0);
 SIGNAL slave_rids:axi_rids_t(MAX_SLAVE_PORT-1 downto 0);
 SIGNAL slave_rvalids:axi_rvalids_t(MAX_SLAVE_PORT-1 downto 0);
 SIGNAL slave_rlasts:axi_rlasts_t(MAX_SLAVE_PORT-1 downto 0);
-SIGNAL slave_rdatas:axi_rdata128s_t(MAX_SLAVE_PORT-1 downto 0);
+SIGNAL slave_rdata_S0:axi_rdata_t(exmem_data_width_c-1 downto 0);
+SIGNAL slave_rdata_S1:axi_rdata_t(exmem_data_width_c-1 downto 0);
+SIGNAL slave_rdata_S2:axi_rdata_t(exmem_data_width_c-1 downto 0);
 SIGNAL slave_rresps:axi_rresps_t(MAX_SLAVE_PORT-1 downto 0);
 SIGNAL slave_arreadys:axi_arreadys_t(MAX_SLAVE_PORT-1 downto 0);
 SIGNAL slave_rreadys:axi_rreadys_t(MAX_SLAVE_PORT-1 downto 0);
@@ -136,7 +139,7 @@ SIGNAL slavew_arqos:axi_arqos_t;
 SIGNAL slavew_rid:axi_rid_t;
 SIGNAL slavew_rvalid:axi_rvalid_t;
 SIGNAL slavew_rlast:axi_rlast_t;
-SIGNAL slavew_rdata:axi_rdata128_t;
+SIGNAL slavew_rdata:axi_rdata_t(exmem_data_width_c-1 downto 0);
 SIGNAL slavew_rresp:axi_rresp_t;
 SIGNAL slavew_arready:axi_arready_t;
 SIGNAL slavew_rready:axi_rready_t;
@@ -154,7 +157,7 @@ SIGNAL master_arqos:axi_arqos_t;
 SIGNAL master_rid:axi_rid_t;
 SIGNAL master_rvalid:axi_rvalid_t;
 SIGNAL master_rlast:axi_rlast_t;
-SIGNAL master_rdata:axi_rdata128_t;
+SIGNAL master_rdata:axi_rdata_t(exmem_data_width_c-1 downto 0);
 SIGNAL master_rresp:axi_rresp_t;
 SIGNAL master_arready:axi_arready_t;
 SIGNAL master_rready:axi_rready_t;
@@ -206,11 +209,12 @@ aximaster_arsize_out <= master_arsize;
 
 congest <= '1' when (pend_master_full='1' or aximaster_arready_in='0') else '0';
 
+GEN_SLAVE_RESIZE:IF 64 < exmem_data_width_c GENERATE
 slave_i0: axi_resize_read
    generic map(
       CCD => FALSE, 
       SLAVE_DATA_WIDTH=>64,
-      MASTER_DATA_WIDTH=>128,
+      MASTER_DATA_WIDTH=>exmem_data_width_c,
       FIFO_DEPTH=>FIFO_CMD_DEPTH(S0),
       FIFO_DATA_DEPTH=>FIFO_DATA_DEPTH(S0)
    )
@@ -249,13 +253,66 @@ slave_i0: axi_resize_read
       aximaster_rid_in=>slave_rids(S0),
       aximaster_rvalid_in=>slave_rvalids(S0),
       aximaster_rlast_in=>slave_rlasts(S0),
-      aximaster_rdata_in=>slave_rdatas(S0),
+      aximaster_rdata_in=>slave_rdata_S0,
       aximaster_rresp_in=>slave_rresps(S0),
       aximaster_arready_in=>slave_arreadys(S0),
       aximaster_rready_out=>slave_rreadys(S0),
       aximaster_arburst_out=>slave_arbursts(S0),
       aximaster_arsize_out=>slave_arsizes(S0)
    );
+end generate GEN_SLAVE_RESIZE;
+
+GEN_SLAVE_NO_RESIZE:IF 64 = exmem_data_width_c GENERATE
+slave_i0: axi_read
+   generic map(
+      CCD => FALSE, 
+      DATA_WIDTH=>64,
+      FIFO_DEPTH=>FIFO_CMD_DEPTH(S0),
+      FIFO_DATA_DEPTH=>FIFO_DATA_DEPTH(S0)
+   )
+   port map(
+      clock_in=>clock_in,
+      reset_in=>reset_in,
+
+      axislave_clock_in=>clock_in,
+      axislave_araddr_in=>axislave_araddrs_in(S0),
+      axislave_arlen_in=>axislave_arlens_in(S0),
+      axislave_arvalid_in=>axislave_arvalids_in(S0),
+      axislave_arid_in=>axislave_arids_in(S0),
+      axislave_arlock_in=>axislave_arlocks_in(S0),
+      axislave_arcache_in=>axislave_arcaches_in(S0),
+      axislave_arprot_in=>axislave_arprots_in(S0),
+      axislave_arqos_in=>axislave_arqoss_in(S0),
+      axislave_rid_out=>axislave_rids_out(S0), 
+      axislave_rvalid_out=>axislave_rvalids_out(S0),
+      axislave_rlast_out=>axislave_rlasts_out(S0),
+      axislave_rdata_out=>axislave_rdatas_out(S0),
+      axislave_rresp_out=>axislave_rresps_out(S0),
+      axislave_arready_out=>axislave_arreadys_out(S0),
+      axislave_rready_in=>axislave_rreadys_in(S0),
+      axislave_arburst_in=>axislave_arbursts_in(S0),
+      axislave_arsize_in=>axislave_arsizes_in(S0),
+         
+      aximaster_clock_in=>clock_in,
+      aximaster_araddr_out=>slave_araddrs(S0),
+      aximaster_arlen_out=>slave_arlens(S0),
+      aximaster_arvalid_out=>slave_arvalids(S0),
+      aximaster_arid_out=>slave_arids(S0),
+      aximaster_arlock_out=>slave_arlocks(S0),
+      aximaster_arcache_out=>slave_arcaches(S0),
+      aximaster_arprot_out=>slave_arprots(S0),
+      aximaster_arqos_out=>slave_arqoss(S0),
+      aximaster_rid_in=>slave_rids(S0),
+      aximaster_rvalid_in=>slave_rvalids(S0),
+      aximaster_rlast_in=>slave_rlasts(S0),
+      aximaster_rdata_in=>slave_rdata_S0,
+      aximaster_rresp_in=>slave_rresps(S0),
+      aximaster_arready_in=>slave_arreadys(S0),
+      aximaster_rready_out=>slave_rreadys(S0),
+      aximaster_arburst_out=>slave_arbursts(S0),
+      aximaster_arsize_out=>slave_arsizes(S0)
+   );
+end generate GEN_SLAVE_NO_RESIZE;
 
 axislave_rdatas_out(S1)(63 downto 32) <= (others=>'0');
 
@@ -263,7 +320,7 @@ slave_i1: axi_resize_read
    generic map(
       CCD => FALSE, 
       SLAVE_DATA_WIDTH=>32,
-      MASTER_DATA_WIDTH=>128,
+      MASTER_DATA_WIDTH=>exmem_data_width_c,
       FIFO_DEPTH=>FIFO_CMD_DEPTH(S1),
       FIFO_DATA_DEPTH=>FIFO_DATA_DEPTH(S1)
    )
@@ -302,7 +359,7 @@ slave_i1: axi_resize_read
       aximaster_rid_in=>slave_rids(S1),
       aximaster_rvalid_in=>slave_rvalids(S1),
       aximaster_rlast_in=>slave_rlasts(S1),
-      aximaster_rdata_in=>slave_rdatas(S1),
+      aximaster_rdata_in=>slave_rdata_S1,
       aximaster_rresp_in=>slave_rresps(S1),
       aximaster_arready_in=>slave_arreadys(S1),
       aximaster_rready_out=>slave_rreadys(S1),
@@ -316,7 +373,7 @@ slave_i2: axi_resize_read
    generic map(
       CCD => FALSE, 
       SLAVE_DATA_WIDTH=>32,
-      MASTER_DATA_WIDTH=>128,
+      MASTER_DATA_WIDTH=>exmem_data_width_c,
       FIFO_DEPTH=>FIFO_CMD_DEPTH(S2),
       FIFO_DATA_DEPTH=>FIFO_DATA_DEPTH(S2)
    )
@@ -355,7 +412,7 @@ slave_i2: axi_resize_read
       aximaster_rid_in=>slave_rids(S2),
       aximaster_rvalid_in=>slave_rvalids(S2),
       aximaster_rlast_in=>slave_rlasts(S2),
-      aximaster_rdata_in=>slave_rdatas(S2),
+      aximaster_rdata_in=>slave_rdata_S2,
       aximaster_rresp_in=>slave_rresps(S2),
       aximaster_arready_in=>slave_arreadys(S2),
       aximaster_rready_out=>slave_rreadys(S2),
@@ -363,11 +420,12 @@ slave_i2: axi_resize_read
       aximaster_arsize_out=>slave_arsizes(S2)
    );
 
+GEN_SLAVEW_RESIZE:IF ddr_data_width_c < exmem_data_width_c GENERATE
 slavew_i: axi_resize_read
    generic map(
       CCD => FALSE, 
-      SLAVE_DATA_WIDTH=>64,
-      MASTER_DATA_WIDTH=>128,
+      SLAVE_DATA_WIDTH=>ddr_data_width_c,
+      MASTER_DATA_WIDTH=>exmem_data_width_c,
       FIFO_DEPTH=>FIFO_W_CMD_DEPTH,
       FIFO_DATA_DEPTH=>FIFO_W_DATA_DEPTH
    )
@@ -413,7 +471,60 @@ slavew_i: axi_resize_read
       aximaster_arburst_out=>slavew_arburst,
       aximaster_arsize_out=>slavew_arsize
    );
+end generate GEN_SLAVEW_RESIZE;
    
+GEN1_NO_RESIZE:IF ddr_data_width_c = exmem_data_width_c GENERATE
+slavew_i: axi_read
+   generic map(
+      CCD => FALSE, 
+      DATA_WIDTH=>ddr_data_width_c,
+      FIFO_DEPTH=>FIFO_W_CMD_DEPTH,
+      FIFO_DATA_DEPTH=>FIFO_W_DATA_DEPTH
+   )
+   port map(
+      clock_in=>clock_in,
+      reset_in=>reset_in,
+
+      axislave_clock_in=>clock_in,
+      axislave_araddr_in=>axislavew_araddr_in,
+      axislave_arlen_in=>axislavew_arlen_in,
+      axislave_arvalid_in=>axislavew_arvalid_in,
+      axislave_arid_in=>axislavew_arid_in,
+      axislave_arlock_in=>axislavew_arlock_in,
+      axislave_arcache_in=>axislavew_arcache_in,
+      axislave_arprot_in=>axislavew_arprot_in,
+      axislave_arqos_in=>axislavew_arqos_in,
+      axislave_rid_out=>axislavew_rid_out, 
+      axislave_rvalid_out=>axislavew_rvalid_out,
+      axislave_rlast_out=>axislavew_rlast_out,
+      axislave_rdata_out=>axislavew_rdata_out,
+      axislave_rresp_out=>axislavew_rresp_out,
+      axislave_arready_out=>axislavew_arready_out,
+      axislave_rready_in=>axislavew_rready_in,
+      axislave_arburst_in=>axislavew_arburst_in,
+      axislave_arsize_in=>axislavew_arsize_in,
+         
+      aximaster_clock_in=>clock_in,
+      aximaster_araddr_out=>slavew_araddr,
+      aximaster_arlen_out=>slavew_arlen,
+      aximaster_arvalid_out=>slavew_arvalid,
+      aximaster_arid_out=>slavew_arid,
+      aximaster_arlock_out=>slavew_arlock,
+      aximaster_arcache_out=>slavew_arcache,
+      aximaster_arprot_out=>slavew_arprot,
+      aximaster_arqos_out=>slavew_arqos,
+      aximaster_rid_in=>slavew_rid,
+      aximaster_rvalid_in=>slavew_rvalid,
+      aximaster_rlast_in=>slavew_rlast,
+      aximaster_rdata_in=>slavew_rdata,
+      aximaster_rresp_in=>slavew_rresp,
+      aximaster_arready_in=>slavew_arready,
+      aximaster_rready_out=>slavew_rready,
+      aximaster_arburst_out=>slavew_arburst,
+      aximaster_arsize_out=>slavew_arsize
+   );
+end generate GEN1_NO_RESIZE;
+
 -- Pending fifo at master port
 
 pend_master_fifo_i:scfifo
@@ -496,7 +607,7 @@ begin
 
    -- Read for VDMA 64-bit
 
-   slave_rdatas(S0) <= master_rdata;
+   slave_rdata_S0 <= master_rdata;
    if pend_master_empty='0' and pend_master_read(S0)='1' then
       slave_rvalids(S0) <= master_rvalid; 
       slave_rids(S0) <= master_rid;
@@ -513,7 +624,7 @@ begin
    end if;
 
    -- Read for RISCV I-BUS 32-bit port
-   slave_rdatas(S1) <= master_rdata;
+   slave_rdata_S1 <= master_rdata;
    if pend_master_empty='0' and pend_master_read(S1)='1' then
       slave_rvalids(S1) <= master_rvalid;
       slave_rids(S1) <= master_rid;
@@ -530,7 +641,7 @@ begin
    end if;
 
    -- Read for RISCV D-BUS 32-bit port
-   slave_rdatas(S2) <= master_rdata;
+   slave_rdata_S2 <= master_rdata;
    if pend_master_empty='0' and pend_master_read(S2)='1' then
       slave_rvalids(S2) <= master_rvalid;
       slave_rids(S2) <= master_rid;

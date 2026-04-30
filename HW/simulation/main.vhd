@@ -166,6 +166,7 @@ soc_base_inst: soc_base
       CAMERA_PWDN=>open
    );
 
+GEN_MEM128:IF exmem_data_width_c=128 GENERATE
 mem128_inst:mem128
    port map(   
       SDRAM_clk=>clk_main,
@@ -196,7 +197,39 @@ mem128_inst:mem128
       SDRAM_wstrb=>SDRAM_wstrb,
       SDRAM_wvalid=>SDRAM_wvalid
    );
+end generate GEN_MEM128;
 
-
+GEN_MEM64:IF exmem_data_width_c=64 GENERATE
+mem64_inst:mem64
+   port map(   
+      SDRAM_clk=>clk_main,
+      SDRAM_reset=>reset,
+      SDRAM_araddr=>SDRAM_araddr,
+      SDRAM_arburst=>SDRAM_arburst,
+      SDRAM_arlen=>SDRAM_arlen,
+      SDRAM_arready=>SDRAM_arready,
+      SDRAM_arsize=>SDRAM_arsize,
+      SDRAM_arvalid=>SDRAM_arvalid,
+      SDRAM_awaddr=>SDRAM_awaddr,
+      SDRAM_awburst=>SDRAM_awburst,
+      SDRAM_awlen=>SDRAM_awlen,
+      SDRAM_awready=>SDRAM_awready,
+      SDRAM_awsize=>SDRAM_awsize,
+      SDRAM_awvalid=>SDRAM_awvalid,
+      SDRAM_bready=>SDRAM_bready,
+      SDRAM_bresp=>SDRAM_bresp,
+      SDRAM_bvalid=>SDRAM_bvalid,
+      SDRAM_rdata=>SDRAM_rdata,
+      SDRAM_rlast=>SDRAM_rlast,
+      SDRAM_rready=>SDRAM_rready,
+      SDRAM_rresp=>SDRAM_rresp,
+      SDRAM_rvalid=>SDRAM_rvalid,
+      SDRAM_wdata=>SDRAM_wdata,
+      SDRAM_wlast=>SDRAM_wlast,
+      SDRAM_wready=>SDRAM_wready,
+      SDRAM_wstrb=>SDRAM_wstrb,
+      SDRAM_wvalid=>SDRAM_wvalid
+   );
+end generate GEN_MEM64;
 
 end rtl;

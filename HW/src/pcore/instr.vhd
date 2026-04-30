@@ -41,7 +41,7 @@ ENTITY instr IS
             SIGNAL dp_config_in                : IN STD_LOGIC;
             SIGNAL dp_wr_addr_in               : IN STD_LOGIC_VECTOR(local_bus_width_c-1 DOWNTO 0);  
             SIGNAL dp_write_in                 : IN STD_LOGIC;
-            SIGNAL dp_writedata_in             : IN STD_LOGIC_VECTOR(ddrx_data_width_c-1 DOWNTO 0);
+            SIGNAL dp_writedata_in             : IN STD_LOGIC_VECTOR(core_data_width_c-1 DOWNTO 0);
 
             -- Busy status
             
@@ -117,7 +117,7 @@ SIGNAL dp_code_in_r:STD_LOGIC;
 SIGNAL dp_config_in_r:STD_LOGIC;
 SIGNAL dp_wr_addr_in_r:STD_LOGIC_VECTOR(local_bus_width_c-1 DOWNTO 0);  
 SIGNAL dp_write_in_r:STD_LOGIC;
-SIGNAL dp_writedata_in_r:STD_LOGIC_VECTOR(ddrx_data_width_c-1 DOWNTO 0);
+SIGNAL dp_writedata_in_r:STD_LOGIC_VECTOR(core_data_width_c-1 DOWNTO 0);
 
 BEGIN
 

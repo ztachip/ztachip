@@ -40,15 +40,13 @@ constant min_mem_depth_c:integer:=512;
 ---------------------------------------------------------------
 -- Specify data width to external memory
 -- ztachip accesses external memory via AXI bus protocol
--- ztachip supports 32-bit, 64-bit or 128-bit AXI bus width for 
+-- ztachip supports 64-bit or 128-bit AXI bus width for 
 -- external memory access
 ---------------------------------------------------------------
 
-constant exmem_data_width_c:integer:=128;
-
 --constant exmem_data_width_c:integer:=64;
 
---constant exmem_data_width_c:integer:=32;
+constant exmem_data_width_c:integer:=128;
 
 ---------------------------------------------------------------
 -- Main clock speed
@@ -69,12 +67,14 @@ constant fpu_gen_depth_c:integer:=1;
 
 constant fpu_gen_max_c:integer:=2**fpu_gen_depth_c; --Number of FPUs to be instantiated
 
+constant fpu_vector_depth_c :integer:=4;
+
+--constant fpu_vector_depth_c :integer:=3;
+
 ---------------------------------------------------------------
 -- Max tensor size in log2
 -- Max tensor size = 2**MAX_TENSOR_LOG2_SIZE
 ---------------------------------------------------------------
-
---constant MAX_TENSOR_LOG2_SIZE: integer:=28;
 
 --constant MAX_TENSOR_LOG2_SIZE: integer:=24;
 

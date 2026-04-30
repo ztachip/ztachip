@@ -26,6 +26,7 @@ LIBRARY ieee;
 USE ieee.std_logic_1164.all;
 use IEEE.numeric_std.all;
 use work.ztachip_pkg.all;
+use work.config.all;
 
 entity axi_resize_write is
    generic (
@@ -344,7 +345,7 @@ aximaster_awlock_out <= axislave_cmd_rec_read.awlock;
 aximaster_awprot_out <= axislave_cmd_rec_read.awprot;
 aximaster_awqos_out <= axislave_cmd_rec_read.awqos;
 --aximaster_awsize_out <= axislave_cmd_rec_read.awsize;
-aximaster_awsize_out <= "100";
+aximaster_awsize_out <= std_logic_vector(to_unsigned(log2(exmem_data_width_c/8),aximaster_awsize_out'length));
 aximaster_bready_out <= not axislave_resp_fifo_full;
 
 -- Set input to slave_cmd_fifo

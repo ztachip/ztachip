@@ -333,7 +333,7 @@ ddr_arprot_out <= "000";
 
 ddr_arqos_out <= "0000";
 
-ddr_arsize_out <= "011";
+ddr_arsize_out <= std_logic_vector(to_unsigned(ddr_vector_depth_c,ddr_arsize_out'length));
 
 process(read_fifo_read,read_fifo_read_empty,read_pause_r,read_pause_addr_r,read_pause_burstlen_r,ddr_read,rd_ddr_addr,rd_ddr_burstlen,burstbegin)
 begin
@@ -431,27 +431,16 @@ process(read_burstlen_in,read_vector_in,read_addr,read_piggyback_r)
 
       -- Calculate burst length for different vector format
 
-      if unsigned(read_vector_in)=to_unsigned(1,ddr_vector_depth_c) then 
-         if burstlen_v > to_unsigned((ddr_vector_width_c/2)*(ddr_rx_max_burstlen_c-1),burstlen_v'length) then
-            burstlen_v := to_unsigned((ddr_vector_width_c/2)*(ddr_rx_max_burstlen_c-1),burstlen_v'length);
+      temp_v := (others=>'0');
+      FOR I IN 0 TO ddr_vector_depth_c LOOP
+         if unsigned(read_vector_in)=to_unsigned((2**I)-1,ddr_vector_depth_c) then 
+            if burstlen_v > to_unsigned((ddr_vector_width_c/(2**I))*(ddr_rx_max_burstlen_c-1),burstlen_v'length) then
+               burstlen_v := to_unsigned((ddr_vector_width_c/(2**I))*(ddr_rx_max_burstlen_c-1),burstlen_v'length);
+            end if;
+            temp_v := burstlen_v sll I;
+            exit;
          end if;
-         temp_v := burstlen_v sll 1;
-      elsif unsigned(read_vector_in)=to_unsigned(3,ddr_vector_depth_c) then
-         if burstlen_v > to_unsigned((ddr_vector_width_c/4)*(ddr_rx_max_burstlen_c-1),burstlen_v'length) then
-            burstlen_v := to_unsigned((ddr_vector_width_c/4)*(ddr_rx_max_burstlen_c-1),burstlen_v'length);
-         end if;
-         temp_v := burstlen_v sll 2;
-      elsif unsigned(read_vector_in)=to_unsigned(7,ddr_vector_depth_c) then -- vsize=1
-         if burstlen_v > to_unsigned((ddr_vector_width_c/8)*(ddr_rx_max_burstlen_c-1),burstlen_v'length) then
-            burstlen_v := to_unsigned((ddr_vector_width_c/8)*(ddr_rx_max_burstlen_c-1),burstlen_v'length);
-         end if;
-         temp_v := burstlen_v sll 3;
-      else
-         if burstlen_v > to_unsigned(ddr_vector_width_c*(ddr_rx_max_burstlen_c-1),burstlen_v'length) then
-            burstlen_v := to_unsigned(ddr_vector_width_c*(ddr_rx_max_burstlen_c-1),burstlen_v'length);
-         end if;
-         temp_v := burstlen_v;
-      end if;
+      END LOOP;
    else
       --------------
       -- When address is non aligned with 64-bit boundary then dont use up to max burst length but 
@@ -460,27 +449,16 @@ process(read_burstlen_in,read_vector_in,read_addr,read_piggyback_r)
 
       -- Calculate burst length for different vector format
 
-      if unsigned(read_vector_in)=to_unsigned(1,ddr_vector_depth_c) then 
-         if burstlen_v > to_unsigned((ddr_vector_width_c/2)*(ddr_rx_max_burstlen_c-2),burstlen_v'length) then
-            burstlen_v := to_unsigned((ddr_vector_width_c/2)*(ddr_rx_max_burstlen_c-2),burstlen_v'length);
+      temp_v := (others=>'0');
+      FOR I IN 0 TO ddr_vector_depth_c LOOP
+         if unsigned(read_vector_in)=to_unsigned((2**I)-1,ddr_vector_depth_c) then 
+            if burstlen_v > to_unsigned((ddr_vector_width_c/(2**I))*(ddr_rx_max_burstlen_c-2),burstlen_v'length) then
+               burstlen_v := to_unsigned((ddr_vector_width_c/(2**I))*(ddr_rx_max_burstlen_c-2),burstlen_v'length);
+            end if;
+            temp_v := burstlen_v sll I;
+            exit;
          end if;
-         temp_v := burstlen_v sll 1;
-      elsif unsigned(read_vector_in)=to_unsigned(3,ddr_vector_depth_c) then
-         if burstlen_v > to_unsigned((ddr_vector_width_c/4)*(ddr_rx_max_burstlen_c-2),burstlen_v'length) then
-            burstlen_v := to_unsigned((ddr_vector_width_c/4)*(ddr_rx_max_burstlen_c-2),burstlen_v'length);
-         end if;
-         temp_v := burstlen_v sll 2;
-      elsif unsigned(read_vector_in)=to_unsigned(7,ddr_vector_depth_c) then -- vsize=1
-         if burstlen_v > to_unsigned((ddr_vector_width_c/8)*(ddr_rx_max_burstlen_c-2),burstlen_v'length) then
-            burstlen_v := to_unsigned((ddr_vector_width_c/8)*(ddr_rx_max_burstlen_c-2),burstlen_v'length);
-         end if;
-         temp_v := burstlen_v sll 3;
-      else
-         if burstlen_v > to_unsigned(ddr_vector_width_c*(ddr_rx_max_burstlen_c-2),burstlen_v'length) then
-            burstlen_v := to_unsigned(ddr_vector_width_c*(ddr_rx_max_burstlen_c-2),burstlen_v'length);
-         end if;
-         temp_v := burstlen_v;
-      end if;
+      END LOOP;
    end if;
    --- Increase burst length if address is not aligned to 64-bit address boundary
    temp3_v := temp_v+addr_v+to_unsigned(ddr_vector_width_c-1,temp3_v'length);
@@ -549,25 +527,16 @@ end process;
 -------------------
 
 process(read_record_read,read_data_read_r)
+variable i_v:integer;
 begin
-    case read_record_read(ddr_vector_depth_c-1 downto ddr_vector_depth_c-3) is
-        when "000"=>
-            read_data(ddr_data_width_c-1 downto 0) <= read_data_read_r(8*ddr_data_width_c/8-1 downto 0*ddr_data_width_c/8);
-        when "001"=>
-            read_data(ddr_data_width_c-1 downto 0) <= read_data_read_r(9*ddr_data_width_c/8-1 downto 1*ddr_data_width_c/8);
-        when "010"=>
-            read_data(ddr_data_width_c-1 downto 0) <= read_data_read_r(10*ddr_data_width_c/8-1 downto 2*ddr_data_width_c/8);
-        when "011"=>
-            read_data(ddr_data_width_c-1 downto 0) <= read_data_read_r(11*ddr_data_width_c/8-1 downto 3*ddr_data_width_c/8);
-        when "100"=>
-            read_data(ddr_data_width_c-1 downto 0) <= read_data_read_r(12*ddr_data_width_c/8-1 downto 4*ddr_data_width_c/8);
-        when "101"=>
-            read_data(ddr_data_width_c-1 downto 0) <= read_data_read_r(13*ddr_data_width_c/8-1 downto 5*ddr_data_width_c/8);
-        when "110"=>
-            read_data(ddr_data_width_c-1 downto 0) <= read_data_read_r(14*ddr_data_width_c/8-1 downto 6*ddr_data_width_c/8);
-        when others=>
-            read_data(ddr_data_width_c-1 downto 0) <= read_data_read_r(15*ddr_data_width_c/8-1 downto 7*ddr_data_width_c/8);
-    end case;
+   read_data <= (others=>'0');
+   i_v := to_integer(unsigned(read_record_read(ddr_vector_depth_c-1 downto 0)));
+   FOR I in 0 to ddr_vector_width_c-1 LOOP
+      if (i_v=I) then
+         read_data(ddr_data_width_c-1 downto 0) <= read_data_read_r((ddr_vector_width_c+i_v)*ddr_data_width_c/ddr_vector_width_c-1 downto i_v*ddr_data_width_c/ddr_vector_width_c);
+         exit;
+      end if;
+   END LOOP;
 end process;
 
 

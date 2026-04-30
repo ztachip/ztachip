@@ -26,6 +26,7 @@ LIBRARY ieee;
 USE ieee.std_logic_1164.all;
 use IEEE.numeric_std.all;
 use work.ztachip_pkg.all;
+use work.config.all;
 
 entity axi_merge is
    generic (
@@ -56,7 +57,7 @@ entity axi_merge is
       axislavew_rid_out       : OUT axi_rid_t;
       axislavew_rvalid_out    : OUT axi_rvalid_t;
       axislavew_rlast_out     : OUT axi_rlast_t;
-      axislavew_rdata_out     : OUT axi_rdata64_t;
+      axislavew_rdata_out     : OUT axi_rdata_t(ddr_data_width_c-1 downto 0);
       axislavew_rresp_out     : OUT axi_rresp_t;
       axislavew_arready_out   : OUT axi_arready_t;
       axislavew_rready_in     : IN axi_rready_t:='0';
@@ -67,9 +68,9 @@ entity axi_merge is
       axislavew_awlen_in      : IN axi_awlen_t;
       axislavew_awvalid_in    : IN axi_awvalid_t;
       axislavew_wvalid_in     : IN axi_wvalid_t;
-      axislavew_wdata_in      : IN axi_wdata64_t;
+      axislavew_wdata_in      : IN axi_wdata_t(ddr_data_width_c-1 downto 0);
       axislavew_wlast_in      : IN axi_wlast_t;
-      axislavew_wstrb_in      : IN axi_wstrb8_t;
+      axislavew_wstrb_in      : IN axi_wstrb_t(ddr_data_byte_width_c-1 downto 0);
       axislavew_awready_out   : OUT axi_awready_t;
       axislavew_wready_out    : OUT axi_wready_t;
       axislavew_bresp_out     : OUT axi_bresp_t;
@@ -136,7 +137,7 @@ entity axi_merge is
       axislave1_rid_out       : OUT axi_rid_t;
       axislave1_rvalid_out    : OUT axi_rvalid_t;
       axislave1_rlast_out     : OUT axi_rlast_t;
-      axislave1_rdata_out     : OUT axi_rdata_t;
+      axislave1_rdata_out     : OUT axi_rdata32_t;
       axislave1_rresp_out     : OUT axi_rresp_t;
       axislave1_arready_out   : OUT axi_arready_t;
       axislave1_rready_in     : IN axi_rready_t;
@@ -147,9 +148,9 @@ entity axi_merge is
       axislave1_awlen_in          : IN axi_awlen_t;
       axislave1_awvalid_in        : IN axi_awvalid_t;
       axislave1_wvalid_in         : IN axi_wvalid_t;
-      axislave1_wdata_in          : IN axi_wdata_t;
+      axislave1_wdata_in          : IN axi_wdata32_t;
       axislave1_wlast_in          : IN axi_wlast_t;
-      axislave1_wstrb_in          : IN axi_wstrb_t;
+      axislave1_wstrb_in          : IN axi_wstrb4_t;
       axislave1_awready_out       : OUT axi_awready_t;
       axislave1_wready_out        : OUT axi_wready_t;
       axislave1_bresp_out         : OUT axi_bresp_t;
@@ -176,7 +177,7 @@ entity axi_merge is
       axislave2_rid_out       : OUT axi_rid_t;
       axislave2_rvalid_out    : OUT axi_rvalid_t;
       axislave2_rlast_out     : OUT axi_rlast_t;
-      axislave2_rdata_out     : OUT axi_rdata_t;
+      axislave2_rdata_out     : OUT axi_rdata32_t;
       axislave2_rresp_out     : OUT axi_rresp_t;
       axislave2_arready_out   : OUT axi_arready_t;
       axislave2_rready_in     : IN axi_rready_t;
@@ -187,9 +188,9 @@ entity axi_merge is
       axislave2_awlen_in          : IN axi_awlen_t;
       axislave2_awvalid_in        : IN axi_awvalid_t;
       axislave2_wvalid_in         : IN axi_wvalid_t;
-      axislave2_wdata_in          : IN axi_wdata_t;
+      axislave2_wdata_in          : IN axi_wdata32_t;
       axislave2_wlast_in          : IN axi_wlast_t;
-      axislave2_wstrb_in          : IN axi_wstrb_t;
+      axislave2_wstrb_in          : IN axi_wstrb4_t;
       axislave2_awready_out       : OUT axi_awready_t;
       axislave2_wready_out        : OUT axi_wready_t;
       axislave2_bresp_out         : OUT axi_bresp_t;
@@ -216,7 +217,7 @@ entity axi_merge is
       ddr_rid_in                   : IN axi_rid_t;              
       ddr_rvalid_in                : IN axi_rvalid_t;
       ddr_rlast_in                 : IN axi_rlast_t;
-      ddr_rdata_in                 : IN axi_rdata128_t;
+      ddr_rdata_in                 : IN axi_rdata_t(exmem_data_width_c-1 downto 0);
       ddr_rresp_in                 : IN axi_rresp_t;
       ddr_arready_in               : IN axi_arready_t;
       ddr_rready_out               : OUT axi_rready_t;
@@ -227,10 +228,10 @@ entity axi_merge is
       ddr_awlen_out                : OUT axi_awlen_t;
       ddr_awvalid_out              : OUT axi_awvalid_t;
       ddr_wvalid_out               : OUT axi_wvalid_t;
-      ddr_wdata_out                : OUT axi_wdata128_t;
+      ddr_wdata_out                : OUT axi_wdata_t(exmem_data_width_c-1 downto 0);
       ddr_wdata_mask_out           : OUT std_logic_vector(1 downto 0);
       ddr_wlast_out                : OUT axi_wlast_t;
-      ddr_wstrb_out                : OUT axi_wstrb16_t;
+      ddr_wstrb_out                : OUT axi_wstrb_t(exmem_data_width_c/8-1 downto 0);
       ddr_awready_in               : IN axi_awready_t;
       ddr_wready_in                : IN axi_wready_t;
       ddr_bresp_in                 : IN axi_bresp_t;
@@ -262,7 +263,7 @@ SIGNAL ddr_arqos:axi_arqos_t;
 SIGNAL ddr_rid:axi_rid_t;              
 SIGNAL ddr_rvalid:axi_rvalid_t;
 SIGNAL ddr_rlast:axi_rlast_t;
-SIGNAL ddr_rdata:axi_rdata128_t;
+SIGNAL ddr_rdata:axi_rdata_t(exmem_data_width_c-1 downto 0);
 SIGNAL ddr_rresp:axi_rresp_t;
 SIGNAL ddr_arready:axi_arready_t;
 SIGNAL ddr_rready:axi_rready_t;
@@ -273,10 +274,10 @@ SIGNAL ddr_awaddr:axi_awaddr_t;
 SIGNAL ddr_awlen:axi_awlen_t;
 SIGNAL ddr_awvalid:axi_awvalid_t;
 SIGNAL ddr_wvalid:axi_wvalid_t;
-SIGNAL ddr_wdata:axi_wdata128_t;
+SIGNAL ddr_wdata:axi_wdata_t(exmem_data_width_c-1 downto 0);
 SIGNAL ddr_wdata_mask:std_logic_vector(1 downto 0);
 SIGNAL ddr_wlast:axi_wlast_t;
-SIGNAL ddr_wstrb:axi_wstrb16_t;
+SIGNAL ddr_wstrb:axi_wstrb_t(exmem_data_width_c/8-1 downto 0);
 SIGNAL ddr_awready:axi_awready_t;
 SIGNAL ddr_wready:axi_wready_t;
 SIGNAL ddr_bresp:axi_bresp_t;
@@ -306,7 +307,7 @@ SIGNAL axislave_arsizes:axi_arsizes_t(MAX_SLAVE_PORT-1 downto 0);
 
 SIGNAL aximaster_rvalid:axi_rvalid_t;
 SIGNAL aximaster_rlast:axi_rlast_t;
-SIGNAL aximaster_rdata:axi_rdata128_t;
+SIGNAL aximaster_rdata:axi_rdata_t(exmem_data_width_c-1 downto 0);
 SIGNAL aximaster_rresp:axi_rresp_t;
 SIGNAL aximaster_arready:axi_arready_t;
 
@@ -358,7 +359,7 @@ begin
 
 read_i: axi_read
    generic map(
-      DATA_WIDTH=>128,
+      DATA_WIDTH=>exmem_data_width_c,
       FIFO_DEPTH => 5,
       FIFO_DATA_DEPTH => 5,
       CCD =>TRUE
@@ -411,7 +412,7 @@ read_i: axi_read
 
 write_i: axi_write
    generic map (
-      DATA_WIDTH => 128,
+      DATA_WIDTH => exmem_data_width_c,
       FIFO_DEPTH => 5,
       FIFO_DATA_DEPTH => 5,
       CCD => TRUE

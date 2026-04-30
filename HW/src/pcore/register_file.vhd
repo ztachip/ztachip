@@ -52,22 +52,22 @@ ENTITY register_file IS
         SIGNAL wr_lane_in              : IN STD_LOGIC_VECTOR(vector_width_c-1 DOWNTO 0);
 
         -- DP interface
-        SIGNAL dp_rd_vector_in         : IN unsigned(ddr_vector_depth_c-1 downto 0);
+        SIGNAL dp_rd_vector_in         : IN unsigned(core_vector_depth_c-1 downto 0);
         SIGNAL dp_rd_scatter_in        : IN scatter_t;
-        SIGNAL dp_rd_scatter_cnt_in    : IN unsigned(ddr_vector_depth_c-1 downto 0);
-        SIGNAL dp_rd_scatter_vector_in : IN unsigned(ddr_vector_depth_c-1 downto 0);
+        SIGNAL dp_rd_scatter_cnt_in    : IN unsigned(core_vector_depth_c-1 downto 0);
+        SIGNAL dp_rd_scatter_vector_in : IN unsigned(core_vector_depth_c-1 downto 0);
         SIGNAL dp_rd_gen_valid_in      : IN STD_LOGIC;
         SIGNAL dp_rd_data_flow_in      : IN data_flow_t;
         SIGNAL dp_rd_data_type_in      : IN dp_data_type_t;
         SIGNAL dp_rd_stream_in         : IN std_logic;
         SIGNAL dp_rd_stream_id_in      : stream_id_t;
         SIGNAL dp_rd_addr_in           : IN STD_LOGIC_VECTOR(bus_width_c-1 DOWNTO 0);
-        SIGNAL dp_wr_vector_in         : IN unsigned(ddr_vector_depth_c-1 downto 0);
+        SIGNAL dp_wr_vector_in         : IN unsigned(core_vector_depth_c-1 downto 0);
         SIGNAL dp_wr_addr_in           : IN STD_LOGIC_VECTOR(bus_width_c-1 DOWNTO 0);
         SIGNAL dp_write_in             : IN STD_LOGIC;
         SIGNAL dp_read_in              : IN STD_LOGIC;
-        SIGNAL dp_writedata_in         : IN STD_LOGIC_VECTOR(ddrx_data_width_c-1 DOWNTO 0);
-        SIGNAL dp_readdata_out         : OUT STD_LOGIC_VECTOR(ddrx_data_width_c-1 DOWNTO 0);
+        SIGNAL dp_writedata_in         : IN STD_LOGIC_VECTOR(core_data_width_c-1 DOWNTO 0);
+        SIGNAL dp_readdata_out         : OUT STD_LOGIC_VECTOR(core_data_width_c-1 DOWNTO 0);
         SIGNAL dp_readena_out          : OUT STD_LOGIC
         );
 END register_file;
@@ -102,7 +102,7 @@ SIGNAL byteena:STD_LOGIC_VECTOR(byte_width_c-1 downto 0);
 SIGNAL dp_rd_addr:STD_LOGIC_VECTOR(bus_width_c-1 DOWNTO 0);
 SIGNAL dp_wr_addr:STD_LOGIC_VECTOR(bus_width_c-1 DOWNTO 0);
 
-SIGNAL dp_writedata:STD_LOGIC_VECTOR(register_width_c*ddr_vector_width_c-1 DOWNTO 0);
+SIGNAL dp_writedata:STD_LOGIC_VECTOR(register_width_c*core_vector_width_c-1 DOWNTO 0);
 
 SIGNAL wr_data2_ram:STD_LOGIC_VECTOR(ram_register_width_c*vector_width_c-1 DOWNTO 0);
 SIGNAL q1_ram:STD_LOGIC_VECTOR(ram_register_width_c*vector_width_c-1 DOWNTO 0);
@@ -110,7 +110,7 @@ SIGNAL q1_ram_r:STD_LOGIC_VECTOR(ram_register_width_c*vector_width_c-1 DOWNTO 0)
 SIGNAL q2_ram:STD_LOGIC_VECTOR(ram_register_width_c*vector_width_c-1 DOWNTO 0);
 SIGNAL q2_ram_r:STD_LOGIC_VECTOR(ram_register_width_c*vector_width_c-1 DOWNTO 0);
 
-constant all_zeros_c:std_logic_vector(ddr_vector_depth_c-1 downto 0):=(others=>'0');
+constant all_zeros_c:std_logic_vector(core_vector_depth_c-1 downto 0):=(others=>'0');
 
 COMPONENT altsyncram
 GENERIC (

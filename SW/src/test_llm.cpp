@@ -32,6 +32,13 @@
 #include "../apps/llm/reference/llm_ref.h"
 #include "../apps/llm/kernels/llm_m.h"
 
+static void failure()
+{
+   for(;;) {
+      APB[0]=0xffffffff;
+   }
+}
+
 //-------------------------
 // Verify results between kernel_llm_dot_product_exe and kernel_ref_llm_dot_product_exe
 //---------------------------
@@ -39,19 +46,19 @@
 static void test_llm_dot_product()
 {
    int N=64;
-   int K=4;
+   int K;
    int x2_dim=192;
    float16_t *x1,*x2,*y,*y2;
    int x1sz,x2sz,ysz;
    static int ok=0;
    static int bad=0;
    static int seed=0;
+   int count=0;
 
    seed=0;
    for(K=1;K < 1024;K++) {
    seed++;
    seed = (seed%7);
-
    x1sz = N;
    x2sz = K*x2_dim+N;
    ysz = K;
@@ -79,6 +86,7 @@ static void test_llm_dot_product()
       if(y[i] != y2[i]) {
          printf("[%d] %f %f %04X %04X \r\n",i,BF2F(y[i]),BF2F(y2[i]),(int)y[i],(int)y2[i]);
          bad++;
+         failure();
       }
       else
          ok++;
@@ -87,6 +95,8 @@ static void test_llm_dot_product()
    free(x2);
    free(y);
    free(y2);
+   APB[0] = count;
+   count++;
    }
    printf("TEST DOT_PRODUCT ok=%d fail=%d \r\n",ok,bad);
 }
@@ -98,13 +108,14 @@ static void test_llm_dot_product()
 static void test_llm_dot_product2()
 {
    int N=64;
-   int K=4;
+   int K=0;
    int x2_dim=192;
    float16_t *x1,*x2,*y,*y2;
    int x1sz,x2sz,ysz;
    static int ok=0;
    static int bad=0;
    static int seed=0;
+   int count=0;
 
    seed=0;
    for(K=1;K < 1024;K++) {
@@ -137,6 +148,7 @@ static void test_llm_dot_product2()
    {
       if(y[i] != y2[i]) {
          printf("[%d] %f %f %04X %04X \r\n",i,BF2F(y[i]),BF2F(y2[i]),(int)y[i],(int)y2[i]);
+         failure();
          bad++;
       }
       else
@@ -146,6 +158,8 @@ static void test_llm_dot_product2()
    free(x2);
    free(y);
    free(y2);
+   APB[0] = count;
+   count++;
    }
    printf("TEST DOT_PRODUCT2 ok=%d fail=%d \r\n",ok,bad);
 }
@@ -196,6 +210,7 @@ void test_llm_sine() {
          error = diff/y[i];
          if(error >= 0.002) {
             printf("[%d] %f %f err=%f \r\n",i,y[i],y2[i],error);
+            failure();
             bad++;
          }
          else
@@ -257,6 +272,7 @@ void test_llm_cosine() {
          error = diff/y[i];
          if(error >= 0.0025) {
             printf("[%d] %f %f err=%f \r\n",i,y[i],y2[i],error);
+            failure();
             bad++;
          }
          else
@@ -320,6 +336,7 @@ void test_llm_rope() {
       if(y_expect != y_got) {
          err = y_expect-y_got;
          printf("%f %f err=%f \r\n",y_expect,y_got,err);
+         failure();
          bad++;
       } else {
          ok++;
@@ -380,6 +397,7 @@ void test_llm_rms() {
          if(y_expect != y_got) {
             err = y_expect-y_got;
             printf("%f %f err=%f \r\n",y_expect,y_got,err);
+            failure();
             bad++;
          } else {
             ok++;
@@ -442,6 +460,7 @@ void test_llm_residual() {
          if(y_expect != y_got) {
             err = y_expect-y_got;
             printf("%f %f err=%f \r\n",y_expect,y_got,err);
+            failure();
             bad++;
          } else {
             ok++;
@@ -510,6 +529,7 @@ void test_llm_SwiGLU() {
       if(y_expect != y_got) {
          err = y_expect-y_got;
          printf("%f %f err=%f \r\n",y_expect,y_got,err);
+         failure();
          bad++;
       } else {
          ok++;
@@ -653,6 +673,7 @@ void test_llm_quantize() {
       if(y_expect != y_got) {
          err = y_expect-y_got;
          printf("S:%f %f (%04X %04X) err=%f \r\n",y_expect,y_got,(int)s[i],(int)s2[i],err);
+         failure();
          bad++;
       } else {
          ok++;
@@ -660,6 +681,7 @@ void test_llm_quantize() {
       if(ABS(q[i]-q2[i]) > 1)
       {
          printf("Q:[%d] %d %d (good=%d bad=%d) \r\n",i,(int)q[i],(int)q2[i],ok,bad); 
+         failure();
          bad++;
       }
       else
@@ -753,10 +775,11 @@ void test_llm_matmul_q4() {
          max_error = MAX(max_error,error);
       if(y_expect == y_got)
          ok++;
-      else
+      else {
          fail++;
-      if(y_expect != y_got)
+         failure();
          printf("[%d] %f %f %04X %04X maxErr=%f \r\n",i,y_expect,y_got,(int)y[i],(int)y2[i],max_error);
+      }
    }
 
    free(x);
@@ -848,10 +871,11 @@ void test_llm_matmul_q8() {
          max_error = MAX(max_error,error);
       if(y_expect == y_got)
          ok++;
-      else
+      else {
          fail++;
-      if(y_expect != y_got)
          printf("[%d] %f %f %04X %04X maxErr=%f \r\n",i,y_expect,y_got,(int)y[i],(int)y2[i],max_error);
+         failure();
+      }
    }
 
    free(x);
@@ -908,6 +932,7 @@ void test_llm_k_max() {
          continue;
       if(BF2F(x[i]) > min) {
          printf("FAIL x[i]=%f min=%f \r\n",BF2F(x[i]),min);
+         failure();
          fail++;
       }
    }
@@ -916,6 +941,7 @@ void test_llm_k_max() {
    for(i=0;i < K-1;i++) {
       if(topp[i] < topp[i+1]) {
          printf("SORT FAIL \r\n");
+         failure();
          fail++;
       }
    }
@@ -930,18 +956,34 @@ void test_llm_k_max() {
 //---------------------
 
 void test_llm() {
+   int count=1;
+   printf("====> LLM %d \r\n",count++);
+   APB[0]=count++;
    test_llm_dot_product();
+   APB[0]=count++;
    test_llm_dot_product2();
+   APB[0]=count++;
    test_llm_sine();
+   APB[0]=count++;
    test_llm_cosine();
+   APB[0]=count++;
    test_llm_rope();
+   APB[0]=count++;
    test_llm_rms();
+   APB[0]=count++;
    test_llm_residual();
+   APB[0]=count++;
    test_llm_SwiGLU();
+   APB[0]=count++;
    test_llm_softmax();
+   APB[0]=count++;
    test_llm_quantize();
+   APB[0]=count++;
    test_llm_matmul_q4();
+   APB[0]=count++;
    test_llm_matmul_q8();
+   APB[0]=count++;
    test_llm_k_max();
+   APB[0]=count++;
 }
 
