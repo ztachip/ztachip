@@ -37,16 +37,23 @@
 
 void invsqrt(int cnt,float *x,float *y,float *temp,float *temp2)
 {
-   >FPU.INVSQRT(n=cnt,y=(float *)y,x=(float *)x); // Initial estimate
+   >FPU.INVSQRT(n=cnt,y=(float *)y,x=(float *)x)...; // Initial estimate
 
-   >FPU.MAC(n=cnt,y=(float *)temp2,x1=(float *)x,x2=0.5);
+   >FPU.MAC(n=cnt,y=(float *)temp2,x1=(float *)x,x2=0.5)...;
 
    for(int i=0;i < 4;i++) {  
-      >FPU.MAC(n=cnt,y=(float *)temp,a=0.0,x1=(float *)y,x2=(float *)y);
+      >FPU.MAC(n=cnt,y=(float *)temp,a=0.0,x1=(float *)y,x2=(float *)y)...;
 
-      >FPU.MAC(n=cnt,y=(float *)temp,a=1.5,x1=(float *)temp,x2=(float *)temp2,c=-1.0);
+      >FPU.MAC(n=cnt,y=(float *)temp,a=1.5,x1=(float *)temp,x2=(float *)temp2,c=-1.0)...;
 
-      >FPU.MAC(n=cnt,y=(float *)y,a=0.0,x1=(float *)temp,x2=(float *)y);
+      if(i==3)
+      {
+         >FPU.MAC(n=cnt,y=(float *)y,a=0.0,x1=(float *)temp,x2=(float *)y);
+      }
+      else
+      {
+         >FPU.MAC(n=cnt,y=(float *)y,a=0.0,x1=(float *)temp,x2=(float *)y)...;
+      }
    }
 }
 
@@ -61,7 +68,7 @@ void invsqrt(int cnt,float *x,float *y,float *temp,float *temp2)
 static void reciprocal(int cnt,float *x,int xfmt,float *y,float *temp)
 {
    if(cnt==1) {
-   >FPU.RECIPROCAL(n=cnt,y=(float *)y,x=(xfmt)x);
+   >FPU.RECIPROCAL(n=cnt,y=(float *)y,x=(xfmt)x)...;
 
    >FPU.MAC(N=cnt,y=(float *)temp,a=2.0,x1=(xfmt)x,x2=(float *)y,c=-1.0)...;
 
@@ -75,7 +82,7 @@ static void reciprocal(int cnt,float *x,int xfmt,float *y,float *temp)
 
    >FPU.MAC(N=cnt,y=(float *)y,x1=(float *)temp,x2=(float *)y);
    } else {
-   >FPU.V.RECIPROCAL(n=cnt,y=(float *)y,x=(xfmt)x);
+   >FPU.V.RECIPROCAL(n=cnt,y=(float *)y,x=(xfmt)x)...;
 
    >FPU.V.MAC(N=cnt,y=(float *)temp,a=2.0,x1=(xfmt)x,x2=(float *)y,c=-1.0)...;
 
@@ -171,10 +178,8 @@ static void matmul_q4(void *_p,int pid) {
    int FACTOR,N,ii,sz,s,e;
    uint32_t resp;
    matmul_ws *ws; 
-   int fast;
    uint32_t y_type,a_type,a;
    float16_t *s1,*s2,*s3;
-   char _end_;
 
    ws = (matmul_ws *)((pid==0)?0:(SRAM_SIZE/2));
    cnt2 = NUM_PCORE;
@@ -197,7 +202,6 @@ static void matmul_q4(void *_p,int pid) {
       nth = cnt/VECTOR_WIDTH;
       s=2*(LLM_GS/2)*VECTOR_WIDTH*y/VECTOR_WIDTH;
       e=2*(LLM_GS/2)*VECTOR_WIDTH*(y+cnt)/VECTOR_WIDTH;
-      fast = (cnt >= 32)?2:0;
 
       > $W_SCALE_D := DTYPE(INT16)SCRATCH((uint32_t)ws->s1,NUM_PCORE,cnt)[$][0:cnt-1];
       
@@ -252,16 +256,14 @@ static void matmul_q4(void *_p,int pid) {
                a_type = (((x==0) && (ii==0))?FPU_SET_M_VALUE:FPU_SET_M_ADDR)|FPU_SET_W_FP32;
                a = (uint32_t)(((x==0) && (ii==0))?0:ws->s4);
 
-               // SPU instructions are grouped together for better performance
-               // When _end_ = 0, it means the end of a group of SPU instructions
-               // When _end_ = ',', it means more SPU instruction to follow but next instruction must wait for the 
-               //                   completion of previous step
-               // When _end_ = ':', it means some SPU instruction to follow but next instruction can start without
-               //                   Waiting for previous step to be completed. This improves SPU FIFO performance.
-
-               _end_ = (ii==(cnt2-1))?0:(fast?':':'.');
-
-               >FPU.V.MAC(N=cnt,y=(y_type)ws->s4,A=(a_type)a,c=(bfloat *)s2,x1=(float16 *)s1,x2=(zfloat *)s3) _end_;
+               if(ii==(cnt2-1))
+               {
+                  >FPU.V.MAC(N=cnt,y=(y_type)ws->s4,A=(a_type)a,c=(bfloat *)s2,x1=(float16 *)s1,x2=(zfloat *)s3);
+               }
+               else
+               {
+                  >FPU.V.MAC(N=cnt,y=(y_type)ws->s4,A=(a_type)a,c=(bfloat *)s2,x1=(float16 *)s1,x2=(zfloat *)s3)...;
+               }
          }
          ztaTaskYield();
       }
@@ -299,8 +301,6 @@ static void matmul_q8(void *_p,int pid) {
    matmul_ws *ws;
    uint32_t y_type,a_type,a;
    float16_t *s2,*s1,*s3;
-   int fast;
-   char _end_;
 
    ws = (matmul_ws *)((pid==0)?0:(SRAM_SIZE/2));
    cnt2 = NUM_PCORE;
@@ -323,7 +323,7 @@ static void matmul_q8(void *_p,int pid) {
       nth = cnt/VECTOR_WIDTH;
       s=(LLM_GS)*VECTOR_WIDTH*y/VECTOR_WIDTH;
       e=(LLM_GS)*VECTOR_WIDTH*(y+cnt)/VECTOR_WIDTH;
-      fast = (cnt >= 32)?2:0;
+
       for(x=0;x < N;x+=NUM_PCORE) 
       {
          cnt2 = N-x;
@@ -379,16 +379,14 @@ static void matmul_q8(void *_p,int pid) {
 
                a = (uint32_t)(((x==0) && (ii==0))?0:ws->s4);
 
-               // SPU instructions are grouped together for better performance
-               // When _end_ = 0, it means the end of a group of SPU instructions
-               // When _end_ = ',', it means more SPU instruction to follow but next instruction must wait for the 
-               //                   completion of previous step
-               // When _end_ = ':', it means some SPU instruction to follow but next instruction can start without
-               //                   Waiting for previous step to be completed. This improves SPU FIFO performance.
-
-               _end_ = (ii==(cnt2-1))?0:(fast?':':'.');
-
-               >FPU.V.MAC(N=cnt,y=(y_type)ws->s4,A=(a_type)a,c=(bfloat *)s2,x1=(float16 *)s1,x2=(zfloat *)s3) _end_;
+               if(ii==(cnt2-1))
+               {
+                  >FPU.V.MAC(N=cnt,y=(y_type)ws->s4,A=(a_type)a,c=(bfloat *)s2,x1=(float16 *)s1,x2=(zfloat *)s3);
+               }
+               else
+               {
+                  >FPU.V.MAC(N=cnt,y=(y_type)ws->s4,A=(a_type)a,c=(bfloat *)s2,x1=(float16 *)s1,x2=(zfloat *)s3)...;
+               }
          }
          ztaTaskYield();
       }
@@ -493,7 +491,7 @@ typedef struct {
    float    y2[BATCH_QUANT];
 } quantize_ws;
 
-void kernel_llm_quantize_exe(int reqId,int N,float16_t *x,float16_t *s,int16_t *q) {
+void kernel_llm_quantize_exe(int reqId,int N,float16_t *x,float16_t *s,int16_t *q) { 
    int cnt,cnt2;
    unsigned int y16;
    uint32_t resp;
@@ -505,7 +503,6 @@ void kernel_llm_quantize_exe(int reqId,int N,float16_t *x,float16_t *s,int16_t *
    int group;
    uint32_t qy,qc,qx;
    quantize_ws *ws=0;
-   char _end_;
 
    assert((N%32)==0); 
 
@@ -520,17 +517,17 @@ void kernel_llm_quantize_exe(int reqId,int N,float16_t *x,float16_t *s,int16_t *
          remain = 64;
       if(remain > BATCH_QUANT)
          remain = BATCH_QUANT;
-      remain2 = remain/32;
+      remain2 = remain/32; 
 
       // Find the max in the group 
 
       > DTYPE(INT16)SCRATCH((uint32_t)ws->x,remain)[:] <= DTYPE(INT16)MEM((uint32_t)x,N)[i:i+remain-1];
 
-      > FPU.V.MAX.ABS(N=remain,y=(float *)ws->y,x=(bfloat *)ws->x,g=31);
-
-      // Then divide the MAX by 2047, get result in FP16, this the the scaling factor used
+      // Take absolute value Then divide the MAX by 2047, get result in FP16, this the the scaling factor used
       // when dequantize
-//VUONG FAIL HERE
+
+      > FPU.V.MAX.ABS(N=remain,y=(float *)ws->y,x=(bfloat *)ws->x,g=31)...;
+
       >FPU.V.MAC(N=remain2,y=(bfloat *)ws->y16,x1=(float *)ws->y,x2=(float)4.8851978505e-4);
 
       >DTYPE(INT16)MEM(y16,N/32)[j:j+remain2-1] <= DTYPE(INT16)SCRATCH((uint32_t)ws->y16,remain2)[:];
@@ -551,14 +548,14 @@ void kernel_llm_quantize_exe(int reqId,int N,float16_t *x,float16_t *s,int16_t *
          if(group >= num_groups) 
             break; 
 
-         // Group the SPU instructions into block of instructions except for the last step
-         // This improves pipeline performance of SPU
-         // _end_ = 0 means the end of a group of SPU instructions
-         // _end_ = . means there are other SPU instruction to follow
-
-         _end_ = (((m%8)==7) || group==(num_groups-1) || (m==(cnt2-1)))? 0 : '.';
-
-         > FPU.V.MAC(N=GS,y=(int16 *)qy,c=(float *)qc,x1=(bfloat *)qx) _end_;
+         if(((m%8)==7) || group==(num_groups-1) || (m==(cnt2-1)))
+         {
+            > FPU.V.MAC(N=GS,y=(int16 *)qy,c=(float *)qc,x1=(bfloat *)qx);
+         }
+         else
+         {
+            > FPU.V.MAC(N=GS,y=(int16 *)qy,c=(float *)qc,x1=(bfloat *)qx)...;      
+         }
       }
       >DTYPE(INT16)MEM(y,N)[i:(i+remain)-1] <= DTYPE(INT16)SCRATCH((uint32_t)ws->y2,remain)[:];    
       >BARRIER;
@@ -615,7 +612,6 @@ static void llm_dot_product_exe(void *_p,int pid)
    uint32_t x1;
    uint32_t x2;
    uint32_t y,yfmt,A,Afmt;
-   char _end_;
 
    if(pid==0) {
       ws = (dot_product_ws *)0;
@@ -666,17 +662,18 @@ static void llm_dot_product_exe(void *_p,int pid)
             A=(i==0)?0:sum;
             
             Afmt=((i==0)?FPU_SET_M_VALUE:FPU_SET_M_ADDR)|FPU_SET_W_FP32;
-
-            // Group SPU instructions except for the last step. This improves SPU pipeline performance
-            // _end_ = 0 --> Last step of SPU instructions block of execution
-            // -end_ = : --> More SPU instructions to follow
-            
-            _end_=(k==(cnt2-1))?0:':'; 
             
             // Below is the long dot product. A parameter is used to combine multiple dotproduct results
             // y = A+sum(x1*x2*scale)
 
-            >FPU.V.FMA(N=cnt,y=(yfmt)y,c=(float)scale,x1=(bfloat *)x1,x2=(bfloat *)x2,A=(Afmt)A) _end_;
+            if(k==(cnt2-1))
+            {
+               >FPU.V.FMA(N=cnt,y=(yfmt)y,c=(float)scale,x1=(bfloat *)x1,x2=(bfloat *)x2,A=(Afmt)A);
+            }
+            else
+            {
+               >FPU.V.FMA(N=cnt,y=(yfmt)y,c=(float)scale,x1=(bfloat *)x1,x2=(bfloat *)x2,A=(Afmt)A)...;
+            }
          }
          ztaTaskYield();  
       }
@@ -751,7 +748,6 @@ static void llm_dot_product2_exe(void *_p,int pid)
    REQUEST_DOT_PRODUCT2 *req = (REQUEST_DOT_PRODUCT2 *)_p;
    uint32_t sum,x1,x2;
    uint32_t y,yfmt,A,Afmt;
-   char _end_;
 
    if(pid==0) {
       ws = (dot_product2_ws *)0;
@@ -817,15 +813,14 @@ static void llm_dot_product2_exe(void *_p,int pid)
 
             Afmt=((j==0)?FPU_SET_M_VALUE:FPU_SET_M_ADDR)|FPU_SET_W_FP32;
 
-            // SPU instructions are group together for better SPU pipeline performance
-            // _end_=0 --> This is the last SPU instruction in the group of instructions
-            // _end_=: --> There are more SPU instructions to follow. : means start the next step immediately and
-            //             not waiting for previous step to complete
-
-            _end_ = (i==(cnt2-1))?0:':'; 
-//            _end_ = (i==(cnt2-1))?0:'.';
-
-            >FPU.V.FMA(N=cnt,y=(yfmt)y,x1=(bfloat *)x2,x2=(bfloat *)x1,A=(Afmt)A) _end_;   
+            if(i==(cnt2-1))
+            {
+            >FPU.V.FMA(N=cnt,y=(yfmt)y,x1=(bfloat *)x2,x2=(bfloat *)x1,A=(Afmt)A); 
+            }
+            else
+            {
+            >FPU.V.FMA(N=cnt,y=(yfmt)y,x1=(bfloat *)x2,x2=(bfloat *)x1,A=(Afmt)A)...; 
+            }  
          } 
          ztaTaskYield(); 
       }
@@ -885,31 +880,30 @@ void kernel_llm_cosine_exe(int reqId,int N,float *x,float scale,float *y)
       > DTYPE(INT16)SCRATCH((uint32_t)&ws->xin[0],2*cnt)[:] <= DTYPE(INT16)MEM((uint32_t)x,2*N)[2*i:2*i+2*cnt-1];
       
       // Calculate x=((x)mod2pi)−pi
-//VUONG TRY HERR
 
-      >FPU.V.MAC(N=cnt,y=(float *)ws->x,c=(float)scale,x1=(float *)ws->xin); // x = scale*x
+      >FPU.V.MAC(N=cnt,y=(float *)ws->x,c=(float)scale,x1=(float *)ws->xin)...; // x = scale*x
 
-      >FPU.V.MAC(N=cnt,y=(float *)ws->x,A=3.141592741,x1=(float *)ws->x); // x = x+pi
+      >FPU.V.MAC(N=cnt,y=(float *)ws->x,A=3.141592741,x1=(float *)ws->x)...; // x = x+pi
 
-      >FPU.V.MAC.FLOOR(N=cnt,y=(float *)ws->tmp1,c=0.15915493667,x1=(float *)ws->x); // t1= floor(x/2pi)
+      >FPU.V.MAC.FLOOR(N=cnt,y=(float *)ws->tmp1,c=0.15915493667,x1=(float *)ws->x)...; // t1= floor(x/2pi)
 
-      >FPU.V.MAC.ABS(N=cnt,y=(float *)ws->tmp2,A=(float *)ws->x,c=-6.28318548,x1=(float *)ws->tmp1); // t2 = x-t1*(2*pi)
+      >FPU.V.MAC.ABS(N=cnt,y=(float *)ws->tmp2,A=(float *)ws->x,c=-6.28318548,x1=(float *)ws->tmp1)...; // t2 = x-t1*(2*pi)
 
-      >FPU.V.MAC.ABS(N=cnt,y=(float *)ws->x,A=(float *)ws->tmp2,c=-3.14159274); // x = t2-pi 
+      >FPU.V.MAC.ABS(N=cnt,y=(float *)ws->x,A=(float *)ws->tmp2,c=-3.14159274)...; // x = t2-pi 
       
       // Now approximate with Taylor expresion
       
-      >FPU.V.MAC(N=cnt,y=(float *)ws->x,A=-1.57079637,x1=(float *)ws->x); // x = x-pi/2
+      >FPU.V.MAC(N=cnt,y=(float *)ws->x,A=-1.57079637,x1=(float *)ws->x)...; // x = x-pi/2
 
-      >FPU.V.MAC(N=cnt,y=(float *)ws->x2,x1=(float *)ws->x,x2=(float *)ws->x); // x2 = x*x
+      >FPU.V.MAC(N=cnt,y=(float *)ws->x2,x1=(float *)ws->x,x2=(float *)ws->x)...; // x2 = x*x
 
-      >FPU.V.MAC(N=cnt,y=(float *)ws->y,A=0.000198412701,C=-0.0000027557301,x1=(float *)ws->x2); // y= 1/5040 + x2*(-1/362880)
+      >FPU.V.MAC(N=cnt,y=(float *)ws->y,A=0.000198412701,C=-0.0000027557301,x1=(float *)ws->x2)...; // y= 1/5040 + x2*(-1/362880)
 
-      >FPU.V.MAC(N=cnt,y=(float *)ws->y,A=-0.0083333338,x1=(float *)ws->x2,x2=(float *)ws->y); // y= -1/120 + x2*y
+      >FPU.V.MAC(N=cnt,y=(float *)ws->y,A=-0.0083333338,x1=(float *)ws->x2,x2=(float *)ws->y)...; // y= -1/120 + x2*y
 
-      >FPU.V.MAC(N=cnt,y=(float *)ws->y,A=0.166666672,x1=(float *)ws->x2,x2=(float *)ws->y); // y=1/6 + (x2*y)
+      >FPU.V.MAC(N=cnt,y=(float *)ws->y,A=0.166666672,x1=(float *)ws->x2,x2=(float *)ws->y)...; // y=1/6 + (x2*y)
 
-      >FPU.V.MAC(N=cnt,y=(float *)ws->y,A=-1.0,x1=(float *)ws->x2,x2=(float *)ws->y); // y=-1 + x2*y
+      >FPU.V.MAC(N=cnt,y=(float *)ws->y,A=-1.0,x1=(float *)ws->x2,x2=(float *)ws->y)...; // y=-1 + x2*y
 
       >FPU.V.MAC(N=cnt,y=(float *)ws->y2,x1=(float *)ws->x,x2=(float *)ws->y); // y = y*x
 
@@ -942,29 +936,29 @@ void kernel_llm_sine_exe(int reqId,int N,float *x,float scale,float *y)
 
       // Calculate x=((x)mod2π)−π
   
-      >FPU.V.MAC(N=cnt,y=(float *)ws->x,C=(float)scale,x1=(float *)ws->xin); // x = scale*x
+      >FPU.V.MAC(N=cnt,y=(float *)ws->x,C=(float)scale,x1=(float *)ws->xin)...; // x = scale*x
 
-      >FPU.V.MAC(N=cnt,y=(float *)ws->x,A=4.712389,c=-1.0,x1=(float *)ws->x); // x = 1.5pi-x;
+      >FPU.V.MAC(N=cnt,y=(float *)ws->x,A=4.712389,c=-1.0,x1=(float *)ws->x)...; // x = 1.5pi-x;
 
-      >FPU.V.MAC.FLOOR(N=cnt,y=(float *)ws->tmp1,c=0.159154937,x1=(float *)ws->x); // t1= floor(x/2pi)
+      >FPU.V.MAC.FLOOR(N=cnt,y=(float *)ws->tmp1,c=0.159154937,x1=(float *)ws->x)...; // t1= floor(x/2pi)
 
-      >FPU.V.MAC.ABS(N=cnt,y=(float *)ws->tmp2,A=(float *)ws->x,c=-6.28318548,x1=(float *)ws->tmp1); // t2 = x-t1*(2*pi)
+      >FPU.V.MAC.ABS(N=cnt,y=(float *)ws->tmp2,A=(float *)ws->x,c=-6.28318548,x1=(float *)ws->tmp1)...; // t2 = x-t1*(2*pi)
 
-      >FPU.V.MAC.ABS(N=cnt,y=(float *)ws->x,A=(float *)ws->tmp2,c=-3.14159274); // x = t2-pi
+      >FPU.V.MAC.ABS(N=cnt,y=(float *)ws->x,A=(float *)ws->tmp2,c=-3.14159274)...; // x = t2-pi
   
       // Not approximate with Taylor expresion
   
-      >FPU.V.MAC(N=cnt,y=(float *)ws->x,A=-1.5707964,x1=(float *)ws->x); // x = x-pi/2
+      >FPU.V.MAC(N=cnt,y=(float *)ws->x,A=-1.5707964,x1=(float *)ws->x)...; // x = x-pi/2
 
-      >FPU.V.MAC(N=cnt,y=(float *)ws->x2,x1=(float *)ws->x,x2=(float *)ws->x); // x2 = x*x;
+      >FPU.V.MAC(N=cnt,y=(float *)ws->x2,x1=(float *)ws->x,x2=(float *)ws->x)...; // x2 = x*x;
 
-      >FPU.V.MAC(N=cnt,y=(float *)ws->y,A=0.000198412701,c=-0.000002755730,x1=(float *)ws->x2); // y= 1/5040 + x2*(-1/362880)
+      >FPU.V.MAC(N=cnt,y=(float *)ws->y,A=0.000198412701,c=-0.000002755730,x1=(float *)ws->x2)...; // y= 1/5040 + x2*(-1/362880)
 
-      >FPU.V.MAC(N=cnt,y=(float *)ws->y,A=-0.0083333338,x1=(float *)ws->x2,x2=(float *)ws->y); // y= -1/120 + x2*y
+      >FPU.V.MAC(N=cnt,y=(float *)ws->y,A=-0.0083333338,x1=(float *)ws->x2,x2=(float *)ws->y)...; // y= -1/120 + x2*y
 
-      >FPU.V.MAC(N=cnt,y=(float *)ws->y,A=0.166666672,x1=(float *)ws->x2,x2=(float *)ws->y); // y=1/6 + (x2*y)
+      >FPU.V.MAC(N=cnt,y=(float *)ws->y,A=0.166666672,x1=(float *)ws->x2,x2=(float *)ws->y)...; // y=1/6 + (x2*y)
 
-      >FPU.V.MAC(N=cnt,y=(float *)ws->y,A=-1.0,x1=(float *)ws->x2,x2=(float *)ws->y); // y=-1 + x2*y
+      >FPU.V.MAC(N=cnt,y=(float *)ws->y,A=-1.0,x1=(float *)ws->x2,x2=(float *)ws->y)...; // y=-1 + x2*y
       
       >FPU.V.MAC(N=cnt,y=ws->y2,x1=(float *)ws->x,x2=(float *)ws->y); // y = y*x
 
@@ -1073,7 +1067,7 @@ void kernel_llm_SwiGLU_exe(int reqId,float16_t *hb,float16_t *hb2,int N)
 
       reciprocal(cnt,ws->tmp5,FPU_SET_W_FP32|FPU_SET_M_ADDR,ws->tmp3,ws->tmp2); // tmp3 = 1/tmp1
 
-      >FPU.V.MAC(N=cnt,y=(float *)ws->tmp1,x1=(float *)ws->tmp3,x2=(bfloat *)ws->hb); // tmp1 = tmp3 * hb
+      >FPU.V.MAC(N=cnt,y=(float *)ws->tmp1,x1=(float *)ws->tmp3,x2=(bfloat *)ws->hb)...; // tmp1 = tmp3 * hb
 
       >FPU.V.MAC(N=cnt,y=(bfloat *)ws->hb,x1=(float *)ws->tmp1,x2=(bfloat *)ws->hb2); // hb = tmp1 * hb2
 
@@ -1271,7 +1265,7 @@ void kernel_llm_rms_exe(int reqId,int N,float16_t *x,bool x_is_fp16,float16_t *o
       }
    }
 
-   >FPU.MAC(N=1,y=(float *)&ws->ss,C=(float)N_reciprocal,x1=(float *)(&ws->sum));
+   >FPU.MAC(N=1,y=(float *)&ws->ss,C=(float)N_reciprocal,x1=(float *)(&ws->sum))...;
 
    >FPU.MAC(N=1,a=1e-5,y=(float *)&ws->ss,x1=(float *)(&ws->ss));
 
@@ -1354,11 +1348,11 @@ void kernel_llm_rope_exe(
 
       > DTYPE(INT16)SCRATCH((uint32_t)&ws->v1[0],cnt)[:] <= DTYPE(INT16)SCRATCH((uint32_t)&ws->v[0],cnt,2,1)[:][1][:];
 
-      >FPU.V.MAC(N=cnt,y=(float *)ws->y0,x1=(bfloat *)ws->v0,x2=(float *)ws->fcr); // y0[N]=v0[N]*fcr[N]
+      >FPU.V.MAC(N=cnt,y=(float *)ws->y0,x1=(bfloat *)ws->v0,x2=(float *)ws->fcr)...; // y0[N]=v0[N]*fcr[N]
 
-      >FPU.V.MAC(N=cnt,y=(bfloat *)ws->y0,A=(float *)ws->y0,c=-1.0,x1=(bfloat *)ws->v1,x2=(float *)ws->fci); // y0[N]=y0[N]-v1[N]*fci[N]
+      >FPU.V.MAC(N=cnt,y=(bfloat *)ws->y0,A=(float *)ws->y0,c=-1.0,x1=(bfloat *)ws->v1,x2=(float *)ws->fci)...; // y0[N]=y0[N]-v1[N]*fci[N]
 
-      >FPU.V.MAC(N=cnt,y=(float *)ws->y1,x1=(bfloat *)ws->v0,x2=(float *)ws->fci); // y1[N]=v0[N]*fci[N]
+      >FPU.V.MAC(N=cnt,y=(float *)ws->y1,x1=(bfloat *)ws->v0,x2=(float *)ws->fci)...; // y1[N]=v0[N]*fci[N]
 
       >FPU.V.MAC(N=cnt,y=(bfloat *)ws->y1,A=(float *)ws->y1,x1=(bfloat *)ws->v1,x2=(float *)ws->fcr); // y1[N]=y1[N]+v1[N]*fcr[N]
 
@@ -1515,7 +1509,7 @@ int kernel_llm_find_k_max(float16_t *x,uint32_t _N,int K, float scale,int *top,f
 
    >DTYPE(INT16)SCRATCH((uint32_t)&ws->x[toggle][0],MAX_K_BATCH)[:] <= DTYPE(INT16)MEM((uint32_t)x,_N)[0:MAX_K_BATCH-1];
 
-   >FPU.V.MAC(N=MAX_K_BATCH,y=(bfloat *)ws->x[toggle],c=(float)scale,x1=(bfloat *)ws->x[toggle]);
+   >FPU.V.MAC(N=MAX_K_BATCH,y=(bfloat *)ws->x[toggle],c=(float)scale,x1=(bfloat *)ws->x[toggle])...;
 
    >FPU.V.MAX(N=MAX_K_BATCH,y=(bfloat *)ws->y[toggle],x=(bfloat *)ws->x[toggle],g=63);
 
@@ -1536,7 +1530,7 @@ int kernel_llm_find_k_max(float16_t *x,uint32_t _N,int K, float scale,int *top,f
 
          >DTYPE(INT16)SCRATCH((uint32_t)&ws->x[!toggle][0],cnt2)[:] <= DTYPE(INT16)MEM((uint32_t)x,_N)[i+MAX_K_BATCH:i+MAX_K_BATCH+cnt2-1];
 
-         >FPU.V.MAC(N=cnt2,y=(bfloat *)ws->x[!toggle],c=(float)scale,x1=(bfloat *)ws->x[!toggle]);
+         >FPU.V.MAC(N=cnt2,y=(bfloat *)ws->x[!toggle],c=(float)scale,x1=(bfloat *)ws->x[!toggle])...;
 
          >FPU.V.MAX(N=cnt2,y=(bfloat *)ws->y[!toggle],x=(bfloat *)ws->x[!toggle],g=63);
       }

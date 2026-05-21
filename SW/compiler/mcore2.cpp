@@ -37,8 +37,6 @@
 
 #define END_DONE  ';'
 #define END_CONT  '.'
-#define END_CONT_FAST ':'
-#define END_DYNAMIC '_'
 
 //
 // Scan a FPU command
@@ -146,11 +144,8 @@ static char *parse(char *line,
       end = END_DONE; // This command terminates a sequence of commands or this is a single command sequence
    else if(*line=='.')
       end = END_CONT; // This command is part of a sequence, there are more commands to follow.
-   else if(*line==':')
-      end = END_CONT_FAST; // This command is part of a sequence, more to follow, but dont wait 
-                           // for this command to be completed before moving to next instruction.
-   else if(*line=='_')
-      end = END_DYNAMIC; // Termination condition is dynamic based on variable _end_
+   else
+      error(cMcore::M_currLine, "syntax error");  
    while(*line && *line != ';') {
       line++;
    }
@@ -168,19 +163,11 @@ void genEXE(FILE *out,uint32_t opcode,char end) {
       fprintf(out,"ZTAM_GREG(0,%d,0)=(%d+(%d<<3));",REG_DP_RUN,DP_OPCODE_FPU_EXE,0);
    }
    else if(end==END_CONT)
-      // More command to follow, this command must be completed before moving to next in the sequencce
-      fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=%d;",opcode,REG_FPU_EXE,0);
-   else if(end==END_CONT_FAST)
       // More command to follow, dont have to wait for this command to be completed before moving to 
       // next one in the sequence
       fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=%d;",opcode,REG_FPU_EXE,2);
    else {
-      // Termination condition is dynamc based on variable _end_
-      // If _end_ = 0 -> Same as END_DONE
-      // If _end_ = '.' -> Same as END_CONT
-      // If _end_ = ':' -> Same as END_CONT_FAST
-      fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=(_end_==0)?1:((_end_=='.')?0:2);",opcode,REG_FPU_EXE);
-      fprintf(out,"{if(_end_== 0)ZTAM_GREG(0,%d,0)=(%d+(%d<<3));}",REG_DP_RUN,DP_OPCODE_FPU_EXE,0);
+      assert(0);
    }
 }
 

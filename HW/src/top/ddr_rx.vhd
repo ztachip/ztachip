@@ -111,7 +111,7 @@ function pack_ddr_read_cmd(rec_in: ddr_read_cmd_t) return ddr_read_cmd_flat_t is
    len_v:=0;
    q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.addr'length) := rec_in.addr;
    len_v := len_v+rec_in.addr'length;
-   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.burstlen'length) := std_logic_vector(rec_in.burstlen-1);
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.burstlen'length) := std_logic_vector(rec_in.burstlen);
    len_v := len_v+rec_in.burstlen'length;
    q_v(q_v'length-len_v-1) := rec_in.read;
    len_v := len_v+1;
@@ -131,7 +131,7 @@ function unpack_ddr_read_cmd(q_in: ddr_read_cmd_flat_t) return ddr_read_cmd_t is
    len_v := 0;
    rec_v.addr := q_in(q_in'length-len_v-1 downto q_in'length-len_v-rec_v.addr'length);
    len_v := len_v+rec_v.addr'length;
-   rec_v.burstlen := unsigned(q_in(q_in'length-len_v-1 downto q_in'length-len_v-rec_v.burstlen'length));
+   rec_v.burstlen := unsigned(q_in(q_in'length-len_v-1 downto q_in'length-len_v-rec_v.burstlen'length))-1;
    len_v := len_v+rec_v.burstlen'length;
    rec_v.read := q_in(q_in'length-len_v-1);
    len_v := len_v+1;
@@ -213,10 +213,13 @@ SIGNAL read_pause_burstlen_r:unsigned(ddr_burstlen_width_c-1 downto 0);
 SIGNAL read_fifo_read_ena:std_logic;
 SIGNAL read_fifo_read_empty:std_logic;
 SIGNAL read_fifo_write_ena:std_logic;
+SIGNAL read_fifo_write_ena_r:std_logic;
 SIGNAL read_fifo_write_full:std_logic;
+SIGNAL read_fifo_write_full_r:std_logic;
 SIGNAL read_fifo_write:ddr_read_cmd_t;
 SIGNAL read_fifo_read:ddr_read_cmd_t;
 SIGNAL read_fifo_write_flat:std_logic_vector(ddr_read_cmd_length_c-1 downto 0);
+SIGNAL read_fifo_write_flat_r:std_logic_vector(ddr_read_cmd_length_c-1 downto 0);
 SIGNAL read_fifo_read_flat:std_logic_vector(ddr_read_cmd_length_c-1 downto 0);
 
 -- read pending counter needs to have large range than actual max value in order
@@ -263,7 +266,7 @@ rvalid <= '1' when (ddr_rvalid_in='1' and read_data_write_full='0') else '0';
 
 read_fifo_read_ena <= '1' when ((read_fifo_read_empty='0') and ddr_arready_in='1') else '0';
 
-read_fifo_write_ena <= '1' when read_fifo_write.read='1' and read_fifo_write_full='0' else '0'; 
+read_fifo_write_ena <= '1' when read_fifo_write.read='1' and read_fifo_write_full_r='0' else '0'; 
 
 -----
 -- FIFO to hold read request to external DDR bus
@@ -275,21 +278,22 @@ ddr_rx_fifo_i:scfifo
 	(
         DATA_WIDTH=>ddr_read_cmd_length_c,
         FIFO_DEPTH=>ddr_rx_fifo_depth,
-        LOOKAHEAD=>TRUE
+        LOOKAHEAD=>TRUE,
+        ALMOST_FULL=>ddr_rx_fifo_size_c-4
 	)
 	port map 
 	(
         clock_in=>clock_in,
         reset_in=>reset_in,
-        data_in=>read_fifo_write_flat,
-        write_in=>read_fifo_write_ena,
+        data_in=>read_fifo_write_flat_r,
+        write_in=>read_fifo_write_ena_r,
         read_in=>read_fifo_read_ena,
         q_out=>read_fifo_read_flat,
         ravail_out=>open,
         wused_out=>open,
         empty_out=>read_fifo_read_empty,
-        full_out=>read_fifo_write_full,
-        almost_full_out=>open
+        full_out=>open,
+        almost_full_out=>read_fifo_write_full
 	);
 
 read_fifo_read <= unpack_ddr_read_cmd(read_fifo_read_flat);
@@ -313,6 +317,9 @@ process(read_pause_r,read_pause_addr_r,read_pause_burstlen_r,ddr_read,rd_ddr_add
       addr_v := rd_ddr_addr;
       burstlen_v := rd_ddr_burstlen(ddr_burstlen_width_c-1 downto 0);
       read_v := ddr_read;
+   end if;
+   if(burstlen_v=to_unsigned(0,burstlen_v'length)) then
+      read_v := '0';
    end if;
    burstbegin_v := (burstbegin and ddr_read);
    read_fifo_write.addr <= addr_v;
@@ -477,11 +484,11 @@ begin
     else
         if clock_in'event and clock_in='1' then
            read_record_read_full_r <= read_record_read_full or read_pending_full_r;
-           if burstbegin='1' and read_fifo_write_full='1' and ddr_read='1' then
+           if burstbegin='1' and read_fifo_write_full_r='1' and ddr_read='1' then
               read_pause_r <= '1';
               read_pause_burstlen_r <= rd_ddr_burstlen(ddr_burstlen_width_c-1 downto 0);
               read_pause_addr_r <= rd_ddr_addr;
-           elsif read_fifo_write_full='0' then
+           elsif read_fifo_write_full_r='0' then
               read_pause_r <= '0';
            end if;
         end if;
@@ -656,28 +663,44 @@ end process;
 
 process(reset_in,clock_in)
 begin
-    if reset_in = '0' then
-        read_burstlen_r <= (others=>'0');
-        read_piggyback_r <= '0';
-        read_record_write_r <= (others=>'0');
-        read_record_write_ena_r <= '0';
-        read_record_write_ena_rr <= '0';
-        read_record_write_ena_rrr <= '0';
-        read_record_read_empty_r <= '1';
-    else
-        if clock_in'event and clock_in='1' then
-            read_record_read_empty_r <= read_record_read_empty;
-            read_record_write_r <= read_record_write;
-            read_record_write_ena_r <= read_record_write_ena;
-            read_record_write_ena_rr <= read_record_write_ena_r;
-            read_record_write_ena_rrr <= read_record_write_ena_rr;
-            read_burstlen_r <= next_read_burstlen;
-            if read_record_write_ena='1' then
-               read_piggyback_r <= read_piggyback;
-            end if;
-        end if;
-    end if;
+   if reset_in = '0' then
+      read_burstlen_r <= (others=>'0');
+      read_piggyback_r <= '0';
+      read_record_write_r <= (others=>'0');
+      read_record_write_ena_r <= '0';
+      read_record_write_ena_rr <= '0';
+      read_record_write_ena_rrr <= '0';
+      read_record_read_empty_r <= '1';
+      read_fifo_write_full_r <= '0';
+   else
+      if clock_in'event and clock_in='1' then
+         read_fifo_write_full_r <= read_fifo_write_full;
+         read_record_read_empty_r <= read_record_read_empty;
+         read_record_write_r <= read_record_write;
+         read_record_write_ena_r <= read_record_write_ena;
+         read_record_write_ena_rr <= read_record_write_ena_r;
+         read_record_write_ena_rrr <= read_record_write_ena_rr;
+         read_burstlen_r <= next_read_burstlen;
+         if read_record_write_ena='1' then
+            read_piggyback_r <= read_piggyback;
+         end if;
+      end if;
+   end if;
 end process;
+
+process(reset_in,clock_in)
+begin
+   if reset_in = '0' then
+      read_fifo_write_flat_r <= (others=>'0');
+      read_fifo_write_ena_r <= '0';
+   else
+      if clock_in'event and clock_in='1' then
+         read_fifo_write_flat_r <= read_fifo_write_flat;
+         read_fifo_write_ena_r <= read_fifo_write_ena;
+      end if;
+   end if;
+end process;
+
 
 
 read_data_read_ena_2 <= (not read_data_read_empty) when read_data_read_ena='1' or read_data_read_valid_r(1)='0' or read_data_read_valid_r(0)='0' else '0';

@@ -42,6 +42,8 @@ ENTITY falu2 IS
         SIGNAL opcode_in            : IN fpu_opcode_t;
         SIGNAL input_ena_in         : IN STD_LOGIC;
         SIGNAL input_eof_in         : IN STD_LOGIC;
+        SIGNAL input_bof_in         : IN STD_LOGIC;
+        SIGNAL input_job_in         : IN fpu_job_t;
         SIGNAL input_last_in        : IN STD_LOGIC;
         SIGNAL input_last_be_in     : IN STD_LOGIC_VECTOR(fpu_data_width_c/8-1 downto 0);
         SIGNAL input_fast_in        : IN STD_LOGIC;
@@ -58,6 +60,8 @@ ENTITY falu2 IS
         SIGNAL output_ena_out       : OUT STD_LOGIC;
         SIGNAL output_opcode_out    : OUT fpu_opcode_t;
         SIGNAL output_eof_out       : OUT STD_LOGIC;
+        SIGNAL output_bof_out       : OUT STD_LOGIC;
+        SIGNAL output_job_out       : OUT fpu_job_t;
         SIGNAL output_last_out      : OUT STD_LOGIC;
         SIGNAL output_last_be_out   : OUT STD_LOGIC_VECTOR(fpu_data_width_c/8-1 downto 0);
         SIGNAL output_fast_out      : OUT STD_LOGIC;
@@ -488,6 +492,30 @@ delay8_i:delayi
         enable_in=>'1'
     );
 
+delay9_i:delay
+    generic map(
+        DEPTH=>LATENCY
+    )
+    port map(
+        clock_in=>clock_in,
+        reset_in=>reset_in,
+        in_in=>input_bof_in,
+        out_out=>output_bof_out,
+        enable_in=>'1'
+    );
+
+delay10_i:delayi
+    generic map(
+        DEPTH=>LATENCY,
+        SIZE=>input_job_in'length
+    )
+    port map(
+        clock_in=>clock_in,
+        reset_in=>reset_in,
+        in_in=>input_job_in,
+        out_out=>output_job_out,
+        enable_in=>'1'
+    );
 
 -----------------------------------------------
 -- Output stage

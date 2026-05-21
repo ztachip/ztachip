@@ -208,7 +208,7 @@ constant fu_latency_c       :integer:=6;   -- Floating point math unit execusion
 
 constant pipeline_latency_c :integer:=9;    -- Number of cycles to start a thread instruction IN the pipeline
 
-constant ddr_vector_depth_c :integer:=3;
+constant ddr_vector_depth_c :integer:=4;
 
 constant ddr_vector_width_c :integer:=(2**ddr_vector_depth_c);
 
@@ -304,7 +304,7 @@ constant ddr_bus_width_c    :integer:=32;   -- Address width to access DDR windo
 
 constant ddr_rx_fifo_width_c:integer:=ddr_bus_width_c+ddr_burstlen_width_c+2;
 
-constant ddr_rx_fifo_depth:integer:=4;
+constant ddr_rx_fifo_depth:integer:=5;
 
 constant ddr_rx_fifo_size_c:integer:=(2**ddr_rx_fifo_depth);
 
@@ -684,6 +684,14 @@ constant fpu_data_width_c   :integer:=(8*fpu_vector_width_c);
 subtype fpu_opcode_t is unsigned(3 downto 0); 
 
 subtype fpu_vector_t is unsigned(2 downto 0);
+
+subtype fpu_addr_t is std_logic_vector(sram_depth_c-1 downto 0);
+
+type fpu_addrs_t is array(natural range <>) of fpu_addr_t;
+
+subtype fpu_job_t is unsigned(1 downto 0); -- Number of FPU operations in progress
+
+constant fpu_max_job_c:integer:=(2**fpu_job_t'length);
 
 --------
 -- DP Read latency
@@ -1621,6 +1629,53 @@ COMPONENT fpu IS
     );
 END COMPONENT;
 
+COMPONENT fpu_fifo IS
+	generic 
+	(
+        DATA_WIDTH  : natural;
+        FIFO_DEPTH  : natural
+	);
+	port 
+	(
+      clock_in        : in std_logic;
+      reset_in        : in std_logic;
+      data_in         : in std_logic_vector(DATA_WIDTH-1 downto 0);
+      write_in        : in std_logic;
+      read_in         : in std_logic;
+      flush_in        : in std_logic:='0';
+      q_out           : out std_logic_vector(DATA_WIDTH-1 downto 0);
+      wused_out       : out std_logic_vector(FIFO_DEPTH-1 downto 0);
+      empty_out       : out std_logic
+	);
+END COMPONENT;
+
+COMPONENT fpu_hazard IS
+    GENERIC (
+        JOB         : integer
+    );
+    port(
+        SIGNAL clock_in             : IN STD_LOGIC;
+        SIGNAL reset_in             : IN STD_LOGIC;
+        -- FPU operations
+        SIGNAL input_ena_in         : IN STD_LOGIC;
+        SIGNAL eof_in               : IN STD_LOGIC;
+        SIGNAL bof_in               : IN STD_LOGIC;
+        SIGNAL waddr_in             : IN STD_LOGIC_VECTOR(sram_depth_c-1 DOWNTO 0);
+        SIGNAL job_in               : IN fpu_job_t;
+        -- FPU operation write result
+        SIGNAL fpu_write_in         : IN STD_LOGIC;
+        SIGNAL fpu_eof_in           : IN STD_LOGIC;
+        SIGNAL fpu_bof_in           : IN STD_LOGIC;
+        SIGNAL fpu_waddr_in         : IN STD_LOGIC_VECTOR(sram_depth_c-1 DOWNTO 0);
+        SIGNAL fpu_job_in           : IN fpu_job_t;
+        -- Is the current JOB still active
+        SIGNAL busy_out             : OUT STD_LOGIC;
+        -- Check for hazard read access
+        SIGNAL hazard_raddr_in      : IN std_logic_vector(sram_depth_c-1 downto 0);
+        SIGNAL hazard_out           : OUT STD_LOGIC
+    );
+END COMPONENT;
+
 COMPONENT falu_vector IS
     PORT (
         SIGNAL clock_in             : IN STD_LOGIC;
@@ -1630,6 +1685,8 @@ COMPONENT falu_vector IS
         SIGNAL opcode_in            : IN fpu_opcode_t;
         SIGNAL input_ena_in         : IN STD_LOGIC;
         SIGNAL input_eof_in         : IN STD_LOGIC;
+        SIGNAL input_bof_in         : IN STD_LOGIC;
+        SIGNAL input_job_in         : IN fpu_job_t;
         SIGNAL input_last_in        : IN STD_LOGIC;
         SIGNAL input_last_be_in     : IN STD_LOGIC_VECTOR(fpu_data_width_c/8-1 downto 0);
         SIGNAL input_fast_in        : IN STD_LOGIC;
@@ -1648,6 +1705,8 @@ COMPONENT falu_vector IS
         SIGNAL output_ena_out       : OUT STD_LOGIC;
         SIGNAL output_opcode_out    : OUT fpu_opcode_t;
         SIGNAL output_eof_out       : OUT STD_LOGIC;
+        SIGNAL output_bof_out       : OUT STD_LOGIC;
+        SIGNAL output_job_out       : OUT fpu_job_t;
         SIGNAL output_last_out      : OUT STD_LOGIC;
         SIGNAL output_last_be_out   : OUT STD_LOGIC_VECTOR(fpu_data_width_c/8-1 downto 0);
         SIGNAL output_fast_out      : OUT STD_LOGIC;
@@ -1670,6 +1729,8 @@ COMPONENT falu_core IS
         SIGNAL opcode_in            : IN fpu_opcode_t;
         SIGNAL input_ena_in         : IN STD_LOGIC;
         SIGNAL input_eof_in         : IN STD_LOGIC;
+        SIGNAL input_bof_in         : IN STD_LOGIC;
+        SIGNAL input_job_in         : IN fpu_job_t;
         SIGNAL input_last_in        : IN STD_LOGIC;
         SIGNAL input_last_be_in     : IN STD_LOGIC_VECTOR(fpu_data_width_c/8-1 DOWNTO 0);
         SIGNAL input_fast_in        : IN STD_LOGIC;
@@ -1688,6 +1749,8 @@ COMPONENT falu_core IS
         SIGNAL output_ena_out       : OUT STD_LOGIC;
         SIGNAL output_opcode_out    : OUT fpu_opcode_t;
         SIGNAL output_eof_out       : OUT STD_LOGIC;
+        SIGNAL output_bof_out       : OUT STD_LOGIC;
+        SIGNAL output_job_out       : OUT fpu_job_t;
         SIGNAL output_last_out      : OUT STD_LOGIC;
         SIGNAL output_last_be_out   : OUT STD_LOGIC_VECTOR(fpu_data_width_c/8-1 DOWNTO 0);
         SIGNAL output_fast_out      : OUT STD_LOGIC;
@@ -1707,6 +1770,8 @@ COMPONENT falu IS
         SIGNAL opcode_in            : IN fpu_opcode_t;
         SIGNAL input_ena_in         : IN STD_LOGIC;
         SIGNAL input_eof_in         : IN STD_LOGIC;
+        SIGNAL input_bof_in         : IN STD_LOGIC;
+        SIGNAL input_job_in         : IN fpu_job_t;
         SIGNAL input_last_in        : IN STD_LOGIC;
         SIGNAL input_last_be_in     : IN STD_LOGIC_VECTOR(fpu_data_width_c/8-1 DOWNTO 0);
         SIGNAL input_fast_in        : IN STD_LOGIC;
@@ -1726,6 +1791,8 @@ COMPONENT falu IS
         SIGNAL output_step_out      : OUT unsigned(sram_depth_c-1 DOWNTO 0);
         SIGNAL output_opcode_out    : OUT fpu_opcode_t;
         SIGNAL output_eof_out       : OUT STD_LOGIC;
+        SIGNAL output_bof_out       : OUT STD_LOGIC;
+        SIGNAL output_job_out       : OUT fpu_job_t;
         SIGNAL output_last_out      : OUT STD_LOGIC;
         SIGNAL output_last_be_out   : OUT STD_LOGIC_VECTOR(fpu_data_width_c/8-1 DOWNTO 0);
         SIGNAL output_fast_out      : OUT STD_LOGIC;
@@ -1746,6 +1813,8 @@ COMPONENT falu2 IS
         SIGNAL opcode_in            : IN fpu_opcode_t;
         SIGNAL input_ena_in         : IN STD_LOGIC;
         SIGNAL input_eof_in         : IN STD_LOGIC;
+        SIGNAL input_bof_in         : IN STD_LOGIC;
+        SIGNAL input_job_in         : IN fpu_job_t;
         SIGNAL input_last_in        : IN STD_LOGIC;
         SIGNAL input_last_be_in     : IN STD_LOGIC_VECTOR(fpu_data_width_c/8-1 DOWNTO 0);
         SIGNAL input_fast_in        : IN STD_LOGIC;
@@ -1762,6 +1831,8 @@ COMPONENT falu2 IS
         SIGNAL output_ena_out       : OUT STD_LOGIC;
         SIGNAL output_opcode_out    : OUT fpu_opcode_t;
         SIGNAL output_eof_out       : OUT STD_LOGIC;
+        SIGNAL output_bof_out       : OUT STD_LOGIC;
+        SIGNAL output_job_out       : OUT fpu_job_t;
         SIGNAL output_last_out      : OUT STD_LOGIC;
         SIGNAL output_last_be_out   : OUT STD_LOGIC_VECTOR(fpu_data_width_c/8-1 DOWNTO 0);
         SIGNAL output_fast_out      : OUT STD_LOGIC;

@@ -25,13 +25,11 @@
 #include "test_dma.p.img"
 
 
-int8_t INBUF[2*1024+64];
+int8_t INBUF[2*1024+256];
 
-int8_t OUTBUF[2*1024+64];
+int8_t OUTBUF[2*1024+256];
 
 static int SEED=0;
-
-static int OFFSET=4;
 
 // ---------------
 // Suite of tests to test various memory transfer scenario in different vector
@@ -48,7 +46,7 @@ typedef struct {
 // Test DDR<->PCORE transfers of INT8 data in vector mode
 //------------------------------
 
-#if 0
+#if 1
 static void dma_1_1(void *_p,int pid) {
    REQUEST *req=(REQUEST *)_p;
    uint32_t from,to;
@@ -150,7 +148,7 @@ static int16_t spuEval(int16_t _in,void *pparm,uint32_t parm,uint32_t parm2) {
     return _in+2;
 }
 
-void test_dma_1(int testcase) {
+void test_dma_1(int testcase,int OFFSET) {
    uint32_t resp;
    REQUEST req; 
    int i;
@@ -211,7 +209,7 @@ void test_dma_1(int testcase) {
 // Test DDR<->PCORE transfers of UINT8 data in vector mode
 //------------------------------
 
-#if 0
+#if 1
 static void dma_2_1(void *_p,int pid) {
    REQUEST *req=(REQUEST *)_p;
    uint32_t from,to;
@@ -304,7 +302,7 @@ static void dma_2_3(void *_p,int pid) {
    >BARRIER;
 }
 
-void test_dma_2(int testcase) {
+void test_dma_2(int testcase,int OFFSET) {
    uint32_t resp;
    REQUEST req; 
    int i;
@@ -454,7 +452,7 @@ static void dma_3_3(void *_p,int pid) {
    >BARRIER;
 }
 
-void test_dma_3(int testcase) {
+void test_dma_3(int testcase,int OFFSET) {
    uint32_t resp;
    REQUEST req; 
    int i;
@@ -510,18 +508,15 @@ void test_dma_3(int testcase) {
 // Test SCRATCH <->DDR transfers of INT8 data in vector mode
 //------------------------------
 
-#if 0
-static void test_dma_4_1() {
+#if 1
+static void test_dma_4_1(int sz,int OFFSET) {
    uint32_t resp;
    REQUEST req; 
    int i;
    int8_t *inbuf;
    int8_t *outbuf;
-   int sz;
 
    ztaInitPcore(zta_pcore_img);
-
-   sz=1024;
    
    inbuf = &INBUF[OFFSET];
    outbuf = &OUTBUF[OFFSET];
@@ -547,6 +542,7 @@ static void test_dma_4_1() {
    for(i=0;i < sz;i++) {
       if(outbuf[i] != ((i&0x3f)+SEED)) {
          for(;;) {
+            printf("FAIL sz=%d in=%d out=%d \r\n",sz,(int)inbuf,(int)outbuf);
             APB[0]=0xffffffff;
          }
       }
@@ -558,17 +554,15 @@ static void test_dma_4_1() {
 // Test SCRATCH <->DDR transfers of INT16 data in vector mode
 //------------------------------
 
-static void test_dma_4_2() {
+static void test_dma_4_2(int sz,int OFFSET) {
    uint32_t resp;
    REQUEST req; 
    int i;
    int16_t *inbuf;
    int16_t *outbuf;
-   int sz;
 
    ztaInitPcore(zta_pcore_img);
 
-   sz=1024;
 
    inbuf = (int16_t *)&INBUF[OFFSET];
    outbuf = (int16_t *)&OUTBUF[OFFSET];
@@ -606,17 +600,14 @@ static void test_dma_4_2() {
 // Test SCRATCH <->DDR transfers of INT8 data in scalar mode
 //------------------------------
 
-static void test_dma_4_3() {
+static void test_dma_4_3(int sz,int OFFSET) {
    uint32_t resp;
    REQUEST req; 
    int i;
    int8_t *inbuf;
    int8_t *outbuf;
-   int sz;
 
    ztaInitPcore(zta_pcore_img);
-
-   sz=1024;
    
    inbuf = &INBUF[OFFSET];
    outbuf = &OUTBUF[OFFSET];
@@ -653,17 +644,15 @@ static void test_dma_4_3() {
 // Test SCRATCH <->DDR transfers of INT16 data in scalar mode
 //------------------------------
 
-static void test_dma_4_4() {
+static void test_dma_4_4(int sz,int OFFSET) {
    uint32_t resp;
    REQUEST req; 
    int i;
    int16_t *inbuf;
    int16_t *outbuf;
-   int sz;
 
    ztaInitPcore(zta_pcore_img);
 
-   sz=1024;
 
    inbuf = (int16_t *)&INBUF[OFFSET];
    outbuf = (int16_t *)&OUTBUF[OFFSET];
@@ -697,35 +686,64 @@ static void test_dma_4_4() {
 } 
 #endif 
 
+// -----------------
+// This test covers most memory transfer scenarios between PCORE,SCRACH and DDR
+//-------------------
+
 void test_dma()
 {
    static int count=0;
+   static int sz=8;
+   static int OFFSET1=0;
+   static int OFFSET2=0;
 
-#if 0
-   test_dma_1(1); // DDR<->PCORE/UINT8/VECTOR
-   test_dma_1(2); // DDR<->PCORE/UINT8/SCALAR
-   test_dma_1(3); // DDR<->PCORE/UINT8/SCATTER
-#endif
-#if 0
-   test_dma_2(1); // DDR<->PCORE/INT8/VECTOR
-   test_dma_2(2); // DDR<->PCORE/INT8/SCALAR
-   test_dma_2(3); // DDR<->PCORE/INT8/SCATTER
+   for(int i=0;i < 1000;i++) {
+#if 1
+   // Test memory transfer between PCORE and DDR
+
+   test_dma_1(1,OFFSET1); // DDR<->PCORE/UINT8/VECTOR with UINT8 data format
+   test_dma_1(2,OFFSET1); // DDR<->PCORE/UINT8/SCALAR
+   test_dma_1(3,OFFSET1); // DDR<->PCORE/UINT8/SCATTER
 #endif
 #if 1
-   test_dma_3(1); // DDR<->PCORE/INT16/VECTOR
-   test_dma_3(2); // DDR<->PCORE/INT16/SCALAR 
-   test_dma_3(3); // DDR<->PCORE/INT16/SCALAR
+   // Test memory transfer between PCORE and DDR with INT8 data format
+
+   test_dma_2(1,OFFSET1); // DDR<->PCORE/INT8/VECTOR
+   test_dma_2(2,OFFSET1); // DDR<->PCORE/INT8/SCALAR
+   test_dma_2(3,OFFSET1); // DDR<->PCORE/INT8/SCATTER
 #endif
-#if 0
-   test_dma_4_1(); // DDR<->SCRATCH/INT8/VECTOR
-   test_dma_4_2(); // DDR<->SCRATCH/INT16/VECTOR
-   test_dma_4_3(); // DDR<->SCRATCH/INT8/SCALAR
-   test_dma_4_4(); // DDR<->SCRATCH/INT16/SCALAR
+#if 1
+   // Test memory transfer between PCORE and DDR with INT16 data format
+
+   test_dma_3(1,OFFSET2); // DDR<->PCORE/INT16/VECTOR
+   test_dma_3(2,OFFSET2); // DDR<->PCORE/INT16/SCALAR 
+   test_dma_3(3,OFFSET2); // DDR<->PCORE/INT16/SCALAR
 #endif
+#if 1
+   // Test memory transfer between DDR and SCRATCH
+
+   test_dma_4_1(sz,OFFSET1); // DDR<->SCRATCH/INT8/VECTOR
+   test_dma_4_2(sz,OFFSET2); // DDR<->SCRATCH/INT16/VECTOR
+   test_dma_4_3(sz,OFFSET1); // DDR<->SCRATCH/INT8/SCALAR
+   test_dma_4_4(sz,OFFSET2); // DDR<->SCRATCH/INT16/SCALAR 
+#endif
+   // Try different DMA transfer size 
+   sz++;
+   if(sz > 1024)
+      sz=8;
+
+   // Try different memory address alignment for INT16 transfer
+   OFFSET2 += 2;
+   if(OFFSET2 >= 64)
+      OFFSET2 = 0;
+
+   // Try different memory address alignment for INT8 transfer
+   OFFSET1 += 1;
+   if(OFFSET1 >= 64)
+      OFFSET1 = 0;
+
    APB[0]=++count;
-   OFFSET += 2;
-   if(OFFSET >= 16)
-      OFFSET = 0;
+   }
 }
 
 

@@ -64,6 +64,7 @@ int TIMEGET()
 
 #define K_MAX  100 // Maximum number of highest priority tokens to be chosen from during sampling
 
+
 // Constructor of LLAMA object
 
 llama::llama() {
@@ -326,6 +327,7 @@ ZtaStatus llama::Open(const char* checkpoint_path) {
     }
     else
         return ZtaStatusFail;
+    FLUSH_DATA_CACHE();
     return ZtaStatusOk;
 }
 
@@ -481,7 +483,7 @@ float16_t* llama::forward(int token, int pos) {
         x = (l==0)?content_row:m_runtime.x;
 
         kernel_llm_rms_exe(-1,dim,x,(l==0),m_runtime.xb,m_weights.rms_att_weight[l]);
-
+    
         // key and value point to the kv cache
         int loff = l * m_config.seq_len * kv_dim; // kv cache layer offset for convenience
         k = m_runtime.key_cache + (loff + pos * kv_dim);
@@ -511,6 +513,7 @@ float16_t* llama::forward(int token, int pos) {
                             &m_runtime.sine[kv_dim/2],
                             &m_runtime.q[kv_dim],
                             &m_runtime.q[kv_dim]);
+
         // multihead attention. iterate over all heads
         int h;
         for (h = 0; h < (int)m_config.n_heads; h++) {
@@ -555,6 +558,7 @@ float16_t* llama::forward(int token, int pos) {
         matmul(-1,hidden_dim, dim, GS,m_runtime.hbq.q,m_runtime.hbq.s, &m_weights.w2q[l],m_runtime.xb);
 
         kernel_llm_residual_exe(-1,dim,m_runtime.x,false,m_runtime.x,m_runtime.xb); 
+
 #ifndef __WIN32__
         while(ztaReadResponse(&resp)) {}
 #endif

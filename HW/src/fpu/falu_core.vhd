@@ -51,6 +51,8 @@ ENTITY falu_core IS
         SIGNAL opcode_in            : IN fpu_opcode_t;
         SIGNAL input_ena_in         : IN STD_LOGIC;
         SIGNAL input_eof_in         : IN STD_LOGIC;
+        SIGNAL input_bof_in         : IN STD_LOGIC;
+        SIGNAL input_job_in         : IN fpu_job_t;
         SIGNAL input_last_in        : IN STD_LOGIC;
         SIGNAL input_last_be_in     : IN STD_LOGIC_VECTOR(fpu_data_width_c/8-1 downto 0);
         SIGNAL input_fast_in        : IN STD_LOGIC;
@@ -69,6 +71,8 @@ ENTITY falu_core IS
         SIGNAL output_ena_out       : OUT STD_LOGIC;
         SIGNAL output_opcode_out    : OUT fpu_opcode_t;
         SIGNAL output_eof_out       : OUT STD_LOGIC;
+        SIGNAL output_bof_out       : OUT STD_LOGIC;
+        SIGNAL output_job_out       : OUT fpu_job_t;
         SIGNAL output_last_out      : OUT STD_LOGIC;
         SIGNAL output_last_be_out   : OUT STD_LOGIC_VECTOR(fpu_data_width_c/8-1 downto 0);
         SIGNAL output_fast_out      : OUT STD_LOGIC;
@@ -85,6 +89,8 @@ SIGNAL alu_output_ena:STD_LOGIC;
 SIGNAL alu_output_step:unsigned(sram_depth_c-1 DOWNTO 0);
 SIGNAL alu_output_opcode:fpu_opcode_t;
 SIGNAL alu_output_eof:STD_LOGIC;
+SIGNAL alu_output_bof:STD_LOGIC;
+SIGNAL alu_output_job:fpu_job_t;
 SIGNAL alu_output_last:STD_LOGIC;
 SIGNAL alu_output_last_be:STD_LOGIC_VECTOR(fpu_data_width_c/8-1 downto 0);
 SIGNAL alu_output_fast:STD_LOGIC;
@@ -97,6 +103,8 @@ SIGNAL alu2_output_ena:STD_LOGIC;
 SIGNAL alu2_output_step:unsigned(sram_depth_c-1 DOWNTO 0);
 SIGNAL alu2_output_opcode:fpu_opcode_t;
 SIGNAL alu2_output_eof:STD_LOGIC;
+SIGNAL alu2_output_bof:STD_LOGIC;
+SIGNAL alu2_output_job:fpu_job_t;
 SIGNAL alu2_output_last:STD_LOGIC;
 SIGNAL alu2_output_last_be:STD_LOGIC_VECTOR(fpu_data_width_c/8-1 downto 0);
 SIGNAL alu2_output_fast:STD_LOGIC;
@@ -109,6 +117,8 @@ SIGNAL alu2_step:unsigned(sram_depth_c-1 DOWNTO 0);
 SIGNAL alu2_opcode:fpu_opcode_t;
 SIGNAL alu2_ena:STD_LOGIC;
 SIGNAL alu2_eof:STD_LOGIC;
+SIGNAL alu2_bof:STD_LOGIC;
+SIGNAL alu2_job:fpu_job_t;
 SIGNAL alu2_abs:STD_LOGIC;
 SIGNAL alu2_last:STD_LOGIC;
 SIGNAL alu2_last_be:STD_LOGIC_VECTOR(fpu_data_width_c/8-1 downto 0);
@@ -125,6 +135,8 @@ SIGNAL alu_step:unsigned(sram_depth_c-1 DOWNTO 0);
 SIGNAL alu_opcode:fpu_opcode_t;
 SIGNAL alu_input_ena:STD_LOGIC;
 SIGNAL alu_input_eof:STD_LOGIC;
+SIGNAL alu_input_bof:STD_LOGIC;
+SIGNAL alu_input_job:fpu_job_t;
 SIGNAL alu_input_last:STD_LOGIC;
 SIGNAL alu_input_last_be:STD_LOGIC_VECTOR(fpu_data_width_c/8-1 DOWNTO 0);
 SIGNAL alu_input_fast:STD_LOGIC;
@@ -134,6 +146,8 @@ SIGNAL step_r:unsigned(sram_depth_c-1 DOWNTO 0);
 SIGNAL opcode_r:fpu_opcode_t;
 SIGNAL input_ena_r:STD_LOGIC;
 SIGNAL input_eof_r:STD_LOGIC;
+SIGNAL input_bof_r:STD_LOGIC;
+SIGNAL input_job_r:fpu_job_t;
 SIGNAL input_last_r:STD_LOGIC;
 SIGNAL input_last_be_r:STD_LOGIC_VECTOR(fpu_data_width_c/8-1 DOWNTO 0);
 SIGNAL input_fast_r:STD_LOGIC;
@@ -158,6 +172,8 @@ begin
         opcode_r <= (others=>'0');
         input_ena_r <= '0';
         input_eof_r <= '0';
+        input_bof_r <= '0';
+        input_job_r <= (others=>'0');
         input_last_r <= '0';
         input_last_be_r <= (others=>'0');
         input_fast_r <= '0';
@@ -178,6 +194,8 @@ begin
             opcode_r <= opcode_in;
             input_ena_r <= input_ena_in;
             input_eof_r <= input_eof_in;
+            input_bof_r <= input_bof_in;
+            input_job_r <= input_job_in;
             input_last_r <= input_last_in;
             input_last_be_r <= input_last_be_in;
             input_fast_r <= input_fast_in;
@@ -197,10 +215,11 @@ begin
 end process;
 
 process(input_ena_r,B_r,alu_output,
-        step_r,opcode_r,input_eof_r,input_last_be_r,
+        step_r,opcode_r,input_eof_r,input_bof_r,input_job_r,input_last_be_r,
         input_last_r,input_fast_r,input_vector_r,A_addr_r,A_precision_r,
         alu_output_step,alu_output_ena,
-        alu_output_eof,alu_output_opcode,alu_output_last,alu_output_last_be,alu_output_fast,alu_output_vector,
+        alu_output_eof,alu_output_bof,alu_output_job,alu_output_opcode,alu_output_last,alu_output_last_be,
+        alu_output_fast,alu_output_vector,
         alu_output_addr,alu_output_precision )
 begin
 if(input_ena_r='1' and 
@@ -209,6 +228,8 @@ if(input_ena_r='1' and
     alu_opcode <= (others=>'0');
     alu_input_ena <= '0';
     alu_input_eof <= '0';
+    alu_input_bof <= '0';
+    alu_input_job <= (others=>'0');
     alu_input_last <= '0';
     alu_input_last_be <= (others=>'0');
     alu_input_fast <= '0';
@@ -218,6 +239,8 @@ else
     alu_opcode <= opcode_r;
     alu_input_ena <= input_ena_r;
     alu_input_eof <= input_eof_r;
+    alu_input_bof <= input_bof_r;
+    alu_input_job <= input_job_r;
     alu_input_last <= input_last_r;
     alu_input_last_be <= input_last_be_r;
     alu_input_fast <= input_fast_r;
@@ -230,6 +253,8 @@ if(input_ena_r='1' and
     alu2_opcode <= opcode_r;
     alu2_ena <= input_ena_r;
     alu2_eof <= input_eof_r;
+    alu2_bof <= input_bof_r;
+    alu2_job <= input_job_r;
     alu2_abs <= A_abs_r;
     alu2_last <= input_last_r;
     alu2_last_be <= input_last_be_r;
@@ -244,6 +269,8 @@ elsif(alu_output_ena='1' and alu_output_opcode=register2_fpu_exe_fma_c) then
     alu2_opcode <= alu_output_opcode;
     alu2_ena <= alu_output_ena;
     alu2_eof <= alu_output_eof;
+    alu2_bof <= alu_output_bof;
+    alu2_job <= alu_output_job;
     alu2_abs <= '0';
     alu2_last <= alu_output_last;
     alu2_last_be <= alu_output_last_be;
@@ -258,6 +285,8 @@ else
     alu2_opcode <= (others=>'0');
     alu2_ena <= '0';
     alu2_eof <= '0';
+    alu2_bof <= '0';
+    alu2_job <= (others=>'0');
     alu2_abs <= '0';
     alu2_last <= '0';
     alu2_last_be <= (others=>'0');
@@ -270,9 +299,9 @@ else
 end if;
 end process;
 
-process(alu2_output_ena,alu2_output_eof,alu2_output_opcode,alu2_output_last,alu2_output_last_be,
+process(alu2_output_ena,alu2_output_eof,alu2_output_bof,alu2_output_job,alu2_output_opcode,alu2_output_last,alu2_output_last_be,
         alu2_output_fast,alu2_output_vector,alu2_output_addr,alu2_output_precision,
-        alu2_output,alu_output_ena,alu_output_eof,alu_output_opcode,
+        alu2_output,alu_output_ena,alu_output_eof,alu_output_bof,alu_output_job,alu_output_opcode,
         alu_output_last,alu_output_last_be,alu_output_fast,alu_output_vector,alu_output_addr,
         alu_output_precision,alu_output)
 begin
@@ -280,6 +309,8 @@ if(INSTANCE=0) then
     if(alu2_output_ena='1') then
         output_ena_out <= alu2_output_ena;
         output_eof_out <= alu2_output_eof;
+        output_bof_out <= alu2_output_bof;
+        output_job_out <= alu2_output_job;
         output_opcode_out <= alu2_output_opcode;
         output_last_out <= alu2_output_last;
         output_last_be_out <= alu2_output_last_be;
@@ -290,6 +321,8 @@ if(INSTANCE=0) then
     elsif(alu_output_ena='1' and alu_output_opcode /= register2_fpu_exe_fma_c) then
         output_ena_out <= alu_output_ena;
         output_eof_out <= alu_output_eof;
+        output_bof_out <= alu_output_bof;
+        output_job_out <= alu_output_job;
         output_opcode_out <= alu_output_opcode;
         output_last_out <= alu_output_last;
         output_last_be_out <= alu_output_last_be;
@@ -300,6 +333,8 @@ if(INSTANCE=0) then
     else
         output_ena_out <= '0';
         output_eof_out <= '0';
+        output_bof_out <= '0';
+        output_job_out <= (others=>'0');
         output_opcode_out <= (others=>'0');
         output_last_out <= '0';
         output_last_be_out <= (others=>'0');
@@ -312,6 +347,8 @@ else
     -- This FPU is just part of a FPU vector.
     output_ena_out <= 'Z';
     output_eof_out <= 'Z';
+    output_bof_out <= 'Z';
+    output_job_out <= (others=>'Z');
     output_opcode_out <= (others=>'Z');
     output_last_out <= 'Z';
     output_last_be_out <= (others=>'Z');
@@ -343,6 +380,8 @@ falu_i: falu
         opcode_in => alu_opcode,
         input_ena_in => alu_input_ena,
         input_eof_in => alu_input_eof,
+        input_bof_in => alu_input_bof,
+        input_job_in => alu_input_job,
         input_last_in => alu_input_last,
         input_last_be_in => alu_input_last_be,
         input_fast_in => alu_input_fast,
@@ -361,6 +400,8 @@ falu_i: falu
         output_step_out => alu_output_step,
         output_opcode_out => alu_output_opcode,
         output_eof_out => alu_output_eof,
+        output_bof_out => alu_output_bof,
+        output_job_out => alu_output_job,
         output_last_out => alu_output_last,
         output_last_be_out => alu_output_last_be,
         output_fast_out => alu_output_fast,
@@ -383,6 +424,8 @@ falu2_i: falu2
         opcode_in => alu2_opcode,
         input_ena_in => alu2_ena,
         input_eof_in => alu2_eof,
+        input_bof_in => alu2_bof,
+        input_job_in => alu2_job,
         input_last_in => alu2_last,
         input_last_be_in => alu2_last_be,
         input_fast_in => alu2_fast,
@@ -397,6 +440,8 @@ falu2_i: falu2
         Y_in => (others=>'0'),
         output_ena_out => alu2_output_ena,
         output_eof_out => alu2_output_eof,
+        output_bof_out => alu2_output_bof,
+        output_job_out => alu2_output_job,
         output_opcode_out => alu2_output_opcode,
         output_last_out => alu2_output_last,
         output_last_be_out => alu2_output_last_be,

@@ -81,6 +81,8 @@ read_vhdl ../../src/fpu/fp2int.vhd
 read_vhdl ../../src/fpu/fp_floor.vhd
 read_vhdl ../../src/fpu/fpmax.vhd
 read_vhdl ../../src/fpu/fpu.vhd
+read_vhdl ../../src/fpu/fpu_fifo.vhd
+read_vhdl ../../src/fpu/fpu_hazard.vhd
 read_verilog ../../platform/Xilinx/CCD_SYNC.v
 read_verilog ../../platform/Xilinx/SYNC_LATCH.v
 read_verilog ../../platform/Xilinx/SHIFT.v

@@ -611,7 +611,11 @@ SIGNAL sram_writebe_r:STD_LOGIC_VECTOR(fpu_data_width_c/8-1 downto 0);
 
 SIGNAL eof:STD_LOGIC;
 
+SIGNAL bof:STD_LOGIC;
+
 SIGNAL fpu_eof:STD_LOGIC;
+
+SIGNAL fpu_bof:STD_LOGIC;
 
 SIGNAL fpu_last:STD_LOGIC;
 
@@ -643,7 +647,13 @@ signal page_vm0_r:std_logic_vector(sram_depth_c-1 DOWNTO 0);
 
 signal page_vm1_r:std_logic_vector(sram_depth_c-1 DOWNTO 0);
 
-signal write_flush_r:std_logic;
+signal barrier:std_logic;
+
+signal barrier_r:std_logic;
+
+signal barrier_rr:std_logic;
+
+signal barrier_rrr:std_logic;
 
 signal fpu_exe_pending_r:std_logic_vector(1 downto 0);
 
@@ -651,7 +661,25 @@ signal fpu_busy_vm_r:std_logic_vector(1 downto 0);
 
 signal full:std_logic;
 
+signal job_r:fpu_job_t;
+
+signal nxt_job:fpu_job_t;
+
+signal prev_job:fpu_job_t;
+
+signal fpu_job:fpu_job_t;
+
+signal job_busy:std_logic_vector(fpu_max_job_c-1 downto 0);
+
+signal hazard:std_logic_vector(fpu_max_job_c-1 downto 0);
+
+signal conflict_r:std_logic;
+
 BEGIN
+
+nxt_job <= job_r+1;
+
+prev_job <= job_r-1;
 
 full <= cmd_fifo_full(0) or cmd_fifo_full(1);
 
@@ -671,6 +699,8 @@ bus_readwait_out <= '0';
 
 eof <= not running; -- Last step 
 
+bof <= '1' when step_r=0 and exe='1' else '0';
+
 fpu_wr_addr_out <= sram_wr_addr_r;      
 
 fpu_write_out <= sram_write_r;
@@ -681,9 +711,11 @@ fpu_writebe_out <= sram_writebe_r;
 
 fpu_rd_addr_out <= sram_rd_addr_r;
 
-fpu_read_out <= sram_read_r;
+fpu_read_out <= sram_read_r and (not conflict_r);
 
 pending_rdreq <= fpu_readdatavalid_in;
+
+barrier <= barrier_r or barrier_rr or barrier_rrr; 
 
 wregno <= unsigned(bus_waddr_in(register_t'length-1 downto 0));
 
@@ -707,7 +739,7 @@ X_avail <= (unsigned(X_wused) + unsigned(X_pending_r)) when (fpu_instruction_r.X
 
 Y_avail <= (unsigned(Y_wused) + unsigned(Y_pending_r)) when (fpu_instruction_r.Y_enable='1' and fpu_instruction_r.Y_by_value='0') else (others=>'1');
 
-ready <= (not running_r) and X_empty and Y_empty and B_empty and pending_empty and (not write_flush_r);
+ready <= (not running_r) and X_empty and Y_empty and B_empty and pending_empty and (not barrier) and (not job_busy(to_integer(nxt_job)));
 
 exe <=  running_r and 
         ((not B_empty) or (not fpu_instruction_r.B_enable) or (fpu_instruction_r.B_by_value)) and 
@@ -716,7 +748,7 @@ exe <=  running_r and
         ((fpu_instruction_r.C_by_value) or (not fpu_instruction_r.C_enable)) and
         ((fpu_instruction_r.C2_by_value) or (not fpu_instruction_r.C2_enable));
 
-sram_read_wait <= '0' when (sram_read_r='0' or fpu_read_wait_in='0') else '1';
+sram_read_wait <= '1' when (sram_read_r='1' and (fpu_read_wait_in='1' or conflict_r='1'))  else '0';
 
 fpu_instruction <= unpack_instruction(cmd_fifo_read);
 
@@ -790,6 +822,8 @@ falu_vector_i : falu_vector
         opcode_in => fpu_instruction_r.opcode,
         input_ena_in => exe,
         input_eof_in => eof,
+        input_bof_in => bof,
+        input_job_in => job_r,
         input_last_in => fpu_instruction_r.LAST,
         input_last_be_in => fpu_instruction_r.LAST_BE,
         input_fast_in => fpu_instruction_r.FAST,
@@ -810,6 +844,8 @@ falu_vector_i : falu_vector
         output_precision_out => fpu_wr_precision,
         output_out => fpu_writedata,
         output_eof_out => fpu_eof,
+        output_bof_out => fpu_bof,
+        output_job_out => fpu_job,
         output_last_out => fpu_last,
         output_last_be_out => fpu_last_be,
         output_fast_out => fpu_fast,
@@ -842,12 +878,11 @@ read_pending_i:scfifo
 
 -- B parameter FIFO
 
-B_fifo_i:scfifo
+B_fifo_i:fpu_fifo
 	generic map 
 	(
         DATA_WIDTH=>fpu_data_width_c,
-        FIFO_DEPTH=>CACHE_DEPTH,
-        LOOKAHEAD=>TRUE
+        FIFO_DEPTH=>CACHE_DEPTH
 	)
 	port map 
 	(
@@ -858,22 +893,18 @@ B_fifo_i:scfifo
         read_in=>B_rdreq,
         flush_in=>B_rdflush,
         q_out=>B,
-        ravail_out=>open,
         wused_out=>B_wused,
-        empty_out=>B_empty,
-        full_out=>open,
-        almost_full_out=>open
+        empty_out=>B_empty
 	);
 
 -- X parameter FIFO
 
-X_fifo_i:scfifo
+X_fifo_i:fpu_fifo
 	generic map 
 	(
         DATA_WIDTH=>fpu_data_width_c,
-        FIFO_DEPTH=>CACHE_DEPTH,
-        LOOKAHEAD=>TRUE
-	)
+        FIFO_DEPTH=>CACHE_DEPTH
+    )
 	port map 
 	(
         clock_in=>clock_in,
@@ -883,21 +914,17 @@ X_fifo_i:scfifo
         read_in=>X_rdreq,
         flush_in=>X_rdflush,
         q_out=>X,
-        ravail_out=>open,
         wused_out=>X_wused,
-        empty_out=>X_empty,
-        full_out=>open,
-        almost_full_out=>open
+        empty_out=>X_empty
 	);
 
 -- Y parameter FIFO
 
-Y_fifo_i:scfifo
+Y_fifo_i:fpu_fifo
 	generic map 
 	(
         DATA_WIDTH=>fpu_data_width_c,
-        FIFO_DEPTH=>CACHE_DEPTH,
-        LOOKAHEAD=>TRUE
+        FIFO_DEPTH=>CACHE_DEPTH
 	)
 	port map 
 	(
@@ -908,12 +935,61 @@ Y_fifo_i:scfifo
         read_in=>Y_rdreq,
         flush_in=>Y_rdflush,
         q_out=>Y,
-        ravail_out=>open,
         wused_out=>Y_wused,
-        empty_out=>Y_empty,
-        full_out=>open,
-        almost_full_out=>open
+        empty_out=>Y_empty
 	);
+
+---------------------
+-- Check if the read access is in conflict with one of the pending write from previous
+-- FPU operations
+-- Block the read access if there is a conflict
+----------------------
+
+GEN_HAZARD:
+FOR I in 0 to fpu_max_job_c-1 GENERATE
+hazard_i: fpu_hazard
+    generic map (
+        JOB=>I
+    )
+    port map(
+        clock_in=>clock_in,
+        reset_in=>reset_in,
+        input_ena_in=>exe,
+        eof_in=>eof,
+        bof_in=>bof,
+        waddr_in=>std_logic_vector(fpu_instruction_r.A_addr),
+        job_in=>job_r,
+        fpu_write_in=>fpu_write,
+        fpu_eof_in=>fpu_eof,
+        fpu_bof_in=>fpu_bof,
+        fpu_waddr_in=>std_logic_vector(fpu_wr_addr),
+        fpu_job_in=>fpu_job,
+        busy_out=>job_busy(I),
+        hazard_raddr_in=>sram_rd_addr,
+        hazard_out=>hazard(I)
+    );
+END GENERATE GEN_HAZARD;  
+
+-- Check if there is a hazard read/write conflict between current FPU operations and other previous 
+-- FPU operations
+
+process(reset_in,clock_in)
+begin
+    if reset_in = '0' then
+        conflict_r <= '0';
+    else
+        if clock_in'event and clock_in='1' then
+            conflict_r <= '0';
+            FOR I in 0 to fpu_max_job_c-1 loop
+                if(I /= to_integer(job_r)) then
+                    if(hazard(I)='1') then
+                        conflict_r <= '1';
+                    end if;
+                end if;
+            end loop;
+        end if;
+    end if;
+end process;
 
 -- Command FIFO 
 
@@ -1685,9 +1761,12 @@ begin
         fpu_exe_rr <= '0';
         page_vm0_r <= (others=>'0');
         page_vm1_r <= (others=>'0');
-        write_flush_r <= '0';
+        barrier_r <= '0';
+        barrier_rr <= '0';
+        barrier_rrr <= '0';
         fpu_exe_pending_r <= (others=>'0');
         fpu_busy_vm_r <= (others=>'0');
+        job_r <= (others=>'0');
     else
         if clock_in'event and clock_in='1' then
 
@@ -1995,12 +2074,18 @@ begin
                 busy_v := '1';
                 step_r <= (others=>'0');
                 fpu_instruction_r <= fpu_instruction;
+                job_r <= job_r+1; -- Increment FPU job number
             end if;
 
-            if(exe='1' and eof='1' and (fpu_instruction_r.LAST='1' or fpu_instruction_r.FAST='0')) then
-                write_flush_r <= '1';
-            elsif(fpu_eof='1' and fpu_write='1' and (fpu_last='1' or fpu_fast='0')) then
-                write_flush_r <= '0';
+            -- Establish a barrier condition
+            -- Pause pipeline until the barrier is cleared
+            
+            barrier_rrr <= barrier_rr;
+            barrier_rr <= barrier_r;
+            if(exe='1' and eof='1' and fpu_instruction_r.LAST='1') then
+                barrier_r <= '1';
+            elsif(fpu_eof='1' and fpu_write='1' and fpu_last='1') then
+                barrier_r <= '0';
             end if;
 
             if(cmd_fifo_we/="00") then
