@@ -105,8 +105,6 @@ SIGNAL read_source_1_rr:SOURCE;
 SIGNAL read_source_1_rrr:SOURCE;
 SIGNAL read_source_1_rrrr:SOURCE;
 
-SIGNAL read_source:SOURCE;
-
 SIGNAL read_addr_0:STD_LOGIC_VECTOR(sram_depth_c-1 DOWNTO 0);
 SIGNAL read_source_0:SOURCE;
 SIGNAL read_vector_0:std_logic_vector(fpu_vector_depth_c-1 downto 0);
@@ -142,7 +140,7 @@ assert (fpu_data_width_c=ddr_data_width_c*2) or (fpu_data_width_c=ddr_data_width
     report "Error: fpu_data_width_c must be equal ddr_data_width_c or equal ddr_data_width_c*2"
     severity failure;
 
-dp_read_wait_out <= '1' when (dp_read_in='1') and (read_source/=SOURCE_DP) else '0';
+dp_read_wait_out <= '1' when (dp_read_in='1') and (read_source_0/=SOURCE_DP) and (read_source_1/=SOURCE_DP) else '0';
 
 fpu_read_wait_out <= '1' when (fpu_read_in='1') and (read_source_0/=SOURCE_FPU) and (read_source_1/=SOURCE_FPU) else '0';
 
@@ -157,7 +155,6 @@ process(axi_read,axi_rd_addr,
          dp_read_in,dp_rd_addr_in,dp_read_vector_in,
          dp_read_gen_valid_in,dp_read_vm_in)
 begin
-   read_source <= SOURCE_NONE;
    read_source_0 <= SOURCE_NONE;
    read_addr_0 <= (others=>'0');
    read_vector_0 <= (others=>'0');
@@ -171,7 +168,6 @@ begin
    read_vm_1 <= '0';
 
    if(dp_read_in='1') then
-      read_source <= SOURCE_DP;
       if(dp_rd_addr_in(sram_depth_c-1)='0') then
          read_source_0 <= SOURCE_DP;
          read_addr_0 <= dp_rd_addr_in;
@@ -190,7 +186,6 @@ begin
    end if;
 
    if(fpu_read_in='1') then
-      read_source <= SOURCE_FPU;
       if(fpu_rd_addr_in(sram_depth_c-1)='0') then
          read_source_0 <= SOURCE_FPU;
          read_addr_0 <= fpu_rd_addr_in;
@@ -207,7 +202,6 @@ begin
    end if;
 
    if(axi_read='1') then
-      read_source <= SOURCE_AXI;
       if(axi_rd_addr(sram_depth_c-1)='0') then
          read_source_0 <= SOURCE_AXI;
          read_addr_0 <= axi_rd_addr;
