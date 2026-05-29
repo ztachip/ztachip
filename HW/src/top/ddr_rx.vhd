@@ -217,9 +217,9 @@ SIGNAL read_fifo_write_ena_r:std_logic;
 SIGNAL read_fifo_write_full:std_logic;
 SIGNAL read_fifo_write_full_r:std_logic;
 SIGNAL read_fifo_write:ddr_read_cmd_t;
+SIGNAL read_fifo_write_r:ddr_read_cmd_t;
 SIGNAL read_fifo_read:ddr_read_cmd_t;
 SIGNAL read_fifo_write_flat:std_logic_vector(ddr_read_cmd_length_c-1 downto 0);
-SIGNAL read_fifo_write_flat_r:std_logic_vector(ddr_read_cmd_length_c-1 downto 0);
 SIGNAL read_fifo_read_flat:std_logic_vector(ddr_read_cmd_length_c-1 downto 0);
 
 -- read pending counter needs to have large range than actual max value in order
@@ -239,12 +239,11 @@ BEGIN
 -- This FIFO is asynchronous to handle different clock domain
 -----
 
-read_data_fifo_i:scfifo
+read_data_fifo_i:fifo2
 	generic map 
 	(
         DATA_WIDTH=>ddr_data_width_c,
-        FIFO_DEPTH=>ddr_max_read_pend_depth_c,
-        LOOKAHEAD=>TRUE
+        FIFO_DEPTH=>ddr_max_read_pend_depth_c
 	)
 	port map 
 	(
@@ -254,11 +253,10 @@ read_data_fifo_i:scfifo
         write_in=>rvalid,
         read_in=>read_data_read_ena_2,
         q_out=>read_data_read,
-        ravail_out=>open,
         wused_out=>open,
         empty_out=>read_data_read_empty,
-        full_out=>read_data_write_full,
-        almost_full_out=>open
+        almost_full_out=>open,
+        full_out=>read_data_write_full
 	);
 
 
@@ -285,7 +283,7 @@ ddr_rx_fifo_i:scfifo
 	(
         clock_in=>clock_in,
         reset_in=>reset_in,
-        data_in=>read_fifo_write_flat_r,
+        data_in=>read_fifo_write_flat,
         write_in=>read_fifo_write_ena_r,
         read_in=>read_fifo_read_ena,
         q_out=>read_fifo_read_flat,
@@ -298,7 +296,7 @@ ddr_rx_fifo_i:scfifo
 
 read_fifo_read <= unpack_ddr_read_cmd(read_fifo_read_flat);
 
-read_fifo_write_flat <= pack_ddr_read_cmd(read_fifo_write);
+read_fifo_write_flat <= pack_ddr_read_cmd(read_fifo_write_r);
 
 --------
 -- Pack DDR read request to send to async FIFO
@@ -355,12 +353,11 @@ end process;
 ---- FIFO for DDR read access
 -----
 
-read_record_fifo_i:scfifo
+read_record_fifo_i:fifo2
 	generic map 
 	(
         DATA_WIDTH=>read_record_t'length,
         FIFO_DEPTH=>read_record_fifo_depth_c,
-        LOOKAHEAD=>TRUE,
         ALMOST_FULL=>read_record_fifo_size_c-ddr_rx_max_burstlen_c-5
 	)
 	port map 
@@ -371,7 +368,6 @@ read_record_fifo_i:scfifo
         write_in=>read_record_write_ena_r,
         read_in=>read_record_read_ena,
         q_out=>read_record_read,
-        ravail_out=>open,
         wused_out=>open,
         empty_out=>read_record_read_empty,
         full_out=>open,
@@ -429,47 +425,32 @@ process(read_burstlen_in,read_vector_in,read_addr,read_piggyback_r)
    begin
    burstlen_v := resize(read_burstlen_in,burstlen_v'length);
    addr_v := resize(unsigned(read_addr(ddr_vector_depth_c-1 downto 0)),addr_v'length);
-   if(addr_v(ddr_vector_depth_c-1 downto 0)=to_unsigned(0,ddr_vector_depth_c) or (read_piggyback_r='1')) then
-      --------------
-      -- Calculate burst length when starting read address is aligned to 64-bit boundary or this read
-      -- is a partially full-filled by previous read
-      -- In this case we use up to maximum burst length allowed
-      -------------- 
 
-      -- Calculate burst length for different vector format
+   --------------
+   -- When address is non aligned with 64-bit boundary then dont use up to max burst length but 
+   -- one less since burst length will be incremented later by 1 due to address misalignment
+   -----------------
 
-      temp_v := (others=>'0');
-      FOR I IN 0 TO ddr_vector_depth_c LOOP
-         if unsigned(read_vector_in)=to_unsigned((2**I)-1,ddr_vector_depth_c) then 
-            if burstlen_v > to_unsigned((ddr_vector_width_c/(2**I))*(ddr_rx_max_burstlen_c-1),burstlen_v'length) then
-               burstlen_v := to_unsigned((ddr_vector_width_c/(2**I))*(ddr_rx_max_burstlen_c-1),burstlen_v'length);
-            end if;
-            temp_v := burstlen_v sll I;
-            exit;
+   -- Calculate burst length for different vector format
+
+   temp_v := (others=>'0');
+   FOR I IN 0 TO ddr_vector_depth_c LOOP
+      if unsigned(read_vector_in)=to_unsigned((2**I)-1,ddr_vector_depth_c) then 
+         if burstlen_v > to_unsigned((ddr_vector_width_c/(2**I))*(ddr_rx_max_burstlen_c-2),burstlen_v'length) then
+            burstlen_v := to_unsigned((ddr_vector_width_c/(2**I))*(ddr_rx_max_burstlen_c-2),burstlen_v'length);
          end if;
-      END LOOP;
-   else
-      --------------
-      -- When address is non aligned with 64-bit boundary then dont use up to max burst length but 
-      -- one less since burst length will be incremented later by 1 due to address misalignment
-      -----------------
-
-      -- Calculate burst length for different vector format
-
-      temp_v := (others=>'0');
-      FOR I IN 0 TO ddr_vector_depth_c LOOP
-         if unsigned(read_vector_in)=to_unsigned((2**I)-1,ddr_vector_depth_c) then 
-            if burstlen_v > to_unsigned((ddr_vector_width_c/(2**I))*(ddr_rx_max_burstlen_c-2),burstlen_v'length) then
-               burstlen_v := to_unsigned((ddr_vector_width_c/(2**I))*(ddr_rx_max_burstlen_c-2),burstlen_v'length);
-            end if;
-            temp_v := burstlen_v sll I;
-            exit;
+         temp_v(temp_v'length-1 downto I) := burstlen_v(temp_v'length-I-1 downto 0);
+         if(I > 0) then
+            temp_v(I-1 downto 0) := (others=>'0');
          end if;
-      END LOOP;
-   end if;
+         exit;
+      end if;
+   END LOOP;
+
    --- Increase burst length if address is not aligned to 64-bit address boundary
    temp3_v := temp_v+addr_v+to_unsigned(ddr_vector_width_c-1,temp3_v'length);
-   temp4_v := temp3_v srl ddr_vector_depth_c;
+   temp4_v(temp4_v'length-1 downto temp3_v'length-ddr_vector_depth_c) := (others=>'0');
+   temp4_v(temp3_v'length-ddr_vector_depth_c-1 downto 0) := temp3_v(temp3_v'length-1 downto ddr_vector_depth_c);
    read_burstlen3 <= resize(temp4_v,read_burstlen3'length);
    read_burstlen2 <= resize(burstlen_v,read_burstlen2'length);
 end process;
@@ -691,11 +672,10 @@ end process;
 process(reset_in,clock_in)
 begin
    if reset_in = '0' then
-      read_fifo_write_flat_r <= (others=>'0');
       read_fifo_write_ena_r <= '0';
    else
       if clock_in'event and clock_in='1' then
-         read_fifo_write_flat_r <= read_fifo_write_flat;
+         read_fifo_write_r <= read_fifo_write;
          read_fifo_write_ena_r <= read_fifo_write_ena;
       end if;
    end if;
@@ -723,11 +703,11 @@ else
        if(read_data_read_ena_2='1') then
           read_complete_r <= read_complete_r+to_unsigned(1,read_complete_r'length);
        end if;
-       if read_fifo_write_ena='1' then
-          read_request_r <= read_request_r+resize(read_fifo_write.burstlen,read_request_r'length);
+       if read_fifo_write_ena_r='1' then
+          read_request_r <= read_request_r+resize(read_fifo_write_r.burstlen,read_request_r'length);
        end if;
        -- Also make sure not too many read transaction pending
-       if read_fifo_write_ena='1' then
+       if read_fifo_write_ena_r='1' then
           read_transaction_request_r <= read_transaction_request_r+to_unsigned(1,read_transaction_request_r'length);
        end if;
        if rvalid='1' and ddr_rlast_in='1' then

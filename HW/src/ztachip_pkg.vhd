@@ -31,6 +31,12 @@ use work.config.all;
 
 package ztachip_pkg is
 
+----------
+-- Number of PCOREs
+----------
+
+constant pid_gen_max_c: integer:=NUM_PCORE;
+
 ---------
 -- Number of threads
 ---------
@@ -208,7 +214,7 @@ constant fu_latency_c       :integer:=6;   -- Floating point math unit execusion
 
 constant pipeline_latency_c :integer:=9;    -- Number of cycles to start a thread instruction IN the pipeline
 
-constant ddr_vector_depth_c :integer:=4;
+constant ddr_vector_depth_c :integer:=INTERNAL_BUS_LOG2_WIDTH;
 
 constant ddr_vector_width_c :integer:=(2**ddr_vector_depth_c);
 
@@ -304,7 +310,7 @@ constant ddr_bus_width_c    :integer:=32;   -- Address width to access DDR windo
 
 constant ddr_rx_fifo_width_c:integer:=ddr_bus_width_c+ddr_burstlen_width_c+2;
 
-constant ddr_rx_fifo_depth:integer:=5;
+constant ddr_rx_fifo_depth:integer:=4;
 
 constant ddr_rx_fifo_size_c:integer:=(2**ddr_rx_fifo_depth);
 
@@ -676,6 +682,12 @@ type fp32s_t is array(natural range <>) of fp32_t;
 -------
 -- FPU type definitions
 ------
+
+constant fpu_gen_depth_c:integer:=FPU_VECTOR_LOG2_WIDTH;
+
+constant fpu_gen_max_c:integer:=2**fpu_gen_depth_c; --Number of FPUs to be instantiated
+
+constant fpu_vector_depth_c :integer:=FPU_BUS_LOG2_WIDTH;
 
 constant fpu_vector_width_c :integer:=(2**fpu_vector_depth_c);
 
@@ -4796,6 +4808,29 @@ COMPONENT scfifo is
         almost_full_out : out std_logic
 	);
 end COMPONENT;
+
+COMPONENT fifo2 IS
+	generic 
+	(
+        DATA_WIDTH  : natural;
+        FIFO_DEPTH  : natural;
+        ALMOST_FULL : natural := 1
+	);
+	port 
+	(
+        clock_in        : in std_logic;
+        reset_in        : in std_logic;
+        data_in         : in std_logic_vector(DATA_WIDTH-1 downto 0);
+        write_in        : in std_logic;
+        read_in         : in std_logic;
+        flush_in        : in std_logic:='0';
+        q_out           : out std_logic_vector(DATA_WIDTH-1 downto 0);
+        wused_out       : out std_logic_vector(FIFO_DEPTH-1 downto 0);
+        full_out        : out std_logic;
+        almost_full_out : out std_logic;
+        empty_out       : out std_logic
+	);
+END COMPONENT;
 
 COMPONENT scfifow is
 	generic 

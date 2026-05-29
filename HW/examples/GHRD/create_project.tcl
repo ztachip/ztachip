@@ -69,6 +69,7 @@ read_vhdl ../../src/util/delayv.vhd
 read_vhdl ../../src/util/delayi.vhd
 read_vhdl ../../src/util/delay.vhd
 read_vhdl ../../src/util/arbiter.vhd
+read_vhdl ../../src/util/fifo2.vhd
 read_vhdl ../../src/util/afifo.vhd
 read_vhdl ../../src/util/afifo2.vhd
 read_vhdl ../../src/util/adder.vhd
@@ -81,7 +82,6 @@ read_vhdl ../../src/fpu/fp2int.vhd
 read_vhdl ../../src/fpu/fp_floor.vhd
 read_vhdl ../../src/fpu/fpmax.vhd
 read_vhdl ../../src/fpu/fpu.vhd
-read_vhdl ../../src/fpu/fpu_fifo.vhd
 read_vhdl ../../src/fpu/fpu_hazard.vhd
 read_verilog ../../platform/Xilinx/CCD_SYNC.v
 read_verilog ../../platform/Xilinx/SYNC_LATCH.v

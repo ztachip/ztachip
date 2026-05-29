@@ -176,6 +176,11 @@ SIGNAL d_i1_count_r:unsigned(dp_addr_width_c-1 downto 0);
 SIGNAL d_i2_count_r:unsigned(dp_addr_width_c-1 downto 0);
 SIGNAL d_i3_count_r:unsigned(dp_addr_width_c-1 downto 0);
 SIGNAL d_i4_count_r:unsigned(dp_addr_width_c-1 downto 0);
+SIGNAL d_i0_wrap_r:STD_LOGIC;
+SIGNAL d_i1_wrap_r:STD_LOGIC;
+SIGNAL d_i2_wrap_r:STD_LOGIC;
+SIGNAL d_i3_wrap_r:STD_LOGIC;
+SIGNAL d_i4_wrap_r:STD_LOGIC;
 SIGNAL d_burst_max_r:unsigned(dp_addr_width_c downto 0);
 SIGNAL d_burstlen_r:unsigned(dp_addr_width_c-1 downto 0);
 SIGNAL d_burstpos_r:unsigned(dp_addr_width_c-1 downto 0);
@@ -748,11 +753,16 @@ s_i4_start_valid <= not s_i4_start_r(dp_addr_width_c+1-1);
 s_burst_start_valid <= '1' when ((signed(s_burstpos_start_r)+signed(s_burstpos_stride_r)) >= 1) else '0';
 
 d_burstlen_wrap <= '1' when (unsigned(d_burstlen_r) = unsigned(d_template_r.count)) else '0';
-d_i0_wrap <= '1' when (unsigned(d_i0_count_r) = unsigned(d_template_r.stride0_count)) else '0';
-d_i1_wrap <= '1' when (unsigned(d_i1_count_r) = unsigned(d_template_r.stride1_count)) else '0';
-d_i2_wrap <= '1' when (unsigned(d_i2_count_r) = unsigned(d_template_r.stride2_count)) else '0';
-d_i3_wrap <= '1' when (unsigned(d_i3_count_r) = unsigned(d_template_r.stride3_count)) else '0';
-d_i4_wrap <= '1' when (unsigned(d_i4_count_r) = unsigned(d_template_r.stride4_count)) else '0';
+--d_i0_wrap <= '1' when (unsigned(d_i0_count_r) = unsigned(d_template_r.stride0_count)) else '0';
+--d_i1_wrap <= '1' when (unsigned(d_i1_count_r) = unsigned(d_template_r.stride1_count)) else '0';
+--d_i2_wrap <= '1' when (unsigned(d_i2_count_r) = unsigned(d_template_r.stride2_count)) else '0';
+--d_i3_wrap <= '1' when (unsigned(d_i3_count_r) = unsigned(d_template_r.stride3_count)) else '0';
+--d_i4_wrap <= '1' when (unsigned(d_i4_count_r) = unsigned(d_template_r.stride4_count)) else '0';
+d_i0_wrap <= d_i0_wrap_r;
+d_i1_wrap <= d_i1_wrap_r;
+d_i2_wrap <= d_i2_wrap_r;
+d_i3_wrap <= d_i3_wrap_r;
+d_i4_wrap <= d_i4_wrap_r;
 
 d_i0_valid <= '1' when (unsigned(d_i0_r) <= unsigned(d_template_r.stride0_max(dp_addr_width_c-1 downto 0)) and d_template_r.stride0_max(dp_addr_width_c)='0') else '0';
 d_i1_valid <= '1' when (unsigned(d_i1_r) <= unsigned(d_template_r.stride1_max(dp_addr_width_c-1 downto 0)) and d_template_r.stride1_max(dp_addr_width_c)='0') else '0';
@@ -1259,6 +1269,11 @@ variable burst_stride_v:unsigned(dp_addr_width_c-1 downto 0);
 variable totallen_v:unsigned(dp_addr_width_c-1 downto 0);
 variable count_v:unsigned(dp_addr_width_c-1 downto 0);
 variable burst_v:unsigned(dp_addr_width_c-1 downto 0);
+variable d_i0_count_v:unsigned(dp_addr_width_c-1 downto 0);
+variable d_i1_count_v:unsigned(dp_addr_width_c-1 downto 0);
+variable d_i2_count_v:unsigned(dp_addr_width_c-1 downto 0);
+variable d_i3_count_v:unsigned(dp_addr_width_c-1 downto 0);
+variable d_i4_count_v:unsigned(dp_addr_width_c-1 downto 0);
 begin
    if reset_in = '0' then
       running_r <= '0';
@@ -1308,7 +1323,11 @@ begin
       d_burstlen_r <= (others=>'0');
       d_burstpos_r <= (others=>'0');
       d_burst_max_r <= (others=>'0');
-
+      d_i0_wrap_r <= '0';
+      d_i1_wrap_r <= '0';
+      d_i2_wrap_r <= '0';
+      d_i3_wrap_r <= '0';
+      d_i4_wrap_r <= '0';
       currlen_r <= (others=>'0');
       done_r <= '1';
       totallen_r <= (others=>'0');
@@ -1594,6 +1613,32 @@ begin
 
                d_burstlen_r <= (others=>'0');
                d_burstpos_r <= (others=>'0');
+
+               if(unsigned(instruction_dest_in.stride0_count)=0) then
+                  d_i0_wrap_r <= '1';
+               else
+                  d_i0_wrap_r <= '0';
+               end if;
+               if(unsigned(instruction_dest_in.stride1_count)=0) then
+                  d_i1_wrap_r <= '1';
+               else
+                  d_i1_wrap_r <= '0';
+               end if;
+               if(unsigned(instruction_dest_in.stride2_count)=0) then
+                  d_i2_wrap_r <= '1';
+               else
+                  d_i2_wrap_r <= '0';
+               end if;
+               if(unsigned(instruction_dest_in.stride3_count)=0) then
+                  d_i3_wrap_r <= '1';
+               else
+                  d_i3_wrap_r <= '0';
+               end if;
+               if(unsigned(instruction_dest_in.stride4_count)=0) then
+                  d_i4_wrap_r <= '1';
+               else
+                  d_i4_wrap_r <= '0';
+               end if;
             else
                currlen_r <= currlen_new;
                if unsigned(currlen_new)=len_zero_v then
@@ -1601,6 +1646,7 @@ begin
                else
                   done_r <= '0';
                end if;
+
                if s_burstlen_wrap='0' then
                   s_burstlen_r <= s_burstlen_new;
                   s_burstpos_r <= s_burstpos_new;
@@ -1693,6 +1739,13 @@ begin
                   s_i1_start_r <= s_template_r.stride1_min(dp_addr_width_c+1-1 downto 0);
                   s_i0_start_r <= s_template_r.stride0_min(dp_addr_width_c+1-1 downto 0);
                end if;
+               
+               d_i0_count_v := d_i0_count_r;
+               d_i1_count_v := d_i1_count_r;
+               d_i2_count_v := d_i2_count_r;
+               d_i3_count_v := d_i3_count_r;
+               d_i4_count_v := d_i4_count_r;
+
                if d_burstlen_wrap='0' then
                   d_burstlen_r <= d_burstlen_new;
                   d_burstpos_r <= d_burstpos_new;
@@ -1700,7 +1753,7 @@ begin
                   d_burstlen_r <= (others=>'0');
                   d_burstpos_r <= (others=>'0');
                   d_i4_r <= d_i4_new;
-                  d_i4_count_r <= d_i4_count_new;
+                  d_i4_count_v := d_i4_count_new;
                   if((d_template_r.burst_max_index=4) and 
                      (d_i4_new2 > d_template_r.stride4_max(dp_addr_width_c-1 downto 0))) then
                       d_burst_max_r <= d_template_r.burst_max2;
@@ -1712,9 +1765,9 @@ begin
                   d_burstpos_r <= (others=>'0');
                   d_burst_max_r <= d_template_r.burst_max;
                   d_i4_r <= (others=>'0');
-                  d_i4_count_r <= (others=>'0');
+                  d_i4_count_v := (others=>'0');
                   d_i3_r <= d_i3_new;
-                  d_i3_count_r <= d_i3_count_new;
+                  d_i3_count_v := d_i3_count_new;
                   if((d_template_r.burst_max_index=3) and 
                      (d_i3_new2 > d_template_r.stride3_max(dp_addr_width_c-1 downto 0))) then
                       d_burst_max_r <= d_template_r.burst_max2;
@@ -1726,11 +1779,11 @@ begin
                   d_burstpos_r <= (others=>'0');
                   d_burst_max_r <= d_template_r.burst_max;
                   d_i4_r <= (others=>'0');
-                  d_i4_count_r <= (others=>'0');
+                  d_i4_count_v := (others=>'0');
                   d_i3_r <= (others=>'0');
-                  d_i3_count_r <= (others=>'0');
+                  d_i3_count_v := (others=>'0');
                   d_i2_r <= d_i2_new;
-                  d_i2_count_r <= d_i2_count_new;
+                  d_i2_count_v := d_i2_count_new;
                   if((d_template_r.burst_max_index=2) and 
                      (d_i2_new2 > d_template_r.stride2_max(dp_addr_width_c-1 downto 0))) then
                       d_burst_max_r <= d_template_r.burst_max2;
@@ -1742,13 +1795,13 @@ begin
                   d_burstpos_r <= (others=>'0');
                   d_burst_max_r <= d_template_r.burst_max;
                   d_i4_r <= (others=>'0');
-                  d_i4_count_r <= (others=>'0');
+                  d_i4_count_v := (others=>'0');
                   d_i3_r <= (others=>'0');
-                  d_i3_count_r <= (others=>'0');
+                  d_i3_count_v := (others=>'0');
                   d_i2_r <= (others=>'0');
-                  d_i2_count_r <= (others=>'0');
+                  d_i2_count_v := (others=>'0');
                   d_i1_r <= d_i1_new;
-                  d_i1_count_r <= d_i1_count_new;
+                  d_i1_count_v := d_i1_count_new;
                   if((d_template_r.burst_max_index=1) and 
                      (d_i1_new2 > d_template_r.stride1_max(dp_addr_width_c-1 downto 0))) then
                      d_burst_max_r <= d_template_r.burst_max2;
@@ -1760,15 +1813,15 @@ begin
                   d_burstpos_r <= (others=>'0');
                   d_burst_max_r <= d_template_r.burst_max;
                   d_i4_r <= (others=>'0');
-                  d_i4_count_r <= (others=>'0');
+                  d_i4_count_v := (others=>'0');
                   d_i3_r <= (others=>'0');
-                  d_i3_count_r <= (others=>'0');
+                  d_i3_count_v := (others=>'0');
                   d_i2_r <= (others=>'0');
-                  d_i2_count_r <= (others=>'0');
+                  d_i2_count_v := (others=>'0');
                   d_i1_r <= (others=>'0');
-                  d_i1_count_r <= (others=>'0');
+                  d_i1_count_v := (others=>'0');
                   d_i0_r <= d_i0_new;
-                  d_i0_count_r <= d_i0_count_new;
+                  d_i0_count_v := d_i0_count_new;
                   if((d_template_r.burst_max_index=0) and 
                      (d_i0_new2 > d_template_r.stride0_max(dp_addr_width_c-1 downto 0))) then
                       d_burst_max_r <= d_template_r.burst_max2;
@@ -1780,15 +1833,46 @@ begin
                   d_burstpos_r <= (others=>'0');
                   d_burst_max_r <= d_template_r.burst_max;
                   d_i4_r <= (others=>'0');
-                  d_i4_count_r <= (others=>'0');
+                  d_i4_count_v := (others=>'0');
                   d_i3_r <= (others=>'0');
-                  d_i3_count_r <= (others=>'0');
+                  d_i3_count_v := (others=>'0');
                   d_i2_r <= (others=>'0');
-                  d_i2_count_r <= (others=>'0');
+                  d_i2_count_v := (others=>'0');
                   d_i1_r <= (others=>'0');
-                  d_i1_count_r <= (others=>'0');
+                  d_i1_count_v := (others=>'0');
                   d_i0_r <= (others=>'0');
-                  d_i0_count_r <= (others=>'0');
+                  d_i0_count_v := (others=>'0');
+               end if;
+               d_i0_count_r <= d_i0_count_v;
+               d_i1_count_r <= d_i1_count_v;
+               d_i2_count_r <= d_i2_count_v;
+               d_i3_count_r <= d_i3_count_v;
+               d_i4_count_r <= d_i4_count_v;
+
+               if(unsigned(d_i0_count_v) = unsigned(d_template_r.stride0_count)) then
+                  d_i0_wrap_r <= '1';
+               else
+                  d_i0_wrap_r <= '0';
+               end if;
+               if(unsigned(d_i1_count_v) = unsigned(d_template_r.stride1_count)) then
+                  d_i1_wrap_r <= '1';
+               else
+                  d_i1_wrap_r <= '0';
+               end if;
+               if(unsigned(d_i2_count_v) = unsigned(d_template_r.stride2_count)) then
+                  d_i2_wrap_r <= '1';
+               else
+                  d_i2_wrap_r <= '0';
+               end if;
+               if(unsigned(d_i3_count_v) = unsigned(d_template_r.stride3_count)) then
+                  d_i3_wrap_r <= '1';
+               else
+                  d_i3_wrap_r <= '0';
+               end if;
+               if(unsigned(d_i4_count_v) = unsigned(d_template_r.stride4_count)) then
+                  d_i4_wrap_r <= '1';
+               else
+                  d_i4_wrap_r <= '0';
                end if;
             end if;
          end if;

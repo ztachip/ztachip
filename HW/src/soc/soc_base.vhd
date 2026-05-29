@@ -1327,7 +1327,7 @@ axi_stream_read_inst : axi_stream_read
    
    ztachip_inst : ztachip 
       GENERIC MAP (
-         FPU_ENABLED => fpu_enabled_c
+         FPU_ENABLED => FPU_ENABLED
       )
       PORT MAP ( 
 

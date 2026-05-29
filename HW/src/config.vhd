@@ -1,5 +1,15 @@
 ------------------------------------------------------
+--
+--
+-- ********************* IMPORTANT *********************
+--
+--
+-- 
 -- This file contains tunable parameters for ztachip
+-- SW/src/config.h must also be updated to match changes
+-- in hardware configuration parameters
+-- 
+--
 ------------------------------------------------------
 
 library std;
@@ -10,16 +20,14 @@ use IEEE.numeric_std.all;
 package config is
 
 -----------------------------------------------------------
--- configure ztachip size
+-- configure number of PCOREs
 -- Choose appropriate size that fits your targeted FPGA
 -- ztachip supported 2 sizes below
 -------------------------------------------------------------
 
---LARGE VERSION
---constant pid_gen_max_c: integer:=8;
+--constant NUM_PCORE: integer:=8; --LARGE VERSION
 
---SMALL VERSION
-constant pid_gen_max_c: integer:=4;
+constant NUM_PCORE: integer:=4; --SMALL VERSION
 
 -----------------------------------------------------------------
 -- Memory usage optimization
@@ -38,8 +46,8 @@ constant min_mem_depth_c:integer:=512;
 --constant min_mem_depth_c:integer:=0;
 
 ---------------------------------------------------------------
--- Specify data width to external memory
--- ztachip accesses external memory via AXI bus protocol
+-- Specify data width to external memory via a DDR controller
+-- ztachip accesses external memory via DDR controller's AXI bus
 -- ztachip supports 64-bit or 128-bit AXI bus width for 
 -- external memory access
 ---------------------------------------------------------------
@@ -54,22 +62,40 @@ constant exmem_data_width_c:integer:=128;
 
 constant main_clock_c:integer:=125000000;
 
+
+---------------------------------------------------------------
+-- Internal bus width (in bytes) to connect SCRATCH/PCORE/DDR to 
+-- DP engine
+-- Internal bus width = (2**INTERNAL_BUS_LOG2_WIDTH) bytes
+---------------------------------------------------------------
+
+constant INTERNAL_BUS_LOG2_WIDTH:integer:=4;
+
 ---------------------------------------------------------------
 -- Enable/disable FPU. This option is required to run LLM models
--- FPU will take more resources
 ----------------------------------------------------------------
  
-constant fpu_enabled_c:boolean:=TRUE;
+constant FPU_ENABLED:boolean:=TRUE;
 
---constant fpu_enabled_c:boolean:=FALSE;
+--constant FPU_ENABLED:boolean:=FALSE;
 
-constant fpu_gen_depth_c:integer:=1;
+---------------------------------------------------------------
+-- FPU operates in vector mode
+-- FPU_vector_width = 2**FPU_VECTOR_LOG2_WIDTH
+---------------------------------------------------------------
 
-constant fpu_gen_max_c:integer:=2**fpu_gen_depth_c; --Number of FPUs to be instantiated
+constant FPU_VECTOR_LOG2_WIDTH:integer:=1;
 
-constant fpu_vector_depth_c :integer:=4;
+----------------------------------------------------------------
+-- Bus width (in bytes) for FPU to fetch/write data to/from SCRATCH
+-- memory space.
+-- Width of FPU bus=2**FPU_BUS_LOG2_WIDTH bytes
+-- FPU bus width must be =internal_bus_width or =2*internal_bus_width
+------------------------------------------------------------------
 
---constant fpu_vector_depth_c :integer:=3;
+constant FPU_BUS_LOG2_WIDTH :integer:=4;
+
+--constant FPU_BUS_LOG2_WIDTH :integer:=3;
 
 ---------------------------------------------------------------
 -- Max tensor size in log2

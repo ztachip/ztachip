@@ -26,30 +26,35 @@ use work.ztachip_pkg.all;
 use work.config.all;
 
 ---------
--- FIFO to hold FPU parameters
+-- This is a faster version of FIFO for timing
+-- The read data is first registered to register before making it available
+-- Use fifo2 instead of standard fifo to improve timing
 ------------
 
-ENTITY fpu_fifo IS
+ENTITY fifo2 IS
 	generic 
 	(
         DATA_WIDTH  : natural;
-        FIFO_DEPTH  : natural
+        FIFO_DEPTH  : natural;
+        ALMOST_FULL : natural := 1
 	);
 	port 
 	(
-      clock_in        : in std_logic;
-      reset_in        : in std_logic;
-      data_in         : in std_logic_vector(DATA_WIDTH-1 downto 0);
-      write_in        : in std_logic;
-      read_in         : in std_logic;
-      flush_in        : in std_logic:='0';
-      q_out           : out std_logic_vector(DATA_WIDTH-1 downto 0);
-      wused_out       : out std_logic_vector(FIFO_DEPTH-1 downto 0);
-      empty_out       : out std_logic
+        clock_in        : in std_logic;
+        reset_in        : in std_logic;
+        data_in         : in std_logic_vector(DATA_WIDTH-1 downto 0);
+        write_in        : in std_logic;
+        read_in         : in std_logic;
+        flush_in        : in std_logic:='0';
+        q_out           : out std_logic_vector(DATA_WIDTH-1 downto 0);
+        wused_out       : out std_logic_vector(FIFO_DEPTH-1 downto 0);
+        full_out        : out std_logic;
+        almost_full_out : out std_logic;
+        empty_out       : out std_logic
 	);
-END fpu_fifo;
+END fifo2;
 
-ARCHITECTURE fpu_fifo_behaviour of fpu_fifo is
+ARCHITECTURE fifo2_behaviour of fifo2 is
 
 signal empty:std_logic;
 signal q:std_logic_vector(DATA_WIDTH-1 downto 0);
@@ -63,7 +68,8 @@ fifo_i:scfifo
 	(
         DATA_WIDTH=>DATA_WIDTH,
         FIFO_DEPTH=>FIFO_DEPTH,
-        LOOKAHEAD=>TRUE
+        LOOKAHEAD=>TRUE,
+        ALMOST_FULL=>ALMOST_FULL
 	)
 	port map 
 	(
@@ -77,7 +83,8 @@ fifo_i:scfifo
         ravail_out=>open,
         wused_out=>wused_out,
         empty_out=>empty,
-        full_out=>open
+        full_out=>full_out,
+        almost_full_out=>almost_full_out
 	);
 
 empty_out <= not valid_r;
@@ -105,5 +112,5 @@ begin
     end if;
 end process;
 
-END fpu_fifo_behaviour;
+END fifo2_behaviour;
 

@@ -544,6 +544,7 @@ SIGNAL B_wused:std_logic_vector(CACHE_DEPTH-1 downto 0);
 SIGNAL B_pending_r:unsigned(CACHE_DEPTH-1 downto 0);
 SIGNAL B_empty:STD_LOGIC;
 SIGNAL B_avail:unsigned(CACHE_DEPTH-1 downto 0);
+SIGNAL B_avail_r:unsigned(CACHE_DEPTH-1 downto 0);
 
 SIGNAL X_wrreq:STD_LOGIC;
 SIGNAL X_rdreq:STD_LOGIC;
@@ -553,6 +554,7 @@ SIGNAL X_wused:std_logic_vector(CACHE_DEPTH-1 downto 0);
 SIGNAL X_pending_r:unsigned(CACHE_DEPTH-1 downto 0);
 SIGNAL X_empty:STD_LOGIC;
 SIGNAL X_avail:unsigned(CACHE_DEPTH-1 downto 0);
+SIGNAL X_avail_r:unsigned(CACHE_DEPTH-1 downto 0);
 
 SIGNAL Y_wrreq:STD_LOGIC;
 SIGNAL Y_rdreq:STD_LOGIC;
@@ -562,6 +564,7 @@ SIGNAL Y_wused:std_logic_vector(CACHE_DEPTH-1 downto 0);
 SIGNAL Y_pending_r:unsigned(CACHE_DEPTH-1 downto 0);
 SIGNAL Y_empty:STD_LOGIC;
 SIGNAL Y_avail:unsigned(CACHE_DEPTH-1 downto 0);
+SIGNAL Y_avail_r:unsigned(CACHE_DEPTH-1 downto 0);
 
 SIGNAL C_wrreq:STD_LOGIC;
 SIGNAL C2_wrreq:STD_LOGIC;
@@ -662,6 +665,8 @@ signal fpu_busy_vm_r:std_logic_vector(1 downto 0);
 signal full:std_logic;
 
 signal job_r:fpu_job_t;
+
+signal job_mask_r:std_logic_vector(fpu_max_job_c-1 downto 0) := std_logic_vector(to_unsigned(1,fpu_max_job_c));
 
 signal nxt_job:fpu_job_t;
 
@@ -878,7 +883,7 @@ read_pending_i:scfifo
 
 -- B parameter FIFO
 
-B_fifo_i:fpu_fifo
+B_fifo_i:fifo2
 	generic map 
 	(
         DATA_WIDTH=>fpu_data_width_c,
@@ -894,12 +899,14 @@ B_fifo_i:fpu_fifo
         flush_in=>B_rdflush,
         q_out=>B,
         wused_out=>B_wused,
+        full_out=>open,
+        almost_full_out=>open,
         empty_out=>B_empty
 	);
 
 -- X parameter FIFO
 
-X_fifo_i:fpu_fifo
+X_fifo_i:fifo2
 	generic map 
 	(
         DATA_WIDTH=>fpu_data_width_c,
@@ -915,12 +922,14 @@ X_fifo_i:fpu_fifo
         flush_in=>X_rdflush,
         q_out=>X,
         wused_out=>X_wused,
+        full_out=>open,
+        almost_full_out=>open,
         empty_out=>X_empty
 	);
 
 -- Y parameter FIFO
 
-Y_fifo_i:fpu_fifo
+Y_fifo_i:fifo2
 	generic map 
 	(
         DATA_WIDTH=>fpu_data_width_c,
@@ -936,6 +945,8 @@ Y_fifo_i:fpu_fifo
         flush_in=>Y_rdflush,
         q_out=>Y,
         wused_out=>Y_wused,
+        full_out=>open,
+        almost_full_out=>open,
         empty_out=>Y_empty
 	);
 
@@ -974,19 +985,18 @@ END GENERATE GEN_HAZARD;
 -- FPU operations
 
 process(reset_in,clock_in)
+variable hazard_v:std_logic_vector(fpu_max_job_c-1 downto 0);
 begin
     if reset_in = '0' then
         conflict_r <= '0';
     else
         if clock_in'event and clock_in='1' then
-            conflict_r <= '0';
-            FOR I in 0 to fpu_max_job_c-1 loop
-                if(I /= to_integer(job_r)) then
-                    if(hazard(I)='1') then
-                        conflict_r <= '1';
-                    end if;
-                end if;
-            end loop;
+            hazard_v := hazard and (not job_mask_r);
+            if(hazard_v = std_logic_vector(to_unsigned(0,hazard_v'length))) Then
+                conflict_r <= '0';
+            else
+                conflict_r <= '1';
+            end if;
         end if;
     end if;
 end process;
@@ -1281,9 +1291,9 @@ end process;
 
 process(
     sram_read_wait,running_r,
-    B_avail,fpu_instruction_r,
-    X_avail,
-    Y_avail
+    B_avail_r,fpu_instruction_r,
+    X_avail_r,
+    Y_avail_r
 )
 begin
     pending_write <= (others=>'0');
@@ -1306,22 +1316,22 @@ begin
             pending_wrreq <= not sram_read_wait;
             sram_read <= '1';
             sram_rd_addr <= std_logic_vector(fpu_instruction_r.C2_addr(sram_depth_c-1 DOWNTO 3)) & "000";
-        elsif(fpu_instruction_r.B_enable='1' and (B_avail < X_avail) and (B_avail < Y_avail) and fpu_instruction_r.B_by_value='0') then
-            if(B_avail < MAX_CACHE_LEVEL) then
+        elsif(fpu_instruction_r.B_enable='1' and (B_avail_r < X_avail_r) and (B_avail_r < Y_avail_r) and fpu_instruction_r.B_by_value='0') then
+            if(B_avail_r < MAX_CACHE_LEVEL) then
                 pending_write(PARM_B) <= not sram_read_wait;
                 pending_wrreq <= not sram_read_wait;
                 sram_read <= '1';
                 sram_rd_addr <= std_logic_vector(fpu_instruction_r.B_addr(sram_depth_c-1 DOWNTO 0));
             end if; 
-        elsif(fpu_instruction_r.X_enable='1' and X_avail < Y_avail and fpu_instruction_r.X_by_value='0') then
-            if(X_avail < MAX_CACHE_LEVEL) then
+        elsif(fpu_instruction_r.X_enable='1' and X_avail_r < Y_avail_r and fpu_instruction_r.X_by_value='0') then
+            if(X_avail_r < MAX_CACHE_LEVEL) then
                 pending_write(PARM_X) <= not sram_read_wait;
                 pending_wrreq <= not sram_read_wait;
                 sram_read <= '1';
                 sram_rd_addr <= std_logic_vector(fpu_instruction_r.X_addr(sram_depth_c-1 DOWNTO 0));
             end if;
         elsif(fpu_instruction_r.Y_enable='1' and fpu_instruction_r.Y_by_value='0') then
-            if(Y_avail < MAX_CACHE_LEVEL) then
+            if(Y_avail_r < MAX_CACHE_LEVEL) then
                 pending_write(PARM_Y) <= not sram_read_wait;
                 pending_wrreq <= not sram_read_wait;
                 sram_read <= '1';
@@ -1767,6 +1777,10 @@ begin
         fpu_exe_pending_r <= (others=>'0');
         fpu_busy_vm_r <= (others=>'0');
         job_r <= (others=>'0');
+        job_mask_r <= std_logic_vector(to_unsigned(1,job_mask_r'length)); -- mask when job_r=0
+        B_avail_r <= (others=>'0');
+        X_avail_r <= (others=>'0');
+        Y_avail_r <= (others=>'0');
     else
         if clock_in'event and clock_in='1' then
 
@@ -1786,6 +1800,10 @@ begin
             sram_write_r <= sram_write;
             sram_writedata_r <= sram_writedata;
             sram_writebe_r <= sram_writebe;
+
+            B_avail_r <= B_avail;
+            X_avail_r <= X_avail;
+            Y_avail_r <= Y_avail;
 
             -- Latch in write request so to combine with next write
             -- requests
@@ -2075,6 +2093,8 @@ begin
                 step_r <= (others=>'0');
                 fpu_instruction_r <= fpu_instruction;
                 job_r <= job_r+1; -- Increment FPU job number
+                job_mask_r(0) <= job_mask_r(job_mask_r'length-1);
+                job_mask_r(job_mask_r'length-1 downto 1) <= job_mask_r(job_mask_r'length-2 downto 0);
             end if;
 
             -- Establish a barrier condition

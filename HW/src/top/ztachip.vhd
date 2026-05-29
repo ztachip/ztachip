@@ -555,7 +555,7 @@ sram_i: sram_core
 
 -- Muxing DDR read....
 
-ddr_read_wait_2 <= ddr_read_wait and ddr_read_enable;
+ddr_read_wait_2 <= ddr_read_wait;
 ddr_read_enable_2 <= '1' when (ddr_read_enable='1') and (ddr_read_wait='0') else '0';
 
 -- Muxing DDR write ....

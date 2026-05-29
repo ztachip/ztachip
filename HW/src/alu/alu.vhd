@@ -254,7 +254,7 @@ shifter_i : barrel_shifter_a
 -- Convert integer to FP12
 -----
 
-GEN1: IF(fpu_enabled_c = TRUE) GENERATE
+GEN1: IF(FPU_ENABLED = TRUE) GENERATE
 fp12_inst: fp12
 	generic map(
 		INT_WIDTH => FP12_INT_WIDTH -- This is enough for now to do LLM with 4-bit quantization
@@ -267,7 +267,7 @@ fp12_inst: fp12
 	);
 END GENERATE GEN1;
 
-GEN2: IF(fpu_enabled_c = FALSE) GENERATE
+GEN2: IF(FPU_ENABLED = FALSE) GENERATE
 fp12_value <= (others=>'0');
 END GENERATE GEN2;
 

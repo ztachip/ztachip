@@ -17,8 +17,15 @@
 //------------------------------------------------------------------------------
 
 //--------------------------------------------------------------
+//
+// ************ IMPORTANT *************************************
+//
+//
 // This file specifies tunable parameters to match
-// the FPGA configuration
+// the FPGA configuration defined in HW/src/config.vhd
+// Any changes in hardware configuration from HW/src/config.vhd 
+// that also present in file must be applied here as well.
+//
 //--------------------------------------------------------------
 
 #ifndef _BASE_CONFIG_H_
@@ -26,7 +33,7 @@
 
 //--------------------------------------------------------------
 // Max number of pcores
-// This must match pid_gen_max_c defined in config.vhd
+// This must match NUM_PCORE defined in config.vhd
 //    4 for small version
 //    8 for large version
 //--------------------------------------------------------------
