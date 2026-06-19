@@ -33,21 +33,23 @@ use work.config.all;
 
 ENTITY dp_fifo IS
     port(
-        -- Signal from Avalon bus...
-        SIGNAL clock_in                 : IN STD_LOGIC;
-        SIGNAL reset_in                 : IN STD_LOGIC;    
+         -- Signal from Avalon bus...
+         SIGNAL clock_in                 : IN STD_LOGIC;
+         SIGNAL reset_in                 : IN STD_LOGIC;    
 
-        SIGNAL writedata_in             : IN STD_LOGIC_VECTOR(dp_instruction_width_c-1 downto 0);
-        SIGNAL wreq_in                  : IN STD_LOGIC;
-        SIGNAL readdata1_out            : OUT STD_LOGIC_VECTOR(dp_instruction_width_c-1 downto 0);
-        SIGNAL readdata2_out            : OUT STD_LOGIC_VECTOR(dp_instruction_width_c-1 downto 0);
-        SIGNAL rdreq1_in                : IN STD_LOGIC;
-        SIGNAL rdreq2_in                : IN STD_LOGIC;
-        SIGNAL valid1_out               : OUT STD_LOGIC;
-        SIGNAL valid2_out               : OUT STD_LOGIC;
-        SIGNAL full_out                 : OUT STD_LOGIC;
-
-        SIGNAL fifo_avail_out           : OUT std_logic_vector(dp_fifo_depth_c-1 DOWNTO 0)
+         SIGNAL writedata_in             : IN STD_LOGIC_VECTOR(dp_instruction_width_c-1 downto 0);
+         SIGNAL wreq_in                  : IN STD_LOGIC;
+         SIGNAL readdata1_out            : OUT STD_LOGIC_VECTOR(dp_instruction_width_c-1 downto 0);
+         SIGNAL readdata2_out            : OUT STD_LOGIC_VECTOR(dp_instruction_width_c-1 downto 0);
+         SIGNAL pre_readdata1_out        : OUT STD_LOGIC_VECTOR(dp_instruction_width_c-1 downto 0);
+         SIGNAL pre_readdata2_out        : OUT STD_LOGIC_VECTOR(dp_instruction_width_c-1 downto 0);
+         SIGNAL rdreq1_in                : IN STD_LOGIC;
+         SIGNAL rdreq2_in                : IN STD_LOGIC;
+         SIGNAL valid1_out               : OUT STD_LOGIC;
+         SIGNAL valid2_out               : OUT STD_LOGIC;
+         SIGNAL full_out                 : OUT STD_LOGIC;
+         SIGNAL empty_out                : OUT STD_LOGIC;
+         SIGNAL fifo_avail_out           : OUT std_logic_vector(dp_fifo_depth_c-1 DOWNTO 0)
     );
 END dp_fifo;
 
@@ -84,6 +86,8 @@ BEGIN
 fifo_avail_out <= fifo_avail_r;
 
 full_out <= full_r or (not writeready);
+
+empty_out <= empty_normal;
 
 GEN1: IF (2**dp_fifo_depth_c) <= (min_mem_depth_c/2) GENERATE
 
@@ -137,9 +141,13 @@ END GENERATE GEN2;
 
 readdata1_out <= readdata1_r;
 
+pre_readdata1_out <= readdata1;
+
 valid1_out <= readdata1_valid_r;
 
 readdata2_out <= readdata2_r;
+
+pre_readdata2_out <= readdata2;
 
 valid2_out <= readdata2_valid_r;
 

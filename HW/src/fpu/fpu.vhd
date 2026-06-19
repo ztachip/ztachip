@@ -68,6 +68,8 @@ ENTITY fpu IS
 
         SIGNAL fpu_busy_vm_out          : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
 
+        SIGNAL fpu_running_vm_out       : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
+
         SIGNAL fpu_exe_in               : IN STD_LOGIC;
 
         SIGNAL fpu_exe_vm_in            : IN STD_LOGIC;
@@ -83,23 +85,29 @@ ARCHITECTURE behavior OF fpu IS
 type fpu_instruction_t is
 record
     opcode:fpu_opcode_t;
+    repeat:fpu_repeat_t;
     A_addr:unsigned(sram_depth_c-1 downto 0);
+    A_addr_step:unsigned(sram_depth_c-1 downto 0);
     B_addr:unsigned(sram_depth_c-1 downto 0);
+    B_addr_step:unsigned(sram_depth_c-1 downto 0);
     C:fp32_t;
     C_addr:unsigned(sram_depth_c-1 downto 0);
+    C_addr_step:unsigned(sram_depth_c-1 downto 0);
     C_by_value:std_logic;
     C_pending:std_logic;
     C2:fp32_t;
     C2_addr:unsigned(sram_depth_c-1 downto 0);
+    C2_addr_step:unsigned(sram_depth_c-1 downto 0);
     C2_by_value:std_logic;
     C2_pending:std_logic;
     X_addr:unsigned(sram_depth_c-1 downto 0);
+    X_addr_step:unsigned(sram_depth_c-1 downto 0);
     Y_addr:unsigned(sram_depth_c-1 downto 0);
+    Y_addr_step:unsigned(sram_depth_c-1 downto 0);
     CNT:unsigned(sram_depth_c-1 downto 0);
     VECTOR:fpu_vector_t;
     LAST:std_logic;
     LAST_BE:std_logic_vector(fpu_data_width_c/8-1 downto 0);
-    FAST:std_logic;
     B_enable:std_logic;
     C_enable:std_logic;
     C2_enable:std_logic;
@@ -133,23 +141,29 @@ signal fpu_next_instruction_r:fpu_instruction_t;
 signal fpu_instruction:fpu_instruction_t;
 
 constant fpu_instruction_len_c:integer:=fpu_instruction_r.opcode'length+
+                                        fpu_instruction_r.repeat'length+
                                         fpu_instruction_r.A_addr'length+
+                                        fpu_instruction_r.A_addr_step'length+
                                         fpu_instruction_r.B_addr'length+
+                                        fpu_instruction_r.B_addr_step'length+
                                         fpu_instruction_r.C'length+
                                         fpu_instruction_r.C_addr'length+
+                                        fpu_instruction_r.C_addr_step'length+
                                         1 + -- fpu_instruction_r.C_by_value'length+
                                         1 + --fpu_instruction_r.C_pending'length+
                                         fpu_instruction_r.C2'length+
                                         fpu_instruction_r.C2_addr'length+
+                                        fpu_instruction_r.C2_addr_step'length+
                                         1 + -- fpu_instruction_r.C2_by_value'length+
                                         1 + --fpu_instruction_r.C2_pending'length+
                                         fpu_instruction_r.X_addr'length+
+                                        fpu_instruction_r.X_addr_step'length+
                                         fpu_instruction_r.Y_addr'length+
+                                        fpu_instruction_r.Y_addr_step'length+
                                         fpu_instruction_r.CNT'length+
                                         fpu_instruction_r.VECTOR'length+
                                         1+ --fpu_instruction_r.LAST'length 
                                         fpu_instruction_r.LAST_BE'length+ 
-                                        1+ --fpu_instruction_r.FAST'length
                                         1+ --fpu_instruction_r.B_enable'length
                                         1+ --fpu_instruction_r.C_enable'length
                                         1+ --fpu_instruction_r.C2_enable'length
@@ -188,14 +202,22 @@ begin
     len_v := 0;
     rec_v.opcode := unsigned(q_in(q_in'length-len_v-1 downto q_in'length-len_v-rec_v.opcode'length));
     len_v := len_v + rec_v.opcode'length;
+    rec_v.repeat := unsigned(q_in(q_in'length-len_v-1 downto q_in'length-len_v-rec_v.repeat'length));
+    len_v := len_v + rec_v.repeat'length;
     rec_v.A_addr := unsigned(q_in(q_in'length-len_v-1 downto q_in'length-len_v-rec_v.A_addr'length));
     len_v := len_v + rec_v.A_addr'length;
+    rec_v.A_addr_step := unsigned(q_in(q_in'length-len_v-1 downto q_in'length-len_v-rec_v.A_addr_step'length));
+    len_v := len_v + rec_v.A_addr_step'length;
     rec_v.B_addr := unsigned(q_in(q_in'length-len_v-1 downto q_in'length-len_v-rec_v.B_addr'length));
     len_v := len_v + rec_v.B_addr'length;
+    rec_v.B_addr_step := unsigned(q_in(q_in'length-len_v-1 downto q_in'length-len_v-rec_v.B_addr_step'length));
+    len_v := len_v + rec_v.B_addr_step'length;
     rec_v.C := q_in(q_in'length-len_v-1 downto q_in'length-len_v-rec_v.C'length);
     len_v := len_v + rec_v.C'length;
     rec_v.C_addr := unsigned(q_in(q_in'length-len_v-1 downto q_in'length-len_v-rec_v.C_addr'length));
     len_v := len_v + rec_v.C_addr'length;
+    rec_v.C_addr_step := unsigned(q_in(q_in'length-len_v-1 downto q_in'length-len_v-rec_v.C_addr_step'length));
+    len_v := len_v + rec_v.C_addr_step'length;
     rec_v.C_by_value := q_in(q_in'length-len_v-1);
     len_v := len_v + 1;
     rec_v.C_pending := q_in(q_in'length-len_v-1);
@@ -204,14 +226,20 @@ begin
     len_v := len_v + rec_v.C2'length;
     rec_v.C2_addr := unsigned(q_in(q_in'length-len_v-1 downto q_in'length-len_v-rec_v.C2_addr'length));
     len_v := len_v + rec_v.C2_addr'length;
+    rec_v.C2_addr_step := unsigned(q_in(q_in'length-len_v-1 downto q_in'length-len_v-rec_v.C2_addr_step'length));
+    len_v := len_v + rec_v.C2_addr_step'length;
     rec_v.C2_by_value := q_in(q_in'length-len_v-1);
     len_v := len_v + 1;
     rec_v.C2_pending := q_in(q_in'length-len_v-1);
     len_v := len_v + 1;    
     rec_v.X_addr := unsigned(q_in(q_in'length-len_v-1 downto q_in'length-len_v-rec_v.X_addr'length));
     len_v := len_v + rec_v.X_addr'length;
+    rec_v.X_addr_step := unsigned(q_in(q_in'length-len_v-1 downto q_in'length-len_v-rec_v.X_addr_step'length));
+    len_v := len_v + rec_v.X_addr_step'length;
     rec_v.Y_addr := unsigned(q_in(q_in'length-len_v-1 downto q_in'length-len_v-rec_v.Y_addr'length));
     len_v := len_v + rec_v.Y_addr'length;
+    rec_v.Y_addr_step := unsigned(q_in(q_in'length-len_v-1 downto q_in'length-len_v-rec_v.Y_addr_step'length));
+    len_v := len_v + rec_v.Y_addr_step'length;
     rec_v.CNT := unsigned(q_in(q_in'length-len_v-1 downto q_in'length-len_v-rec_v.CNT'length));
     len_v := len_v + rec_v.CNT'length;
     rec_v.VECTOR := unsigned(q_in(q_in'length-len_v-1 downto q_in'length-len_v-rec_v.VECTOR'length));
@@ -220,8 +248,6 @@ begin
     len_v := len_v + 1; 
     rec_v.LAST_BE := q_in(q_in'length-len_v-1 downto q_in'length-len_v-rec_v.LAST_BE'length);
     len_v := len_v + rec_v.LAST_BE'length;
-    rec_v.FAST := q_in(q_in'length-len_v-1);
-    len_v := len_v + 1; 
     rec_v.B_enable := q_in(q_in'length-len_v-1);
     len_v := len_v + 1; 
     rec_v.C_enable := q_in(q_in'length-len_v-1);
@@ -277,8 +303,8 @@ end unpack_instruction;
 
 function pack_instruction(rec_in:fpu_instruction_t;
                         last_in:std_logic;
-                        fast_in:std_logic;
                         opcode_in:fpu_opcode_t;
+                        repeat_in:fpu_repeat_t;
                         floor_in:std_logic;
                         abs_in:std_logic;
                         last_be:std_logic_vector(fpu_data_width_c/8-1 downto 0)) 
@@ -287,17 +313,24 @@ variable len_v:integer;
 variable q_v:fpu_instruction_rec_t;
 begin
    len_v := 0;
-
    q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.opcode'length) := std_logic_vector(opcode_in);
    len_v := len_v + rec_in.opcode'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.repeat'length) := std_logic_vector(repeat_in);
+   len_v := len_v + rec_in.repeat'length;
    q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.A_addr'length) := std_logic_vector(rec_in.A_addr);
    len_v := len_v + rec_in.A_addr'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.A_addr_step'length) := std_logic_vector(rec_in.A_addr_step);
+   len_v := len_v + rec_in.A_addr_step'length;
    q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.B_addr'length) := std_logic_vector(rec_in.B_addr);
    len_v := len_v + rec_in.B_addr'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.B_addr_step'length) := std_logic_vector(rec_in.B_addr_step);
+   len_v := len_v + rec_in.B_addr_step'length;
    q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.C'length) := std_logic_vector(rec_in.C);
    len_v := len_v + rec_in.C'length;
    q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.C_addr'length) := std_logic_vector(rec_in.C_addr);
    len_v := len_v + rec_in.C_addr'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.C_addr_step'length) := std_logic_vector(rec_in.C_addr_step);
+   len_v := len_v + rec_in.C_addr_step'length;
    q_v(q_v'length-len_v-1) := rec_in.C_by_value;
    len_v := len_v + 1;
    q_v(q_v'length-len_v-1) := rec_in.C_pending;
@@ -306,14 +339,20 @@ begin
    len_v := len_v + rec_in.C2'length;
    q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.C2_addr'length) := std_logic_vector(rec_in.C2_addr);
    len_v := len_v + rec_in.C2_addr'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.C2_addr_step'length) := std_logic_vector(rec_in.C2_addr_step);
+   len_v := len_v + rec_in.C2_addr_step'length;
    q_v(q_v'length-len_v-1) := rec_in.C2_by_value;
    len_v := len_v + 1;
    q_v(q_v'length-len_v-1) := rec_in.C2_pending;
    len_v := len_v + 1;
    q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.X_addr'length) := std_logic_vector(rec_in.X_addr);
    len_v := len_v + rec_in.X_addr'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.X_addr_step'length) := std_logic_vector(rec_in.X_addr_step);
+   len_v := len_v + rec_in.X_addr_step'length;
    q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.Y_addr'length) := std_logic_vector(rec_in.Y_addr);
    len_v := len_v + rec_in.Y_addr'length;
+   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.Y_addr_step'length) := std_logic_vector(rec_in.Y_addr_step);
+   len_v := len_v + rec_in.Y_addr_step'length;
    q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.CNT'length) := std_logic_vector(rec_in.CNT);
    len_v := len_v + rec_in.CNT'length;
    q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.VECTOR'length) := std_logic_vector(rec_in.VECTOR);
@@ -322,8 +361,6 @@ begin
    len_v := len_v + 1;
    q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.LAST_BE'length) := last_be;
    len_v := len_v + rec_in.LAST_BE'length;
-   q_v(q_v'length-len_v-1) := fast_in;
-   len_v := len_v + 1;
    q_v(q_v'length-len_v-1) := rec_in.B_enable;
    len_v := len_v + 1;
    q_v(q_v'length-len_v-1) := rec_in.C_enable;
@@ -489,10 +526,11 @@ constant CMD_FIFO_DEPTH:integer:=8;
 SIGNAL cmd_fifo_write:fpu_instruction_recs_t(1 downto 0);
 SIGNAL cmd_fifo_we:std_logic_vector(1 downto 0);
 SIGNAL cmd_fifo_rd:std_logic_vector(1 downto 0);
+SIGNAL cmd_fifo_rd2:std_logic_vector(1 downto 0);
 SIGNAL cmd_fifo_reads:fpu_instruction_recs_t(1 downto 0);
 SIGNAL cmd_fifo_read:fpu_instruction_rec_t;
 SIGNAL cmd_fifo_empty:std_logic_vector(1 downto 0);
-SIGNAL cmd_fifo_full:std_logic_vector(1 downto 0);
+SIGNAL cmd_fifo_ready:std_logic_vector(1 downto 0);
 
 -- Read pending bit mask
 
@@ -581,6 +619,7 @@ SIGNAL busy_r:STD_LOGIC;
 SIGNAL busy_rr:STD_LOGIC;
 SIGNAL busy:STD_LOGIC;
 SIGNAL step_r:unsigned(sram_depth_c-1 DOWNTO 0);
+SIGNAL repeat_r:fpu_repeat_t;
 
 SIGNAL ready:STD_LOGIC;
 SIGNAL exe:STD_LOGIC;
@@ -624,8 +663,6 @@ SIGNAL fpu_last:STD_LOGIC;
 
 SIGNAL fpu_last_be:STD_LOGIC_VECTOR(fpu_data_width_c/8-1 downto 0);
 
-SIGNAL fpu_fast:STD_LOGIC;
-
 SIGNAL fpu_vector:fpu_vector_t;
 
 SIGNAL halt_r:STD_LOGIC:='1';
@@ -646,6 +683,8 @@ SIGNAL fpu_exe_rr:STD_LOGIC;
 
 SIGNAL page_vm:unsigned(sram_depth_c-1 DOWNTO 0);
 
+SIGNAL page_step_vm:unsigned(sram_depth_c-1 DOWNTO 0);
+
 signal page_vm0_r:std_logic_vector(sram_depth_c-1 DOWNTO 0);
 
 signal page_vm1_r:std_logic_vector(sram_depth_c-1 DOWNTO 0);
@@ -661,6 +700,8 @@ signal barrier_rrr:std_logic;
 signal fpu_exe_pending_r:std_logic_vector(1 downto 0);
 
 signal fpu_busy_vm_r:std_logic_vector(1 downto 0);
+
+signal fpu_running_vm_r:std_logic_vector(1 downto 0);
 
 signal full:std_logic;
 
@@ -680,19 +721,33 @@ signal hazard:std_logic_vector(fpu_max_job_c-1 downto 0);
 
 signal conflict_r:std_logic;
 
+SIGNAL A_addr_r:unsigned(sram_depth_c-1 DOWNTO 0);
+
+SIGNAL B_addr_r:unsigned(sram_depth_c-1 DOWNTO 0);
+
+SIGNAL C_addr_r:unsigned(sram_depth_c-1 DOWNTO 0);
+
+SIGNAL C2_addr_r:unsigned(sram_depth_c-1 DOWNTO 0);
+
+SIGNAL X_addr_r:unsigned(sram_depth_c-1 DOWNTO 0);
+
+SIGNAL Y_addr_r:unsigned(sram_depth_c-1 DOWNTO 0);
+
 BEGIN
 
 nxt_job <= job_r+1;
 
 prev_job <= job_r-1;
 
-full <= cmd_fifo_full(0) or cmd_fifo_full(1);
+full <= (not cmd_fifo_ready(0)) or (not cmd_fifo_ready(1));
 
 fpu_exe_out <= exe;
 
 busy <= (busy_r or busy_rr or fpu_exe_r or fpu_exe_rr);
 
 fpu_busy_vm_out <= fpu_busy_vm_r;
+
+fpu_running_vm_out <= fpu_running_vm_r;
 
 bus_readdata_out <= rresp_r when rden_r='1' else (others=>'Z');
 
@@ -762,16 +817,17 @@ page_vm <= unsigned(bus_writedata_in(sram_depth_c-1 downto 0)) + unsigned(page_v
         else
         unsigned(bus_writedata_in(sram_depth_c-1 downto 0)) + unsigned(page_vm1_r);
 
+page_step_vm <= unsigned(bus_writedata_in(2*sram_depth_c-1 downto sram_depth_c));
+
 ---------
 -- FIFO to store FPU instructions issued from RISCV to HART0
 ---------
 
-cmd_fifo_i0:scfifo
+cmd_fifo_i0:scfifow
 	generic map 
 	(
         DATA_WIDTH=>fpu_instruction_rec_t'length,
-        FIFO_DEPTH=>CMD_FIFO_DEPTH,
-        LOOKAHEAD=>TRUE
+        FIFO_DEPTH=>CMD_FIFO_DEPTH
 	)
 	port map 
 	(
@@ -779,25 +835,22 @@ cmd_fifo_i0:scfifo
         reset_in=>reset_in,
         data_in=>cmd_fifo_write(0),
         write_in=>cmd_fifo_we(0),
-        read_in=>cmd_fifo_rd(0),
+        read_in=>cmd_fifo_rd2(0),
         q_out=>cmd_fifo_reads(0),
-        ravail_out=>open,
         wused_out=>open,
         empty_out=>cmd_fifo_empty(0),
-        full_out=>cmd_fifo_full(0),
-        almost_full_out=>open
+        writeready_out=>cmd_fifo_ready(0)
 	);
 
 ---------
 -- FIFO to store FPU instructions issued from RISCV to HART1
 ---------
 
-cmd_fifo_i1:scfifo
+cmd_fifo_i1:scfifow
 	generic map 
 	(
         DATA_WIDTH=>fpu_instruction_rec_t'length,
-        FIFO_DEPTH=>CMD_FIFO_DEPTH,
-        LOOKAHEAD=>TRUE
+        FIFO_DEPTH=>CMD_FIFO_DEPTH
 	)
 	port map 
 	(
@@ -805,13 +858,11 @@ cmd_fifo_i1:scfifo
         reset_in=>reset_in,
         data_in=>cmd_fifo_write(1),
         write_in=>cmd_fifo_we(1),
-        read_in=>cmd_fifo_rd(1),
+        read_in=>cmd_fifo_rd2(1),
         q_out=>cmd_fifo_reads(1),
-        ravail_out=>open,
         wused_out=>open,
         empty_out=>cmd_fifo_empty(1),
-        full_out=>cmd_fifo_full(1),
-        almost_full_out=>open
+        writeready_out=>cmd_fifo_ready(1)
 	);
 
 --------------
@@ -831,7 +882,7 @@ falu_vector_i : falu_vector
         input_job_in => job_r,
         input_last_in => fpu_instruction_r.LAST,
         input_last_be_in => fpu_instruction_r.LAST_BE,
-        input_fast_in => fpu_instruction_r.FAST,
+        input_fast_in => '0',
         input_vector_in => fpu_instruction_r.VECTOR,
         A_addr => fpu_instruction_r.A_addr,
         A_precision => fpu_instruction_r.A_precision,
@@ -853,7 +904,7 @@ falu_vector_i : falu_vector
         output_job_out => fpu_job,
         output_last_out => fpu_last,
         output_last_be_out => fpu_last_be,
-        output_fast_out => fpu_fast,
+        output_fast_out => open,
         output_vector_out => fpu_vector
     );
 
@@ -1004,7 +1055,7 @@ end process;
 -- Command FIFO 
 
 process(fpu_next_instruction_r,bus_writedata_in,wregno2,bus_write_in,wregno,full,
-        fpu_vm_r,ready,cmd_fifo_empty,halt_r,cmd_fifo_reads,vm_r)
+        fpu_vm_r,ready,cmd_fifo_empty,halt_r,cmd_fifo_reads,vm_r,repeat_r)
 variable last_be_v:std_logic_vector(fpu_data_width_c/8-1 downto 0);
 variable cnt_v:unsigned(fpu_vector_depth_c-2 downto 0);
 variable cnt2_v:unsigned(fpu_vector_depth_c-3 downto 0);
@@ -1042,8 +1093,10 @@ else
 end if;
 
 if(vm_r='0') then
-    cmd_fifo_write(0) <= pack_instruction(fpu_next_instruction_r,bus_writedata_in(0),bus_writedata_in(1),
+    cmd_fifo_write(0) <= pack_instruction(fpu_next_instruction_r,
+                                        bus_writedata_in(0), -- last
                                         unsigned(wregno2(fpu_opcode_t'length-1 downto 0)), --fpu_opcode_t
+                                        unsigned(bus_writedata_in(fpu_repeat_t'length downto 1)), -- repeatCnt
                                         wregno2(fpu_opcode_t'length), --floor
                                         wregno2(fpu_opcode_t'length+1), --abs
                                         last_be_v
@@ -1061,8 +1114,10 @@ else
     cmd_fifo_write(0) <= (others=>'0');
     cmd_fifo_we(0) <= '0';
     
-    cmd_fifo_write(1) <= pack_instruction(fpu_next_instruction_r,bus_writedata_in(0),bus_writedata_in(1),
+    cmd_fifo_write(1) <= pack_instruction(fpu_next_instruction_r,
+                                        bus_writedata_in(0), --last
                                         unsigned(wregno2(fpu_opcode_t'length-1 downto 0)), --fpu_opcode_t
+                                        unsigned(bus_writedata_in(16 downto 1)), -- repeatCnt
                                         wregno2(fpu_opcode_t'length), --floor
                                         wregno2(fpu_opcode_t'length+1), --abs
                                         last_be_v
@@ -1080,18 +1135,38 @@ if(fpu_vm_r='0') then
     else
         cmd_fifo_rd(0) <= '0';
     end if;
-    
     cmd_fifo_rd(1) <= '0';
-
     cmd_fifo_read <= cmd_fifo_reads(0);
 else
-    cmd_fifo_rd(0) <= '0';
     if((ready='1') and (cmd_fifo_empty(1)='0') and (halt_r='0')) then
         cmd_fifo_rd(1) <= '1';
     else
         cmd_fifo_rd(1) <= '0';
     end if;
+    cmd_fifo_rd(0) <= '0';
     cmd_fifo_read <= cmd_fifo_reads(1);
+end if;
+end process;
+
+
+-- Check if to advance to next instruction or to repeat
+-- current instruction
+
+process(cmd_fifo_rd,fpu_instruction.repeat,repeat_r)
+begin
+cmd_fifo_rd2 <= (others=>'0');
+if(cmd_fifo_rd(0)='1') then
+    if(repeat_r=fpu_instruction.repeat) then
+        cmd_fifo_rd2(0)<='1';
+    else
+        cmd_fifo_rd2(0)<='0';
+    end if;
+elsif(cmd_fifo_rd(1)='1') then
+    if(repeat_r=fpu_instruction.repeat) then
+        cmd_fifo_rd2(1)<='1';
+    else
+        cmd_fifo_rd2(1)<='0';
+    end if;
 end if;
 end process;
 
@@ -1656,13 +1731,15 @@ variable busy_v:std_logic;
 variable fpu_exe_v:std_logic;
 variable fpu_vm_v:std_logic;
 variable fpu_exe_pending_v:std_logic_vector(1 downto 0);
+variable fpu_instruction_v:fpu_instruction_t;
 begin
     if reset_in = '0' then
         halt_r <= '1';
         rden_r <= '0';
         rresp_r <= (others=>'0');
 
-        fpu_instruction_r.opcode <= (others=>'0');    
+        fpu_instruction_r.opcode <= (others=>'0');
+        fpu_instruction_r.repeat <= (others=>'0');    
         fpu_instruction_r.A_addr <= (others=>'0');
         fpu_instruction_r.B_addr <= (others=>'0');
         fpu_instruction_r.C <= (others=>'0');
@@ -1679,7 +1756,6 @@ begin
         fpu_instruction_r.C2_pending <= '0';
         fpu_instruction_r.LAST <= '0';
         fpu_instruction_r.LAST_BE <= (others=>'0');
-        fpu_instruction_r.FAST <= '0';
         fpu_instruction_r.B_enable <= '0';
         fpu_instruction_r.C_enable <= '0';
         fpu_instruction_r.C2_enable <= '0';
@@ -1705,7 +1781,8 @@ begin
         fpu_instruction_r.Y_type <= (others=>'0');
         fpu_instruction_r.B_type <= (others=>'0');
 
-        fpu_next_instruction_r.opcode <= (others=>'0');  
+        fpu_next_instruction_r.opcode <= (others=>'0');
+        fpu_next_instruction_r.repeat <= (others=>'0');  
         fpu_next_instruction_r.A_addr <= (others=>'0');
         fpu_next_instruction_r.B_addr <= (others=>'0');
         fpu_next_instruction_r.C <= (others=>'0');
@@ -1722,7 +1799,6 @@ begin
         fpu_next_instruction_r.C2_pending <= '0';
         fpu_next_instruction_r.LAST <= '0';
         fpu_next_instruction_r.LAST_BE <= (others=>'0');
-        fpu_next_instruction_r.FAST <= '0';
         fpu_next_instruction_r.B_enable <= '0';
         fpu_next_instruction_r.C_enable <= '0';
         fpu_next_instruction_r.C2_enable <= '0';
@@ -1766,6 +1842,7 @@ begin
         fpu_readdatavalid_r <= '0';
         fpu_readdatavalid_rr <= '0';
         vm_r <= '0';
+        repeat_r <= (others=>'0');
         fpu_vm_r <= '0';
         fpu_exe_r <= '0';
         fpu_exe_rr <= '0';
@@ -1776,11 +1853,19 @@ begin
         barrier_rrr <= '0';
         fpu_exe_pending_r <= (others=>'0');
         fpu_busy_vm_r <= (others=>'0');
+        fpu_running_vm_r <= (others=>'0');
         job_r <= (others=>'0');
         job_mask_r <= std_logic_vector(to_unsigned(1,job_mask_r'length)); -- mask when job_r=0
         B_avail_r <= (others=>'0');
         X_avail_r <= (others=>'0');
         Y_avail_r <= (others=>'0');
+
+        A_addr_r <= (others=>'0');
+        B_addr_r <= (others=>'0');
+        C_addr_r <= (others=>'0');
+        C2_addr_r <= (others=>'0');
+        X_addr_r <= (others=>'0');
+        Y_addr_r <= (others=>'0');
     else
         if clock_in'event and clock_in='1' then
 
@@ -1914,6 +1999,7 @@ begin
                 if(wregno=to_unsigned(register_fpu_set_c,register_t'length)) then
                     if(fpu_set_P=register2_fpu_set_P_A) then
                         fpu_next_instruction_r.A_addr <= page_vm;
+                        fpu_next_instruction_r.A_addr_step <= page_step_vm;
                         if(fpu_set_W=register2_fpu_set_W_FP32) then
                             fpu_next_instruction_r.A_precision <= to_unsigned(4,fpu_next_instruction_r.A_precision'length); --FP32
                             fpu_next_instruction_r.A_int <= '0';            
@@ -1944,6 +2030,7 @@ begin
                             fpu_next_instruction_r.B_by_value <= '1';
                         else
                             fpu_next_instruction_r.B_addr <= page_vm;
+                            fpu_next_instruction_r.B_addr_step <= page_step_vm;
                             fpu_next_instruction_r.B <= (others=>'0');
                             fpu_next_instruction_r.B_by_value <= '0';
                         end if;
@@ -1978,6 +2065,7 @@ begin
                             fpu_next_instruction_r.C_enable <= '1';
                         else
                             fpu_next_instruction_r.C_addr <= page_vm;
+                            fpu_next_instruction_r.C_addr_step <= page_step_vm;
                             fpu_next_instruction_r.C <= (others=>'0');
                             fpu_next_instruction_r.C_by_value <= '0';
                             fpu_next_instruction_r.C_pending <= '0';
@@ -2007,6 +2095,7 @@ begin
                             fpu_next_instruction_r.C2_enable <= '1';
                         else
                             fpu_next_instruction_r.C2_addr <= page_vm;
+                            fpu_next_instruction_r.C2_addr_step <= page_step_vm;
                             fpu_next_instruction_r.C2 <= (others=>'0');
                             fpu_next_instruction_r.C2_by_value <= '0';
                             fpu_next_instruction_r.C2_pending <= '0';
@@ -2035,6 +2124,7 @@ begin
                             fpu_next_instruction_r.X_by_value <= '1';
                         else
                             fpu_next_instruction_r.X_addr <= page_vm;
+                            fpu_next_instruction_r.X_addr_step <= page_step_vm;
                             fpu_next_instruction_r.X <= (others=>'0');
                             fpu_next_instruction_r.X_enable <= '1';
                             fpu_next_instruction_r.X_by_value <= '0';
@@ -2063,6 +2153,7 @@ begin
                             fpu_next_instruction_r.Y_by_value <= '1';
                         else
                             fpu_next_instruction_r.Y_addr <= page_vm;
+                            fpu_next_instruction_r.Y_addr_step <= page_step_vm;
                             fpu_next_instruction_r.Y <= (others=>'0');
                             fpu_next_instruction_r.Y_enable <= '1';
                             fpu_next_instruction_r.Y_by_value <= '0';
@@ -2088,10 +2179,36 @@ begin
             end if;
 
             if(cmd_fifo_rd/="00") then
+                -- Fetch new instruction
                 running_r <= '1';
                 busy_v := '1';
                 step_r <= (others=>'0');
-                fpu_instruction_r <= fpu_instruction;
+
+                fpu_instruction_v := fpu_instruction;
+
+                if( repeat_r > 0 ) then
+                    -- Advance the pointers
+                    fpu_instruction_v.A_addr := A_addr_r + fpu_instruction_r.A_addr_step;
+                    fpu_instruction_v.B_addr := B_addr_r + fpu_instruction_r.B_addr_step;
+                    fpu_instruction_v.C_addr := C_addr_r + fpu_instruction_r.C_addr_step;
+                    fpu_instruction_v.C2_addr := C2_addr_r + fpu_instruction_r.C2_addr_step;
+                    fpu_instruction_v.X_addr := X_addr_r + fpu_instruction_r.X_addr_step;
+                    fpu_instruction_v.Y_addr := Y_addr_r + fpu_instruction_r.Y_addr_step;
+                end if;
+                A_addr_r <= fpu_instruction_v.A_addr;
+                B_addr_r <= fpu_instruction_v.B_addr;
+                C_addr_r <= fpu_instruction_v.C_addr;
+                C2_addr_r <= fpu_instruction_v.C2_addr;
+                X_addr_r <= fpu_instruction_v.X_addr;
+                Y_addr_r <= fpu_instruction_v.Y_addr;
+                if(cmd_fifo_rd2="00") then
+                    repeat_r <= repeat_r+1;
+                    fpu_instruction_v.LAST := '0';
+                else
+                    repeat_r <= (others=>'0');
+                end if;
+                fpu_instruction_r <= fpu_instruction_v;
+
                 job_r <= job_r+1; -- Increment FPU job number
                 job_mask_r(0) <= job_mask_r(job_mask_r'length-1);
                 job_mask_r(job_mask_r'length-1 downto 1) <= job_mask_r(job_mask_r'length-2 downto 0);
@@ -2107,7 +2224,6 @@ begin
             elsif(fpu_eof='1' and fpu_write='1' and fpu_last='1') then
                 barrier_r <= '0';
             end if;
-
             if(cmd_fifo_we/="00") then
                 -- Clear for next FPU instruction
                 fpu_next_instruction_r.B_enable <= '0';
@@ -2121,22 +2237,6 @@ begin
                 busy_v := '0';
             end if;
 
-            ------
-            -- Process read commands
-            ------
-
-            if(bus_read_in='1') then
-                -- Process read commands
-                if(rregno = to_unsigned(register_fpu_get_status_c,register_t'length)) then
-                    rden_r <= '1';
-                    rresp_r(rresp_r'length-1 downto 1) <= (others=>'0');
-                    rresp_r(0) <= busy_r;
-                else
-                    rden_r <= '0';
-                end if;
-            else
-                rden_r <= '0';
-            end if;
             busy_rr <= busy_r;
             busy_r <= busy_v;
             fpu_exe_rr <= fpu_exe_r;
@@ -2145,6 +2245,8 @@ begin
             fpu_exe_pending_r <= fpu_exe_pending_v;
             fpu_busy_vm_r(0) <= ((busy_v or busy_r or fpu_exe_v or fpu_exe_r) and (not fpu_vm_v)) or fpu_exe_pending_v(0);
             fpu_busy_vm_r(1) <= ((busy_v or busy_r or fpu_exe_v or fpu_exe_r) and (fpu_vm_v)) or fpu_exe_pending_v(1);
+            fpu_running_vm_r(0) <= ((busy_v or busy_r or fpu_exe_v or fpu_exe_r) and (not fpu_vm_v));
+            fpu_running_vm_r(1) <= ((busy_v or busy_r or fpu_exe_v or fpu_exe_r) and (fpu_vm_v));
 
         end if;
     end if;

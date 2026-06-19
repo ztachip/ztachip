@@ -34,7 +34,7 @@ extern void kernel_ref_llm_matmul_q8_exe(int _req_id,int N,int D,int gs,int16_t 
                                           uint8_t *w_v,float16_t *w_s,float16_t *result);
 extern void kernel_ref_llm_quantize_exe(int reqId,int N,float16_t *x,float16_t *s,int16_t *q);
 
-extern void kernel_ref_llm_rms_exe(int reqId,int N,float16_t *x,bool x_is_fp16,float16_t *o,float *w);
+extern void kernel_ref_llm_rms_exe(int reqId,int N,float N_reciprocal,float16_t *x,bool x_is_fp16,float16_t *o,float *w);
 
 extern void kernel_ref_llm_dot_product_exe(int reqId,int N,int K,float16_t *x1,float16_t *_x2,int _x2_dim,float16_t *_y,float scale);
 

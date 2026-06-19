@@ -31,6 +31,21 @@ typedef enum
    eTermMemoryReferencePointer
 } eTermMemoryReference;
 
+// To extract sub-field info from a parameter
+// before computation
+
+typedef enum
+{
+  eTermMU_subfield_full=0, // Take whole parameter
+  eTermMU_subfield_n0, // Extract nibble [3:0]
+  eTermMU_subfield_n1, // Extract nibble [7:4]
+  eTermMU_subfield_n2, // Extract nibble [11:8]
+  eTermMU_subfield_n3, // Extract nibble [15:12]
+  eTermMU_subfield_b0, // Extract byte [7:0]
+  eTermMU_subfield_b1, // Extract byte [15:8]
+  eTermMU_subfield_max // Max number of subfield
+} eTermMU_subfield;
+
 class cInstructions;
 class cTerm
 {
@@ -255,6 +270,7 @@ public:
    virtual int getIndex();
    virtual float getConstant();
    virtual int getVectorWidth();
+   eTermMU_subfield m_sf; // Extract a subfield from this term
 };
 
 class cTerm_MU_Null : public cTerm_MU

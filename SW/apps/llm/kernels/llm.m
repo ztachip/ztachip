@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include "../../../../SW/base/types.h"
 #include "../../../../SW/base/ztalib.h"
+#include "../../../../SW/base/ztalog.h"
 #include "../../../../SW/src/soc.h"
 #include "../../../../SW/base/util.h"
 #include "llm_m.h" 
@@ -35,7 +36,7 @@
 // y(n+1) = y(n) * (1.5f - x/2 * y(n) * y(n));
 //--------------------------------------------------------------------------
 
-void invsqrt(int cnt,float *x,float *y,float *temp,float *temp2)
+inline void invsqrt(int cnt,float *x,float *y,float *temp,float *temp2)
 {
    >FPU.INVSQRT(n=cnt,y=(float *)y,x=(float *)x)...; // Initial estimate
 
@@ -65,7 +66,7 @@ void invsqrt(int cnt,float *x,float *y,float *temp,float *temp2)
 // Do in batch of cnt float numbers
 //--------------------------------------------------------------------------
 
-static void reciprocal(int cnt,float *x,int xfmt,float *y,float *temp)
+inline void reciprocal(int cnt,float *x,int xfmt,float *y,float *temp)
 {
    if(cnt==1) {
    >FPU.RECIPROCAL(n=cnt,y=(float *)y,x=(xfmt)x)...;
@@ -107,7 +108,7 @@ static void reciprocal(int cnt,float *x,int xfmt,float *y,float *temp)
 // 1 + x*(1 + x*(0.5 + x*(0.16666667 + x*(0.04166667 + x*(0.00833333 + x*0.00138889)))))
 //--------------------------------------------------------------------------
 
-static void exponent(int N,float *x,float *y,float *tmp1,float *tmp2,float *tmp3,float bias,int yfmt) { 
+inline void exponent(int N,float *x,float *y,float *tmp1,float *tmp2,float *tmp3,float bias,int yfmt) { 
    >FPU.V.MAC.FLOOR(n=N,y=(float *)tmp1,c=1.442695,x1=(float *)x); // tmp1= floor(x/ln2)
 
    >FPU.V.MAC(n=N,y=(int16 *)tmp2,x1=(float *)tmp1)...; // tmp2= (int8_t)tmp1
@@ -167,7 +168,7 @@ typedef struct
 {
    float       s4[MATMUL_BATCH*NUM_PCORE]; 
    float16_t   s3[MATMUL_BATCH*NUM_PCORE];
-   float16_t   s2[NUM_PCORE];
+   float16_t   s2[2*NUM_PCORE];
    float16_t   s1[MATMUL_BATCH*NUM_PCORE];
 } matmul_ws;
 
@@ -200,8 +201,8 @@ static void matmul_q4(void *_p,int pid) {
          cnt = MATMUL_BATCH;
       cnt = ((cnt+NUM_THREAD_PER_CORE-1)/NUM_THREAD_PER_CORE)*NUM_THREAD_PER_CORE;
       nth = cnt/VECTOR_WIDTH;
-      s=2*(LLM_GS/2)*VECTOR_WIDTH*y/VECTOR_WIDTH;
-      e=2*(LLM_GS/2)*VECTOR_WIDTH*(y+cnt)/VECTOR_WIDTH;
+      s=((LLM_GS/2)*VECTOR_WIDTH)*y/VECTOR_WIDTH;
+      e=((LLM_GS/2)*VECTOR_WIDTH)*(y+cnt)/VECTOR_WIDTH;
 
       > $W_SCALE_D := DTYPE(INT16)SCRATCH((uint32_t)ws->s1,NUM_PCORE,cnt)[$][0:cnt-1];
       
@@ -215,8 +216,8 @@ static void matmul_q4(void *_p,int pid) {
       
          > $X_D := DTYPE(INT16)PCORE[0:cnt2-1].llm::x[:][:];         
          > $X_S := DTYPE(INT16)MEM(req->x_v,req->N/req->GS,FACTOR*LLM_GS)[x:x+cnt2-1][$];  
-         > $W_S := DTYPE(INT8)MEM(req->w_v,FACTOR/2,(req->N/req->GS),2*(req->D/VECTOR_WIDTH)*(LLM_GS/2)*VECTOR_WIDTH)[$][x:x+cnt2-1][s:e-1];
-         > $W_D := DTYPE(INT8)PCORE[0:cnt2-1].THREAD[0:nth-1].llm::w[0:LLM_GS-1][:];
+         > $W_S := DTYPE(INT16)MEM(req->w_v,FACTOR/2,(req->N/req->GS),(req->D/VECTOR_WIDTH)*(LLM_GS/2)*VECTOR_WIDTH)[$][x:x+cnt2-1][s:e-1];
+         > $W_D := DTYPE(INT16)PCORE[0:cnt2-1].THREAD[0:nth-1].llm::w[0:LLM_GS/2-1][:];
 
          for(gs=0;gs < FACTOR;gs+=2) { 
 
@@ -248,6 +249,7 @@ static void matmul_q4(void *_p,int pid) {
          ztaTaskYield();
 
          // Perform the scaling for final results
+
          for(ii=0,s1=ws->s1,s2=ws->s2,s3=ws->s3;
             ii < cnt2;
             ii++,s2++,s1 += cnt,s3 += cnt) {
@@ -334,24 +336,24 @@ static void matmul_q8(void *_p,int pid) {
 
          > $X_S := DTYPE(INT16)MEM(req->x_v,req->N/req->GS,FACTOR*LLM_GS)[x:x+cnt2-1][$];  
 
-         > $W_S := DTYPE(INT8)MEM(req->w_v,FACTOR,(req->N/req->GS),(req->D/VECTOR_WIDTH)*(LLM_GS)*VECTOR_WIDTH)[$][x:x+cnt2-1][s:e-1];
+         > $W_S := DTYPE(INT16)MEM(req->w_v,FACTOR,(req->N/req->GS),(req->D/VECTOR_WIDTH)*(LLM_GS)*VECTOR_WIDTH)[$][x:x+cnt2-1][s:e-1];
 
-         > $W_D := DTYPE(INT8)PCORE[0:cnt2-1].THREAD[0:nth-1].llm_q8::w[0:LLM_GS-1][:];
+         > $W_D := DTYPE(INT16)PCORE[0:cnt2-1].THREAD[0:nth-1].llm_q8::w[0:LLM_GS-1][:];
 
-         for(gs=0;gs < FACTOR;gs++) {
+         for(gs=0;gs < FACTOR;gs+=2) {
 
             // Cannot fit the whole group in PCORE
             // So do dot product in multiple steps and add results together
 
-            > $X_D <= $X_S[gs*LLM_GS:gs*LLM_GS+LLM_GS-1];
+            > $X_D <= $X_S[gs*LLM_GS:gs*LLM_GS+2*LLM_GS-1];
 
-            > $W_D <= $W_S[gs];  
+            > $W_D <= $W_S[gs/2];  
    
             if(gs==0) {
                > EXE_LOCKSTEP(llm_q8::matmul_begin,cnt2);  // First interation 
             }
             > EXE_LOCKSTEP(llm_q8::matmul,cnt2);
-            if(gs==(FACTOR-1)) {
+            if(gs==2) {
                > EXE_LOCKSTEP(llm_q8::matmul_end,cnt2); // Last interation, prepare results to send out
             }
             ztaTaskYield();
@@ -460,7 +462,7 @@ void kernel_llm_matmul_q8_exe(
 
    ztaDualHartExecute(matmul_q8,&req);
 
-   ztaJobDone(_req_id); 
+   ztaJobDone(_req_id);
 }
 
 //--------------------------------------------------------------------------
@@ -492,7 +494,7 @@ typedef struct {
 } quantize_ws;
 
 void kernel_llm_quantize_exe(int reqId,int N,float16_t *x,float16_t *s,int16_t *q) { 
-   int cnt,cnt2;
+   int cnt,cnt2,cnt3;
    unsigned int y16;
    uint32_t resp;
    int GS=32;
@@ -541,22 +543,11 @@ void kernel_llm_quantize_exe(int reqId,int N,float16_t *x,float16_t *s,int16_t *
 
       // Scale the group to INT8
 
-      for (m = 0,qy=(uint32_t)(ws->y2),qc=(uint32_t)(ws->y),qx=(uint32_t)(ws->x2); 
-           m < cnt2;
-           m++,qy+=(GS*sizeof(int16_t)),qc+=4,qx+=GS*2) {
-         group = j+m;
-         if(group >= num_groups) 
-            break; 
+      cnt3 = num_groups-j;
+      cnt3 = MIN(cnt3,cnt2);
 
-         if(((m%8)==7) || group==(num_groups-1) || (m==(cnt2-1)))
-         {
-            > FPU.V.MAC(N=GS,y=(int16 *)qy,c=(float *)qc,x1=(bfloat *)qx);
-         }
-         else
-         {
-            > FPU.V.MAC(N=GS,y=(int16 *)qy,c=(float *)qc,x1=(bfloat *)qx)...;      
-         }
-      }
+      > FPU.V.MAC(R=cnt3-1,N=GS,y=(int16 *)(ws->y2):GS*2,c=(float *)(ws->y):4,x1=(bfloat *)(ws->x2):GS*2);
+
       >DTYPE(INT16)MEM(y,N)[i:(i+remain)-1] <= DTYPE(INT16)SCRATCH((uint32_t)ws->y2,remain)[:];    
       >BARRIER;
    }
@@ -643,7 +634,6 @@ static void llm_dot_product_exe(void *_p,int pid)
             cnt = DOT_PRODUCT_BATCH;
             last = false;
          }
-      
          > DTYPE(INT16)SCRATCH((uint32_t)ws->x1)[0:cnt-1] <= DTYPE(INT16)MEM((uint32_t)req->x1,req->N)[i:(i+cnt)-1];
 
          > DTYPE(INT16)SCRATCH((uint32_t)ws->x2,DOT_PRODUCT_BATCH2,DOT_PRODUCT_BATCH)[0:cnt2-1][0:cnt-1] <= DTYPE(INT16)MEM((uint32_t)req->_x2,req->K,req->_x2_dim)[j:j+cnt2-1][i:(i+cnt)-1];
@@ -652,29 +642,15 @@ static void llm_dot_product_exe(void *_p,int pid)
          scale = *((uint32_t *)&req->scale);
          x1 = (uint32_t)ws->x1;
          x2 = (uint32_t)(&ws->x2[0][0]);
+         yfmt = ((last)?FPU_SET_W_BFLOAT:FPU_SET_W_FP32)|FPU_SET_M_ADDR; 
+         Afmt=((i==0)?FPU_SET_M_VALUE:FPU_SET_M_ADDR)|FPU_SET_W_FP32;
 
-         for(k=0;k < cnt2;k++,sum += 4,x2 += DOT_PRODUCT_BATCH*2)
-         {
-            y = last?(uint32_t)(&ws->sum2[k]):sum; 
+         y = last?(uint32_t)(&ws->sum2[0]):sum;
+         
+         A=(i==0)?0:sum;
+  
+         >FPU.V.FMA(R=cnt2-1,N=cnt,y=(yfmt)y:(last?2:4),c=(float)scale,x1=(bfloat *)x1,x2=(bfloat *)x2:(DOT_PRODUCT_BATCH*2),A=(Afmt)A:4);
 
-            yfmt = ((last)?FPU_SET_W_BFLOAT:FPU_SET_W_FP32)|FPU_SET_M_ADDR; 
-            
-            A=(i==0)?0:sum;
-            
-            Afmt=((i==0)?FPU_SET_M_VALUE:FPU_SET_M_ADDR)|FPU_SET_W_FP32;
-            
-            // Below is the long dot product. A parameter is used to combine multiple dotproduct results
-            // y = A+sum(x1*x2*scale)
-
-            if(k==(cnt2-1))
-            {
-               >FPU.V.FMA(N=cnt,y=(yfmt)y,c=(float)scale,x1=(bfloat *)x1,x2=(bfloat *)x2,A=(Afmt)A);
-            }
-            else
-            {
-               >FPU.V.FMA(N=cnt,y=(yfmt)y,c=(float)scale,x1=(bfloat *)x1,x2=(bfloat *)x2,A=(Afmt)A)...;
-            }
-         }
          ztaTaskYield();  
       }
       >DTYPE(INT16)MEM((uint32_t)req->_y,((pid==0)?sz:req->K))[j:j+cnt2-1] <= DTYPE(INT16)SCRATCH((uint32_t)ws->sum2,cnt2)[0:cnt2-1];   
@@ -803,25 +779,16 @@ static void llm_dot_product2_exe(void *_p,int pid)
          
          x1 = (uint32_t)ws->sram_x1;
 
-         for(i=0;i < cnt2;i++,sum+=4,x2+=DOT_PRODUCT_K_BATCH*2)
-         {
-            y = last?(uint32_t)(&ws->sram_sum2[i]):sum;
+         yfmt = ((last)?FPU_SET_W_BFLOAT:FPU_SET_W_FP32)|FPU_SET_M_ADDR; 
 
-            yfmt = ((last)?FPU_SET_W_BFLOAT:FPU_SET_W_FP32)|FPU_SET_M_ADDR; 
+         Afmt=((j==0)?FPU_SET_M_VALUE:FPU_SET_M_ADDR)|FPU_SET_W_FP32;
 
-            A=(j==0)?0:sum;
+         y = last?(uint32_t)(&ws->sram_sum2[0]):sum;
 
-            Afmt=((j==0)?FPU_SET_M_VALUE:FPU_SET_M_ADDR)|FPU_SET_W_FP32;
+         A=(j==0)?0:sum;
 
-            if(i==(cnt2-1))
-            {
-            >FPU.V.FMA(N=cnt,y=(yfmt)y,x1=(bfloat *)x2,x2=(bfloat *)x1,A=(Afmt)A); 
-            }
-            else
-            {
-            >FPU.V.FMA(N=cnt,y=(yfmt)y,x1=(bfloat *)x2,x2=(bfloat *)x1,A=(Afmt)A)...; 
-            }  
-         } 
+         >FPU.V.FMA(R=cnt2-1,N=cnt,y=(yfmt)y:(last?2:4),x1=(bfloat *)x2:DOT_PRODUCT_K_BATCH*2,x2=(bfloat *)x1,A=(Afmt)A:4);
+
          ztaTaskYield(); 
       }
       >DTYPE(INT16)MEM((uint32_t)req->_y,((pid==0)?sz:req->N))[k:k+cnt2-1] <= DTYPE(INT16)SCRATCH((uint32_t)ws->sram_sum2,DOT_PRODUCT_N_BATCH)[0:cnt2-1];   
@@ -1229,7 +1196,7 @@ typedef struct
    float    tmp2;
 } rms_ws;
 
-void kernel_llm_rms_exe(int reqId,int N,float16_t *x,bool x_is_fp16,float16_t *o,float *w)
+void kernel_llm_rms_exe(int reqId,int N,float N_reciprocal,float16_t *x,bool x_is_fp16,float16_t *o,float *w)
 {
    int i;
    int cnt;
@@ -1237,19 +1204,10 @@ void kernel_llm_rms_exe(int reqId,int N,float16_t *x,bool x_is_fp16,float16_t *o
    rms_ws *ws=0;
    rms_ws *ws2;
    float ss,ss2;
-   static float _N_reciprocal;
-   static int _N=0;
-   float N_reciprocal;
    int diff;
    uint32_t xfmt;
 
-   if(_N != N) {
-      // Save for next time
-      _N_reciprocal = 1/(float)N;
-      _N = N;
-   }
    xfmt = ((x_is_fp16)?FPU_SET_W_FP16:FPU_SET_W_BFLOAT)|FPU_SET_M_ADDR;
-   N_reciprocal = _N_reciprocal;
    for(i=0;i < N;i += RMS_BATCH) {
       cnt = N-i;
       cnt = ((cnt+3)/4)*4;
@@ -1644,7 +1602,6 @@ void kernel_llm_done()
 {
    static uint32_t reqid=1000;
    uint32_t resp;
-//   > WAIT_FPU;
    ztaJobDone(reqid); 
    for(;;) {
       if(ztaReadResponse(&resp) && resp==reqid)

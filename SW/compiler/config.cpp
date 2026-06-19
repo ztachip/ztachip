@@ -42,27 +42,21 @@ cConfig::sMuOpcodeDef cConfig::mu_opcode_def[MAX_NUM_OPCODE]=
 {10,0,  "EQ",          cConfig::eMuOpcodeDefAlu1,        cConfig::eMuOpcodeDefDataTypeInt,false,    cConfig::eMuOpcodeDefDataTypeFloat,true,   cConfig::eMuOpcodeDefDataTypeFloat,true,      -1,0,0,-1}, //OPCODE_CMP_EQ
 {11,0,  "NE",          cConfig::eMuOpcodeDefAlu1,        cConfig::eMuOpcodeDefDataTypeInt,false,    cConfig::eMuOpcodeDefDataTypeFloat,true,   cConfig::eMuOpcodeDefDataTypeFloat,true,      -1,0,0,-1},//OPCODE_CMP_NE
 {12,0,  "MUL",         cConfig::eMuOpcodeDefAlu1,        cConfig::eMuOpcodeDefDataTypeFloat,true,   cConfig::eMuOpcodeDefDataTypeFloat,true,   cConfig::eMuOpcodeDefDataTypeFloat,true,      -1,0,0,-1}, //OPCODE_MUL 
-{13,0,   "NULL",       cConfig::eMuOpcodeDefAlu1,       cConfig::eMuOpcodeDefDataTypeNull,true,    cConfig::eMuOpcodeDefDataTypeNull,true,    cConfig::eMuOpcodeDefDataTypeNull,true,       -1,0,0,-1}, //OPCODE_NULL
-{14,0,   "NULL",       cConfig::eMuOpcodeDefAlu1,       cConfig::eMuOpcodeDefDataTypeNull,true,    cConfig::eMuOpcodeDefDataTypeNull,true,    cConfig::eMuOpcodeDefDataTypeNull,true,       -1,0,0,-1}, //OPCODE_NULL
-{15,0,  "LSB4",        cConfig::eMuOpcodeDefAlu1,       cConfig::eMuOpcodeDefDataTypeFloat,true,     cConfig::eMuOpcodeDefDataTypeFloat,true,   cConfig::eMuOpcodeDefDataTypeNull,true,       -1,0,0,-1}, //OPCODE_LSB4
-{16,0,  "MSB4",        cConfig::eMuOpcodeDefAlu1,        cConfig::eMuOpcodeDefDataTypeFloat,false,     cConfig::eMuOpcodeDefDataTypeFloat,false,   cConfig::eMuOpcodeDefDataTypeNull,false,       -1,0,0,-1}, //OPCODE_MSB4
+{13,0,  "B0",          cConfig::eMuOpcodeDefAlu1,        cConfig::eMuOpcodeDefDataTypeFloat,true,     cConfig::eMuOpcodeDefDataTypeFloat,true,   cConfig::eMuOpcodeDefDataTypeNull,true,       -1,0,0,-1}, //OPCODE_N3
+{14,0,  "B1",          cConfig::eMuOpcodeDefAlu1,        cConfig::eMuOpcodeDefDataTypeFloat,true,     cConfig::eMuOpcodeDefDataTypeFloat,true,   cConfig::eMuOpcodeDefDataTypeNull,true,       -1,0,0,-1}, //OPCODE_N3
+{15,0,  "N0",          cConfig::eMuOpcodeDefAlu1,        cConfig::eMuOpcodeDefDataTypeFloat,true,     cConfig::eMuOpcodeDefDataTypeFloat,true,   cConfig::eMuOpcodeDefDataTypeNull,true,       -1,0,0,-1}, //OPCODE_N3
+{16,0,  "N1",          cConfig::eMuOpcodeDefAlu1,        cConfig::eMuOpcodeDefDataTypeFloat,true,     cConfig::eMuOpcodeDefDataTypeFloat,true,   cConfig::eMuOpcodeDefDataTypeNull,true,       -1,0,0,-1}, //OPCODE_N3
 {17,0,  "CONV_BFLOAT", cConfig::eMuOpcodeDefAlu1,        cConfig::eMuOpcodeDefDataTypeFloat,false,     cConfig::eMuOpcodeDefDataTypeFloat,false,   cConfig::eMuOpcodeDefDataTypeNull,false,       -1,0,0,-1}, //OPCODE_CONV_BFLOAT
-{18,0,  "SET_FLOAT",   cConfig::eMuOpcodeDefAlu1,        cConfig::eMuOpcodeDefDataTypeFloat,false,   cConfig::eMuOpcodeDefDataTypeInt,false,     cConfig::eMuOpcodeDefDataTypeInt,false,        -1,0,0,-1}, //Set float
+{18,0,  "N2",          cConfig::eMuOpcodeDefAlu1,        cConfig::eMuOpcodeDefDataTypeFloat,true,     cConfig::eMuOpcodeDefDataTypeFloat,true,   cConfig::eMuOpcodeDefDataTypeNull,true,       -1,0,0,-1}, //OPCODE_N3
 #if 1
 {19,0,   "SHL",        cConfig::eMuOpcodeDefAlu1,        cConfig::eMuOpcodeDefDataTypeFloat,true,   cConfig::eMuOpcodeDefDataTypeFloat,true,   cConfig::eMuOpcodeDefDataTypeFloat,true,   -1,0,0,-1}, // Shift left
 {20, 0,  "SHLA",       cConfig::eMuOpcodeDefAlu1,        cConfig::eMuOpcodeDefDataTypeFloat, true,    cConfig::eMuOpcodeDefDataTypeFloat, true,  cConfig::eMuOpcodeDefDataTypeNull, true, -1, 0, 0, -1 }, // ACC shift left
 {21, 0,  "SHR",        cConfig::eMuOpcodeDefAlu1,        cConfig::eMuOpcodeDefDataTypeFloat, true,  cConfig::eMuOpcodeDefDataTypeFloat, true,  cConfig::eMuOpcodeDefDataTypeFloat, true,  -1, 0, 0, -1 }, // Right shift
 {22, 0,  "SHRA",       cConfig::eMuOpcodeDefAlu1,        cConfig::eMuOpcodeDefDataTypeFloat, true,  cConfig::eMuOpcodeDefDataTypeFloat, true,    cConfig::eMuOpcodeDefDataTypeNull, true, -1, 0, 0, -1 }, // ACC Right shift 
 #endif
-#if 0
-{19,0,   "SHL",        cConfig::eMuOpcodeDefAlu1,        cConfig::eMuOpcodeDefDataTypeFloat,true,   cConfig::eMuOpcodeDefDataTypeFloat,true,   cConfig::eMuOpcodeDefDataTypeInt,true,   -1,0,0,-1}, // Shift left
-{20, 0,  "SHLA",       cConfig::eMuOpcodeDefAlu1,        cConfig::eMuOpcodeDefDataTypeFloat, true,    cConfig::eMuOpcodeDefDataTypeInt, true,  cConfig::eMuOpcodeDefDataTypeNull, true, -1, 0, 0, -1 }, // ACC shift left
-{21, 0,  "SHR",        cConfig::eMuOpcodeDefAlu1,        cConfig::eMuOpcodeDefDataTypeFloat, true,  cConfig::eMuOpcodeDefDataTypeFloat, true,  cConfig::eMuOpcodeDefDataTypeInt, true,  -1, 0, 0, -1 }, // Right shift
-{22, 0,  "SHRA",       cConfig::eMuOpcodeDefAlu1,        cConfig::eMuOpcodeDefDataTypeFloat, true,  cConfig::eMuOpcodeDefDataTypeInt, true,    cConfig::eMuOpcodeDefDataTypeNull, true, -1, 0, 0, -1 }, // ACC Right shift 
-#endif
-{23,0,   "NULL",       cConfig::eMuOpcodeDefAlu1,        cConfig::eMuOpcodeDefDataTypeNull,true,    cConfig::eMuOpcodeDefDataTypeNull,true,    cConfig::eMuOpcodeDefDataTypeNull,true,       -1,0,0,-1}, //OPCODE_NULL
-{24,0,  "FMS",        cConfig::eMuOpcodeDefAlu1,         cConfig::eMuOpcodeDefDataTypeFloat,true,   cConfig::eMuOpcodeDefDataTypeFloat,true,   cConfig::eMuOpcodeDefDataTypeFloat,true,      -1,0,0,-1}, //OPCODE_FMS
-{25,0,  "FMA",        cConfig::eMuOpcodeDefAlu1,         cConfig::eMuOpcodeDefDataTypeFloat,true,   cConfig::eMuOpcodeDefDataTypeFloat,true,   cConfig::eMuOpcodeDefDataTypeFloat,true,      -1,0,0,-1}, //OPCODE_FMA
+{23,0,  "N3",          cConfig::eMuOpcodeDefAlu1,        cConfig::eMuOpcodeDefDataTypeFloat,true,     cConfig::eMuOpcodeDefDataTypeFloat,true,   cConfig::eMuOpcodeDefDataTypeNull,true,       -1,0,0,-1}, //OPCODE_N3
+{24,0,  "FMS",         cConfig::eMuOpcodeDefAlu1,         cConfig::eMuOpcodeDefDataTypeFloat,true,   cConfig::eMuOpcodeDefDataTypeFloat,true,   cConfig::eMuOpcodeDefDataTypeFloat,true,      -1,0,0,-1}, //OPCODE_FMS
+{25,0,  "FMA",         cConfig::eMuOpcodeDefAlu1,         cConfig::eMuOpcodeDefDataTypeFloat,true,   cConfig::eMuOpcodeDefDataTypeFloat,true,   cConfig::eMuOpcodeDefDataTypeFloat,true,      -1,0,0,-1}, //OPCODE_FMA
 {26,0,  "FNMS",        cConfig::eMuOpcodeDefAlu1,        cConfig::eMuOpcodeDefDataTypeFloat,true,   cConfig::eMuOpcodeDefDataTypeFloat,true,   cConfig::eMuOpcodeDefDataTypeFloat,true,      -1,0,0,-1}, //OPCODE_FNMS
 {27,0,  "FNMA",        cConfig::eMuOpcodeDefAlu1,        cConfig::eMuOpcodeDefDataTypeFloat,true,   cConfig::eMuOpcodeDefDataTypeFloat,true,   cConfig::eMuOpcodeDefDataTypeFloat,true,      -1,0,0,-1}, //OPCODE_FNMA
 {28,0,  "FMS2",        cConfig::eMuOpcodeDefAlu1,        cConfig::eMuOpcodeDefDataTypeFloat,true,   cConfig::eMuOpcodeDefDataTypeFloat,true,   cConfig::eMuOpcodeDefDataTypeFloat,true,      -1,0,0,-1}, //OPCODE_FMS2
@@ -150,10 +144,13 @@ bool cConfig::IsMuCommutative(int opcode)
    case cConfig::OPCODE_FMS2: return false;
    case cConfig::OPCODE_FNMA2: return false;
    case cConfig::OPCODE_FNMS2: return false;
-   case cConfig::OPCODE_LSB4: return false;
-   case cConfig::OPCODE_MSB4: return false;
+   case cConfig::OPCODE_N0: return false;
+   case cConfig::OPCODE_N1: return false;
+   case cConfig::OPCODE_N2: return false;
+   case cConfig::OPCODE_N3: return false;
+   case cConfig::OPCODE_B0: return false;
+   case cConfig::OPCODE_B1: return false;
    case cConfig::OPCODE_CONV_BFLOAT: return false;
-   case OPCODE_SET_FLOAT: return false;
    case cConfig::OPCODE_SHL: return false;
    case cConfig::OPCODE_SHR: return false;
    case cConfig::OPCODE_SHLA: return false;

@@ -77,6 +77,10 @@ ENTITY instr_decoder2 IS
         SIGNAL x2_addr1_out                     : OUT STD_LOGIC_VECTOR(register_file_depth_c-1 DOWNTO 0);
         SIGNAL y_addr1_out                      : OUT STD_LOGIC_VECTOR(register_file_depth_c-1 DOWNTO 0);
         
+        -- Parameter subfield
+        SIGNAL x1_sf_out                        : OUT register_sf_t;
+        SIGNAL x2_sf_out                        : OUT register_sf_t;
+
         -- Vector mode
         SIGNAL x1_vector_out                    : OUT STD_LOGIC;
         SIGNAL x2_vector_out                    : OUT STD_LOGIC;
@@ -165,6 +169,10 @@ SIGNAL mu_x1_attr1:register_attr_t;
 SIGNAL mu_x2_attr1:register_attr_t;
 SIGNAL mu_x3_attr1:register_attr_t;
 SIGNAL mu_y_attr1:register_attr_t;
+SIGNAL mu_x1_sf:register_sf_t;
+SIGNAL mu_x2_sf:register_sf_t;
+SIGNAL mu_x1_sf_r:register_sf_t;
+SIGNAL mu_x2_sf_r:register_sf_t;
 SIGNAL mu_x1_vector:STD_LOGIC;
 SIGNAL mu_x2_vector:STD_LOGIC;
 SIGNAL mu_x3_vector:STD_LOGIC;
@@ -430,6 +438,8 @@ mu_y_parm1 <= instruction_mu_in(mu_instruction_y_hi_c DOWNTO mu_instruction_y_lo
 mu_x1_attr1 <= instruction_mu_in(mu_instruction_x1_attr_hi_c DOWNTO mu_instruction_x1_attr_lo_c);
 mu_x2_attr1 <= instruction_mu_in(mu_instruction_x2_attr_hi_c DOWNTO mu_instruction_x2_attr_lo_c);
 mu_x3_attr1 <= instruction_mu_in(mu_instruction_x3_attr_hi_c DOWNTO mu_instruction_x3_attr_lo_c);
+mu_x1_sf <= instruction_mu_in(mu_instruction_x1_sf_hi_c DOWNTO mu_instruction_x1_sf_lo_c);
+mu_x2_sf <= instruction_mu_in(mu_instruction_x2_sf_hi_c DOWNTO mu_instruction_x2_sf_lo_c);
 mu_y_attr1 <= instruction_mu_in(mu_instruction_y_attr_hi_c DOWNTO mu_instruction_y_attr_lo_c);
 mu_x1_vector <= instruction_mu_in(mu_instruction_x1_vector_c);
 mu_x2_vector <= instruction_mu_in(mu_instruction_x2_vector_c);
@@ -474,6 +484,9 @@ opcode1_out <= mu_opcode1_r;
 x1_addr1_out <= mu_x1_addr1_r;
 x2_addr1_out <= mu_x2_addr1_r;
 y_addr1_out <= mu_y_addr1_r;
+
+x1_sf_out <= mu_x1_sf_r;
+x2_sf_out <= mu_x2_sf_r;
 
 x1_vector_out <= mu_x1_vector_r;
 x2_vector_out <= mu_x2_vector_r;
@@ -734,6 +747,8 @@ BEGIN
         result_raddr_r <= (others=>'0');
         result_waddr_r <= (others=>'0');
         xreg_waddr_r <= (others=>'0');
+        mu_x1_sf_r <= (others=>'0');
+        mu_x2_sf_r <= (others=>'0');
     else
         if clock_in'event and clock_in='1' then
             mu_x1_vector_r <= mu_x1_vector;
@@ -753,6 +768,8 @@ BEGIN
                 mu_x2_addr1_r <= mu_x2_addr1(mu_x2_addr1_r'length-1 downto 0);
                 mu_y_addr1_r <= mu_y_addr1(mu_y_addr1_r'length-1 downto 0);
                 result_raddr_r <= instruction_vm_in & mu_x3_addr1(xreg_depth_c+vector_depth_c-1 downto vector_depth_c);
+                mu_x1_sf_r <= mu_x1_sf;
+                mu_x2_sf_r <= mu_x2_sf;
                 mu_lane_r <= std_logic_vector(lane_in(vector_width_c-1 downto 0));
                 mu_en1_r <= '1';
                 mu_flag1_r <= mu_flag1;
@@ -770,6 +787,8 @@ BEGIN
                 mu_wren_r <= '0';
                 mu_lane_r <= (others=>'0');
                 mu_vm_r <= '0';
+                mu_x1_sf_r <= (others=>'0');
+                mu_x2_sf_r <= (others=>'0');
             end if;
             mu_lane_rr <= mu_lane_r;
             mu_lane_rrr <= mu_lane_rr;

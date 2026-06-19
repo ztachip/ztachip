@@ -48,6 +48,9 @@ ENTITY instr_dispatch2 IS
         SIGNAL y_addr1_in           : IN STD_LOGIC_VECTOR(register_file_depth_c-1 DOWNTO 0);
         SIGNAL result_addr1_in      : IN STD_LOGIC_VECTOR(xreg_depth_c downto 0);
 
+        SIGNAL x1_sf_in             : IN register_sf_t;
+        SIGNAL x2_sf_in             : IN register_sf_t;
+
         SIGNAL x1_vector_in         : IN STD_LOGIC;
         SIGNAL x2_vector_in         : IN STD_LOGIC;
         SIGNAL y_vector_in          : IN STD_LOGIC;
@@ -84,6 +87,8 @@ ENTITY instr_dispatch2 IS
         SIGNAL mu_x_scalar_out      : OUT STD_LOGIC_VECTOR(register_width_c-1 DOWNTO 0);
         SIGNAL mu_opcode_out        : OUT mu_opcode_t;
         SIGNAL mu_tid_out           : OUT tid_t;
+        SIGNAL mu_x1_sf_out         : OUT register_sf_t;
+        SIGNAL mu_x2_sf_out         : OUT register_sf_t;
         SIGNAL mu_y_in              : IN STD_LOGIC_VECTOR(vregister_width_c-1 DOWNTO 0)
        );
 END instr_dispatch2;
@@ -92,6 +97,10 @@ ARCHITECTURE behavior OF instr_dispatch2 IS
 SIGNAL mu_req:STD_LOGIC;
 SIGNAL mu_opcode_r:mu_opcode_t;
 SIGNAL mu_opcode_rr:mu_opcode_t;
+SIGNAL mu_x1_sf_r:register_sf_t;
+SIGNAL mu_x1_sf_rr:register_sf_t;
+SIGNAL mu_x2_sf_r:register_sf_t;
+SIGNAL mu_x2_sf_rr:register_sf_t;
 SIGNAL mu_tid_r:tid_t;
 SIGNAL mu_tid_rr:tid_t;
 SIGNAL wr_en_delay:STD_LOGIC;
@@ -157,6 +166,7 @@ wr_xreg_fifo_i: delay generic map(DEPTH =>fu_latency_c)
 wr_en_fifo_i: delay generic map(DEPTH =>fu_latency_c) 
             port map(clock_in => clock_in,reset_in => reset_in,in_in=>wr_en,out_out=>wr_en_delay,enable_in=>'1');
 
+
 mu_req <= '0' when opcode_in = std_logic_vector(to_unsigned(0,mu_instruction_oc_width_c)) else '1';
 
 -------
@@ -197,6 +207,8 @@ mu_x2_out <= rd_x2_data_in;
 mu_x_scalar_out <= x1_c1_rr when x1_c1_en_rr='1' else rd_x1_data_in(x1_c1_rr'length-1 downto 0);
 mu_opcode_out <= mu_opcode_rr;
 mu_tid_out <= mu_tid_rr;
+mu_x1_sf_out <= mu_x1_sf_rr;
+mu_x2_sf_out <= mu_x2_sf_rr;
 
 PROCESS(clock_in,reset_in)
 BEGIN
@@ -206,8 +218,12 @@ BEGIN
         x1_c1_r <= (others=>'0');
         x1_c1_rr <= (others=>'0');
         mu_opcode_r <= (others=>'0');
+        mu_x1_sf_r <= (others=>'0');
+        mu_x2_sf_r <= (others=>'0');
         mu_tid_r <= (others=>'0');
         mu_opcode_rr <= (others=>'0');
+        mu_x1_sf_rr <= (others=>'0');
+        mu_x2_sf_rr <= (others=>'0');
         mu_tid_rr <= (others=>'0');
         wr_en_delay_r <= '0';
         wr_result_addr_delay_r <= (others=>'0');
@@ -225,8 +241,12 @@ BEGIN
             x1_c1_r <= x1_c1_in;
             x1_c1_rr <= x1_c1_r;
             mu_opcode_r <= opcode_in;
+            mu_x1_sf_r <= x1_sf_in;
+            mu_x2_sf_r <= x2_sf_in;
             mu_tid_r <= instruction_tid_in;
             mu_opcode_rr <= mu_opcode_r;
+            mu_x1_sf_rr <= mu_x1_sf_r;
+            mu_x2_sf_rr <= mu_x2_sf_r;
             mu_tid_rr <= mu_tid_r;
             wr_en_delay_r <= wr_en_delay;
             wr_result_addr_delay_r <= wr_result_addr_delay;

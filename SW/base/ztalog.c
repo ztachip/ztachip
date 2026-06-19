@@ -53,6 +53,7 @@
 #define ZTA_LOG_VECTOR_X2       1
 #define ZTA_LOG_VECTOR_X4       3
 #define ZTA_LOG_VECTOR_X8       7
+#define ZTA_LOG_VECTOR_X16      15
 
 typedef struct
 {
@@ -60,26 +61,33 @@ typedef struct
       struct {
          unsigned int type:2;
          unsigned int source:2;
-         unsigned int source_vector:3;
+         unsigned int source_vector:4;
          unsigned int source_scatter:2;
          unsigned int source_double:1;
          unsigned int dest:2;
-         unsigned int dest_vector:3;
+         unsigned int dest_vector:4;
          unsigned int dest_scatter:2;
          unsigned int dest_double:1;
-         unsigned int fifo:6;
-         unsigned int pad:8;
+         unsigned int vm:1;
+         unsigned int pad:11;
       } dp_start;
       struct {
          unsigned int type:2;
          unsigned int vm1:1;
          unsigned int vm2:1;
-         unsigned int register_write_1;
-         unsigned int register_read:1;
-         unsigned int sram_write_1;
-         unsigned int sram_read:1;
-         unsigned int ddr_write_1;
+         unsigned int register0_write:1;
+         unsigned int register0_read:1;
+         unsigned int sram0_write:1;
+         unsigned int sram0_read:1;
+         unsigned int register1_write:1;
+         unsigned int register1_read:1;
+         unsigned int sram1_write:1;
+         unsigned int sram1_read:1;
+         unsigned int ddr_write:1;
          unsigned int ddr_read:1;
+         unsigned int fpu1:1;
+         unsigned int fpu2:1;
+         unsigned int empty:1;
       } vm_status;
       struct {
          unsigned int type:2;
@@ -88,6 +96,26 @@ typedef struct
       uint32_t dw;
    } u;
 } ZTA_LOG_ENTRY;
+
+#define LOG_TIMESTAMP 17 // Must be the same as ztachip_pkt.vhd/log_timestamp_c
+
+#define LOG_STATUS_MAX 15 //Must be the same as ztachip_pkt.vhd/log_status_max_c 
+
+static bool logEnable=false;
+
+void ztaLogEnable() {
+   if(logEnable) 
+      return;
+   logEnable=true;
+   ZTAM_GREG(0,REG_DP_RUN,0)=DP_OPCODE_LOG_ON+(DP_CONDITION_ALL_FLUSH<<3);
+}
+
+void ztaLogDisable() {
+   if(!logEnable)
+      return;
+   logEnable=false;
+   ZTAM_GREG(0,REG_DP_RUN,0)=DP_OPCODE_LOG_OFF+(DP_CONDITION_ALL_FLUSH<<3);
+}
 
 // Flush log...
 
@@ -120,7 +148,7 @@ static void printStatus(int timeDelta,uint32_t currStatus,uint32_t lastStatus) {
    } else {
       printf("           ");
    }
-   for(i=0;i < 12;i++) {
+   for(i=0;i < LOG_STATUS_MAX;i++) {
       if((i%2)==0 && i > 0)
          printf(" ");
       if(currStatus&(1<<i)) {
@@ -157,14 +185,14 @@ void ztaLogPrint() {
       if(logCmd.u.dw==0)
          break;
       if(!showBanner) {
-         printf("           XX PP SS PP SS DD\r\n");
-         printf("           01 WR WR WR WR WR\r\n");
+         printf("           XX PP SS PP SS DD FF E\r\n");
+         printf("           01 WR WR WR WR WR 01 0\r\n");
          showBanner=true;
       }
       logParm=ZTAM_GREG(0,REG_READ_LOG_TIME,0);
       switch(logCmd.u.general.type) {
          case ZTA_LOG_TYPE_DP_START:
-            timestamp=(logParm>>12);
+            timestamp=(logParm>>LOG_STATUS_MAX);
             timeDelta=(int)timestamp-(int)lastTime;
             if(timeDelta < 0)
                timeDelta+=0x100000;
@@ -172,12 +200,14 @@ void ztaLogPrint() {
             printStatus(lastTimeValid?timeDelta:0,logParm,lastStatus);
             lastTimeValid=true;
             lastStatus=logParm;
-            printf(" %s V%d X%d %s <= %s V%d X%d %s\r\n",
+            printf(" %s(%d) V%d X%d %s <= %s(%d) V%d X%d %s\r\n",
                   s_bus_id[logCmd.u.dp_start.dest],
+                  logCmd.u.dp_start.vm,
                   logCmd.u.dp_start.dest_vector+1,
                   logCmd.u.dp_start.dest_double+1,
                   logCmd.u.dp_start.dest_scatter?"SCATTER":"",
                   s_bus_id[logCmd.u.dp_start.source],
+                  logCmd.u.dp_start.vm,
                   logCmd.u.dp_start.source_vector+1,
                   logCmd.u.dp_start.source_double+1,
                   logCmd.u.dp_start.source_scatter?"SCATTER":"");
@@ -189,7 +219,7 @@ void ztaLogPrint() {
             printf("\r\n");
             break;
          case ZTA_LOG_TYPE_STATUS:
-            timestamp=(logParm>>12);
+            timestamp=(logParm>>LOG_STATUS_MAX);
             timeDelta=(int)timestamp-(int)lastTime;
             if(timeDelta < 0)
                timeDelta+=0x100000;

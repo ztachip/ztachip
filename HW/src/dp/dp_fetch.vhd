@@ -100,6 +100,7 @@ ENTITY dp_fetch IS
             SIGNAL ddr_read_pending_p1_in   : STD_LOGIC_VECTOR(NUM_DP_DST_PORT-1 downto 0);
             
             SIGNAL fpu_busy_vm_in           : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
+            SIGNAL fpu_running_vm_in        : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
             SIGNAL fpu_exe_out              : OUT STD_LOGIC;
             SIGNAL fpu_exe_vm_out           : OUT STD_LOGIC;
             SIGNAL ddr_tx_busy_in           : IN STD_LOGIC
@@ -146,10 +147,13 @@ SIGNAL irec: dp_instruction_t; -- Record going into the fifo
 SIGNAL irec_generic: dp_instruction_generic_t; -- Record going into the fifo
 SIGNAL orec: dp_instruction_t; -- Record going out the fifo
 SIGNAL orecs: dp_instructions_t(1 downto 0); -- Record going out the fifo
+SIGNAL pre_orecs: dp_instructions_t(1 downto 0); -- Record going out the fifo
 SIGNAL orec_generic: dp_instruction_generic_t; -- Record going out the fifo
 SIGNAL data:std_logic_vector(dp_instruction_width_c-1 downto 0);
 SIGNAL q1:std_logic_vector(dp_instruction_width_c-1 downto 0);
 SIGNAL q2:std_logic_vector(dp_instruction_width_c-1 downto 0);
+SIGNAL pre_q1:std_logic_vector(dp_instruction_width_c-1 downto 0);
+SIGNAL pre_q2:std_logic_vector(dp_instruction_width_c-1 downto 0);
 SIGNAL rdreq:STD_LOGIC;
 SIGNAL rdreqs:STD_LOGIC_VECTOR(1 downto 0);
 SIGNAL wreq:STD_LOGIC;
@@ -178,9 +182,11 @@ SIGNAL print_param_r:STD_LOGIC_VECTOR(2*host_width_c-1 downto 0);
 SIGNAL print_param_rr:STD_LOGIC_VECTOR(2*host_width_c-1 downto 0);
 SIGNAL wreq2:STD_LOGIC;
 SIGNAL wreq2_indication:STD_LOGIC;
+SIGNAL wreq2_indication_r:STD_LOGIC;
 SIGNAL pcore_read_pending: STD_LOGIC_VECTOR(NUM_DP_DST_PORT-1 downto 0);
 SIGNAL sram_read_pending: STD_LOGIC_VECTOR(NUM_DP_DST_PORT-1 downto 0);
 SIGNAL ddr_read_pending: STD_LOGIC_VECTOR(NUM_DP_DST_PORT-1 downto 0);
+SIGNAL dp_fifo_empty:STD_LOGIC;
 
 subtype dp_fifo_record_t is std_logic_vector(dp_instruction_width_c-1 downto 0);
 subtype dp_template_record_t is std_logic_vector(dp_template_width_c-1 downto 0);
@@ -190,6 +196,7 @@ SIGNAL indication_full_r:STD_LOGIC;
 SIGNAL indication_full:STD_LOGIC;
 SIGNAL indication_rdreq:STD_LOGIC;
 SIGNAL in_indication:std_logic_vector(dp_indication_num_parm_c*host_width_c+dp_opcode_t'length-1 downto 0);
+SIGNAL in_indication_r:std_logic_vector(dp_indication_num_parm_c*host_width_c+dp_opcode_t'length-1 downto 0);
 SIGNAL indication:std_logic_vector(dp_indication_num_parm_c*host_width_c+dp_opcode_t'length-1 downto 0);
 SIGNAL indication_rdusedw:std_logic_vector(dp_indication_depth_c-1 downto 0);
 SIGNAL indication_wrusedw:std_logic_vector(dp_indication_depth_c-1 downto 0);
@@ -240,10 +247,10 @@ SIGNAL source_vm_r:std_logic_vector(dp_max_gen_c-1 downto 0);
 SIGNAL dest_bus_id_r:dp_bus_ids_t(dp_max_gen_c-1 downto 0);
 
 SIGNAL outOfOrderOk:STD_LOGIC;
-
+SIGNAL outOfOrderOk_r:STD_LOGIC;
 type safe_mask_t is array (dp_bus_id_max_c downto 0) of std_logic_vector(dp_bus_id_max_c downto 0);
 
-SIGNAL new_cmd_is_safe_r:safe_mask_t;
+SIGNAL new_cmd_is_safe_r:std_logic_vector(1 downto 0);
 SIGNAL condition_vm0_busy_r:dp_condition_t;
 SIGNAL condition_vm1_busy_r:dp_condition_t;
 
@@ -1015,6 +1022,10 @@ else
    log_write(host_width_c+log_status_sram_vm1_read_busy_c) <= sram_source_busy_r(1);
    log_write(host_width_c+log_status_ddr_write_busy_c) <= sink_ddr_busy_r;
    log_write(host_width_c+log_status_ddr_read_busy_c) <= ddr_source_busy_r;
+   log_write(host_width_c+log_status_fpu0_running_c) <= fpu_running_vm_in(0);
+   log_write(host_width_c+log_status_fpu1_running_c) <= fpu_running_vm_in(1);
+   log_write(host_width_c+log_status_empty_c) <= dp_fifo_empty;
+
    log_write(2*host_width_c-1 downto host_width_c+log_status_max_c) <= std_logic_vector(log_time_r(log_timestamp_c-1 downto 0));
    if log1_valid_in='1' then
       -- Log entry for DP transfer initiated on first DP process
@@ -1044,31 +1055,35 @@ end process;
 
 log_wrreq2 <= log_wrreq and log_enable_r and (not log_full);
 
---log_fifo_i:scfifo
---	generic map 
---	(
---		DATA_WIDTH=>2*host_width_c,
---		FIFO_DEPTH=>log_depth_c,
---      LOOKAHEAD=>TRUE
---	)
---	port map 
---	(
---     clock_in=>clock_in,
---      reset_in=>reset_in,
---      data_in=>log_write,
---      write_in=>log_wrreq2,
---      read_in=>log_rdreq,
---      q_out=>log_read,
---      ravail_out=>open,
---      wused_out=>open,
---      empty_out=>log_empty,
---      full_out=>log_full,
---      almost_full_out=>open
---	);
+GEN_LOG: IF(LOG_ENABLED = TRUE) GENERATE
+log_fifo_i:scfifo
+	generic map 
+	(
+		DATA_WIDTH=>2*host_width_c,
+		FIFO_DEPTH=>log_depth_c,
+      LOOKAHEAD=>TRUE
+	)
+	port map 
+	(
+      clock_in=>clock_in,
+      reset_in=>reset_in,
+      data_in=>log_write,
+      write_in=>log_wrreq2,
+      read_in=>log_rdreq,
+      q_out=>log_read,
+      ravail_out=>open,
+      wused_out=>open,
+      empty_out=>log_empty,
+      full_out=>log_full,
+      almost_full_out=>open
+	);
+END GENERATE GEN_LOG;
 
+GEN_NO_LOG: IF(LOG_ENABLED = FALSE) GENERATE
 log_empty <= '1';
 log_full <= '0';
 log_read <= (others=>'0');
+END GENERATE GEN_NO_LOG;
 
 ----------
 -- FIFO to store incoming DP instructions from mcore
@@ -1084,11 +1099,14 @@ fifo_i : dp_fifo
         wreq_in=>wreq,
         readdata1_out=>q1,
         readdata2_out=>q2,
+        pre_readdata1_out=>pre_q1,
+        pre_readdata2_out=>pre_q2,
         rdreq1_in=>rdreqs(0),
         rdreq2_in=>rdreqs(1),
         valid1_out=>valids(0),
         valid2_out=>valids(1),
         full_out=>full,
+        empty_out=>dp_fifo_empty,
         fifo_avail_out => fifo_avail
         );
 
@@ -1154,23 +1172,22 @@ in_indication <= std_logic_vector(orec_generic.opcode) & orec_generic.parameters
 indication_i:scfifo
 	generic map 
 	(
-		DATA_WIDTH=>dp_indication_num_parm_c*host_width_c+dp_opcode_t'length,
-		FIFO_DEPTH=>dp_indication_depth_c,
-        LOOKAHEAD=>TRUE
+      DATA_WIDTH=>dp_indication_num_parm_c*host_width_c+dp_opcode_t'length,
+      FIFO_DEPTH=>dp_indication_depth_c,
+      LOOKAHEAD=>TRUE
 	)
 	port map 
 	(
-		clock_in=>clock_in,
-        reset_in=>reset_in,
-        data_in=>in_indication,
-        write_in=>wreq2_indication,
-        read_in=>indication_rdreq,
-        q_out=>indication,
-        ravail_out=>indication_rdusedw,
-        wused_out=>indication_wrusedw,
-        empty_out=>indication_empty,
-        full_out=>indication_full,
-        almost_full_out=>open
+      clock_in=>clock_in,
+      reset_in=>reset_in,
+      data_in=>in_indication_r,
+      write_in=>wreq2_indication_r,
+      read_in=>indication_rdreq,
+      q_out=>indication,
+      ravail_out=>indication_rdusedw,
+      wused_out=>indication_wrusedw,
+      empty_out=>indication_empty,
+      full_out=>indication_full
 	);
 
 
@@ -1207,7 +1224,9 @@ data <= pack_fifo(irec) when (irec.opcode=dp_opcode_transfer_c) else pack_generi
 ---------------------
 
 orecs(0) <= unpack_fifo(q1);
+pre_orecs(0) <= unpack_fifo(pre_q1);
 orecs(1) <= unpack_fifo(q2);
+pre_orecs(1) <= unpack_fifo(pre_q2);
 orec_generic <= unpack_generic_fifo(q1);
 
 --------------------
@@ -1555,68 +1574,71 @@ end process;
 process(clock_in,reset_in)
 variable source_is_safe_v:safe_mask_t;
 variable dest_is_safe_v:safe_mask_t;
+variable new_cmd_is_safe_v:safe_mask_t;
 begin
-if reset_in = '0' then
-   new_cmd_is_safe_r <= (others=>(others=>'0'));
-else
-   if clock_in'event and clock_in='1' then
+   if reset_in = '0' then
+      new_cmd_is_safe_r <= (others=>'0');
+   else
+      if clock_in'event and clock_in='1' then
+         -- Determine is a bus is safe to issue a new read request
+         -- If read is being targeted to a new destination from previous read, then all read transactions 
+         -- must be completed first
 
-      -- Determine is a bus is safe to issue a new read request
-      -- If read is being targeted to a new destination from previous read, then all read transactions 
-      -- must be completed first
+         source_is_safe_v(dp_bus_id_register_c)(dp_bus_id_register_c) := (not sram_read_pending(dp_bus_id_register_c)) and (not ddr_read_pending(dp_bus_id_register_c));
+         source_is_safe_v(dp_bus_id_register_c)(dp_bus_id_sram_c) := (not pcore_read_pending(dp_bus_id_register_c)) and (not ddr_read_pending(dp_bus_id_register_c));
+         source_is_safe_v(dp_bus_id_register_c)(dp_bus_id_ddr_c) := (not pcore_read_pending(dp_bus_id_register_c)) and (not sram_read_pending(dp_bus_id_register_c));
 
-      source_is_safe_v(dp_bus_id_register_c)(dp_bus_id_register_c) := (not sram_read_pending(dp_bus_id_register_c)) and (not ddr_read_pending(dp_bus_id_register_c));
-      source_is_safe_v(dp_bus_id_register_c)(dp_bus_id_sram_c) := (not pcore_read_pending(dp_bus_id_register_c)) and (not ddr_read_pending(dp_bus_id_register_c));
-      source_is_safe_v(dp_bus_id_register_c)(dp_bus_id_ddr_c) := (not pcore_read_pending(dp_bus_id_register_c)) and (not sram_read_pending(dp_bus_id_register_c));
+         source_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_register_c) := (not sram_read_pending(dp_bus_id_sram_c)) and (not ddr_read_pending(dp_bus_id_sram_c));
+         source_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_sram_c) := (not pcore_read_pending(dp_bus_id_sram_c)) and (not ddr_read_pending(dp_bus_id_sram_c));
+         source_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_ddr_c) := (not pcore_read_pending(dp_bus_id_sram_c)) and (not sram_read_pending(dp_bus_id_sram_c));
 
-      source_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_register_c) := (not sram_read_pending(dp_bus_id_sram_c)) and (not ddr_read_pending(dp_bus_id_sram_c));
-      source_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_sram_c) := (not pcore_read_pending(dp_bus_id_sram_c)) and (not ddr_read_pending(dp_bus_id_sram_c));
-      source_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_ddr_c) := (not pcore_read_pending(dp_bus_id_sram_c)) and (not sram_read_pending(dp_bus_id_sram_c));
+         source_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_register_c) := (not sram_read_pending(dp_bus_id_ddr_c)) and (not ddr_read_pending(dp_bus_id_ddr_c));
+         source_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_sram_c) := (not pcore_read_pending(dp_bus_id_ddr_c)) and (not ddr_read_pending(dp_bus_id_ddr_c));
+         source_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_ddr_c) := (not pcore_read_pending(dp_bus_id_ddr_c)) and (not sram_read_pending(dp_bus_id_ddr_c));
 
-      source_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_register_c) := (not sram_read_pending(dp_bus_id_ddr_c)) and (not ddr_read_pending(dp_bus_id_ddr_c));
-      source_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_sram_c) := (not pcore_read_pending(dp_bus_id_ddr_c)) and (not ddr_read_pending(dp_bus_id_ddr_c));
-      source_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_ddr_c) := (not pcore_read_pending(dp_bus_id_ddr_c)) and (not sram_read_pending(dp_bus_id_ddr_c));
+         -- Avoid data arrived at sinker out of order.
+         -- If sinker receives data from multiple sources, they may have different latency.
+         -- Check is we change source to a sinker, make sure all pending read have been completed...
 
-      -- Avoid data arrived at sinker out of order.
-      -- If sinker receives data from multiple sources, they may have different latency.
-      -- Check is we change source to a sinker, make sure all pending read have been completed...
+         dest_is_safe_v(dp_bus_id_register_c)(dp_bus_id_register_c) := (not pcore_read_pending(dp_bus_id_sram_c)) and (not pcore_read_pending(dp_bus_id_ddr_c));
+         dest_is_safe_v(dp_bus_id_register_c)(dp_bus_id_sram_c) := (not pcore_read_pending(dp_bus_id_register_c)) and (not pcore_read_pending(dp_bus_id_ddr_c));
+         dest_is_safe_v(dp_bus_id_register_c)(dp_bus_id_ddr_c) := (not pcore_read_pending(dp_bus_id_register_c)) and (not pcore_read_pending(dp_bus_id_sram_c));
 
-      dest_is_safe_v(dp_bus_id_register_c)(dp_bus_id_register_c) := (not pcore_read_pending(dp_bus_id_sram_c)) and (not pcore_read_pending(dp_bus_id_ddr_c));
-      dest_is_safe_v(dp_bus_id_register_c)(dp_bus_id_sram_c) := (not pcore_read_pending(dp_bus_id_register_c)) and (not pcore_read_pending(dp_bus_id_ddr_c));
-      dest_is_safe_v(dp_bus_id_register_c)(dp_bus_id_ddr_c) := (not pcore_read_pending(dp_bus_id_register_c)) and (not pcore_read_pending(dp_bus_id_sram_c));
+         dest_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_register_c) := (not sram_read_pending(dp_bus_id_sram_c)) and (not sram_read_pending(dp_bus_id_ddr_c));
+         dest_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_sram_c) := (not sram_read_pending(dp_bus_id_register_c)) and (not sram_read_pending(dp_bus_id_ddr_c));
+         dest_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_ddr_c) := (not sram_read_pending(dp_bus_id_register_c)) and (not sram_read_pending(dp_bus_id_sram_c));
 
-      dest_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_register_c) := (not sram_read_pending(dp_bus_id_sram_c)) and (not sram_read_pending(dp_bus_id_ddr_c));
-      dest_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_sram_c) := (not sram_read_pending(dp_bus_id_register_c)) and (not sram_read_pending(dp_bus_id_ddr_c));
-      dest_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_ddr_c) := (not sram_read_pending(dp_bus_id_register_c)) and (not sram_read_pending(dp_bus_id_sram_c));
+         dest_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_register_c) := (not ddr_read_pending(dp_bus_id_sram_c)) and (not ddr_read_pending(dp_bus_id_ddr_c));
+         dest_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_sram_c) := (not ddr_read_pending(dp_bus_id_register_c)) and (not ddr_read_pending(dp_bus_id_ddr_c));
+         dest_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_ddr_c) := (not ddr_read_pending(dp_bus_id_register_c)) and (not ddr_read_pending(dp_bus_id_sram_c));
 
-      dest_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_register_c) := (not ddr_read_pending(dp_bus_id_sram_c)) and (not ddr_read_pending(dp_bus_id_ddr_c));
-      dest_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_sram_c) := (not ddr_read_pending(dp_bus_id_register_c)) and (not ddr_read_pending(dp_bus_id_ddr_c));
-      dest_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_ddr_c) := (not ddr_read_pending(dp_bus_id_register_c)) and (not ddr_read_pending(dp_bus_id_sram_c));
-
-      -- New DP transaction is safe when it is safe for both source and destination
-      new_cmd_is_safe_r(dp_bus_id_register_c)(dp_bus_id_register_c) <= source_is_safe_v(dp_bus_id_register_c)(dp_bus_id_register_c) and dest_is_safe_v(dp_bus_id_register_c)(dp_bus_id_register_c);
-      new_cmd_is_safe_r(dp_bus_id_register_c)(dp_bus_id_sram_c) <= source_is_safe_v(dp_bus_id_register_c)(dp_bus_id_sram_c) and dest_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_register_c);
-      new_cmd_is_safe_r(dp_bus_id_register_c)(dp_bus_id_ddr_c) <= source_is_safe_v(dp_bus_id_register_c)(dp_bus_id_ddr_c) and dest_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_register_c);
-      new_cmd_is_safe_r(dp_bus_id_sram_c)(dp_bus_id_register_c) <= source_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_register_c) and dest_is_safe_v(dp_bus_id_register_c)(dp_bus_id_sram_c);
-      new_cmd_is_safe_r(dp_bus_id_sram_c)(dp_bus_id_sram_c) <= source_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_sram_c) and dest_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_sram_c);
-      new_cmd_is_safe_r(dp_bus_id_sram_c)(dp_bus_id_ddr_c) <= source_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_ddr_c) and dest_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_sram_c);
-      new_cmd_is_safe_r(dp_bus_id_ddr_c)(dp_bus_id_register_c) <= source_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_register_c) and dest_is_safe_v(dp_bus_id_register_c)(dp_bus_id_ddr_c);
-      new_cmd_is_safe_r(dp_bus_id_ddr_c)(dp_bus_id_sram_c) <= source_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_sram_c) and dest_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_ddr_c);
-      new_cmd_is_safe_r(dp_bus_id_ddr_c)(dp_bus_id_ddr_c) <= source_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_ddr_c) and dest_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_ddr_c);
+         -- New DP transaction is safe when it is safe for both source and destination
+         new_cmd_is_safe_v(dp_bus_id_register_c)(dp_bus_id_register_c) := source_is_safe_v(dp_bus_id_register_c)(dp_bus_id_register_c) and dest_is_safe_v(dp_bus_id_register_c)(dp_bus_id_register_c);
+         new_cmd_is_safe_v(dp_bus_id_register_c)(dp_bus_id_sram_c) := source_is_safe_v(dp_bus_id_register_c)(dp_bus_id_sram_c) and dest_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_register_c);
+         new_cmd_is_safe_v(dp_bus_id_register_c)(dp_bus_id_ddr_c) := source_is_safe_v(dp_bus_id_register_c)(dp_bus_id_ddr_c) and dest_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_register_c);
+         new_cmd_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_register_c) := source_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_register_c) and dest_is_safe_v(dp_bus_id_register_c)(dp_bus_id_sram_c);
+         new_cmd_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_sram_c) := source_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_sram_c) and dest_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_sram_c);
+         new_cmd_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_ddr_c) := source_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_ddr_c) and dest_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_sram_c);
+         new_cmd_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_register_c) := source_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_register_c) and dest_is_safe_v(dp_bus_id_register_c)(dp_bus_id_ddr_c);
+         new_cmd_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_sram_c) := source_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_sram_c) and dest_is_safe_v(dp_bus_id_sram_c)(dp_bus_id_ddr_c);
+         new_cmd_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_ddr_c) := source_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_ddr_c) and dest_is_safe_v(dp_bus_id_ddr_c)(dp_bus_id_ddr_c);
+         FOR I in 0 to 1 LOOP
+             new_cmd_is_safe_r(I) <= new_cmd_is_safe_v(to_integer(pre_orecs(I).source_bus_id))(to_integer(pre_orecs(I).dest_bus_id));
+         END LOOP;
+      end if;
    end if;
-end if;
 end process;
 
 outOfOrderOk <= '1' when
-      (orecs(1).opcode = dp_opcode_transfer_c) and 
-      (orecs(0).opcode = dp_opcode_transfer_c) and 
-      (orecs(1).condition = std_logic_vector(to_unsigned(0,dp_condition_t'length))) and
+      (pre_orecs(1).opcode = dp_opcode_transfer_c) and 
+      (pre_orecs(0).opcode = dp_opcode_transfer_c) and 
+      (pre_orecs(1).condition = std_logic_vector(to_unsigned(0,dp_condition_t'length))) and
       (
-      (orecs(0).vm /= orecs(1).vm) or
+      (pre_orecs(0).vm /= pre_orecs(1).vm) or
       (
-      (orecs(0).condition(dp_condition_register_flush_c)='0' or (orecs(1).dest_bus_id /=dp_bus_id_register_c and orecs(1).source_bus_id /=dp_bus_id_register_c)) and
-      (orecs(0).condition(dp_condition_sram_flush_c)='0' or (orecs(1).dest_bus_id /=dp_bus_id_sram_c and orecs(1).source_bus_id /=dp_bus_id_sram_c)) and
-      (orecs(0).condition(dp_condition_ddr_flush_c)='0' or (orecs(1).dest_bus_id /=dp_bus_id_ddr_c and orecs(1).source_bus_id /=dp_bus_id_ddr_c))
+      (pre_orecs(0).condition(dp_condition_register_flush_c)='0' or (pre_orecs(1).dest_bus_id /=dp_bus_id_register_c and pre_orecs(1).source_bus_id /=dp_bus_id_register_c)) and
+      (pre_orecs(0).condition(dp_condition_sram_flush_c)='0' or (pre_orecs(1).dest_bus_id /=dp_bus_id_sram_c and pre_orecs(1).source_bus_id /=dp_bus_id_sram_c)) and
+      (pre_orecs(0).condition(dp_condition_ddr_flush_c)='0' or (pre_orecs(1).dest_bus_id /=dp_bus_id_ddr_c and pre_orecs(1).source_bus_id /=dp_bus_id_ddr_c))
       )
       )
       else '0';
@@ -1631,7 +1653,7 @@ begin
       rdreqs(0) <= rdreq;
       rdreqs(1) <= '0';
       pause <= pauses(0);
-   elsif pauses(1)='0' and outOfOrderOk='1' then
+   elsif pauses(1)='0' and outOfOrderOk_r='1' then
       -- Can execute out of order
       orec <= orecs(1);
       valid <= valids(1);
@@ -1719,7 +1741,7 @@ if valids(I)='1' then
               ) then
             pauses(I) <= '1'; 
          else
-            pauses(I) <= not new_cmd_is_safe_r(to_integer(orecs(I).source_bus_id))(to_integer(orecs(I).dest_bus_id));
+            pauses(I) <= not new_cmd_is_safe_r(I);
          end if;
     else
         pauses(I) <= '0';
@@ -1752,6 +1774,8 @@ if reset_in = '0' then
    print_indication_rr <= '0';  
    print_param_r <= (others=>'0');
    print_param_rr <= (others=>'0');
+   in_indication_r <= (others=>'0');
+   wreq2_indication_r <= '0';
 else
    if clock_in'event and clock_in='1' then
       print_param_r <= orec_generic.parameters(print_param_r'length-1 downto 0);
@@ -1762,6 +1786,8 @@ else
       else
          print_indication_r <= '0';
       end if;
+      in_indication_r <= in_indication;
+      wreq2_indication_r <= wreq2_indication;
    end if;
 end if;
 end process;
@@ -1991,9 +2017,10 @@ begin
       pcore_sink_busy_r <= (others=>'0');
       sram_sink_busy_r <= (others=>'0');
       ddr_sink_busy_r <= '0';
+      outOfOrderOk_r <= '0';
    else
       if clock_in'event and clock_in='1' then
-
+         outOfOrderOk_r <= outOfOrderOk;
          -- Check if indication fifo is almost full
          if(unsigned(indication_wrusedw) >= to_unsigned(dp_indication_max_c-8,dp_indication_depth_c)) then
             indication_full_r <= '1';

@@ -77,6 +77,7 @@ private:
     int m_pos2=0;
     struct {
         uint32_t dim; // transformer dimension
+        float inv_dim; // 1/dim
         uint32_t hidden_dim; // for ffn layers
         uint32_t n_layers; // number of layers
         uint32_t n_heads; // number of query heads

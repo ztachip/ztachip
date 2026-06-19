@@ -67,7 +67,7 @@ static char *getInput()
 }
 #endif
 
-static llama ai;
+static llama ai __attribute__((section(".tcm_data")));
 
 int chat() {
     static std::string output_ref_0,output_ref_1;

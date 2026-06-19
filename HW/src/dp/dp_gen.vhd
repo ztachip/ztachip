@@ -490,8 +490,8 @@ log_valid_out <= log_valid_r;
 -- Generate log entry
 ----
 
-process(instruction_bus_id_source_in,src_vector,src_scatter,source_double_precision,
-        instruction_bus_id_dest_in,dst_vector,dst_scatter,dest_double_precision)
+process(instruction_bus_id_source_in,src_vector,src_scatter,instruction_source_in.double_precision,
+        instruction_bus_id_dest_in,dst_vector,dst_scatter,instruction_dest_in.double_precision)
 variable pos_v:integer;
 begin
    pos_v := 0;
@@ -508,7 +508,7 @@ begin
    log(pos_v+src_scatter'length-1 downto pos_v) <= std_logic_vector(src_scatter);
    pos_v := pos_v+src_scatter'length;
 
-   log(pos_v) <= source_double_precision;
+   log(pos_v) <= instruction_source_in.double_precision;
    pos_v := pos_v+1;
 
    log(pos_v+instruction_bus_id_dest_in'length-1 downto pos_v) <= std_logic_vector(instruction_bus_id_dest_in);
@@ -520,7 +520,10 @@ begin
    log(pos_v+dst_scatter'length-1 downto pos_v) <= std_logic_vector(dst_scatter);
    pos_v := pos_v+dst_scatter'length;
 
-   log(pos_v) <= dest_double_precision;
+   log(pos_v) <= instruction_dest_in.double_precision;
+   pos_v := pos_v+1;
+
+   log(pos_v) <= instruction_vm_in;
    pos_v := pos_v+1;
 
    log(host_width_c-1 downto pos_v) <= (others=>'0');

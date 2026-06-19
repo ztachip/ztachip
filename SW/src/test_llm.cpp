@@ -383,9 +383,9 @@ void test_llm_rms() {
          w[i] = f;
       }
 
-      kernel_ref_llm_rms_exe(0,N,x,(j==0)?false:true,o,w);
+      kernel_ref_llm_rms_exe(0,N,1.0/(float)N,x,(j==0)?false:true,o,w);
       
-      kernel_llm_rms_exe(0,N,x,(j==0)?false:true,o2,w);
+      kernel_llm_rms_exe(0,N,1.0/(float)N,x,(j==0)?false:true,o2,w);
 
       kernel_llm_done();
 

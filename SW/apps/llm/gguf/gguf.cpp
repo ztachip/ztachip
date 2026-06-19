@@ -370,10 +370,9 @@ ZtaStatus GGUF::quantize(float* x, size_t sz, int N, int D,bool reorder,ZUF_QUAN
     d[0] = D / VECTOR_WIDTH;
     d[1] = VECTOR_WIDTH;
     d[2] = N / GS_DEFAULT;
-    d[3] = (quant==ZUF_QUANT_INT4)?(GS_DEFAULT/LLM_GS/2):(GS_DEFAULT/LLM_GS);
-    d[4] = (quant==ZUF_QUANT_INT4)?2:1;
-    d[5] = (quant==ZUF_QUANT_INT4)?(LLM_GS/2):(LLM_GS);
-
+    d[3] = (quant==ZUF_QUANT_INT4)?(GS_DEFAULT/LLM_GS/2):(GS_DEFAULT/LLM_GS/2);
+    d[4] = (quant==ZUF_QUANT_INT4)?(LLM_GS/2):(LLM_GS);
+    d[5] = (quant==ZUF_QUANT_INT4)?2:2;
 
     e[0] = d[1] * d[2] * d[3] * d[4] * d[5];
     e[1] = d[2] * d[3] * d[4] * d[5];
@@ -385,12 +384,12 @@ ZtaStatus GGUF::quantize(float* x, size_t sz, int N, int D,bool reorder,ZUF_QUAN
     // Then reorder the dimension of weight tensor to...
     // (GS_DEFAULT/LLM_GS)*(N/GS_DEFAULT)*(D/VECTOR_WIDTH)*LLM_GS*VECTOR_WIDTH
 
-    d2[0] = (quant==ZUF_QUANT_INT4)?(GS_DEFAULT/LLM_GS/2):(GS_DEFAULT/LLM_GS); //3 I
-    d2[1] = N / GS_DEFAULT; //2 J
-    d2[2] = D / VECTOR_WIDTH; //0 K ***
-    d2[3] = (quant==ZUF_QUANT_INT4)?2:1;
-    d2[4] = (quant==ZUF_QUANT_INT4)?(LLM_GS/2):(LLM_GS); //5 M
-    d2[5] = VECTOR_WIDTH; //1 N ***
+    d2[0] = (quant==ZUF_QUANT_INT4)?(GS_DEFAULT/LLM_GS/2):(GS_DEFAULT/LLM_GS/2); //3
+    d2[1] = N / GS_DEFAULT; //2
+    d2[2] = D / VECTOR_WIDTH; //0 
+    d2[3] = (quant==ZUF_QUANT_INT4)?(LLM_GS/2):(LLM_GS); //4
+    d2[4] = VECTOR_WIDTH; //1 
+    d2[5] = (quant==ZUF_QUANT_INT4)?2:2; //5
 
     e2[0] = d2[1] * d2[2] * d2[3] * d2[4] * d2[5];
     e2[1] = d2[2] * d2[3] * d2[4] * d2[5];
@@ -523,11 +522,11 @@ ZtaStatus GGUF::quantize(float* x, size_t sz, int N, int D,bool reorder,ZUF_QUAN
 
                 // Mapping from old index to new index
                 idx = x[0] * e2[2] + // 0->2
-                    x[1] * e2[5] + // 1->5
+                    x[1] * e2[4] + // 1->4 ..
                     x[2] * e2[1] + // 2->1
                     x[3] * e2[0] + // 3->0
                     x[4] * e2[3] + // 4->3
-                    x[5] * e2[4];  // 5->4
+                    x[5] * e2[5];  // 5->5
 
                 if(quant==ZUF_QUANT_INT4) {
                     if (pair_idx == 0)

@@ -106,4 +106,17 @@ constant FPU_BUS_LOG2_WIDTH :integer:=4;
 
 constant MAX_TENSOR_LOG2_SIZE: integer:=26;
 
+
+---------------------------------------------------------------
+-- Enable hardware LOG
+-- When hardware log is enabled then hardware actitives  
+-- between >LOG_ON and >LOG_OFF of mcore directives are recorded
+-- Hardware activites recorded include
+--    PCORE execution status
+--    Data transfer to/from PCORE/SCRATCH/DDR  
+-- The traces are then printed by called to ztaLogPrint()
+---------------------------------------------------------------
+
+constant LOG_ENABLED:boolean:=FALSE;
+
 end;

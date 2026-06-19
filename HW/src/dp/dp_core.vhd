@@ -183,6 +183,8 @@ ENTITY dp_core IS
 
             SIGNAL fpu_busy_vm_in                   : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
 
+            SIGNAL fpu_running_vm_in                : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
+
             SIGNAL fpu_exe_out                      : OUT STD_LOGIC;
 
             SIGNAL fpu_exe_vm_out                   : OUT STD_LOGIC;
@@ -402,6 +404,8 @@ dp0_i: dp
         indication_avail_out => indication_avail_out,
 
         fpu_busy_vm_in => fpu_busy_vm_in,
+
+        fpu_running_vm_in => fpu_running_vm_in,
 
         fpu_exe_out => fpu_exe_out,
 

@@ -261,7 +261,7 @@ void kernel_ref_llm_quantize_exe(int reqId,int N,float16_t *x,float16_t *s,int16
 // Reference kernel function implementing RMSNorm
 //--------------------------------------------------------------------------
 
-void kernel_ref_llm_rms_exe(int reqId,int N,float16_t *x,bool x_is_fp16,float16_t *o,float *w) {
+void kernel_ref_llm_rms_exe(int reqId,int N,float N_reciprocal,float16_t *x,bool x_is_fp16,float16_t *o,float *w) {
     // calculate sum of squares
     float ss = 0.0f;
     float f;

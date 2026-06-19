@@ -380,12 +380,16 @@ constant mu_instruction_y_hi_c          :integer:=(mu_instruction_y_lo_c+local_a
 constant mu_instruction_y_vector_c      :integer:=(mu_instruction_y_hi_c+1); -- Vector mode
 constant mu_instruction_x2_attr_lo_c    :integer:=(mu_instruction_y_vector_c+1); -- LSB Bit position of X2 field
 constant mu_instruction_x2_attr_hi_c    :integer:=(mu_instruction_x2_attr_lo_c+3); -- MSB bit position of X2 field
-constant mu_instruction_x2_lo_c         :integer:=(mu_instruction_x2_attr_hi_c+1); -- LSB Bit position of X2 field
+constant mu_instruction_x2_sf_lo_c      :integer:=(mu_instruction_x2_attr_hi_c+1); -- LSB Bit position of X2 sub-field
+constant mu_instruction_x2_sf_hi_c      :integer:=(mu_instruction_x2_sf_lo_c+2); -- MSB bit position of X2 sub-field
+constant mu_instruction_x2_lo_c         :integer:=(mu_instruction_x2_sf_hi_c+1); -- LSB Bit position of X2 field
 constant mu_instruction_x2_hi_c         :integer:=(mu_instruction_x2_lo_c+local_addr_depth_c-1); -- MSB bit position of X2 field
 constant mu_instruction_x2_vector_c     :integer:=(mu_instruction_x2_hi_c+1); -- vector mode
 constant mu_instruction_x1_attr_lo_c    :integer:=(mu_instruction_x2_vector_c+1); -- LSB bit position of X1 field
 constant mu_instruction_x1_attr_hi_c    :integer:=(mu_instruction_x1_attr_lo_c+3); -- MSB bit position of X1 field
-constant mu_instruction_x1_lo_c         :integer:=(mu_instruction_x1_attr_hi_c+1); -- LSB bit position of X1 field
+constant mu_instruction_x1_sf_lo_c      :integer:=(mu_instruction_x1_attr_hi_c+1); -- LSB Bit position of X1 sub-field
+constant mu_instruction_x1_sf_hi_c      :integer:=(mu_instruction_x1_sf_lo_c+2); -- MSB bit position of X1 sub-field
+constant mu_instruction_x1_lo_c         :integer:=(mu_instruction_x1_sf_hi_c+1); -- LSB bit position of X1 field
 constant mu_instruction_x1_hi_c         :integer:=(mu_instruction_x1_lo_c+local_addr_depth_c-1); -- MSB bit position of X1 field
 constant mu_instruction_x1_vector_c     :integer:=(mu_instruction_x1_hi_c+1); -- Vector mode
 constant mu_instruction_x3_attr_lo_c    :integer:=(mu_instruction_x1_vector_c+1); -- LSB bit position of X1 field
@@ -393,10 +397,9 @@ constant mu_instruction_x3_attr_hi_c    :integer:=(mu_instruction_x3_attr_lo_c+3
 constant mu_instruction_x3_lo_c         :integer:=(mu_instruction_x3_attr_hi_c+1); -- LSB bit position of X1 field
 constant mu_instruction_x3_hi_c         :integer:=(mu_instruction_x3_lo_c+local_addr_depth_c-1); -- MSB bit position of X1 field
 constant mu_instruction_x3_vector_c     :integer:=(mu_instruction_x3_hi_c+1); -- Vector mode
-
-constant mu_instruction_type_save_c     :integer:=(mu_instruction_width_c-6);
-constant mu_instruction_oc_lo_c         :integer:=(mu_instruction_width_c-5);
-constant mu_instruction_oc_hi_c         :integer:=(mu_instruction_width_c-1);
+constant mu_instruction_type_save_c     :integer:=(mu_instruction_x3_vector_c+1);
+constant mu_instruction_oc_lo_c         :integer:=(mu_instruction_type_save_c+1);
+constant mu_instruction_oc_hi_c         :integer:=(mu_instruction_oc_lo_c+4);
 
 constant mu_instruction_y_attr_width_c  :integer:=(mu_instruction_y_attr_hi_c-mu_instruction_y_attr_lo_c+1); -- Length of Y field
 constant mu_instruction_y_width_c       :integer:=(mu_instruction_y_hi_c-mu_instruction_y_lo_c+1); -- Length of Y field
@@ -404,6 +407,8 @@ constant mu_instruction_x2_attr_width_c :integer:=(mu_instruction_x2_attr_hi_c-m
 constant mu_instruction_x2_width_c      :integer:=(mu_instruction_x2_hi_c-mu_instruction_x2_lo_c+1); -- Length of X2 field
 constant mu_instruction_x1_attr_width_c :integer:=(mu_instruction_x1_attr_hi_c-mu_instruction_x1_attr_lo_c+1); -- Length of X1 field
 constant mu_instruction_x1_width_c      :integer:=(mu_instruction_x1_hi_c-mu_instruction_x1_lo_c+1); -- Length of X1 field
+constant mu_instruction_x1_sf_width_c   :integer:=(mu_instruction_x1_sf_hi_c-mu_instruction_x1_sf_lo_c+1); -- Length of X1 subfield
+constant mu_instruction_x2_sf_width_c   :integer:=(mu_instruction_x2_sf_hi_c-mu_instruction_x2_sf_lo_c+1); -- Length of X2 subfield
 constant mu_instruction_oc_width_c      :integer:=(mu_instruction_oc_hi_c-mu_instruction_oc_lo_c+1);
 
 subtype mu_opcode_t is std_logic_vector(mu_instruction_oc_width_c-1 downto 0);
@@ -485,9 +490,6 @@ constant mu_opcode_cmp_ge_c             :STD_LOGIC_VECTOR(mu_instruction_oc_widt
 constant mu_opcode_cmp_eq_c             :STD_LOGIC_VECTOR(mu_instruction_oc_width_c-1 DOWNTO 0):="01010"; -- X1 == X2
 constant mu_opcode_cmp_ne_c             :STD_LOGIC_VECTOR(mu_instruction_oc_width_c-1 DOWNTO 0):="01011"; -- X1 != X2
 constant mu_opcode_mul_c                :STD_LOGIC_VECTOR(mu_instruction_oc_width_c-1 DOWNTO 0):="01100"; -- Y=X1*X2
-constant mu_opcode_acc_set_c            :STD_LOGIC_VECTOR(mu_instruction_oc_width_c-1 DOWNTO 0):="01101"; -- ACC=X1
-constant mu_opcode_lsb4_c               :STD_LOGIC_VECTOR(mu_instruction_oc_width_c-1 DOWNTO 0):="01111"; -- Get Mantissa+sign part of float number
-constant mu_opcode_msb4_c               :STD_LOGIC_VECTOR(mu_instruction_oc_width_c-1 DOWNTO 0):="10000"; -- Get exponent part of float number
 constant mu_opcode_set_exponent_c       :STD_LOGIC_VECTOR(mu_instruction_oc_width_c-1 DOWNTO 0):="10001"; -- Set exponent part of float number
 constant mu_opcode_set_float_c          :STD_LOGIC_VECTOR(mu_instruction_oc_width_c-1 DOWNTO 0):="10010"; -- Set float from mantissa and exponent
 constant mu_opcode_shl_c                :STD_LOGIC_VECTOR(mu_instruction_oc_width_c-1 DOWNTO 0):= "10011"; -- Shift operation on accumulator
@@ -542,6 +544,20 @@ constant register_attr_const_null_c     :integer:=5;    -- NULL
 constant register_attr_const_result_c   :integer:=6;    -- Hold MU integer return value
 constant register_attr_const_tid_c      :integer:=7;    -- Hold MU integer return value
 constant register_attr_const_xreg_c     :integer:=8;    -- Hold MU integer return value
+
+-------
+-- MU subfield
+-------
+
+subtype register_sf_t is std_logic_vector(mu_instruction_x1_sf_width_c-1 downto 0);
+
+constant register_sf_full      :std_logic_vector:="000"; -- Take whole word
+constant register_sf_nibble0   :std_logic_vector:="001"; -- Take nibble [3:0]
+constant register_sf_nibble1   :std_logic_vector:="010"; -- Take nibble [7:4]
+constant register_sf_nibble2   :std_logic_vector:="011"; -- Take nibble [11:8]
+constant register_sf_nibble3   :std_logic_vector:="100"; -- Take nibble [15:12]
+constant register_sf_byte0     :std_logic_vector:="101"; -- Take byte [7:0]
+constant register_sf_byte1     :std_logic_vector:="110"; -- Take byte [15:8]
 
 ---------
 -- PCORE memory page
@@ -704,6 +720,8 @@ type fpu_addrs_t is array(natural range <>) of fpu_addr_t;
 subtype fpu_job_t is unsigned(1 downto 0); -- Number of FPU operations in progress
 
 constant fpu_max_job_c:integer:=(2**fpu_job_t'length);
+
+subtype fpu_repeat_t is unsigned(15 downto 0); -- FPU instruction repeat cnt
 
 --------
 -- DP Read latency
@@ -993,8 +1011,8 @@ constant log_type_status_c:log_type_t:="11"; -- Log is full event. There may be 
 -- The rest MSB bits (log_timestamp_c number bits) is the time stamp when the status happened
 ------
 
-constant log_timestamp_c:integer:=20; -- Size of log timestamp field.
-constant log_status_max_c:integer:=12; -- Max number of log status bits
+constant log_timestamp_c:integer:=17; -- Size of log timestamp field.
+constant log_status_max_c:integer:=15; -- Max number of log status bits
 constant log_status_vm0_busy_c:integer:=0; -- PCORE process #0 is busy
 constant log_status_vm1_busy_c:integer:=1; -- PCORE process #1 is busy
 constant log_status_register_vm0_write_busy_c:integer:=2; -- Write bus to PCORE memory space is busy
@@ -1007,6 +1025,9 @@ constant log_status_sram_vm1_write_busy_c:integer:=8; -- Write bus to SRAM memor
 constant log_status_sram_vm1_read_busy_c:integer:=9; -- Read bus from SRAM memory space is busy
 constant log_status_ddr_write_busy_c:integer:=10; -- Write bus to DDR memory space is busy
 constant log_status_ddr_read_busy_c:integer:=11; -- Read bus from DDR memory space is busy
+constant log_status_fpu0_running_c:integer:=12; -- FPU from hart#0 is busy
+constant log_status_fpu1_running_c:integer:=13; -- FPU from hart#1 is busy
+constant log_status_empty_c:integer:=14; -- instruction FIFO is empty
 
 ----------------
 -- DP instruction format
@@ -1080,7 +1101,6 @@ constant register_dp_read_sync_c                :integer:=10; -- Read indication
 constant register_dp_read_indication_c          :integer:=11; -- Read indication fifo
 constant register_dp_read_indication_avail_c    :integer:=12; -- Read number of indication words available IN fifo
 constant register_dp_instruction_fifo_avail_c   :integer:=14; -- Read number of DP instruction that can still be pushed to fifo
-constant register_soft_reset_c                  :integer:=15; -- Perform soft reset
 constant register_swdl_complete_read_c          :integer:=20; -- Number of completed mcore program write words completed
 constant register_swdl_complete_clear_c         :integer:=21; -- Clear number of completed mcore program write words completed
 constant register_msgq_read_c                   :integer:=16; -- Read commands from host
@@ -1091,9 +1111,8 @@ constant register_dp_max_pcore_c                :integer:=22; -- Set max number 
 constant register_dp_indication_parm0_c         :integer:=23; -- Read indication parm0
 constant register_dp_indication_parm1_c         :integer:=24; -- Read indication parm1
 constant register_dp_read_indication_parm_c     :integer:=25; -- Read indication message-id
-constant register_fpu_set_c                     :integer:=26; -- Read serial port
-constant register_fpu_exe_c                     :integer:=27; -- Write serial port
-constant register_fpu_get_status_c              :integer:=28; -- Number of bytes available in serial port for reading
+constant register_fpu_set_c                     :integer:=26; -- Set FPU instruction parameters
+constant register_fpu_exe_c                     :integer:=27; -- Execute FPU instruction
 constant register_fpu_set_mem                   :integer:=31; -- Set memory page for FPU(per VM)
 constant register_serial_write_avail_c          :integer:=29; -- Number of bytes that can be sent on serial port
 constant register_dp_resume_c                   :integer:=30; -- Number of bytes that can be sent on serial port
@@ -1632,6 +1651,8 @@ COMPONENT fpu IS
         SIGNAL fpu_readdata_in          : IN STD_LOGIC_VECTOR(fpu_data_width_c-1 DOWNTO 0);
 
         SIGNAL fpu_busy_vm_out          : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
+
+        SIGNAL fpu_running_vm_out       : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
 
         SIGNAL fpu_exe_in               : IN STD_LOGIC;
 
@@ -3458,6 +3479,8 @@ COMPONENT dp IS
 
         SIGNAL fpu_busy_vm_in                  : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
 
+        SIGNAL fpu_running_vm_in               : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
+
         SIGNAL fpu_exe_out                     : OUT STD_LOGIC;
 
         SIGNAL fpu_exe_vm_out                  : OUT STD_LOGIC;
@@ -3469,21 +3492,23 @@ END COMPONENT;
 
 COMPONENT dp_fifo IS
     port(
-            SIGNAL clock_in                 : IN STD_LOGIC;
-            SIGNAL reset_in                 : IN STD_LOGIC;     
+        SIGNAL clock_in                 : IN STD_LOGIC;
+        SIGNAL reset_in                 : IN STD_LOGIC;     
 
-            SIGNAL writedata_in             : IN STD_LOGIC_VECTOR(dp_instruction_width_c-1 downto 0);
-            SIGNAL wreq_in                  : IN STD_LOGIC;
+        SIGNAL writedata_in             : IN STD_LOGIC_VECTOR(dp_instruction_width_c-1 downto 0);
+        SIGNAL wreq_in                  : IN STD_LOGIC;
 
-            SIGNAL readdata1_out            : OUT STD_LOGIC_VECTOR(dp_instruction_width_c-1 downto 0);
-            SIGNAL readdata2_out            : OUT STD_LOGIC_VECTOR(dp_instruction_width_c-1 downto 0);
-            SIGNAL rdreq1_in                : IN STD_LOGIC;
-            SIGNAL rdreq2_in                : IN STD_LOGIC;
-            SIGNAL valid1_out               : OUT STD_LOGIC;
-            SIGNAL valid2_out               : OUT STD_LOGIC;
-
-            SIGNAL full_out                 : OUT STD_LOGIC;
-            SIGNAL fifo_avail_out           : OUT std_logic_vector(dp_fifo_depth_c-1 DOWNTO 0)
+        SIGNAL readdata1_out            : OUT STD_LOGIC_VECTOR(dp_instruction_width_c-1 downto 0);
+        SIGNAL readdata2_out            : OUT STD_LOGIC_VECTOR(dp_instruction_width_c-1 downto 0);
+        SIGNAL pre_readdata1_out        : OUT STD_LOGIC_VECTOR(dp_instruction_width_c-1 downto 0);
+        SIGNAL pre_readdata2_out        : OUT STD_LOGIC_VECTOR(dp_instruction_width_c-1 downto 0);
+        SIGNAL rdreq1_in                : IN STD_LOGIC;
+        SIGNAL rdreq2_in                : IN STD_LOGIC;
+        SIGNAL valid1_out               : OUT STD_LOGIC;
+        SIGNAL valid2_out               : OUT STD_LOGIC;
+        SIGNAL empty_out                : OUT STD_LOGIC;
+        SIGNAL full_out                 : OUT STD_LOGIC;
+        SIGNAL fifo_avail_out           : OUT std_logic_vector(dp_fifo_depth_c-1 DOWNTO 0)
     );
 END COMPONENT;
 
@@ -3559,6 +3584,8 @@ COMPONENT dp_fetch IS
             SIGNAL ddr_read_pending_p1_in   : STD_LOGIC_VECTOR(NUM_DP_DST_PORT-1 downto 0);
 
             SIGNAL fpu_busy_vm_in           : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
+
+            SIGNAL fpu_running_vm_in        : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
 
             SIGNAL fpu_exe_out              : OUT STD_LOGIC;
 
@@ -4162,6 +4189,8 @@ COMPONENT dp_core IS
 
         SIGNAL fpu_busy_vm_in               : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
 
+        SIGNAL fpu_running_vm_in            : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
+
         SIGNAL fpu_exe_out                  : OUT STD_LOGIC;
 
         SIGNAL fpu_exe_vm_out               : OUT STD_LOGIC;
@@ -4428,6 +4457,10 @@ COMPONENT instr_decoder2 IS
         SIGNAL x2_addr1_out                         : OUT STD_LOGIC_VECTOR(register_file_depth_c-1 DOWNTO 0);
         SIGNAL y_addr1_out                          : OUT STD_LOGIC_VECTOR(register_file_depth_c-1 DOWNTO 0);
 
+        -- Parameter subfield
+        SIGNAL x1_sf_out                            : OUT register_sf_t;
+        SIGNAL x2_sf_out                            : OUT register_sf_t;
+
         -- Vector mode
         SIGNAL x1_vector_out                        : OUT STD_LOGIC;
         SIGNAL x2_vector_out                        : OUT STD_LOGIC;
@@ -4484,6 +4517,9 @@ COMPONENT instr_dispatch2 IS
         SIGNAL y_addr1_in           : IN STD_LOGIC_VECTOR(register_file_depth_c-1 DOWNTO 0);
         SIGNAL result_addr1_in      : IN STD_LOGIC_VECTOR(xreg_depth_c downto 0);
 
+        SIGNAL x1_sf_in             : IN register_sf_t;
+        SIGNAL x2_sf_in             : IN register_sf_t;
+
         SIGNAL x1_c1_en_in          : IN STD_LOGIC;
         SIGNAL x1_c1_in             : IN STD_LOGIC_VECTOR(register_width_c-1 DOWNTO 0);
 
@@ -4518,6 +4554,8 @@ COMPONENT instr_dispatch2 IS
         SIGNAL mu_x_scalar_out      : OUT STD_LOGIC_VECTOR(register_width_c-1 DOWNTO 0);
         SIGNAL mu_opcode_out        : OUT mu_opcode_t;
         SIGNAL mu_tid_out           : OUT tid_t;
+        SIGNAL mu_x1_sf_out         : OUT register_sf_t;
+        SIGNAL mu_x2_sf_out         : OUT register_sf_t;
         SIGNAL mu_y_in              : IN STD_LOGIC_VECTOR(vregister_width_c-1 DOWNTO 0)
        );
 END COMPONENT;
@@ -4718,6 +4756,8 @@ COMPONENT alu IS
         x1_in           : IN STD_LOGIC_VECTOR (register_width_c-1 DOWNTO 0);
         x2_in           : IN STD_LOGIC_VECTOR (register_width_c-1 DOWNTO 0);
         x_scalar_in     : IN STD_LOGIC_VECTOR(register_width_c-1 DOWNTO 0);
+        x1_sf_in        : IN register_sf_t;
+        x2_sf_in        : IN register_sf_t;
         y_out           : OUT STD_LOGIC_VECTOR (accumulator_width_c-1 DOWNTO 0);
         y2_out          : OUT STD_LOGIC;
         y3_out          : OUT STD_LOGIC_VECTOR (register_width_c-1 DOWNTO 0)

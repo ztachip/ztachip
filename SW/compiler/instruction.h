@@ -125,6 +125,7 @@ private:
    static int combine(cInstruction *to,int type,int oc,int alu,cTerm *x1,cTerm *x2,cTerm *xacc,cTerm *y);
    static bool compressInstruction(cInstruction *begin_of_func,cInstruction *instruction);
    static bool compressFunction(cInstruction *begin);
+   static bool compressSubFieldAssignment(cInstruction *begin);
    static void genHex(FILE *fp,short addr,unsigned char *opcode);
    static int gen(FILE *fp,std::vector<uint8_t> &img);
    static void setField(unsigned char *oc, unsigned int val, int pos);

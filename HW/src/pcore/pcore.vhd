@@ -98,6 +98,8 @@ SIGNAL wr_vector_lane:STD_LOGIC_VECTOR(vector_width_c-1 DOWNTO 0);
 SIGNAL x1_addr1:STD_LOGIC_VECTOR(register_file_depth_c-1 DOWNTO 0);
 SIGNAL x2_addr1:STD_LOGIC_VECTOR(register_file_depth_c-1 DOWNTO 0);
 SIGNAL y_addr1:STD_LOGIC_VECTOR(register_file_depth_c-1 DOWNTO 0);
+SIGNAL x1_sf:register_sf_t;
+SIGNAL x2_sf:register_sf_t;
 SIGNAL rd_lane:iregister_t;
 SIGNAL wr_lane:STD_LOGIC;
 SIGNAL opcode1: STD_LOGIC_VECTOR(mu_instruction_oc_width_c-1 DOWNTO 0);
@@ -112,6 +114,8 @@ SIGNAL mu_y2: std_logic_vector(vregister_width_c-1 downto 0);
 SIGNAL mu_result:std_logic_vector(vector_width_c-1 downto 0);
 SIGNAL mu_opcodes:mu_opcode_t;
 SIGNAL mu_tid:tid_t;
+SIGNAL mu_x1_sf:register_sf_t;
+SIGNAL mu_x2_sf:register_sf_t;
 SIGNAL tid_decoder2dispatch:tid_t;
 
 SIGNAL write:STD_LOGIC;
@@ -1052,6 +1056,8 @@ alu_0_i: alu generic map(INDEX=>0)
                               x1_in=>mu_x1(register_width_c-1 downto 0),
                               x2_in=>mu_x2(register_width_c-1 downto 0),
                               x_scalar_in=>mu_x_scalar,
+                              x1_sf_in=>mu_x1_sf,
+                              x2_sf_in=>mu_x2_sf,
                               y_out=>mu_y(accumulator_width_c-1 downto 0),
                               y2_out=>mu_result(0),
                               y3_out=>mu_y2(register_width_c-1 downto 0));
@@ -1065,6 +1071,8 @@ alu_1_i: alu generic map(INDEX=>1)
                               x1_in=>mu_x1(2*register_width_c-1 downto 1*register_width_c),
                               x2_in=>mu_x2(2*register_width_c-1 downto 1*register_width_c),
                               x_scalar_in=>mu_x_scalar,
+                              x1_sf_in=>mu_x1_sf,
+                              x2_sf_in=>mu_x2_sf,
                               y_out=>mu_y(2*accumulator_width_c-1 downto 1*accumulator_width_c),
                               y2_out=>mu_result(1),
                               y3_out=>mu_y2(2*register_width_c-1 downto 1*register_width_c));
@@ -1078,6 +1086,8 @@ alu_2_i: alu generic map(INDEX=>2)
                               x1_in=>mu_x1(3*register_width_c-1 downto 2*register_width_c),
                               x2_in=>mu_x2(3*register_width_c-1 downto 2*register_width_c),
                               x_scalar_in=>mu_x_scalar,
+                              x1_sf_in=>mu_x1_sf,
+                              x2_sf_in=>mu_x2_sf,
                               y_out=>mu_y(3*accumulator_width_c-1 downto 2*accumulator_width_c),
                               y2_out=>mu_result(2),
                               y3_out=>mu_y2(3*register_width_c-1 downto 2*register_width_c));
@@ -1091,6 +1101,8 @@ alu_3_i: alu generic map(INDEX=>3)
                               x1_in=>mu_x1(4*register_width_c-1 downto 3*register_width_c),
                               x2_in=>mu_x2(4*register_width_c-1 downto 3*register_width_c),
                               x_scalar_in=>mu_x_scalar,
+                              x1_sf_in=>mu_x1_sf,
+                              x2_sf_in=>mu_x2_sf,
                               y_out=>mu_y(4*accumulator_width_c-1 downto 3*accumulator_width_c),
                               y2_out=>mu_result(3),
                               y3_out=>mu_y2(4*register_width_c-1 downto 3*register_width_c));
@@ -1104,6 +1116,8 @@ alu_4_i: alu generic map(INDEX=>4)
                               x1_in=>mu_x1(5*register_width_c-1 downto 4*register_width_c),
                               x2_in=>mu_x2(5*register_width_c-1 downto 4*register_width_c),
                               x_scalar_in=>mu_x_scalar,
+                              x1_sf_in=>mu_x1_sf,
+                              x2_sf_in=>mu_x2_sf,
                               y_out=>mu_y(5*accumulator_width_c-1 downto 4*accumulator_width_c),
                               y2_out=>mu_result(4),
                               y3_out=>mu_y2(5*register_width_c-1 downto 4*register_width_c));
@@ -1117,6 +1131,8 @@ alu_5_i: alu generic map(INDEX=>5)
                               x1_in=>mu_x1(6*register_width_c-1 downto 5*register_width_c),
                               x2_in=>mu_x2(6*register_width_c-1 downto 5*register_width_c),
                               x_scalar_in=>mu_x_scalar,
+                              x1_sf_in=>mu_x1_sf,
+                              x2_sf_in=>mu_x2_sf,
                               y_out=>mu_y(6*accumulator_width_c-1 downto 5*accumulator_width_c),
                               y2_out=>mu_result(5),
                               y3_out=>mu_y2(6*register_width_c-1 downto 5*register_width_c));
@@ -1130,6 +1146,8 @@ alu_6_i: alu generic map(INDEX=>6)
                               x1_in=>mu_x1(7*register_width_c-1 downto 6*register_width_c),
                               x2_in=>mu_x2(7*register_width_c-1 downto 6*register_width_c),
                               x_scalar_in=>mu_x_scalar,
+                              x1_sf_in=>mu_x1_sf,
+                              x2_sf_in=>mu_x2_sf,
                               y_out=>mu_y(7*accumulator_width_c-1 downto 6*accumulator_width_c),
                               y2_out=>mu_result(6),
                               y3_out=>mu_y2(7*register_width_c-1 downto 6*register_width_c));
@@ -1143,6 +1161,8 @@ alu_7_i: alu generic map(INDEX=>7)
                               x1_in=>mu_x1(8*register_width_c-1 downto 7*register_width_c),
                               x2_in=>mu_x2(8*register_width_c-1 downto 7*register_width_c),
                               x_scalar_in=>mu_x_scalar,
+                              x1_sf_in=>mu_x1_sf,
+                              x2_sf_in=>mu_x2_sf,
                               y_out=>mu_y(8*accumulator_width_c-1 downto 7*accumulator_width_c),
                               y2_out=>mu_result(7),
                               y3_out=>mu_y2(8*register_width_c-1 downto 7*register_width_c));
@@ -1272,6 +1292,9 @@ instr_decoder2_i: instr_decoder2 generic map(
                                             x2_addr1_out => x2_addr1,
                                             y_addr1_out => y_addr1,
 
+                                            x1_sf_out => x1_sf,
+                                            x2_sf_out => x2_sf,
+
                                             x1_vector_out => x1_vector,
                                             x2_vector_out => x2_vector,
                                             y_vector_out => y_vector,
@@ -1332,6 +1355,9 @@ instr_dispatch2_i1: instr_dispatch2 port map(
             y_addr1_in => y_addr1,
             result_addr1_in => result_waddr1,
 
+            x1_sf_in => x1_sf,
+            x2_sf_in => x2_sf,
+
             x1_vector_in => x1_vector,
             x2_vector_in => x2_vector,
             y_vector_in => y_vector,
@@ -1368,5 +1394,7 @@ instr_dispatch2_i1: instr_dispatch2 port map(
             mu_x_scalar_out => mu_x_scalar,
             mu_opcode_out => mu_opcodes,
             mu_tid_out => mu_tid,
+            mu_x1_sf_out => mu_x1_sf,
+            mu_x2_sf_out => mu_x2_sf,
             mu_y_in => mu_y2);                     
 END behavior;

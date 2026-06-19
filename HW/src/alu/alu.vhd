@@ -43,6 +43,8 @@ ENTITY alu IS
       x1_in           : IN STD_LOGIC_VECTOR (register_width_c-1 DOWNTO 0);
       x2_in           : IN STD_LOGIC_VECTOR (register_width_c-1 DOWNTO 0);
       x_scalar_in     : IN STD_LOGIC_VECTOR(register_width_c-1 DOWNTO 0);
+      x1_sf_in        : IN register_sf_t;
+      x2_sf_in        : IN register_sf_t;
       y_out           : OUT STD_LOGIC_VECTOR (accumulator_width_c-1 DOWNTO 0);
       y2_out          : OUT STD_LOGIC;
       y3_out          : OUT STD_LOGIC_VECTOR (register_width_c-1 DOWNTO 0)
@@ -63,6 +65,8 @@ SIGNAL zero:STD_LOGIC;
 SIGNAL y_r:STD_LOGIC_VECTOR(accumulator_width_c-1 DOWNTO 0);
 SIGNAL y2_r:STD_LOGIC;
 SIGNAL y3_r:STD_LOGIC_VECTOR(register_width_c-1 DOWNTO 0);
+SIGNAL x1:STD_LOGIC_VECTOR (register_width_c-1 DOWNTO 0);
+SIGNAL x2:STD_LOGIC_VECTOR (register_width_c-1 DOWNTO 0);
 
 -- XREG
 
@@ -192,12 +196,6 @@ begin
 
    if(mu_opcode_rrrr=mu_opcode_conv_c) then
       y3_r(fp12_value'length-1 downto 0) <= fp12_value;
-   elsif(mu_opcode_rrrr=mu_opcode_lsb4_c) then
-      y3_r(3 downto 0) <= y_shift_r(3 downto 0);
-      y3_r(y3_r'length-1 downto 4) <= (others=>y_shift_r(3));
-   elsif(mu_opcode_rrrr=mu_opcode_msb4_c) then
-      y3_r(3 downto 0) <= y_shift_r(7 downto 4);
-      y3_r(y3_r'length-1 downto 4) <= (others=>y_shift_r(7));
    else
       y3_r <= saturation(y_shift_r);
    end if;
@@ -280,15 +278,13 @@ begin
    else
    if clock_in'event and clock_in='1' then
       if mu_opcode_in=mu_opcode_mul_c then
-         mul_x2_r <= x1_in;
+         mul_x2_r <= x1;
       elsif mu_opcode_in(fm_oc_hi_c downto fm_oc_lo_c)=mu_opcode_fm_c(fm_oc_hi_c downto fm_oc_lo_c) then
-         mul_x2_r <= x1_in;
+         mul_x2_r <= x1;
       elsif mu_opcode_in=mu_opcode_assign_raw_c or
          mu_opcode_in=mu_opcode_assign_c or
          mu_opcode_in=mu_opcode_shla_c or
-         mu_opcode_in=mu_opcode_shra_c or 
-         mu_opcode_in=mu_opcode_lsb4_c or
-         mu_opcode_in=mu_opcode_msb4_c then
+         mu_opcode_in=mu_opcode_shra_c then
          mul_x2_r <= (others=>'0');
       else
          mul_x2_r <= std_logic_vector(to_unsigned(1,register_width_c));
@@ -338,6 +334,58 @@ else
 end if;
 end process;
 
+---------------------
+-- Process nibble and byte opcode
+-- these opcodes extract nibble or byte field from a 16-bitw word
+---------------------
+
+process(mu_opcode_in,x1_in)
+begin
+   case x1_sf_in is
+         when register_sf_nibble0 =>
+            x1(3 downto 0) <= x1_in(3 downto 0);
+            x1(x1'length-1 downto 4) <= (others=>x1_in(3));
+         when register_sf_nibble1 =>
+            x1(3 downto 0) <= x1_in(7 downto 4);
+            x1(x1'length-1 downto 4) <= (others=>x1_in(7));
+         when register_sf_nibble2 =>
+            x1(3 downto 0) <= x1_in(11 downto 8);
+            x1(x1'length-1 downto 4) <= (others=>x1_in(11));
+         when register_sf_nibble3=>
+            x1(3 downto 0) <= x1_in(15 downto 12);
+            x1(x1'length-1 downto 4) <= (others=>x1_in(15));
+         when register_sf_byte0=>
+            x1(7 downto 0) <= x1_in(7 downto 0);
+            x1(x1'length-1 downto 8) <= (others=>x1_in(7));
+         when register_sf_byte1=>
+            x1(7 downto 0) <= x1_in(15 downto 8);
+            x1(x1'length-1 downto 8) <= (others=>x1_in(15));
+         when others=>
+            x1 <= x1_in;
+   end case;
+   case x2_sf_in is
+         when register_sf_nibble0 =>
+            x2(3 downto 0) <= x2_in(3 downto 0);
+            x2(x2'length-1 downto 4) <= (others=>x2_in(3));
+         when register_sf_nibble1 =>
+            x2(3 downto 0) <= x2_in(7 downto 4);
+            x2(x2'length-1 downto 4) <= (others=>x2_in(7));
+         when register_sf_nibble2 =>
+            x2(3 downto 0) <= x2_in(11 downto 8);
+            x2(x2'length-1 downto 4) <= (others=>x2_in(11));
+         when register_sf_nibble3=>
+            x2(3 downto 0) <= x2_in(15 downto 12);
+            x2(x2'length-1 downto 4) <= (others=>x2_in(15));
+         when register_sf_byte0=>
+            x2(7 downto 0) <= x2_in(7 downto 0);
+            x2(x2'length-1 downto 8) <= (others=>x2_in(7));
+         when register_sf_byte1=>
+            x2(7 downto 0) <= x2_in(15 downto 8);
+            x2(x2'length-1 downto 8) <= (others=>x2_in(15));
+         when others=>
+            x2 <= x2_in;
+   end case;
+end process;
 
 process(reset_in,clock_in)
 begin
@@ -373,8 +421,8 @@ begin
             mu_opcode_rrrrr <= mu_opcode_rrrr;
             mu_opcode_rrrrrr <= mu_opcode_rrrrr;
 
-            x1_r <= x1_in;
-            x2_r <= x2_in;
+            x1_r <= x1;
+            x2_r <= x2;
             x_scalar_r <= x_scalar_in;
             xreg_r <= xreg_in;                     
             y_add_r <= y_add;
@@ -390,7 +438,7 @@ begin
                      xreg_rr <= std_logic_vector(resize(signed(xreg_r),shift_width_c));
                   when mu_opcode_mul_c|mu_opcode_shl_c|mu_opcode_shr_c =>
                      xreg_rr <= (others=>'0');
-                  when mu_opcode_assign_raw_c|mu_opcode_assign_c|mu_opcode_lsb4_c|mu_opcode_msb4_c=>
+                  when mu_opcode_assign_raw_c|mu_opcode_assign_c=>
                      xreg_rr(register_width_c-1 downto 0) <= x1_r;
                      xreg_rr(accumulator_width_c-1 downto register_width_c) <= (others=>x1_r(register_width_c-1));
                   when others=>

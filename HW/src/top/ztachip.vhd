@@ -318,6 +318,7 @@ SIGNAL dp_waitrequest:STD_LOGIC;
 SIGNAL ddr_tx_busy:STD_LOGIC;
 SIGNAL fpu_busy:STD_LOGIC;
 SIGNAL fpu_busy_vm:STD_LOGIC_VECTOR(1 DOWNTO 0);
+SIGNAL fpu_running_vm:STD_LOGIC_VECTOR(1 DOWNTO 0);
 SIGNAL fpu_exe:STD_LOGIC;
 SIGNAL fpu_exe2:STD_LOGIC;
 SIGNAL fpu_exe_vm:STD_LOGIC;
@@ -697,6 +698,8 @@ fpu_i:fpu
 
         fpu_busy_vm_out => fpu_busy_vm,
 
+        fpu_running_vm_out => fpu_running_vm,
+
         fpu_exe_in => fpu_exe,
 
         fpu_exe_vm_in => fpu_exe_vm,
@@ -717,6 +720,7 @@ fpu_read <= '0';
 fpu_writedata <= (others=>'0');
 fpu_writebe <= (others=>'0');
 fpu_busy_vm <= (others=>'0');
+fpu_running_vm <= (others=>'0');
 fpu_exe2 <= '0';
 
 END GENERATE GEN2;
@@ -873,6 +877,8 @@ dp_1_i: dp_core
         indication_avail_out => open,
 
         fpu_busy_vm_in => fpu_busy_vm,
+
+        fpu_running_vm_in => fpu_running_vm,
 
         fpu_exe_out => fpu_exe,
 

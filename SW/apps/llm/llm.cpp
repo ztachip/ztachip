@@ -153,6 +153,8 @@ ZtaStatus llama::Open(const char* checkpoint_path) {
     assert((m_config.hidden_dim % GS) == 0);
     assert((m_config.dim % GS) == 0);
 
+    m_config.inv_dim = 1/(float)m_config.dim;
+
     kv_dim = (m_config.dim * m_config.n_kv_heads) / m_config.n_heads;
 
     head_size = m_config.dim / m_config.n_heads;
@@ -482,8 +484,8 @@ float16_t* llama::forward(int token, int pos) {
 
         x = (l==0)?content_row:m_runtime.x;
 
-        kernel_llm_rms_exe(-1,dim,x,(l==0),m_runtime.xb,m_weights.rms_att_weight[l]);
-    
+        kernel_llm_rms_exe(-1,dim,m_config.inv_dim,x,(l==0),m_runtime.xb,m_weights.rms_att_weight[l]);
+  
         // key and value point to the kv cache
         int loff = l * m_config.seq_len * kv_dim; // kv cache layer offset for convenience
         k = m_runtime.key_cache + (loff + pos * kv_dim);
@@ -539,7 +541,7 @@ float16_t* llama::forward(int token, int pos) {
 
         kernel_llm_residual_exe(-1,dim,x,(l==0),m_runtime.x,m_runtime.xb2);
 
-        kernel_llm_rms_exe(-1,dim,m_runtime.x,false,m_runtime.xb,m_weights.rms_ffn_weight[l]);
+        kernel_llm_rms_exe(-1,dim,m_config.inv_dim,m_runtime.x,false,m_runtime.xb,m_weights.rms_ffn_weight[l]);
 
         kernel_llm_quantize_exe(-1,dim,m_runtime.xb,m_runtime.xbq.s,m_runtime.xbq.q);
 
@@ -564,7 +566,7 @@ float16_t* llama::forward(int token, int pos) {
 #endif
     }
 
-    kernel_llm_rms_exe(-1,dim,m_runtime.x,false,m_runtime.x,m_weights.rms_final_weight);
+    kernel_llm_rms_exe(-1,dim,m_config.inv_dim,m_runtime.x,false,m_runtime.x,m_weights.rms_final_weight);
     // classifier into logits
 
     kernel_llm_quantize_exe(-1,dim,m_runtime.x,m_runtime.xq.s,m_runtime.xq.q);
@@ -572,6 +574,7 @@ float16_t* llama::forward(int token, int pos) {
     matmul(-1,m_config.dim, m_config.vocab_size, GS,m_runtime.xq.q,m_runtime.xq.s, &m_weights.wclsq,m_runtime.logits);
 
     kernel_llm_done();
+
     return m_runtime.logits;
 }
 

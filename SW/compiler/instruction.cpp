@@ -109,12 +109,16 @@ extern bool M_VERBOSE;
 #define MU_INSTRUCTION_Y_VECTOR      (MU_INSTRUCTION_Y_HI+1)
 #define MU_INSTRUCTION_X2_ATTR_LO    (MU_INSTRUCTION_Y_VECTOR+1)
 #define MU_INSTRUCTION_X2_ATTR_HI    (MU_INSTRUCTION_X2_ATTR_LO+3)
-#define MU_INSTRUCTION_X2_LO         (MU_INSTRUCTION_X2_ATTR_HI+1)
+#define MU_INSTRUCTION_X2_SF_LO      (MU_INSTRUCTION_X2_ATTR_HI+1)
+#define MU_INSTRUCTION_X2_SF_HI      (MU_INSTRUCTION_X2_SF_LO+2)
+#define MU_INSTRUCTION_X2_LO         (MU_INSTRUCTION_X2_SF_HI+1)
 #define MU_INSTRUCTION_X2_HI         (MU_INSTRUCTION_X2_LO+LOCAL_ADDR_DEPTH-1)
 #define MU_INSTRUCTION_X2_VECTOR     (MU_INSTRUCTION_X2_HI+1)
 #define MU_INSTRUCTION_X1_ATTR_LO    (MU_INSTRUCTION_X2_VECTOR+1)
 #define MU_INSTRUCTION_X1_ATTR_HI    (MU_INSTRUCTION_X1_ATTR_LO+3)
-#define MU_INSTRUCTION_X1_LO         (MU_INSTRUCTION_X1_ATTR_HI+1)
+#define MU_INSTRUCTION_X1_SF_LO      (MU_INSTRUCTION_X1_ATTR_HI+1)
+#define MU_INSTRUCTION_X1_SF_HI      (MU_INSTRUCTION_X1_SF_LO+2)
+#define MU_INSTRUCTION_X1_LO         (MU_INSTRUCTION_X1_SF_HI+1)
 #define MU_INSTRUCTION_X1_HI         (MU_INSTRUCTION_X1_LO+LOCAL_ADDR_DEPTH-1)
 #define MU_INSTRUCTION_X1_VECTOR     (MU_INSTRUCTION_X1_HI+1)
 #define MU_INSTRUCTION_XACC_ATTR_LO  (MU_INSTRUCTION_X1_VECTOR+1)
@@ -122,9 +126,9 @@ extern bool M_VERBOSE;
 #define MU_INSTRUCTION_XACC_LO       (MU_INSTRUCTION_XACC_ATTR_HI+1)
 #define MU_INSTRUCTION_XACC_HI       (MU_INSTRUCTION_XACC_LO+LOCAL_ADDR_DEPTH-1)
 #define MU_INSTRUCTION_XACC_VECTOR   (MU_INSTRUCTION_XACC_HI+1)
-#define MU_INSTRUCTION_TYPE_SAVE     (INSTRUCTION_MU_WIDTH-6)
-#define MU_INSTRUCTION_OC_LO         (INSTRUCTION_MU_WIDTH-5)
-#define MU_INSTRUCTION_OC_HI         (INSTRUCTION_MU_WIDTH-1)
+#define MU_INSTRUCTION_TYPE_SAVE     (MU_INSTRUCTION_XACC_VECTOR+1)
+#define MU_INSTRUCTION_OC_LO         (MU_INSTRUCTION_TYPE_SAVE+1)
+#define MU_INSTRUCTION_OC_HI         (MU_INSTRUCTION_OC_LO+4)
 
 #define IMU_INSTRUCTION_OC_LO         (INSTRUCTION_IMU_WIDTH-5)
 #define IMU_INSTRUCTION_OC_HI         (INSTRUCTION_IMU_WIDTH-1)
@@ -649,31 +653,18 @@ bool cInstruction::simplifyMU(Instruction_alu *_mu)
          //TODO Replace with ACC_ADD operation
          assert(0);
          break;
-      case cConfig::OPCODE_LSB4:
+      case cConfig::OPCODE_N0:
+      case cConfig::OPCODE_N1:
+      case cConfig::OPCODE_N2:
+      case cConfig::OPCODE_N3:
          assert(0);
          break;
-      case cConfig::OPCODE_MSB4:
+      case cConfig::OPCODE_B0:
+      case cConfig::OPCODE_B1:
          assert(0);
          break;
       case cConfig::OPCODE_CONV_BFLOAT:
          assert(0);
-         break;
-      case cConfig::OPCODE_SET_FLOAT:
-         {
-         unsigned int v;
-         float v2;
-         int mantissa=(int)_mu->x1->getConstant();
-         int exp=(int)_mu->x2->getConstant();
-         exp=(exp+127)&0xff;
-         v = (exp << 23)| ((mantissa & ((1<<(IREGISTER_WIDTH-1))-1)) << (23-IREGISTER_WIDTH+1));
-         if(mantissa & (1<<(IREGISTER_WIDTH-1)))
-            v |= 0x80000000;
-         v2 = *((float *)&v);
-         _mu->x1 = new cTerm_MU_Constant((float)v2);
-         _mu->x2 = new cTerm_MU_Null();
-         _mu->oc = cConfig::OPCODE_ASSIGN;
-         }
-         break;
       default:
          assert(0);
       }
@@ -2202,6 +2193,102 @@ bool cInstruction::compressInstruction(cInstruction *begin_of_func,cInstruction 
    return true;
 }
 
+// Combine subfield opcode directly to the opcode that uses the
+// subfield results since VLIW can support subfield opcode at 
+// same time as other opcodes
+
+bool cInstruction::compressSubFieldAssignment(cInstruction *begin)
+{
+   cInstruction *instruction,*instruction2,*end,*next;
+
+   end=GetFunctionEnd(begin);
+   if(begin==end)
+      return false;
+   instruction=begin;
+   while(instruction)
+   {
+      next = (instruction==end)?0:(cInstruction *)instruction->getNext();
+      if(instruction->m_alu1.oc == cConfig::OPCODE_N0 ||
+         instruction->m_alu1.oc == cConfig::OPCODE_N1 ||
+         instruction->m_alu1.oc == cConfig::OPCODE_N2 ||
+         instruction->m_alu1.oc == cConfig::OPCODE_N3 ||
+         instruction->m_alu1.oc == cConfig::OPCODE_B0 ||
+         instruction->m_alu1.oc == cConfig::OPCODE_B1)
+      {
+         if(instruction->m_alu1.y->isKindOf(cTerm_MU_Storage::getCLID()))
+         {
+            for(instruction2=begin;instruction2;instruction2=(instruction2==end)?0:(cInstruction *)instruction2->getNext())
+            {
+               if(instruction2->m_alu1.x1 && 
+                  instruction2->m_alu1.x1->isKindOf(cTerm_MU_Storage::getCLID()) &&
+                  CAST(cTerm_MU_Storage,instruction->m_alu1.y)->m_id == CAST(cTerm_MU_Storage,instruction2->m_alu1.x1)->m_id)
+               {
+                  instruction2->m_alu1.x1 = instruction->m_alu1.x1;
+                  instruction->m_alu1.x1 = 0;
+                  switch(instruction->m_alu1.oc) 
+                  {
+                     case cConfig::OPCODE_N0:
+                        CAST(cTerm_MU_Storage,instruction2->m_alu1.x1)->m_sf = eTermMU_subfield_n0;
+                        break;
+                     case cConfig::OPCODE_N1:
+                        CAST(cTerm_MU_Storage,instruction2->m_alu1.x1)->m_sf = eTermMU_subfield_n1;
+                        break;
+                     case cConfig::OPCODE_N2:
+                        CAST(cTerm_MU_Storage,instruction2->m_alu1.x1)->m_sf = eTermMU_subfield_n2;
+                        break;
+                     case cConfig::OPCODE_N3:
+                        CAST(cTerm_MU_Storage,instruction2->m_alu1.x1)->m_sf = eTermMU_subfield_n3;
+                        break;
+                     case cConfig::OPCODE_B0:
+                        CAST(cTerm_MU_Storage,instruction2->m_alu1.x1)->m_sf = eTermMU_subfield_b0;
+                        break;
+                     case cConfig::OPCODE_B1:
+                        CAST(cTerm_MU_Storage,instruction2->m_alu1.x1)->m_sf = eTermMU_subfield_b1;
+                        break;
+                  }
+                  break;
+               }
+               if(instruction2->m_alu1.x2 && 
+                  instruction2->m_alu1.x2->isKindOf(cTerm_MU_Storage::getCLID()) &&
+                  CAST(cTerm_MU_Storage,instruction->m_alu1.y)->m_id == CAST(cTerm_MU_Storage,instruction2->m_alu1.x2)->m_id)
+               {
+                  instruction2->m_alu1.x2 = instruction->m_alu1.x1;
+                  instruction->m_alu1.x1 = 0;
+                  switch(instruction->m_alu1.oc) 
+                  {
+                     case cConfig::OPCODE_N0:
+                        CAST(cTerm_MU_Storage,instruction2->m_alu1.x2)->m_sf = eTermMU_subfield_n0;
+                        break;
+                     case cConfig::OPCODE_N1:
+                        CAST(cTerm_MU_Storage,instruction2->m_alu1.x2)->m_sf = eTermMU_subfield_n1;
+                        break;
+                     case cConfig::OPCODE_N2:
+                        CAST(cTerm_MU_Storage,instruction2->m_alu1.x2)->m_sf = eTermMU_subfield_n2;
+                        break;
+                     case cConfig::OPCODE_N3:
+                        CAST(cTerm_MU_Storage,instruction2->m_alu1.x2)->m_sf = eTermMU_subfield_n3;
+                        break;
+                     case cConfig::OPCODE_B0:
+                        CAST(cTerm_MU_Storage,instruction2->m_alu1.x2)->m_sf = eTermMU_subfield_b0;
+                        break;
+                     case cConfig::OPCODE_B1:
+                        CAST(cTerm_MU_Storage,instruction2->m_alu1.x2)->m_sf = eTermMU_subfield_b1;
+                        break;
+                  }
+                  break;
+               }
+            }
+         }
+         if(instruction->m_jumpDestination)
+            instruction->setNOP();
+         else
+            cList::remove(instruction);
+      }
+      instruction = next;
+   }
+   return true;
+}
+
 // Compress instruction
 // Try to combine instructions if this donot change the behaviour of the program
 
@@ -2622,6 +2709,9 @@ int cInstruction::Optimize(cAstNode *_root)
       }
       while(compress_jump(begin));
 
+      // Try to combine subfield assignment
+      compressSubFieldAssignment(begin);
+
       // Try to combine other instructions if possible...
       compressFunction(begin);
 
@@ -2725,16 +2815,17 @@ int cInstruction::gen(FILE *fp,std::vector<uint8_t> &img)
          setField(oc,1,MU_INSTRUCTION_TYPE_SAVE+(INSTRUCTION_IMU_WIDTH+INSTRUCTION_CTRL_WIDTH));
       if (instruction->m_alu1.oc > 0)
       {
-         setField(oc,cConfig::GetMuOpcode(instruction->m_alu1.oc),MU_INSTRUCTION_OC_LO+(INSTRUCTION_IMU_WIDTH+INSTRUCTION_CTRL_WIDTH));
+         setField(oc,cConfig::GetMuOpcode(instruction->m_alu1.oc),MU_INSTRUCTION_OC_LO+(INSTRUCTION_IMU_WIDTH+INSTRUCTION_CTRL_WIDTH));       
          if (instruction->m_alu1.x1->getVectorWidth() >= 1)
            setField(oc,1,MU_INSTRUCTION_X1_VECTOR+(INSTRUCTION_IMU_WIDTH+INSTRUCTION_CTRL_WIDTH)); // X1 vector mode
          setField(oc, (instruction->m_alu1.x1->getOffset()&((1 << LOCAL_ADDR_DEPTH) - 1)), MU_INSTRUCTION_X1_LO + (INSTRUCTION_IMU_WIDTH+INSTRUCTION_CTRL_WIDTH));
+         setField(oc,instruction->m_alu1.x1->m_sf,MU_INSTRUCTION_X1_SF_LO+(INSTRUCTION_IMU_WIDTH+INSTRUCTION_CTRL_WIDTH));         
          setField(oc,instruction->m_alu1.x1->getExtAttr(),MU_INSTRUCTION_X1_ATTR_LO+(INSTRUCTION_IMU_WIDTH+INSTRUCTION_CTRL_WIDTH));
          if (instruction->m_alu1.x2->getVectorWidth() >= 1)
             setField(oc,1,MU_INSTRUCTION_X2_VECTOR+(INSTRUCTION_IMU_WIDTH+INSTRUCTION_CTRL_WIDTH)); // X2 vector mode
          setField(oc,(instruction->m_alu1.x2->getOffset()&((1 << LOCAL_ADDR_DEPTH) - 1)), MU_INSTRUCTION_X2_LO + (INSTRUCTION_IMU_WIDTH+INSTRUCTION_CTRL_WIDTH));
+         setField(oc,instruction->m_alu1.x2->m_sf,MU_INSTRUCTION_X2_SF_LO+(INSTRUCTION_IMU_WIDTH+INSTRUCTION_CTRL_WIDTH));
          setField(oc,instruction->m_alu1.x2->getExtAttr(),MU_INSTRUCTION_X2_ATTR_LO+(INSTRUCTION_IMU_WIDTH+INSTRUCTION_CTRL_WIDTH));
-
          if (instruction->m_alu1.y->getVectorWidth() >= 1)
             setField(oc,1,MU_INSTRUCTION_Y_VECTOR+(INSTRUCTION_IMU_WIDTH+INSTRUCTION_CTRL_WIDTH)); // Y vector mode
          setField(oc, (instruction->m_alu1.y->getOffset()&((1 << LOCAL_ADDR_DEPTH) - 1)),MU_INSTRUCTION_Y_LO+(INSTRUCTION_IMU_WIDTH+INSTRUCTION_CTRL_WIDTH));

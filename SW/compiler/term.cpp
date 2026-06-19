@@ -26,6 +26,17 @@
 #include "ident.h"
 #include "const.h"
 
+// String to described subfield
+static const char *SF_STR[eTermMU_subfield_max] = {
+   "", //eTermMU_subfield_full
+   "[3:0]", //eTermMU_subfield_n0
+   "[7:4]", //eTermMU_subfield_n1
+   "[11:8]", //eTermMU_subfield_n2
+   "[15:12]", //eTermMU_subfield_n3
+   "[7:0]", //eTermMU_subfield_b0
+   "[15:8]" //eTermMU_subfield_b1
+};
+
 // Base class for all TERM objects
 INSTANTIATE_OBJECT(cTerm);
 cTerm::cTerm()
@@ -752,6 +763,7 @@ void cTerm_IMU_PrivatePointerConstant::print()
 INSTANTIATE_OBJECT(cTerm_MU);
 cTerm_MU::cTerm_MU()
 {
+   m_sf = eTermMU_subfield_full;
 }
 
 cTerm_MU::~cTerm_MU()
@@ -993,6 +1005,8 @@ void cTerm_MU_PointerWithIndex::print()
 {
    char temp1[100],temp2[100];
    printf("p:%s[%s+%d]",m_baseId->getPrintName(temp1),m_indexId->getPrintName(temp2),m_offset);
+   if(m_sf != eTermMU_subfield_full)
+      printf("%s",SF_STR[m_sf]);
 }
 
 // Class represents a pointer reference with index in a MU operation
@@ -1033,6 +1047,8 @@ void cTerm_MU_PointerWithoutIndex::print()
 {
    char temp[100];
    printf("p:%s[%d]",m_baseId->getPrintName(temp),m_offset);
+   if(m_sf != eTermMU_subfield_full)
+      printf("%s",SF_STR[m_sf]);
 }
 
 // Class repesents a private memory parameter in a MU operation
@@ -1086,6 +1102,8 @@ void cTerm_MU_Storage::print()
       printf("%s",m_id->getPrintName(temp));
    else
       printf("%s[%d]",m_id->getPrintName(temp),m_offset);
+   if(m_sf != eTermMU_subfield_full)
+      printf("%s",SF_STR[m_sf]);
 }
 
 // Class represents a private memory parameter with index in a MU operation
@@ -1157,6 +1175,8 @@ void cTerm_MU_StorageWithIndex::print()
 {
    char temp1[100],temp2[100];
    printf("%s[%s+%d]",m_id->getPrintName(temp1),m_indexId->getPrintName(temp2),m_offset);
+   if(m_sf != eTermMU_subfield_full)
+      printf("%s",SF_STR[m_sf]);
 }
 
 // Class represents a RESULT parameter in a MU operation

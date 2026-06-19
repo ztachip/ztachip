@@ -2428,8 +2428,7 @@ char *cMcore::scan_log_on(FILE *out, char *line, bool sync)
 {
    char token[MAX_LINE];
    line = scan_name(line, token);
-   fprintf(out, "%s;ZTAM_GREG(0,%d,0)=(%d+(%d<<3));", s_ztamFifoReady, REG_DP_RUN,
-      DP_OPCODE_LOG_ON, DP_CONDITION_ALL_FLUSH);
+   fprintf(out, "{ztaLogEnable();}");
    return line;
 }
 
@@ -2438,8 +2437,7 @@ char *cMcore::scan_log_off(FILE *out, char *line, bool sync)
 {
    char token[MAX_LINE];
    line = scan_name(line, token);
-   fprintf(out, "%s;ZTAM_GREG(0,%d,0)=(%d+(%d<<3));", s_ztamFifoReady, REG_DP_RUN,
-      DP_OPCODE_LOG_OFF, DP_CONDITION_ALL_FLUSH);
+   fprintf(out, "{ztaLogDisable();}");
    return line;
 }
 
@@ -3032,7 +3030,6 @@ char *cMcore::decode(char *line, FILE *out, int *cmd)
       *cmd = CMD_FPU;
       return scan_fpu(out, line);
    }
-
    error(cMcore::M_currLine, "Syntax error");
    *cmd = -1;
    return 0;

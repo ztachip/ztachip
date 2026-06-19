@@ -59,4 +59,14 @@
  
 #define FPU_ENABLED TRUE
 
+//---------------------------------------------------------------
+// Enable hardware LOG for DP engine
+// When hardware log is enabled then all actitives of DP engines 
+// and PCORES are recorded between LOG_ON and LOG_OFF directives 
+// in .m programs
+// The traces are then printed by called to ztaLogPrint()
+//---------------------------------------------------------------
+
+#define LOG_ENABLED TRUE
+
 #endif

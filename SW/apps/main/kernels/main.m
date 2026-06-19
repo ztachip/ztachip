@@ -18,7 +18,7 @@
 
 #include "../../../base/ztalib.h"
 
-static uint16_t *last_image=0;
+static uint16_t *last_image __attribute__((section(".tcm_data")))=0;
 
 // Load code/memory to pcore
 

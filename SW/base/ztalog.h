@@ -30,6 +30,10 @@ extern "C" {
 #include "types.h"
 #include "zta.h"
 
+extern void ztaLogEnable();
+
+extern void ztaLogDisable();
+
 extern void ztaLogFlush();
 
 extern void ztaLogPrint();

@@ -51,19 +51,20 @@
 //                                    but dont wait for this operation to be completed before moving to next one.
 
 static char *parse(char *line,
-                    char &end,
-                    std::string &opcode,
-                    std::vector<std::string> &names,
-                    std::vector<std::string> &parms,
-                    std::vector<std::string> &types,
-                    std::vector<bool> &isPointers)
+                  char &end,
+                  std::string &opcode,
+                  std::vector<std::string> &names,
+                  std::vector<std::string> &parms,
+                  std::vector<std::string> &parmsteps,
+                  std::vector<std::string> &types,
+                  std::vector<bool> &isPointers)
 {
    char name[MAX_LINE];
    char temp[MAX_LINE];
    char type[MAX_LINE];
    int count;
    bool isPointer;
-   char *p,*p2,*p3;
+   char *p,*p2,*p3,*p4;
 
    line = cMcore::skipWS(line);
    line = cMcore::scan_name(line, name);
@@ -133,7 +134,18 @@ static char *parse(char *line,
       isPointers.push_back(isPointer);
       types.push_back(cMcore::skipWS(type));
       names.push_back(cMcore::skipWS(name));
-      parms.push_back(cMcore::skipWS(p));
+      p = cMcore::skipWS(p);
+      // Extract step parameter if any...
+      p4=strstr(p,":");
+      if(!p4) {
+         parms.push_back(p);
+         parmsteps.push_back("");
+      } else {
+         *p4=0;
+         p4++;
+         parms.push_back(p);
+         parmsteps.push_back((*p4==0)?"":p4);
+      }
       p = p2?(p2+1):0;
    }
 
@@ -156,17 +168,23 @@ static char *parse(char *line,
 // Generate the FPU command execution
 //-----------------------
 
-void genEXE(FILE *out,uint32_t opcode,char end) {
+static void genEXE(FILE *out,uint32_t opcode,char end,char *repeat) {
    if(end==END_DONE) {
       // This command is the end of a sequence of commands or it is the single command sequence
-      fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=%d;",opcode,REG_FPU_EXE,1);
+      if(!repeat)
+         fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=%d;",opcode,REG_FPU_EXE,1);
+      else
+         fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=((%s)<<1)|%d;",opcode,REG_FPU_EXE,repeat,1);
       fprintf(out,"ZTAM_GREG(0,%d,0)=(%d+(%d<<3));",REG_DP_RUN,DP_OPCODE_FPU_EXE,0);
    }
-   else if(end==END_CONT)
+   else if(end==END_CONT) {
       // More command to follow, dont have to wait for this command to be completed before moving to 
       // next one in the sequence
-      fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=%d;",opcode,REG_FPU_EXE,2);
-   else {
+      if(!repeat)
+         fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=0;",opcode,REG_FPU_EXE);
+      else
+         fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=((%s)<<1);",opcode,REG_FPU_EXE,repeat);
+   } else {
       assert(0);
    }
 }
@@ -175,7 +193,7 @@ void genEXE(FILE *out,uint32_t opcode,char end) {
 // Generate FPU parameter description
 //---------------------------
 
-static void genParm(FILE *out,uint32_t _attr,std::string &type,std::string &parm,bool isPointer) {
+static void genParm(FILE *out,uint32_t _attr,std::string &type,std::string &parm,std::string &parmstep,bool isPointer) {
    char *e;
    bool _attrDynamic=false;
    bool _isConstant=false;
@@ -221,16 +239,22 @@ static void genParm(FILE *out,uint32_t _attr,std::string &type,std::string &parm
    }
 
    if(!_isConstant) {
+      char parmStr[MAX_LINE];
+      strcpy(parmStr,parm.c_str());
+      if(parmstep.length()==0)
+         strcpy(parmStr,parm.c_str());
+      else
+         sprintf(parmStr,"(uint32_t)(((%s)<<%d)+(uint32_t)(%s))",parmstep.c_str(),SRAM_DEPTH,parm.c_str());
       if(_attrDynamic)
-         fprintf(out,"ZTAM_GREG(0x%x|(%s),0x%x,0)=(uint32_t)(%s);",_attr,type.c_str(),REG_FPU_SET,parm.c_str());
+         fprintf(out,"ZTAM_GREG(0x%x|(%s),0x%x,0)=(uint32_t)(%s);",_attr,type.c_str(),REG_FPU_SET,parmStr);
       else {
          if(isPointer)
-            fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=(uint32_t)(%s);",_attr,REG_FPU_SET,parm.c_str());
+            fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=(uint32_t)(%s);",_attr,REG_FPU_SET,parmStr);
          else {
             if(strcasecmp(type.c_str(),"float")==0)
-               fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=*((uint32_t *)&(%s));",_attr,REG_FPU_SET,parm.c_str());
+               fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=*((uint32_t *)&(%s));",_attr,REG_FPU_SET,parmStr);
             else
-               fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=(uint32_t)(%s);",_attr,REG_FPU_SET,parm.c_str());
+               fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=(uint32_t)(%s);",_attr,REG_FPU_SET,parmStr);
          }
       }
    } else {
@@ -260,9 +284,10 @@ static int scan_fma(
    std::string &opcode,
    std::vector<std::string> &names,
    std::vector<std::string> &parms,
+   std::vector<std::string> &parmsteps,
    std::vector<std::string> &types,
    std::vector<bool> &isPointers,
-   char end) 
+   char end)
 {
    uint32_t _attr=0;
    int i;
@@ -273,6 +298,7 @@ static int scan_fma(
    bool c_valid=false;
    uint32_t postProc=0;
    bool vector=false;
+   char *repeat=0;
 
    if(strcasestr(opcode.c_str(),"FLOOR")) {
       postProc=FPU_EXE_FLOOR;
@@ -284,7 +310,9 @@ static int scan_fma(
       vector = true;
    }
    for(i=0;i < (int)names.size();i++) {
-      if(strcasecmp(names[i].c_str(),"N")==0) {
+      if(strcasecmp(names[i].c_str(),"R")==0) {
+         repeat = (char *)parms[i].c_str();
+      } else if(strcasecmp(names[i].c_str(),"N")==0) {
          if(!vector)
             fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=(uint32_t)(%s);",FPU_SET_P_CNT,REG_FPU_SET,parms[i].c_str());  
          else
@@ -312,9 +340,10 @@ static int scan_fma(
          }
          else
             error(cMcore::M_currLine, "Invalid parameter");
-         genParm(out,_attr,types[i],parms[i],isPointers[i]);
+         genParm(out,_attr,types[i],parms[i],parmsteps[i],isPointers[i]);
       }
    }
+
    if(!y_valid)
       error(cMcore::M_currLine, "Missing parameter");
    if(!c_valid && !x1_valid && !x2_valid)
@@ -330,7 +359,7 @@ static int scan_fma(
    if(!c_valid)
       fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=0x3f80;",FPU_SET_W_BFLOAT|FPU_SET_M_VALUE|FPU_SET_P_C,REG_FPU_SET);
 
-   genEXE(out,FPU_EXE_FMA+postProc,end);
+   genEXE(out,FPU_EXE_FMA+postProc,end,repeat);
    fprintf(out,"\n");
    return 0;
 }
@@ -347,9 +376,10 @@ static int scan_mac(
    std::string &opcode,
    std::vector<std::string> &names,
    std::vector<std::string> &parms,
+   std::vector<std::string> &parmsteps,
    std::vector<std::string> &types,
    std::vector<bool> &isPointers,
-   char end) 
+   char end)
 {
    uint32_t _attr=0;
    int i;
@@ -360,6 +390,7 @@ static int scan_mac(
    bool c_valid=false;
    uint32_t postProc=0;
    bool vector=false;
+   char *repeat=0;
 
    if(strcasestr(opcode.c_str(),"FLOOR")) {
       postProc=FPU_EXE_FLOOR;
@@ -371,7 +402,9 @@ static int scan_mac(
       vector = true;
    }
    for(i=0;i < (int)names.size();i++) {
-      if(strcasecmp(names[i].c_str(),"N")==0) {
+      if(strcasecmp(names[i].c_str(),"R")==0) {
+         repeat = (char *)parms[i].c_str();
+      } else if(strcasecmp(names[i].c_str(),"N")==0) {
          if(!vector)
             fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=(uint32_t)(%s);",FPU_SET_P_CNT,REG_FPU_SET,parms[i].c_str());    
          else
@@ -399,7 +432,7 @@ static int scan_mac(
          }
          else
             error(cMcore::M_currLine, "Invalid parameter");
-         genParm(out,_attr,types[i],parms[i],isPointers[i]);
+         genParm(out,_attr,types[i],parms[i],parmsteps[i],isPointers[i]);
       }
    }
    if(!y_valid)
@@ -416,7 +449,7 @@ static int scan_mac(
    if(!c_valid)
       fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=0x3f80;",FPU_SET_W_BFLOAT|FPU_SET_M_VALUE|FPU_SET_P_C,REG_FPU_SET);
 
-   genEXE(out,FPU_EXE_MAC+postProc,end);
+   genEXE(out,FPU_EXE_MAC+postProc,end,repeat);
    fprintf(out,"\n");
    return 0;
 }
@@ -431,9 +464,10 @@ static int scan_exp(
    std::string &opcode,
    std::vector<std::string> &names,
    std::vector<std::string> &parms,
+   std::vector<std::string> &parmsteps,
    std::vector<std::string> &types,
    std::vector<bool> &isPointers,
-   char end) 
+   char end)
 {
    uint32_t _attr=0;
    int i;
@@ -441,6 +475,7 @@ static int scan_exp(
    bool x_valid=false;
    uint32_t oc;
    bool vector=false;
+   char *repeat=0;
 
    oc = FPU_EXE_EXP;
 
@@ -448,7 +483,9 @@ static int scan_exp(
       vector = true;
    }
    for(i=0;i < (int)names.size();i++) {
-      if(strcasecmp(names[i].c_str(),"N")==0) {
+      if(strcasecmp(names[i].c_str(),"R")==0) {
+         repeat = (char *)parms[i].c_str();
+      } else if(strcasecmp(names[i].c_str(),"N")==0) {
          if(!vector)
             fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=(uint32_t)(%s);",FPU_SET_P_CNT,REG_FPU_SET,parms[i].c_str());    
          else
@@ -464,12 +501,12 @@ static int scan_exp(
          }
          else
             error(cMcore::M_currLine, "Invalid parameter");
-         genParm(out,_attr,types[i],parms[i],isPointers[i]);
+         genParm(out,_attr,types[i],parms[i],parmsteps[i],isPointers[i]);
       }
    }
    if(!y_valid || !x_valid)
       error(cMcore::M_currLine, "Missing parameter");
-   genEXE(out,oc,end);
+   genEXE(out,oc,end,repeat);
    fprintf(out,"\n");
    return 0;
 }
@@ -484,6 +521,7 @@ static int scan_reciprocal(
    std::string &opcode,
    std::vector<std::string> &names,
    std::vector<std::string> &parms,
+   std::vector<std::string> &parmsteps,
    std::vector<std::string> &types,
    std::vector<bool> &isPointers,
    char end)
@@ -494,6 +532,7 @@ static int scan_reciprocal(
    bool x_valid=false;
    uint32_t oc;
    bool vector=false;
+   char *repeat=0;
 
    oc = FPU_EXE_RECIPROCAL;
 
@@ -501,7 +540,9 @@ static int scan_reciprocal(
       vector = true;
    }
    for(i=0;i < (int)names.size();i++) {
-      if(strcasecmp(names[i].c_str(),"N")==0) {
+      if(strcasecmp(names[i].c_str(),"R")==0) {
+         repeat = (char *)parms[i].c_str();
+      } else if(strcasecmp(names[i].c_str(),"N")==0) {
          if(!vector)
             fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=(uint32_t)(%s);",FPU_SET_P_CNT,REG_FPU_SET,parms[i].c_str());    
          else
@@ -517,12 +558,12 @@ static int scan_reciprocal(
          }
          else
             error(cMcore::M_currLine, "Invalid parameter");
-         genParm(out,_attr,types[i],parms[i],isPointers[i]);
+         genParm(out,_attr,types[i],parms[i],parmsteps[i],isPointers[i]);
       }
    }
    if(!y_valid || !x_valid)
       error(cMcore::M_currLine, "Missing parameter");
-   genEXE(out,oc,end);
+   genEXE(out,oc,end,repeat);
    fprintf(out,"\n");
    return 0;
 }
@@ -537,6 +578,7 @@ static int scan_invsqrt(
    std::string &opcode,
    std::vector<std::string> &names,
    std::vector<std::string> &parms,
+   std::vector<std::string> &parmsteps,
    std::vector<std::string> &types,
    std::vector<bool> &isPointers,
    char end)
@@ -547,6 +589,7 @@ static int scan_invsqrt(
    bool x_valid=false;
    uint32_t oc;
    bool vector=false;
+   char *repeat=0;
 
    oc = FPU_EXE_INVSQRT;
 
@@ -555,7 +598,9 @@ static int scan_invsqrt(
    }
 
    for(i=0;i < (int)names.size();i++) {
-      if(strcasecmp(names[i].c_str(),"N")==0) {
+      if(strcasecmp(names[i].c_str(),"R")==0) {
+         repeat = (char *)parms[i].c_str();
+      } else if(strcasecmp(names[i].c_str(),"N")==0) {
          if(!vector)
             fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=(uint32_t)(%s);",FPU_SET_P_CNT,REG_FPU_SET,parms[i].c_str());  
          else  
@@ -571,12 +616,12 @@ static int scan_invsqrt(
          }
          else
             error(cMcore::M_currLine, "Invalid parameter");
-         genParm(out,_attr,types[i],parms[i],isPointers[i]);
+         genParm(out,_attr,types[i],parms[i],parmsteps[i],isPointers[i]);
       }
    }
    if(!y_valid || !x_valid)
       error(cMcore::M_currLine, "Missing parameter");
-   genEXE(out,oc,end);
+   genEXE(out,oc,end,repeat);
    fprintf(out,"\n");
    return 0;
 }
@@ -594,9 +639,10 @@ static int scan_max(
    std::string &opcode,
    std::vector<std::string> &names,
    std::vector<std::string> &parms,
+   std::vector<std::string> &parmsteps,
    std::vector<std::string> &types,
    std::vector<bool> &isPointers,
-   char end) 
+   char end)
 {
    uint32_t _attr=0;
    int i;
@@ -607,6 +653,7 @@ static int scan_max(
    bool group_valid=false;
    uint32_t postProc=0;
    bool vector=false;
+   char *repeat=0;
 
    if(strcasestr(opcode.c_str(),"ABS")) {
       postProc = FPU_EXE_ABS;
@@ -616,7 +663,9 @@ static int scan_max(
       vector = true;
    }
    for(i=0;i < (int)names.size();i++) {
-      if(strcasecmp(names[i].c_str(),"N")==0) {
+      if(strcasecmp(names[i].c_str(),"R")==0) {
+         repeat = (char *)parms[i].c_str();
+      } else if(strcasecmp(names[i].c_str(),"N")==0) {
          if(!vector)
             fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=(uint32_t)(%s);",FPU_SET_P_CNT,REG_FPU_SET,parms[i].c_str());  
          else  
@@ -640,7 +689,7 @@ static int scan_max(
          }
          else
             error(cMcore::M_currLine, "Invalid parameter");
-         genParm(out,_attr,types[i],parms[i],isPointers[i]);
+         genParm(out,_attr,types[i],parms[i],parmsteps[i],isPointers[i]);
       }
    }
    if(a_valid && group_valid)
@@ -654,7 +703,7 @@ static int scan_max(
       else
          fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=0xFF7FFFFF;",FPU_SET_W_FP32|FPU_SET_M_VALUE|FPU_SET_P_C,REG_FPU_SET);
    }
-   genEXE(out,(group_valid?FPU_EXE_GROUP_MAX:FPU_EXE_MAX)+postProc,end);
+   genEXE(out,(group_valid?FPU_EXE_GROUP_MAX:FPU_EXE_MAX)+postProc,end,repeat);
    fprintf(out,"\n");
    return 0;
 }
@@ -670,6 +719,7 @@ static int scan_sum(
    std::string &opcode,
    std::vector<std::string> &names,
    std::vector<std::string> &parms,
+   std::vector<std::string> &parmsteps,
    std::vector<std::string> &types,
    std::vector<bool> &isPointers,
    char end)
@@ -681,6 +731,7 @@ static int scan_sum(
    bool a_valid=false;
    uint32_t postProc=0;
    bool vector=false;
+   char *repeat=0;
 
    if(strcasestr(opcode.c_str(),"ABS")) {
       postProc = FPU_EXE_ABS;
@@ -689,7 +740,9 @@ static int scan_sum(
       vector = true;
    }
    for(i=0;i < (int)names.size();i++) {
-      if(strcasecmp(names[i].c_str(),"N")==0) {
+      if(strcasecmp(names[i].c_str(),"R")==0) {
+         repeat = (char *)parms[i].c_str();
+      } else if(strcasecmp(names[i].c_str(),"N")==0) {
          if(!vector)
             fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=(uint32_t)(%s);",FPU_SET_P_CNT,REG_FPU_SET,parms[i].c_str()); 
          else   
@@ -709,7 +762,7 @@ static int scan_sum(
          }
          else
             error(cMcore::M_currLine, "Invalid parameter");
-         genParm(out,_attr,types[i],parms[i],isPointers[i]);
+         genParm(out,_attr,types[i],parms[i],parmsteps[i],isPointers[i]);
       }
    }
    if(!y_valid || !x_valid)
@@ -717,7 +770,7 @@ static int scan_sum(
    if(!a_valid) {
       fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=0;",FPU_SET_W_FP32|FPU_SET_M_VALUE|FPU_SET_P_C,REG_FPU_SET);
    }
-   genEXE(out,FPU_EXE_SUM+postProc,end);
+   genEXE(out,FPU_EXE_SUM+postProc,end,repeat);
    fprintf(out,"\n");
    return 0;
 }
@@ -730,33 +783,34 @@ char *cMcore::scan_fpu(FILE *out, char *line) {
    std::string opcode;
    std::vector<std::string> names;
    std::vector<std::string> parms;
+   std::vector<std::string> parmsteps;
    std::vector<std::string> types;
    std::vector<bool> isPointers;
    char end;
 
-   line = parse(line,end,opcode,names,parms,types,isPointers);
+   line = parse(line,end,opcode,names,parms,parmsteps,types,isPointers);
    if(strcasestr(opcode.c_str(),TOKEN_FPU_FMA)) {
-      if(scan_fma(out,opcode,names,parms,types,isPointers,end) != 0)
+      if(scan_fma(out,opcode,names,parms,parmsteps,types,isPointers,end) != 0)
          return 0;
    }
    else if(strcasestr(opcode.c_str(),TOKEN_FPU_MAC)) {
-      if(scan_mac(out,opcode,names,parms,types,isPointers,end) != 0)
+      if(scan_mac(out,opcode,names,parms,parmsteps,types,isPointers,end) != 0)
          return 0;
    }
    else if(strcasestr(opcode.c_str(),TOKEN_FPU_EXP)) {
-      if(scan_exp(out,opcode,names,parms,types,isPointers,end) != 0)
+      if(scan_exp(out,opcode,names,parms,parmsteps,types,isPointers,end) != 0)
          return 0;   
    } else if(strcasestr(opcode.c_str(),TOKEN_FPU_RECIPROCAL)) {
-      if(scan_reciprocal(out,opcode,names,parms,types,isPointers,end) != 0)
+      if(scan_reciprocal(out,opcode,names,parms,parmsteps,types,isPointers,end) != 0)
          return 0;
    } else if(strcasestr(opcode.c_str(),TOKEN_FPU_INVSQRT)) {
-      if(scan_invsqrt(out,opcode,names,parms,types,isPointers,end) != 0)
+      if(scan_invsqrt(out,opcode,names,parms,parmsteps,types,isPointers,end) != 0)
          return 0;   
    } else if(strcasestr(opcode.c_str(),TOKEN_FPU_MAX)) {
-      if(scan_max(out,opcode,names,parms,types,isPointers,end) != 0)
+      if(scan_max(out,opcode,names,parms,parmsteps,types,isPointers,end) != 0)
          return 0;  
    } else if(strcasestr(opcode.c_str(),TOKEN_FPU_SUM)) {
-      if(scan_sum(out,opcode,names,parms,types,isPointers,end) != 0)
+      if(scan_sum(out,opcode,names,parms,parmsteps,types,isPointers,end) != 0)
          return 0;  
    } else {
       error(cMcore::M_currLine, "Undefined opcode");
