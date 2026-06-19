@@ -16,7 +16,7 @@ PROJ_NAME=ztachip
 
 UNIT_TEST=no
 
-LLM_TEST=no
+LLM_TEST=yes
 
 
 ########################################################
