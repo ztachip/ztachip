@@ -187,6 +187,33 @@ make clean all -f makefile.quant
 - SMOLLM2.ZUF will be transfered from PC to FPGA board over Ethernet. A TFTP server is required to run on a PC that is connecting to the ArtyBoard by Ethernet.
 PC Ethernet interface is expected to be configured with an ip address=10.10.10.10 
 
+### Performance Comparison
+
+Small LLM model performance is largely constrained by memory bandwidth. In these scenarios, a GPU offers minimal advantage because the compute cores spend most of their time waiting for memory operations to complete. 
+
+A more accurate metric for comparing performance is **tokens per second (TPS) per GB/s of memory bandwidth**.
+
+#### Benchmark Results
+
+The following data compares **ztachip** running on Arty hardware against the Raspberry Pi 4 and Raspberry Pi 5. 
+
+*(Data sourced from [arXiv:2511.07425v1](https://arxiv.org/html/2511.07425v1))*
+
+| Platform | Performance (TPS) | Memory Bandwidth (MemBW) | Efficiency (TPS per GB/s) |
+| :--- | :---: | :---: | :---: |
+| **Raspberry Pi 4** | 11 TPS | 12 GB/s | 0.92 |
+| **Raspberry Pi 5** | 32 TPS | 17 GB/s | 1.88 |
+| **ztachip (Arty)** | 8 TPS | 1.2 GB/s | **6.70** |
+
+---
+
+#### Conclusion
+
+While the Raspberry Pi platforms achieve higher raw TPS due to significantly higher hardware specs, **ztachip** is vastly more efficient at utilizing available memory bandwidth. 
+
+* **7.2x more efficient** than the Raspberry Pi 4.
+* **3.5x more efficient** than the Raspberry Pi 5.
+
 # FPGA build procedure
 
 - Download Xilinx Vivado Webpack free edition.
