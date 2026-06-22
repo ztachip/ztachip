@@ -978,7 +978,7 @@ avail <= ready_in and (not instruction_valid_r) and (not instruction_valid_rr);
 
 waitrequest <= '1' when bus_write_in='1' and 
                         (
-                        ((full='1' or load='1' or wreq='1') and unsigned(bus_waddr_in(register_t'length-1 downto 0))=to_unsigned(register_dp_run_c,wregno'length))
+                        ((full='1' or load='1' or wreq='1') and unsigned(bus_waddr_in(register_t'length+register2_t'length-1 downto register2_t'length))=to_unsigned(register_dp_run_c,wregno'length))
                         )
                    else '0';
 bus_writewait_out <= waitrequest;
@@ -1201,17 +1201,17 @@ bus_readdata_out <= bus_readdata_r when rden_r='1' else (others=>'Z');
 
 bus_readdatavalid_out <= rden_r;
 
-wregno <= unsigned(bus_waddr_r(register_t'length-1 downto 0));
+wregno <= unsigned(bus_waddr_r(register2_t'length+register_t'length-1 downto register2_t'length));
 
-wregno2 <= unsigned(bus_waddr_in(register2_t'length+register_t'length-1 downto register_t'length));
+wregno2 <= unsigned(bus_waddr_in(register2_t'length-1 downto 0));
 
-wregno2_r <= unsigned(bus_waddr_r(register2_t'length+register_t'length-1 downto register_t'length));
+wregno2_r <= unsigned(bus_waddr_r(register2_t'length-1 downto 0));
 
-rregno <= unsigned(bus_raddr_r(register_t'length-1 downto 0));
+rregno <= unsigned(bus_raddr_r(register2_t'length+register_t'length-1 downto register2_t'length));
 
-rregno2 <= unsigned(bus_raddr_in(register2_t'length+register_t'length-1 downto register_t'length));
+rregno2 <= unsigned(bus_raddr_in(register2_t'length-1 downto 0));
 
-rregno2_r <= unsigned(bus_raddr_r(register2_t'length+register_t'length-1 downto register_t'length));
+rregno2_r <= unsigned(bus_raddr_r(register2_t'length-1 downto 0));
 
 match <= '1';
 

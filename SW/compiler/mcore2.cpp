@@ -246,28 +246,28 @@ static void genParm(FILE *out,uint32_t _attr,std::string &type,std::string &parm
       else
          sprintf(parmStr,"(uint32_t)(((%s)<<%d)+(uint32_t)(%s))",parmstep.c_str(),SRAM_DEPTH,parm.c_str());
       if(_attrDynamic)
-         fprintf(out,"ZTAM_GREG(0x%x|(%s),0x%x,0)=(uint32_t)(%s);",_attr,type.c_str(),REG_FPU_SET,parmStr);
+         fprintf(out,"_M2[0x%x|(%s)]=(uint32_t)(%s);",_attr,type.c_str(),parmStr);
       else {
          if(isPointer)
-            fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=(uint32_t)(%s);",_attr,REG_FPU_SET,parmStr);
+            fprintf(out,"_M2[0x%x]=(uint32_t)(%s);",_attr,parmStr);
          else {
             if(strcasecmp(type.c_str(),"float")==0)
-               fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=*((uint32_t *)&(%s));",_attr,REG_FPU_SET,parmStr);
+               fprintf(out,"_M2[0x%x]=*((uint32_t *)&(%s));",_attr,parmStr);
             else
-               fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=(uint32_t)(%s);",_attr,REG_FPU_SET,parmStr);
+               fprintf(out,"_M2[0x%x]=(uint32_t)(%s);",_attr,parmStr);
          }
       }
    } else {
       if(_isConstantFloat) {
          if(_attrDynamic)
-            fprintf(out,"ZTAM_GREG(0x%x|(%s),0x%x,0)=0x%x;",_attr,type.c_str(),REG_FPU_SET,*((uint32_t *)&_v));
+            fprintf(out,"_M2[0x%x|(%s)]=0x%x;",_attr,type.c_str(),*((uint32_t *)&_v));
          else
-            fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=0x%x;",_attr,REG_FPU_SET,*((uint32_t *)&_v));
+            fprintf(out,"_M2[0x%x]=0x%x;",_attr,*((uint32_t *)&_v));
       } else {
          if(_attrDynamic)
-            fprintf(out,"ZTAM_GREG(0x%x|(%s),0x%x,0)=%d;",_attr,type.c_str(),REG_FPU_SET,v2);
+            fprintf(out,"_M2[0x%x|(%s)]=%d;",_attr,type.c_str(),v2);
          else
-            fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=%d;",_attr,REG_FPU_SET,v2);
+            fprintf(out,"_M2[0x%x]=%d;",_attr,v2);
       }
    }
 }
@@ -314,9 +314,9 @@ static int scan_fma(
          repeat = (char *)parms[i].c_str();
       } else if(strcasecmp(names[i].c_str(),"N")==0) {
          if(!vector)
-            fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=(uint32_t)(%s);",FPU_SET_P_CNT,REG_FPU_SET,parms[i].c_str());  
+            fprintf(out,"_M2[0x%x]=(uint32_t)(%s);",FPU_SET_P_CNT,parms[i].c_str());  
          else
-            fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=(uint32_t)(%s);",FPU_SET_P_CNTV,REG_FPU_SET,parms[i].c_str());                
+            fprintf(out,"_M2[0x%x]=(uint32_t)(%s);",FPU_SET_P_CNTV,parms[i].c_str());                
       } else {
          if(strcasecmp(names[i].c_str(),"y")==0) {
             _attr = FPU_SET_P_A;
@@ -348,17 +348,7 @@ static int scan_fma(
       error(cMcore::M_currLine, "Missing parameter");
    if(!c_valid && !x1_valid && !x2_valid)
       error(cMcore::M_currLine, "Missing parameter");
-   fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=0;",FPU_SET_W_FP32|FPU_SET_M_VALUE|FPU_SET_P_B,REG_FPU_SET);
-
-   if(!a_valid)
-      fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=0;",FPU_SET_W_BFLOAT|FPU_SET_M_VALUE|FPU_SET_P_C2,REG_FPU_SET);
-   if(!x1_valid)
-      fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=0x3f80;",FPU_SET_W_BFLOAT|FPU_SET_M_VALUE|FPU_SET_P_X,REG_FPU_SET);
-   if(!x2_valid)
-      fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=0x3f80;",FPU_SET_W_BFLOAT|FPU_SET_M_VALUE|FPU_SET_P_Y,REG_FPU_SET);
-   if(!c_valid)
-      fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=0x3f80;",FPU_SET_W_BFLOAT|FPU_SET_M_VALUE|FPU_SET_P_C,REG_FPU_SET);
-
+   fprintf(out,"_M2[0x%x]=0;",FPU_SET_W_FP32|FPU_SET_M_VALUE|FPU_SET_P_B);
    genEXE(out,FPU_EXE_FMA+postProc,end,repeat);
    fprintf(out,"\n");
    return 0;
@@ -406,9 +396,9 @@ static int scan_mac(
          repeat = (char *)parms[i].c_str();
       } else if(strcasecmp(names[i].c_str(),"N")==0) {
          if(!vector)
-            fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=(uint32_t)(%s);",FPU_SET_P_CNT,REG_FPU_SET,parms[i].c_str());    
+            fprintf(out,"_M2[0x%x]=(uint32_t)(%s);",FPU_SET_P_CNT,parms[i].c_str());    
          else
-            fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=(uint32_t)(%s);",FPU_SET_P_CNTV,REG_FPU_SET,parms[i].c_str());    
+            fprintf(out,"_M2[0x%x]=(uint32_t)(%s);",FPU_SET_P_CNTV,parms[i].c_str());    
       } else {
          if(strcasecmp(names[i].c_str(),"y")==0) {
             _attr = FPU_SET_P_A;
@@ -439,16 +429,6 @@ static int scan_mac(
       error(cMcore::M_currLine, "Missing parameter");
    if(!c_valid && !x1_valid && !x2_valid)
       error(cMcore::M_currLine, "Missing parameter");
-
-   if(!a_valid)
-      fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=0;",FPU_SET_W_BFLOAT|FPU_SET_M_VALUE|FPU_SET_P_B,REG_FPU_SET);
-   if(!x1_valid)
-      fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=0x3f80;",FPU_SET_W_BFLOAT|FPU_SET_M_VALUE|FPU_SET_P_X,REG_FPU_SET);
-   if(!x2_valid)
-      fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=0x3f80;",FPU_SET_W_BFLOAT|FPU_SET_M_VALUE|FPU_SET_P_Y,REG_FPU_SET);
-   if(!c_valid)
-      fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=0x3f80;",FPU_SET_W_BFLOAT|FPU_SET_M_VALUE|FPU_SET_P_C,REG_FPU_SET);
-
    genEXE(out,FPU_EXE_MAC+postProc,end,repeat);
    fprintf(out,"\n");
    return 0;
@@ -487,9 +467,9 @@ static int scan_exp(
          repeat = (char *)parms[i].c_str();
       } else if(strcasecmp(names[i].c_str(),"N")==0) {
          if(!vector)
-            fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=(uint32_t)(%s);",FPU_SET_P_CNT,REG_FPU_SET,parms[i].c_str());    
+            fprintf(out,"_M2[0x%x]=(uint32_t)(%s);",FPU_SET_P_CNT,parms[i].c_str());    
          else
-            fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=(uint32_t)(%s);",FPU_SET_P_CNTV,REG_FPU_SET,parms[i].c_str());    
+            fprintf(out,"_M2[0x%x]=(uint32_t)(%s);",FPU_SET_P_CNTV,parms[i].c_str());    
       } else {
          if(strcasecmp(names[i].c_str(),"y")==0) {
             _attr = FPU_SET_P_A;
@@ -544,9 +524,9 @@ static int scan_reciprocal(
          repeat = (char *)parms[i].c_str();
       } else if(strcasecmp(names[i].c_str(),"N")==0) {
          if(!vector)
-            fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=(uint32_t)(%s);",FPU_SET_P_CNT,REG_FPU_SET,parms[i].c_str());    
+            fprintf(out,"_M2[0x%x]=(uint32_t)(%s);",FPU_SET_P_CNT,parms[i].c_str());    
          else
-            fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=(uint32_t)(%s);",FPU_SET_P_CNTV,REG_FPU_SET,parms[i].c_str());    
+            fprintf(out,"_M2[0x%x]=(uint32_t)(%s);",FPU_SET_P_CNTV,parms[i].c_str());    
       } else {
          if(strcasecmp(names[i].c_str(),"y")==0) {
             _attr = FPU_SET_P_A;
@@ -602,9 +582,9 @@ static int scan_invsqrt(
          repeat = (char *)parms[i].c_str();
       } else if(strcasecmp(names[i].c_str(),"N")==0) {
          if(!vector)
-            fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=(uint32_t)(%s);",FPU_SET_P_CNT,REG_FPU_SET,parms[i].c_str());  
+            fprintf(out,"_M2[0x%x]=(uint32_t)(%s);",FPU_SET_P_CNT,parms[i].c_str());  
          else  
-            fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=(uint32_t)(%s);",FPU_SET_P_CNTV,REG_FPU_SET,parms[i].c_str());    
+            fprintf(out,"_M2[0x%x]=(uint32_t)(%s);",FPU_SET_P_CNTV,parms[i].c_str());    
       } else {
          if(strcasecmp(names[i].c_str(),"y")==0) {
             _attr = FPU_SET_P_A;
@@ -667,9 +647,9 @@ static int scan_max(
          repeat = (char *)parms[i].c_str();
       } else if(strcasecmp(names[i].c_str(),"N")==0) {
          if(!vector)
-            fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=(uint32_t)(%s);",FPU_SET_P_CNT,REG_FPU_SET,parms[i].c_str());  
+            fprintf(out,"_M2[0x%x]=(uint32_t)(%s);",FPU_SET_P_CNT,parms[i].c_str());  
          else  
-            fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=(uint32_t)(%s);",FPU_SET_P_CNTV,REG_FPU_SET,parms[i].c_str());    
+            fprintf(out,"_M2[0x%x]=(uint32_t)(%s);",FPU_SET_P_CNTV,parms[i].c_str());    
       } else {
          if(strcasecmp(names[i].c_str(),"y")==0) {
             _attr = FPU_SET_P_A;
@@ -699,9 +679,9 @@ static int scan_max(
    if(!a_valid && !group_valid) {
       // Set initial max value smallest value possible
       if(abs)
-         fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=0;",FPU_SET_W_FP32|FPU_SET_M_VALUE|FPU_SET_P_C,REG_FPU_SET);
+         fprintf(out,"_M2[0x%x]=0;",FPU_SET_W_FP32|FPU_SET_M_VALUE|FPU_SET_P_C);
       else
-         fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=0xFF7FFFFF;",FPU_SET_W_FP32|FPU_SET_M_VALUE|FPU_SET_P_C,REG_FPU_SET);
+         fprintf(out,"_M2[0x%x]=0xFF7FFFFF;",FPU_SET_W_FP32|FPU_SET_M_VALUE|FPU_SET_P_C);
    }
    genEXE(out,(group_valid?FPU_EXE_GROUP_MAX:FPU_EXE_MAX)+postProc,end,repeat);
    fprintf(out,"\n");
@@ -744,9 +724,9 @@ static int scan_sum(
          repeat = (char *)parms[i].c_str();
       } else if(strcasecmp(names[i].c_str(),"N")==0) {
          if(!vector)
-            fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=(uint32_t)(%s);",FPU_SET_P_CNT,REG_FPU_SET,parms[i].c_str()); 
+            fprintf(out,"_M2[0x%x]=(uint32_t)(%s);",FPU_SET_P_CNT,parms[i].c_str()); 
          else   
-            fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=(uint32_t)(%s);",FPU_SET_P_CNTV,REG_FPU_SET,parms[i].c_str());    
+            fprintf(out,"_M2[0x%x]=(uint32_t)(%s);",FPU_SET_P_CNTV,parms[i].c_str());    
       } else {
          if(strcasecmp(names[i].c_str(),"y")==0) {
             _attr = FPU_SET_P_A;
@@ -768,7 +748,7 @@ static int scan_sum(
    if(!y_valid || !x_valid)
       error(cMcore::M_currLine, "Missing parameter");
    if(!a_valid) {
-      fprintf(out,"ZTAM_GREG(0x%x,0x%x,0)=0;",FPU_SET_W_FP32|FPU_SET_M_VALUE|FPU_SET_P_C,REG_FPU_SET);
+      fprintf(out,"_M2[0x%x]=0;",FPU_SET_W_FP32|FPU_SET_M_VALUE|FPU_SET_P_C);
    }
    genEXE(out,FPU_EXE_SUM+postProc,end,repeat);
    fprintf(out,"\n");

@@ -562,7 +562,7 @@ float16_t* llama::forward(int token, int pos) {
         kernel_llm_residual_exe(-1,dim,m_runtime.x,false,m_runtime.x,m_runtime.xb); 
 
 #ifndef __WIN32__
-        while(ztaReadResponse(&resp)) {}
+//        while(ztaReadResponse(&resp)) {}
 #endif
     }
 

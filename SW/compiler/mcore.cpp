@@ -258,7 +258,10 @@ cMcoreTerm::~cMcoreTerm()
 
 void cMcoreTerm::GEN(FILE *fp, int p1, int p2, int p3, char *s)
 {
-   fprintf(fp, "ZTAM_GREG(%d,%d,%d)=%s;", p1, p2, p3, s);
+   if(p2==REG_DP_TEMPLATE)
+      fprintf(fp, "_M1[(%d)]=%s;",p1,s);
+   else
+      fprintf(fp, "ZTAM_GREG(%d,%d,%d)=%s;", p1, p2, p3, s);
 }
 
 
@@ -2448,7 +2451,7 @@ char *cMcore::scan_barrier(FILE *out, char *line)
    char token[MAX_LINE];
    line = scan_name(line, token);
    fprintf(out, "%s;ZTAM_GREG(0,%d,0)=(%d+(%d<<3));", s_ztamFifoReady, REG_DP_RUN,
-      DP_OPCODE_NULL, DP_CONDITION_DP_DONE);
+      DP_OPCODE_NULL, DP_CONDITION_ALL_FLUSH);
    return line;
 }
 

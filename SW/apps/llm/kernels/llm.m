@@ -430,7 +430,8 @@ void kernel_llm_matmul_q4_exe(
 
    ztaDualHartExecute(matmul_q4,&req);
 
-   ztaJobDone(_req_id); 
+//   ztaJobDone(_req_id);
+   >BARRIER; 
 }
 
 void kernel_llm_matmul_q8_exe(
@@ -462,7 +463,8 @@ void kernel_llm_matmul_q8_exe(
 
    ztaDualHartExecute(matmul_q8,&req);
 
-   ztaJobDone(_req_id);
+//   ztaJobDone(_req_id);
+   >BARRIER; 
 }
 
 //--------------------------------------------------------------------------
@@ -549,9 +551,10 @@ void kernel_llm_quantize_exe(int reqId,int N,float16_t *x,float16_t *s,int16_t *
       > FPU.V.MAC(R=cnt3-1,N=GS,y=(int16 *)(ws->y2):GS*2,c=(float *)(ws->y):4,x1=(bfloat *)(ws->x2):GS*2);
 
       >DTYPE(INT16)MEM(y,N)[i:(i+remain)-1] <= DTYPE(INT16)SCRATCH((uint32_t)ws->y2,remain)[:];    
-      >BARRIER;
+//      >BARRIER;
    }
-   ztaJobDone(reqId);
+//   ztaJobDone(_req_id);
+   >BARRIER; 
 } 
 
 //-----------------------------------------------------------------
@@ -655,7 +658,7 @@ static void llm_dot_product_exe(void *_p,int pid)
       }
       >DTYPE(INT16)MEM((uint32_t)req->_y,((pid==0)?sz:req->K))[j:j+cnt2-1] <= DTYPE(INT16)SCRATCH((uint32_t)ws->sum2,cnt2)[0:cnt2-1];   
    } 
-   >BARRIER;
+//   >BARRIER;
 }
 
 void kernel_llm_dot_product_exe(int reqId,int N,int K,float16_t *x1,float16_t *_x2,int _x2_dim,float16_t *_y,float scale)
@@ -673,7 +676,8 @@ void kernel_llm_dot_product_exe(int reqId,int N,int K,float16_t *x1,float16_t *_
    
    ztaDualHartExecute(llm_dot_product_exe,&req);
 
-   ztaJobDone(reqId); 
+//   ztaJobDone(_req_id);
+   >BARRIER;  
 }
 
 //--------------------------------------------------------------------------
@@ -766,11 +770,11 @@ static void llm_dot_product2_exe(void *_p,int pid)
          > <= 
          > DTYPE(INT16)MEM((uint32_t)req->x2,req->_K,req->x2_dim)[j:j+cnt3*cnt4-1][k:k+cnt2-1];
 
-         > BARRIER;
+//         > BARRIER;
          
          > FOR(J=0:cnt2/NUM_PCORE-1) FOR(L=0:cnt4-1) FOR(K=0:NUM_PCORE-1) FOR(I=0:cnt3-1) DTYPE(INT16)SCRATCH((uint32_t)ws->sram_x2,NUM_PCORE,DOT_PRODUCT_N_BATCH/NUM_PCORE,DOT_PRODUCT_K_BATCH/4,4)[K][J][L][I]
          > <=
-         > FOR(K=0:cnt2/NUM_PCORE-1) FOR(L=0:cnt4-1) FOR(J=0:NUM_PCORE-1) FOR(I=0:cnt3-1) SCATTER DTYPE(INT16) PCORE[J].THREAD[I].llm_dotproduct::x[L][K];
+         > LATEST FOR(K=0:cnt2/NUM_PCORE-1) FOR(L=0:cnt4-1) FOR(J=0:NUM_PCORE-1) FOR(I=0:cnt3-1) SCATTER DTYPE(INT16) PCORE[J].THREAD[I].llm_dotproduct::x[L][K];
 
          // Perform dot product 
          sum = (uint32_t)&ws->sram_sum[0];
@@ -809,7 +813,8 @@ void kernel_llm_dot_product2_exe(int reqId,int N,int _K,float16_t *x1,float16_t 
 
    ztaDualHartExecute(llm_dot_product2_exe,&req);
 
-   ztaJobDone(reqId);
+//   ztaJobDone(_req_id);
+   >BARRIER; 
 }
 
 //--------------------------------------------------------------------------
@@ -876,9 +881,10 @@ void kernel_llm_cosine_exe(int reqId,int N,float *x,float scale,float *y)
 
       >DTYPE(INT16)MEM((uint32_t)y,2*N)[2*i:2*i+2*cnt-1] <= DTYPE(INT16)SCRATCH(((uint32_t)&ws->y2[0]),2*cnt)[0:2*cnt-1];   
       
-      > BARRIER;
+//      > BARRIER;
    }
-   ztaJobDone(reqId); 
+//   ztaJobDone(_req_id);
+   >BARRIER;  
 }
 
 //--------------------------------------------------------------------------
@@ -931,9 +937,10 @@ void kernel_llm_sine_exe(int reqId,int N,float *x,float scale,float *y)
 
       >DTYPE(INT16)MEM((uint32_t)y,2*N)[2*i:2*i+2*cnt-1] <= DTYPE(INT16)SCRATCH(((uint32_t)&ws->y2[0]),2*cnt)[0:2*cnt-1];   
 
-      > BARRIER;
+//      > BARRIER;
    }
-   ztaJobDone(reqId); 
+//   ztaJobDone(_req_id);
+   >BARRIER;  
 }
 
 //--------------------------------------------------------------------------
@@ -978,9 +985,10 @@ void kernel_llm_exp_exe(int reqId,int N,float *x,float *y)
   
       >DTYPE(INT16)MEM((uint32_t)y,2*N)[2*i:2*i+2*cnt-1] <= DTYPE(INT16)SCRATCH(((uint32_t)&ws->y[0]),2*cnt)[0:2*cnt-1];   
       
-      > BARRIER;
+//      > BARRIER;
    }
-   ztaJobDone(reqId);  
+//   ztaJobDone(_req_id);
+   >BARRIER;  
 }
 
 //--------------------------------------------------------------------------
@@ -1040,9 +1048,10 @@ void kernel_llm_SwiGLU_exe(int reqId,float16_t *hb,float16_t *hb2,int N)
 
       >DTYPE(INT16)MEM((uint32_t)hb,N)[i:i+cnt-1] <= DTYPE(INT16)SCRATCH(((uint32_t)&ws->hb[0]),cnt)[0:cnt-1];   
 
-      > BARRIER;
+//      > BARRIER;
    }
-   ztaJobDone(reqId);
+//   ztaJobDone(_req_id);
+   >BARRIER; 
 }
 
 //--------------------------------------------------------------------------
@@ -1146,7 +1155,7 @@ void kernel_llm_softmax_exe(int reqId,float16_t *x,int N)
       }
       >DTYPE(INT16)MEM((uint32_t)scratch,2*N)[2*i:2*i+2*cnt-1] <= DTYPE(INT16)SCRATCH(((uint32_t)&ws->tmp2[0]),2*cnt)[0:2*cnt-1];   
 
-      > BARRIER; 
+//      > BARRIER; 
    }
 
    // Calculate final results
@@ -1165,9 +1174,10 @@ void kernel_llm_softmax_exe(int reqId,float16_t *x,int N)
       
       >DTYPE(INT16)MEM((uint32_t)x,N)[i:i+cnt-1] <= DTYPE(INT16)SCRATCH(((uint32_t)&ws->tmp1[0]),cnt)[0:cnt-1];   
 
-      > BARRIER; 
+//      > BARRIER; 
    }
-   ztaJobDone(reqId); 
+//   ztaJobDone(_req_id);
+   >BARRIER;  
 }
 
 //--------------------------------------------------------------------------
@@ -1244,9 +1254,10 @@ void kernel_llm_rms_exe(int reqId,int N,float N_reciprocal,float16_t *x,bool x_i
 
       >DTYPE(INT16)MEM((uint32_t)o,N)[i:i+cnt-1] <= DTYPE(INT16)SCRATCH(((uint32_t)&ws->o[0]),cnt)[0:cnt-1];   
 
-      > BARRIER; 
+//      > BARRIER; 
    }
-   ztaJobDone(reqId);
+//   ztaJobDone(_req_id);
+   >BARRIER; 
 }
 
 //--------------------------------------------------------------------------
@@ -1318,13 +1329,14 @@ void kernel_llm_rope_exe(
       
       > DTYPE(INT16)SCRATCH((uint32_t)&ws->y[0],cnt,2,1)[:][1][:] <= DTYPE(INT16)SCRATCH((uint32_t)&ws->y1[0],cnt)[:];
 
-      > BARRIER;
+//      > BARRIER;
 
       >DTYPE(INT16)MEM((uint32_t)y,2*N)[2*i:2*i+2*cnt-1] <= DTYPE(INT16)SCRATCH(((uint32_t)&ws->y[0]),2*cnt)[:];          
 
-      > BARRIER;
+//      > BARRIER;
    }
-   ztaJobDone(reqId);
+//   ztaJobDone(_req_id);
+   >BARRIER; 
 }
 
 //-------------------------------------------------------------------------- 
@@ -1378,9 +1390,10 @@ void kernel_llm_residual_exe(
 
       >DTYPE(INT16)MEM((uint32_t)y,N)[i:i+cnt-1] <= DTYPE(INT16)SCRATCH(((uint32_t)&ws->x[0]),cnt)[0:cnt-1];   
 
-      > BARRIER; 
+//      > BARRIER; 
    }
-   ztaJobDone(reqId);
+//   ztaJobDone(_req_id);
+   >BARRIER; 
 }
 
 //--------------------------------------------------------------------------

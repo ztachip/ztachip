@@ -311,105 +311,143 @@ function pack_instruction(rec_in:fpu_instruction_t;
                         return fpu_instruction_rec_t is  
 variable len_v:integer;
 variable q_v:fpu_instruction_rec_t;
+variable rec_v:fpu_instruction_t;
 begin
-   len_v := 0;
-   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.opcode'length) := std_logic_vector(opcode_in);
-   len_v := len_v + rec_in.opcode'length;
-   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.repeat'length) := std_logic_vector(repeat_in);
-   len_v := len_v + rec_in.repeat'length;
-   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.A_addr'length) := std_logic_vector(rec_in.A_addr);
-   len_v := len_v + rec_in.A_addr'length;
-   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.A_addr_step'length) := std_logic_vector(rec_in.A_addr_step);
-   len_v := len_v + rec_in.A_addr_step'length;
-   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.B_addr'length) := std_logic_vector(rec_in.B_addr);
-   len_v := len_v + rec_in.B_addr'length;
-   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.B_addr_step'length) := std_logic_vector(rec_in.B_addr_step);
-   len_v := len_v + rec_in.B_addr_step'length;
-   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.C'length) := std_logic_vector(rec_in.C);
-   len_v := len_v + rec_in.C'length;
-   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.C_addr'length) := std_logic_vector(rec_in.C_addr);
-   len_v := len_v + rec_in.C_addr'length;
-   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.C_addr_step'length) := std_logic_vector(rec_in.C_addr_step);
-   len_v := len_v + rec_in.C_addr_step'length;
-   q_v(q_v'length-len_v-1) := rec_in.C_by_value;
-   len_v := len_v + 1;
-   q_v(q_v'length-len_v-1) := rec_in.C_pending;
-   len_v := len_v + 1;
-   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.C2'length) := std_logic_vector(rec_in.C2);
-   len_v := len_v + rec_in.C2'length;
-   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.C2_addr'length) := std_logic_vector(rec_in.C2_addr);
-   len_v := len_v + rec_in.C2_addr'length;
-   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.C2_addr_step'length) := std_logic_vector(rec_in.C2_addr_step);
-   len_v := len_v + rec_in.C2_addr_step'length;
-   q_v(q_v'length-len_v-1) := rec_in.C2_by_value;
-   len_v := len_v + 1;
-   q_v(q_v'length-len_v-1) := rec_in.C2_pending;
-   len_v := len_v + 1;
-   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.X_addr'length) := std_logic_vector(rec_in.X_addr);
-   len_v := len_v + rec_in.X_addr'length;
-   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.X_addr_step'length) := std_logic_vector(rec_in.X_addr_step);
-   len_v := len_v + rec_in.X_addr_step'length;
-   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.Y_addr'length) := std_logic_vector(rec_in.Y_addr);
-   len_v := len_v + rec_in.Y_addr'length;
-   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.Y_addr_step'length) := std_logic_vector(rec_in.Y_addr_step);
-   len_v := len_v + rec_in.Y_addr_step'length;
-   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.CNT'length) := std_logic_vector(rec_in.CNT);
-   len_v := len_v + rec_in.CNT'length;
-   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.VECTOR'length) := std_logic_vector(rec_in.VECTOR);
-   len_v := len_v + rec_in.VECTOR'length;
-   q_v(q_v'length-len_v-1) := last_in;
-   len_v := len_v + 1;
-   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.LAST_BE'length) := last_be;
-   len_v := len_v + rec_in.LAST_BE'length;
-   q_v(q_v'length-len_v-1) := rec_in.B_enable;
-   len_v := len_v + 1;
-   q_v(q_v'length-len_v-1) := rec_in.C_enable;
-   len_v := len_v + 1;
-   q_v(q_v'length-len_v-1) := rec_in.C2_enable;
-   len_v := len_v + 1;
-   q_v(q_v'length-len_v-1) := rec_in.X_enable;
-   len_v := len_v + 1;
-   q_v(q_v'length-len_v-1) := rec_in.Y_enable;
-   len_v := len_v + 1;
-   q_v(q_v'length-len_v-1) := rec_in.B_by_value;
-   len_v := len_v + 1;
-   q_v(q_v'length-len_v-1) := rec_in.X_by_value;
-   len_v := len_v + 1;
-   q_v(q_v'length-len_v-1) := rec_in.Y_by_value;
-   len_v := len_v + 1;
-   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.B'length) := std_logic_vector(rec_in.B);
-   len_v := len_v + rec_in.B'length;
-   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.X'length) := std_logic_vector(rec_in.X);
-   len_v := len_v + rec_in.X'length;
-   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.Y'length) := std_logic_vector(rec_in.Y);
-   len_v := len_v + rec_in.Y'length;
-   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.A_precision'length) := std_logic_vector(rec_in.A_precision);
-   len_v := len_v + rec_in.A_precision'length;
-   q_v(q_v'length-len_v-1) := rec_in.A_int;
-   len_v := len_v + 1;
-   q_v(q_v'length-len_v-1) := floor_in;
-   len_v := len_v + 1;
-   q_v(q_v'length-len_v-1) := abs_in;
-   len_v := len_v + 1;
-   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.B_precision'length) := std_logic_vector(rec_in.B_precision);
-   len_v := len_v + rec_in.B_precision'length;
-   q_v(q_v'length-len_v-1) := rec_in.B_int;
-   len_v := len_v + 1;
-   q_v(q_v'length-len_v-1) := rec_in.X_double;
-   len_v := len_v + 1;
-   q_v(q_v'length-len_v-1) := rec_in.Y_double;
-   len_v := len_v + 1;
-   q_v(q_v'length-len_v-1) := rec_in.C_double;
-   len_v := len_v + 1;
-   q_v(q_v'length-len_v-1) := rec_in.C2_double;
-   len_v := len_v + 1;
-   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.X_type'length) := std_logic_vector(rec_in.X_type);
-   len_v := len_v + rec_in.X_type'length;
-   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.Y_type'length) := std_logic_vector(rec_in.Y_type);
-   len_v := len_v + rec_in.Y_type'length;
-   q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_in.B_type'length) := std_logic_vector(rec_in.B_type);
-   len_v := len_v + rec_in.B_type'length;
-   return q_v;
+    rec_v := rec_in;
+    -- If opcode is FMA or MAC, then B,X,Y,C should have right default values if app 
+    -- did not define them
+    if(opcode_in=register2_fpu_exe_mac_c) then
+        if(rec_v.B_enable='0') then
+            rec_v.B_enable := '1';
+            rec_v.B_by_value := '1';
+            rec_v.B := (others=>'0');
+        end if;
+    end if;
+    if(opcode_in=register2_fpu_exe_fma_c) then
+        if(rec_v.C2_enable='0') then
+            rec_v.C2_enable := '1';
+            rec_v.C2_by_value := '1';
+            rec_v.C2_pending := '0';
+            rec_v.C2 := (others=>'0');
+        end if;
+    end if;
+    if(opcode_in=register2_fpu_exe_fma_c or opcode_in=register2_fpu_exe_mac_c) then
+        if(rec_v.C_enable='0') then
+            rec_v.C_enable := '1';
+            rec_v.C_by_value := '1';
+            rec_v.C_pending := '0';
+            rec_v.C := "00111111100000000000000000000000";
+        end if;
+        if(rec_v.X_enable='0') then
+            rec_v.X_enable := '1';
+            rec_v.X_by_value := '1';
+            rec_v.X := "00111111100000000000000000000000";
+        end if;
+        if(rec_v.Y_enable='0') then
+            rec_v.Y_enable := '1';
+            rec_v.Y_by_value := '1';
+            rec_v.Y := "00111111100000000000000000000000";
+        end if;
+    end if;
+
+    len_v := 0;
+    q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_v.opcode'length) := std_logic_vector(opcode_in);
+    len_v := len_v + rec_v.opcode'length;
+    q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_v.repeat'length) := std_logic_vector(repeat_in);
+    len_v := len_v + rec_v.repeat'length;
+    q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_v.A_addr'length) := std_logic_vector(rec_v.A_addr);
+    len_v := len_v + rec_v.A_addr'length;
+    q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_v.A_addr_step'length) := std_logic_vector(rec_v.A_addr_step);
+    len_v := len_v + rec_v.A_addr_step'length;
+    q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_v.B_addr'length) := std_logic_vector(rec_v.B_addr);
+    len_v := len_v + rec_v.B_addr'length;
+    q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_v.B_addr_step'length) := std_logic_vector(rec_v.B_addr_step);
+    len_v := len_v + rec_v.B_addr_step'length;
+    q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_v.C'length) := std_logic_vector(rec_v.C);
+    len_v := len_v + rec_v.C'length;
+    q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_v.C_addr'length) := std_logic_vector(rec_v.C_addr);
+    len_v := len_v + rec_v.C_addr'length;
+    q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_v.C_addr_step'length) := std_logic_vector(rec_v.C_addr_step);
+    len_v := len_v + rec_v.C_addr_step'length;
+    q_v(q_v'length-len_v-1) := rec_v.C_by_value;
+    len_v := len_v + 1;
+    q_v(q_v'length-len_v-1) := rec_v.C_pending;
+    len_v := len_v + 1;
+    q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_v.C2'length) := std_logic_vector(rec_v.C2);
+    len_v := len_v + rec_v.C2'length;
+    q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_v.C2_addr'length) := std_logic_vector(rec_v.C2_addr);
+    len_v := len_v + rec_v.C2_addr'length;
+    q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_v.C2_addr_step'length) := std_logic_vector(rec_v.C2_addr_step);
+    len_v := len_v + rec_v.C2_addr_step'length;
+    q_v(q_v'length-len_v-1) := rec_v.C2_by_value;
+    len_v := len_v + 1;
+    q_v(q_v'length-len_v-1) := rec_v.C2_pending;
+    len_v := len_v + 1;
+    q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_v.X_addr'length) := std_logic_vector(rec_v.X_addr);
+    len_v := len_v + rec_v.X_addr'length;
+    q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_v.X_addr_step'length) := std_logic_vector(rec_v.X_addr_step);
+    len_v := len_v + rec_v.X_addr_step'length;
+    q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_v.Y_addr'length) := std_logic_vector(rec_v.Y_addr);
+    len_v := len_v + rec_v.Y_addr'length;
+    q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_v.Y_addr_step'length) := std_logic_vector(rec_v.Y_addr_step);
+    len_v := len_v + rec_v.Y_addr_step'length;
+    q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_v.CNT'length) := std_logic_vector(rec_v.CNT);
+    len_v := len_v + rec_v.CNT'length;
+    q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_v.VECTOR'length) := std_logic_vector(rec_v.VECTOR);
+    len_v := len_v + rec_v.VECTOR'length;
+    q_v(q_v'length-len_v-1) := last_in;
+    len_v := len_v + 1;
+    q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_v.LAST_BE'length) := last_be;
+    len_v := len_v + rec_v.LAST_BE'length;
+    q_v(q_v'length-len_v-1) := rec_v.B_enable;
+    len_v := len_v + 1;
+    q_v(q_v'length-len_v-1) := rec_v.C_enable;
+    len_v := len_v + 1;
+    q_v(q_v'length-len_v-1) := rec_v.C2_enable;
+    len_v := len_v + 1;
+    q_v(q_v'length-len_v-1) := rec_v.X_enable;
+    len_v := len_v + 1;
+    q_v(q_v'length-len_v-1) := rec_v.Y_enable;
+    len_v := len_v + 1;
+    q_v(q_v'length-len_v-1) := rec_v.B_by_value;
+    len_v := len_v + 1;
+    q_v(q_v'length-len_v-1) := rec_v.X_by_value;
+    len_v := len_v + 1;
+    q_v(q_v'length-len_v-1) := rec_v.Y_by_value;
+    len_v := len_v + 1;
+    q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_v.B'length) := std_logic_vector(rec_v.B);
+    len_v := len_v + rec_v.B'length;
+    q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_v.X'length) := std_logic_vector(rec_v.X);
+    len_v := len_v + rec_v.X'length;
+    q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_v.Y'length) := std_logic_vector(rec_v.Y);
+    len_v := len_v + rec_v.Y'length;
+    q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_v.A_precision'length) := std_logic_vector(rec_v.A_precision);
+    len_v := len_v + rec_v.A_precision'length;
+    q_v(q_v'length-len_v-1) := rec_v.A_int;
+    len_v := len_v + 1;
+    q_v(q_v'length-len_v-1) := floor_in;
+    len_v := len_v + 1;
+    q_v(q_v'length-len_v-1) := abs_in;
+    len_v := len_v + 1;
+    q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_v.B_precision'length) := std_logic_vector(rec_v.B_precision);
+    len_v := len_v + rec_v.B_precision'length;
+    q_v(q_v'length-len_v-1) := rec_v.B_int;
+    len_v := len_v + 1;
+    q_v(q_v'length-len_v-1) := rec_v.X_double;
+    len_v := len_v + 1;
+    q_v(q_v'length-len_v-1) := rec_v.Y_double;
+    len_v := len_v + 1;
+    q_v(q_v'length-len_v-1) := rec_v.C_double;
+    len_v := len_v + 1;
+    q_v(q_v'length-len_v-1) := rec_v.C2_double;
+    len_v := len_v + 1;
+    q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_v.X_type'length) := std_logic_vector(rec_v.X_type);
+    len_v := len_v + rec_v.X_type'length;
+    q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_v.Y_type'length) := std_logic_vector(rec_v.Y_type);
+    len_v := len_v + rec_v.Y_type'length;
+    q_v(q_v'length-len_v-1 downto q_v'length-len_v-rec_v.B_type'length) := std_logic_vector(rec_v.B_type);
+    len_v := len_v + rec_v.B_type'length;
+    return q_v;
 end pack_instruction;
 
 ----
@@ -777,19 +815,19 @@ pending_rdreq <= fpu_readdatavalid_in;
 
 barrier <= barrier_r or barrier_rr or barrier_rrr; 
 
-wregno <= unsigned(bus_waddr_in(register_t'length-1 downto 0));
+wregno <= unsigned(bus_waddr_in(register_t'length+register2_t'length-1 downto register2_t'length));
 
-wregno2 <= unsigned(bus_waddr_in(register2_t'length+register_t'length-1 downto register_t'length));
+wregno2 <= unsigned(bus_waddr_in(register2_t'length-1 downto 0));
 
-fpu_set_P <= unsigned(bus_waddr_in(register2_t'length+register_t'length-1 downto register_t'length) and register2_fpu_set_P_MASK);
+fpu_set_P <= unsigned(bus_waddr_in(register2_t'length-1 downto 0) and register2_fpu_set_P_MASK);
 
-fpu_set_M <= unsigned(bus_waddr_in(register2_t'length+register_t'length-1 downto register_t'length) and register2_fpu_set_M_MASK);
+fpu_set_M <= unsigned(bus_waddr_in(register2_t'length-1 downto 0) and register2_fpu_set_M_MASK);
 
-fpu_set_W <= unsigned(bus_waddr_in(register2_t'length+register_t'length-1 downto register_t'length) and register2_fpu_set_W_MASK);
+fpu_set_W <= unsigned(bus_waddr_in(register2_t'length-1 downto 0) and register2_fpu_set_W_MASK);
 
-rregno <= unsigned(bus_raddr_in(register_t'length-1 downto 0));
+rregno <= unsigned(bus_raddr_in(register_t'length+register2_t'length-1 downto register2_t'length));
 
-rregno2 <= unsigned(bus_raddr_in(register2_t'length+register_t'length-1 downto register_t'length));
+rregno2 <= unsigned(bus_raddr_in(register2_t'length-1 downto 0));
 
 -- Available cache for each parameters
 

@@ -16,6 +16,7 @@
 // limitations under the License.
 //------------------------------------------------------------------------------
 
+#include "../../../base/zta.h"
 #include "../../../base/ztalib.h"
 
 static uint16_t *last_image __attribute__((section(".tcm_data")))=0;

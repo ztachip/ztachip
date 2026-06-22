@@ -188,8 +188,8 @@ pending_data_read <= axislave_wvalid_r and axislave_wlast_r and axislave_wready;
 
 write_fifo_i: axi_write
    generic map(
-      FIFO_DEPTH=>5,
-      FIFO_DATA_DEPTH=>5,
+      FIFO_DEPTH=>6,
+      FIFO_DATA_DEPTH=>6,
       CCD=>FALSE
    )
    port map
