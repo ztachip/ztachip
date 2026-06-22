@@ -189,7 +189,7 @@ PC Ethernet interface is expected to be configured with an ip address=10.10.10.1
 
 ### Performance Comparison
 
-Small LLM model performance is largely constrained by memory bandwidth. In these scenarios, a GPU offers minimal advantage because the compute cores spend most of their time waiting for memory operations to complete. 
+Small LLM model performance running on edge devices is largely constrained by memory bandwidth. In these scenarios, a GPU offers minimal advantage because the compute cores spend most of their time waiting for memory operations to complete. 
 
 A more accurate metric for comparing performance is **tokens per second (TPS) per GB/s of memory bandwidth**.
 
