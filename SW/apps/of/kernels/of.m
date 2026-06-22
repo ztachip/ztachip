@@ -21,7 +21,8 @@
 #include "of.h"
 #include "of.p.img"
 
-
+// Every kernel module must be declared with line below
+>DECLARE_MODULE; 
 
 // Doing dense optical flow using Lucas-Kanade method.
 // https://en.wikipedia.org/wiki/Lucas%E2%80%93Kanade_method

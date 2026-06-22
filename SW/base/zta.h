@@ -530,12 +530,4 @@
 
 #define ZTAM_GREG(reg2,reg,vm)  (((volatile uint32_t *)MEM_MAP)[((reg) << 7)+reg2])
 
-// Memory map to access DP_TEMPLATE register bank
-
-#define _M1 ((volatile uint32_t *)(MEM_MAP+(REG_DP_TEMPLATE<<9)))
-
-// Memory map to access FPU_SET register bank
-
-#define _M2 ((volatile uint32_t *)(MEM_MAP+(REG_FPU_SET<<9)))
-
 #endif

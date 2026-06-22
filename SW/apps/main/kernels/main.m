@@ -19,6 +19,9 @@
 #include "../../../base/zta.h"
 #include "../../../base/ztalib.h"
 
+// Every kernel module must be declared with line below
+>DECLARE_MODULE; 
+
 static uint16_t *last_image __attribute__((section(".tcm_data")))=0;
 
 // Load code/memory to pcore

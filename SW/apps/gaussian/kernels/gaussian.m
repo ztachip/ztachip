@@ -24,6 +24,9 @@
 // Kernel to perform gaussian blurring 
 // Refer to https://en.wikipedia.org/wiki/Gaussian_blur
 
+// Every kernel module must be declared with line below
+>DECLARE_MODULE; 
+
 extern void mycallback(int);
 
 typedef struct {

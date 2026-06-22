@@ -20,6 +20,8 @@
 #include "canny.h"
 #include "canny.p.img"
 
+// Every kernel module must be declared with line below
+>DECLARE_MODULE; 
 
 // Perform canny edge detection algorithm
 // Refer to https://en.wikipedia.org/wiki/Canny_edge_detector

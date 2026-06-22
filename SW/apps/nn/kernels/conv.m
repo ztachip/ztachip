@@ -23,6 +23,9 @@
 #include "conv.h"
 #include "conv.p.img"
 
+// Every kernel module must be declared with line below
+>DECLARE_MODULE; 
+
 //#define MONITOR
 
 extern void mycallback(int parm2);

@@ -4,6 +4,9 @@
 #include "objdet.h"
 #include "objdet.p.img"
 
+// Every kernel module must be declared with line below
+>DECLARE_MODULE; 
+
 // This structure holds all information to perform this kernel function
 
 typedef struct {

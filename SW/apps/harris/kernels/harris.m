@@ -21,6 +21,9 @@
 #include "harris.h"
 #include "harris.p.img"
 
+// Every kernel module must be declared with line below
+>DECLARE_MODULE; 
+
 // Perform harris-corner algorithm
 // Refer to https://en.wikipedia.org/wiki/Harris_Corner_Detector
 

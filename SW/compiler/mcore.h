@@ -29,6 +29,7 @@
 
 // Tokens used by mcore intepreter...
 #define TOKEN_NOP             "NOP"
+#define TOKEN_DECLARE_MODULE  "DECLARE_MODULE"
 #define TOKEN_PCORE           "PCORE"
 #define TOKEN_PCORES          "PCORES"
 #define TOKEN_SRAM            "SCRATCH"
@@ -230,6 +231,7 @@ public:
    static char *scan_fpu_exe(FILE *out,char *line);
    static char *scan_notify(FILE *out,char *line);
    static char *scan_print(FILE *out,char *line);
+   static char *scan_declare_module(FILE *out,char *line);
    static char *scan_log_on(FILE *out,char *line,bool sync);
    static char *scan_log_off(FILE *out,char *line,bool sync);
    static char *scan_export(char *line);

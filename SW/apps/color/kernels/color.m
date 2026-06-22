@@ -21,6 +21,9 @@
 #include "color.h"
 #include "color.p.img"
 
+// Every kernel module must be declared with line below
+>DECLARE_MODULE; 
+
 extern void mycallback(int parm2);
 
 #define PCORE_DX  4

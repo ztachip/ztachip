@@ -21,6 +21,9 @@
 #include "equalize.h"
 #include "equalize.p.img"
 
+// Every kernel module must be declared with line below
+>DECLARE_MODULE; 
+
 // Perform histogram equalization
 
 typedef struct {

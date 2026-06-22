@@ -35,7 +35,7 @@
         <DataMask>1</DataMask>
         <ECC>Disabled</ECC>
         <Ordering>Normal</Ordering>
-        <BankMachineCnt>4</BankMachineCnt>
+        <BankMachineCnt>8</BankMachineCnt>
         <CustomPart>FALSE</CustomPart>
         <NewPartName></NewPartName>
         <RowAddress>14</RowAddress>
@@ -43,7 +43,7 @@
         <BankAddress>3</BankAddress>
         <MemoryVoltage>1.35V</MemoryVoltage>
         <C0_MEM_SIZE>268435456</C0_MEM_SIZE>
-        <UserMemoryAddressMap>BANK_ROW_COLUMN</UserMemoryAddressMap>
+        <UserMemoryAddressMap>ROW_BANK_COLUMN</UserMemoryAddressMap>
         <PinSelection>
             <Pin VCCAUX_IO="" IOSTANDARD="SSTL135" PADName="R2" SLEW="" name="ddr3_addr[0]" IN_TERM="" />
             <Pin VCCAUX_IO="" IOSTANDARD="SSTL135" PADName="R6" SLEW="" name="ddr3_addr[10]" IN_TERM="" />

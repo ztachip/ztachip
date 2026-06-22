@@ -22,6 +22,9 @@
 #include "resize.h"
 #include "resize.p.img"
 
+// Every kernel module must be declared with line below
+>DECLARE_MODULE; 
+
 // Perform image resize using bicubic interpolation
 
 #define PAD_VALUE 0

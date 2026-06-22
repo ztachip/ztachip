@@ -21,6 +21,9 @@
 #include "../../../../SW/src/soc.h"
 #include "test.p.img"
 
+// Every kernel module must be declared with line below
+>DECLARE_MODULE; 
+
 #define BUFSZ (16*8*NUM_PCORE*2)
 
 static volatile uint16_t inbuf[BUFSZ];

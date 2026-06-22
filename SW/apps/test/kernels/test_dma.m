@@ -24,6 +24,8 @@
 #include "../../../../SW/src/soc.h"
 #include "test_dma.p.img"
 
+// Every kernel module must be declared with line below
+>DECLARE_MODULE; 
 
 int8_t INBUF[2*1024+256];
 

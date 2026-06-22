@@ -29,6 +29,9 @@
 #include "llm_p.h"
 #include "llm.p.img"
 
+// Every kernel module must be declared with line below
+>DECLARE_MODULE; 
+
 //--------------------------------------------------------------------------
 // Approximate y=1/sqrt(x) with Taylor expansion
 // Approximate y(0) with FPU.INVSQRT 
@@ -605,7 +608,7 @@ static void llm_dot_product_exe(void *_p,int pid)
    uint32_t scale;
    uint32_t x1;
    uint32_t x2;
-   uint32_t y,yfmt,A,Afmt;
+   uint32_t y,A,Afmt;
 
    if(pid==0) {
       ws = (dot_product_ws *)0;
@@ -645,15 +648,20 @@ static void llm_dot_product_exe(void *_p,int pid)
          scale = *((uint32_t *)&req->scale);
          x1 = (uint32_t)ws->x1;
          x2 = (uint32_t)(&ws->x2[0][0]);
-         yfmt = ((last)?FPU_SET_W_BFLOAT:FPU_SET_W_FP32)|FPU_SET_M_ADDR; 
          Afmt=((i==0)?FPU_SET_M_VALUE:FPU_SET_M_ADDR)|FPU_SET_W_FP32;
 
          y = last?(uint32_t)(&ws->sum2[0]):sum;
          
          A=(i==0)?0:sum;
   
-         >FPU.V.FMA(R=cnt2-1,N=cnt,y=(yfmt)y:(last?2:4),c=(float)scale,x1=(bfloat *)x1,x2=(bfloat *)x2:(DOT_PRODUCT_BATCH*2),A=(Afmt)A:4);
-
+         if(last)
+         {
+            >FPU.V.FMA(R=cnt2-1,N=cnt,y=(bfloat *)y:(last?2:4),c=(float)scale,x1=(bfloat *)x1,x2=(bfloat *)x2:(DOT_PRODUCT_BATCH*2),A=(Afmt)A:4);
+         }
+         else
+         {
+            >FPU.V.FMA(R=cnt2-1,N=cnt,y=(float *)y:(last?2:4),c=(float)scale,x1=(bfloat *)x1,x2=(bfloat *)x2:(DOT_PRODUCT_BATCH*2),A=(Afmt)A:4);
+         }
          ztaTaskYield();  
       }
       >DTYPE(INT16)MEM((uint32_t)req->_y,((pid==0)?sz:req->K))[j:j+cnt2-1] <= DTYPE(INT16)SCRATCH((uint32_t)ws->sum2,cnt2)[0:cnt2-1];   
@@ -727,7 +735,7 @@ static void llm_dot_product2_exe(void *_p,int pid)
    bool last;
    REQUEST_DOT_PRODUCT2 *req = (REQUEST_DOT_PRODUCT2 *)_p;
    uint32_t sum,x1,x2;
-   uint32_t y,yfmt,A,Afmt;
+   uint32_t y,A,Afmt;
 
    if(pid==0) {
       ws = (dot_product2_ws *)0;
@@ -783,16 +791,20 @@ static void llm_dot_product2_exe(void *_p,int pid)
          
          x1 = (uint32_t)ws->sram_x1;
 
-         yfmt = ((last)?FPU_SET_W_BFLOAT:FPU_SET_W_FP32)|FPU_SET_M_ADDR; 
-
          Afmt=((j==0)?FPU_SET_M_VALUE:FPU_SET_M_ADDR)|FPU_SET_W_FP32;
 
          y = last?(uint32_t)(&ws->sram_sum2[0]):sum;
 
          A=(j==0)?0:sum;
 
-         >FPU.V.FMA(R=cnt2-1,N=cnt,y=(yfmt)y:(last?2:4),x1=(bfloat *)x2:DOT_PRODUCT_K_BATCH*2,x2=(bfloat *)x1,A=(Afmt)A:4);
-
+         if(last)
+         {
+            >FPU.V.FMA(R=cnt2-1,N=cnt,y=(bfloat *)y:(last?2:4),x1=(bfloat *)x2:DOT_PRODUCT_K_BATCH*2,x2=(bfloat *)x1,A=(Afmt)A:4);
+         }
+         else
+         {
+            >FPU.V.FMA(R=cnt2-1,N=cnt,y=(float *)y:(last?2:4),x1=(bfloat *)x2:DOT_PRODUCT_K_BATCH*2,x2=(bfloat *)x1,A=(Afmt)A:4);
+         }
          ztaTaskYield(); 
       }
       >DTYPE(INT16)MEM((uint32_t)req->_y,((pid==0)?sz:req->N))[k:k+cnt2-1] <= DTYPE(INT16)SCRATCH((uint32_t)ws->sram_sum2,DOT_PRODUCT_N_BATCH)[0:cnt2-1];   

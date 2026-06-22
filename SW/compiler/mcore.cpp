@@ -2425,6 +2425,15 @@ char *cMcore::scan_var(FILE *out, char *line)
    return line;
 }
 
+// Scan and generate code for DECLARE_MODULE
+char *cMcore::scan_declare_module(FILE *out, char *line)
+{
+   char token[MAX_LINE];
+   line = scan_name(line, token);
+   fprintf(out, "static volatile uint32_t *_M1=(uint32_t *)0x%08X;\n",MEM_MAP+(REG_DP_TEMPLATE<<9));
+   fprintf(out, "static volatile uint32_t *_M2=(uint32_t *)0x%08X;\n",MEM_MAP+(REG_FPU_SET<<9));
+   return line;
+}
 
 // Scan and generate a LOG_ON command
 char *cMcore::scan_log_on(FILE *out, char *line, bool sync)
@@ -2987,6 +2996,11 @@ char *cMcore::decode(char *line, FILE *out, int *cmd)
    {
       *cmd = CMD_PRINT;
       return scan_print(out, line);
+   }
+   if (strcasecmp(token, TOKEN_DECLARE_MODULE) == 0)
+   {
+      *cmd = CMD_NOP;
+      return scan_declare_module(out, line);
    }
    if (strcasecmp(token, TOKEN_LOG_ON) == 0)
    {
