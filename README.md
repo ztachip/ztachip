@@ -197,6 +197,13 @@ A more accurate metric for comparing performance is **tokens per second (TPS) pe
 
 The following data compares **ztachip** running on Arty hardware against the Raspberry Pi 4 and Raspberry Pi 5. 
 
+LLM performance can be divided into two distinct components:
+
+* **Fixed Component:** Dominated by matrix multiplication and model weight transfers. This is the primary bottleneck and cost driver for edge AI applications, where long chat histories or large contexts are rarely used.
+* **Variable Component:** Driven by attention mechanisms and softmax calculations across the context window. **ztachip's** with dedicated FPU computing unit, which matches context memory DDR transfer rates, this component remains memory-bound.
+
+The comparison below isolates and focuses on the **fixed cost** component by utilizing shorter prompts and questions.
+
 *(Data sourced from [arXiv:2511.07425v1](https://arxiv.org/html/2511.07425v1))*
 
 | Platform | Performance (TPS) | Memory Bandwidth (MemBW) | Efficiency (TPS per GB/s) |
