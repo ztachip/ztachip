@@ -39,7 +39,7 @@
 // y(n+1) = y(n) * (1.5f - x/2 * y(n) * y(n));
 //--------------------------------------------------------------------------
 
-inline void invsqrt(int cnt,float *x,float *y,float *temp,float *temp2)
+static inline void invsqrt(int cnt,float *x,float *y,float *temp,float *temp2)
 {
    >FPU.INVSQRT(n=cnt,y=(float *)y,x=(float *)x)...; // Initial estimate
 
@@ -69,7 +69,7 @@ inline void invsqrt(int cnt,float *x,float *y,float *temp,float *temp2)
 // Do in batch of cnt float numbers
 //--------------------------------------------------------------------------
 
-inline void reciprocal(int cnt,float *x,int xfmt,float *y,float *temp)
+static inline void reciprocal(int cnt,float *x,int xfmt,float *y,float *temp)
 {
    if(cnt==1) {
    >FPU.RECIPROCAL(n=cnt,y=(float *)y,x=(xfmt)x)...;
@@ -111,7 +111,7 @@ inline void reciprocal(int cnt,float *x,int xfmt,float *y,float *temp)
 // 1 + x*(1 + x*(0.5 + x*(0.16666667 + x*(0.04166667 + x*(0.00833333 + x*0.00138889)))))
 //--------------------------------------------------------------------------
 
-inline void exponent(int N,float *x,float *y,float *tmp1,float *tmp2,float *tmp3,float bias,int yfmt) { 
+static inline void exponent(int N,float *x,float *y,float *tmp1,float *tmp2,float *tmp3,float bias,int yfmt) { 
    >FPU.V.MAC.FLOOR(n=N,y=(float *)tmp1,c=1.442695,x1=(float *)x); // tmp1= floor(x/ln2)
 
    >FPU.V.MAC(n=N,y=(int16 *)tmp2,x1=(float *)tmp1)...; // tmp2= (int8_t)tmp1

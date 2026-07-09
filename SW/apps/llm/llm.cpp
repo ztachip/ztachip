@@ -289,7 +289,7 @@ ZtaStatus llama::Open(const char* checkpoint_path) {
 
     m_runtime.key_cache = (float16_t *)calloc(m_config.n_layers * m_config.seq_len * kv_dim, sizeof(float16_t));
     m_runtime.value_cache = (float16_t *)calloc(m_config.n_layers * m_config.seq_len * kv_dim, sizeof(float16_t));
-    m_runtime.att = (float16_t *)calloc(m_config.seq_len+16, sizeof(float16_t));
+    m_runtime.att = (float16_t *)calloc((m_config.seq_len+16)*m_config.n_heads, sizeof(float16_t));
     m_runtime.logits = (float16_t *)calloc(m_config.vocab_size, sizeof(float16_t));
 
     m_runtime.xbq.q = (int16_t *)calloc(m_config.dim, sizeof(int16_t));
@@ -474,6 +474,7 @@ float16_t* llama::forward(int token, int pos) {
     int hidden_dim =  m_config.hidden_dim;
     int head_size = dim / m_config.n_heads;
     uint32_t resp;
+    float16_t *att;
 
     // copy the token embedding into x
 
@@ -518,22 +519,25 @@ float16_t* llama::forward(int token, int pos) {
 
         // multihead attention. iterate over all heads
         int h;
-        for (h = 0; h < (int)m_config.n_heads; h++) {
+        for (h = 0,att=m_runtime.att; h < (int)m_config.n_heads; h++,att+=m_config.seq_len) {
             // get the query vector for this head
             float16_t* q = m_runtime.q + (h * head_size);
             // attention scores for this head
             // iterate over all timesteps, including the current one
             k_start = m_runtime.key_cache + (loff + (h / kv_mul) * head_size);
 
-            kernel_llm_dot_product_exe(-1,head_size,(pos+1),q,k_start,kv_dim,m_runtime.att,m_config.inv_sqrtf_head_size);
-
-            kernel_llm_softmax_exe(-1,m_runtime.att,pos + 1);
-
+            kernel_llm_dot_product_exe(-1,head_size,(pos+1),q,k_start,kv_dim,att,m_config.inv_sqrtf_head_size);
+        }
+        for (h = 0,att=m_runtime.att; h < (int)m_config.n_heads; h++,att+=m_config.seq_len) {
+            kernel_llm_softmax_exe(-1,att,pos + 1);
+        }
+        for (h = 0,att=m_runtime.att; h < (int)m_config.n_heads; h++,att+=m_config.seq_len) {
             // weighted sum of the values, store back into xb
             float16_t* xb = m_runtime.xb + (h * head_size);
             k_start = m_runtime.value_cache + (loff + (h / kv_mul) * head_size);
-            kernel_llm_dot_product2_exe(-1,head_size,(pos+1),m_runtime.att,k_start,kv_dim,xb);
+            kernel_llm_dot_product2_exe(-1,head_size,(pos+1),att,k_start,kv_dim,xb);
         }
+    
 
         kernel_llm_quantize_exe(-1,dim,m_runtime.xb,m_runtime.xbq.s,m_runtime.xbq.q);
 
