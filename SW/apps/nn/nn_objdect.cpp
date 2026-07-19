@@ -136,7 +136,7 @@ ZtaStatus NeuralNetLayerObjDetect::Evaluate(int queue) {
    classResult=(uint8_t *)m_classResult;
 
    kernel_objdet_exe(
-      0,
+      (unsigned int)GetJobId(queue),
       (uint32_t)classes,
       (uint32_t)scoreResult,
       (uint32_t)classResult,

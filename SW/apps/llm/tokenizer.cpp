@@ -14,7 +14,6 @@
 #include "../../src/soc.h"
 #include "tokenizer.h"
 
-
 static int compare_tokens(const void *a, const void *b) {
     return strcmp(((SPMTokenIndex*)a)->str, ((SPMTokenIndex*)b)->str);
 }
@@ -95,7 +94,7 @@ char* TokenizerSPM::TokenToString(int prev_token, int token) {
     return piece;
 }
 
-void TokenizerSPM::StringToToken(char *text, int8_t bos, int8_t eos, std::vector<int> &tokens) {
+ZtaStatus TokenizerSPM::StringToToken(char *text, int8_t bos, int8_t eos, std::vector<int> &tokens,int timeout) {
     // encode the string text (input) into an upper-bound preallocated tokens[] array
     // bos != 0 means prepend the BOS token (=1), eos != 0 means append the EOS token (=2)
     assert(text);
@@ -199,6 +198,7 @@ void TokenizerSPM::StringToToken(char *text, int8_t bos, int8_t eos, std::vector
 
     // add optional EOS (=2) token, if desired
     if (eos) tokens.push_back(2);
+    return ZtaStatusOk;
 }
 
 int TokenizerSPM::lookup(char *str) {
@@ -226,6 +226,8 @@ TokenizerBFE::TokenizerBFE() : Tokenizer() {
     m_mergeHash = 0;
     m_token=0;
     sorted_vocab=0;
+    m_shash = 0;
+    m_inProgress=false;
 }
 
 TokenizerBFE::~TokenizerBFE() {
@@ -239,6 +241,8 @@ TokenizerBFE::~TokenizerBFE() {
         free(m_token);
     if(sorted_vocab)
         free(sorted_vocab);
+    if(m_shash)
+        free(m_shash);
 }
 
 void TokenizerBFE::Build(uint32_t vocabSize, char* vocab,uint32_t mergeSize, char *merge,uint32_t max_token_length) {
@@ -261,7 +265,7 @@ void TokenizerBFE::Build(uint32_t vocabSize, char* vocab,uint32_t mergeSize, cha
     m_vocab = (char **)malloc(m_vocabSize * sizeof(char*));
     m_mergeSize = mergeSize/2;
     m_merge = (BFEMerge *)malloc(m_mergeSize * sizeof(BFEMerge));
-    m_mergeHash = (uint8_t *)malloc(m_mergeSize * sizeof(uint8_t));
+    m_mergeHash = (uint8_t *)malloc(m_mergeSize * sizeof(uint16_t));
     m_token = (char *)malloc(max_token_length + 16);
     for (i = 0, p = vocab; i < vocabSize; i++) {
         m_vocab[i] = p;
@@ -281,7 +285,8 @@ void TokenizerBFE::Build(uint32_t vocabSize, char* vocab,uint32_t mergeSize, cha
         p += strlen(p) + 1;
         m_merge[i].second = p;
         p += strlen(p) + 1;
-        m_mergeHash[i] = hashFunc(m_merge[i].first)+hashFunc(m_merge[i].second);
+        m_mergeHash[2*i] = hashFunc(m_merge[i].first);
+        m_mergeHash[2*i+1] = hashFunc(m_merge[i].second);
     }
 }
 
@@ -312,50 +317,70 @@ char *TokenizerBFE::TokenToString(int prev_token,int token) {
     return m_token;
 }
 
-void TokenizerBFE::StringToToken(char* text,int8_t bos,int8_t eos,std::vector<int> &tokens) {
-    static std::vector<std::string> s;
+ZtaStatus TokenizerBFE::StringToToken(char* text,int8_t bos,int8_t eos,std::vector<int> &tokens,int timeout) {
     int count = 0;
     int i,r;
     bool merged;
-    uint8_t *shash;
-    int shashLen = 0;
-    int nTokens = 0;
+    int maxCount=0;
+    uint32_t tick,tock;
+    int match1=0;
+    int match2=0;
+    uint8_t *p,*p2;
+
+    tick = TimeGet();
 
     // Convert text into tokens, keeping space as its own symbol
-    s.clear();
-    shash = (uint8_t *)malloc(strlen(text) + 1);
-    for (i = 0; i < (int)strlen(text); i++) {
-        char buf[8];
-        if (text[i] == ' ') {
-            s.push_back(std::string("\xc4\xa0"));
-            shash[shashLen++]=hashFunc((char*)"\xc4\xa0");
-            nTokens++;
+    if(text) {
+        m_s.clear();
+        if(m_shash)
+            free(m_shash);
+        m_shash = (uint8_t *)malloc(strlen(text) + 1);
+
+        m_shashLen = 0;
+        m_nTokens = 0;
+
+        for (i = 0; i < (int)strlen(text); i++) {
+            char buf[8];
+            if (text[i] == ' ') {
+                m_s.push_back(std::string("\xc4\xa0"));
+                m_shash[m_shashLen++]=hashFunc((char*)"\xc4\xa0");
+                m_nTokens++;
+            }
+            else {
+                sprintf(buf, "%c", text[i]);
+                m_s.push_back(std::string(buf));
+                m_shash[m_shashLen++]=hashFunc(buf);
+                m_nTokens++;
+            }
         }
-        else {
-            sprintf(buf, "%c", text[i]);
-            s.push_back(std::string(buf));
-            shash[shashLen++]=hashFunc(buf);
-            nTokens++;
-        }
+        m_inProgress=true;
+    }
+    if(!m_inProgress) {
+        return ZtaStatusOk;
     }
     merged = true;
     while (merged) {
+        if(timeout > 0) {
+            tock = TimeGet();
+            if(((int32_t)tock-(int32_t)tick) >= timeout)
+                break;
+        }
         merged = false;
-        for (r = 0; r < (int)m_mergeSize; r++) {
-            uint8_t key = m_mergeHash[r];
-            for (i = 0; i < (nTokens - 1);i++) {
-                if (key != (uint8_t)(shash[i]+shash[i+1])) {
+        for (r = 0,p2=m_mergeHash; r < (int)m_mergeSize; r++,p2 += 2) {
+            uint8_t key1 = p2[0];
+            uint8_t key2 = p2[1];
+            for (i = 0,p=m_shash; i < (m_nTokens - 1);i++,p++) {
+                if(key1 != p[0] || key2 != p[1])
                     continue;
-                }
-                if (strcmp(s[i].c_str(), m_merge[r].first) == 0 &&
-                    strcmp(s[i + 1].c_str(), m_merge[r].second) == 0) {
-                    s[i] = s[i] + s[i + 1];
-                    s.erase(s.begin() + i + 1);
-                    nTokens--;
-                    shash[i] = shash[i] + shash[i + 1];
-                    if((shashLen-i-2) > 0)
-                        memcpy(&shash[i + 1], &shash[i + 2],shashLen-i-2);
-                    shashLen--;
+                if (strcmp(m_s[i].c_str(), m_merge[r].first) == 0 &&
+                    strcmp(m_s[i + 1].c_str(), m_merge[r].second) == 0) {
+                    m_s[i] = m_s[i] + m_s[i + 1];
+                    m_s.erase(m_s.begin() + i + 1);
+                    m_nTokens--;
+                    p[0] = p[0] + p[1];
+                    if((m_shashLen-i-2) > 0)
+                        memcpy(&p[1], &p[2],(m_shashLen-i-2));
+                    m_shashLen--;
                     merged = true;
                     break;
                 }
@@ -364,12 +389,16 @@ void TokenizerBFE::StringToToken(char* text,int8_t bos,int8_t eos,std::vector<in
                 break;
         }
     }
-    for (i = 0; i < (int)s.size(); i++) {
-        int id=lookupToken((char *)s[i].c_str());
+    if(merged) {
+        return ZtaStatusPending;
+    }
+    for (i = 0; i < (int)m_s.size(); i++) {
+        int id=lookupToken((char *)m_s[i].c_str());
         if(id >= 0)
             tokens.push_back(id);        
     }
-    free(shash);
+    m_inProgress=false;
+    return ZtaStatusOk;
 }
 
 int TokenizerBFE::lookupToken(char *str) {
@@ -382,7 +411,7 @@ int TokenizerBFE::lookupToken(char *str) {
 uint8_t TokenizerBFE::hashFunc(char* s) {
     uint8_t sum = 0;
     while (*s) {
-        sum += *s;
+        sum += (uint8_t)(*s);
         s++;
     }
     return sum;

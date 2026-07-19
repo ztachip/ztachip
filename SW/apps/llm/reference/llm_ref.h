@@ -52,9 +52,9 @@ extern void kernel_ref_llm_SwiGLU_exe(int reqId,float16_t *hb,float16_t *hb2,int
 
 extern void kernel_ref_llm_softmax_exe(int reqId,float16_t *x,int N);
 
-extern int kernel_ref_llm_find_max(float16_t *x,uint32_t N);
+extern int kernel_ref_llm_find_max(uint32_t jobId,float16_t *x,uint32_t N);
 
-extern int kernel_ref_llm_find_k_max(float16_t* x, uint32_t _N_, int K, float scale, int* top, float* topp);
+extern int kernel_ref_llm_find_k_max(uint32_t jobId,float16_t* x, uint32_t _N_, int K, float scale, int* top, float* topp);
 
 #ifdef __cplusplus
 }

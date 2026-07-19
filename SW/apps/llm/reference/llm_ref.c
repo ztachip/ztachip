@@ -436,7 +436,7 @@ void kernel_ref_llm_softmax_exe(int reqId,float16_t *x,int N) {
 // Reference kernel function for greedy sampling
 //-------------------------------------------------------------------------
 
-int kernel_ref_llm_find_max(float16_t *x,uint32_t N) {
+int kernel_ref_llm_find_max(uint32_t jobId,float16_t *x,uint32_t N) {
     int max = 0;
 
     for(int i=1;i < N;i++) {
@@ -447,7 +447,7 @@ int kernel_ref_llm_find_max(float16_t *x,uint32_t N) {
 }
 
 // Not implemented yet...
-int kernel_ref_llm_find_k_max(float16_t* x, uint32_t _N, int K, float scale,int* top, float* topp) {
+int kernel_ref_llm_find_k_max(uint32_t jobId,float16_t* x, uint32_t _N, int K, float scale,int* top, float* topp) {
 
     return 0;
 }

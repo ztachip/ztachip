@@ -43,8 +43,6 @@ Graph::Graph() {
    m_nextNodeToSchedule=-1;
    m_timeElapsed=0;
    m_queue=queue;
-   m_lastRequestId=0;
-   m_lastResponseId=0xffffffff;
 }
 
 Graph::~Graph() {
@@ -64,6 +62,7 @@ ZtaStatus Graph::Clear() {
 // to Graph...
 
 ZtaStatus Graph::Add(GraphNode *node) {
+   node->m_parent = this;
    m_nodes.push_back(node);
    return ZtaStatusOk;
 }
@@ -109,8 +108,7 @@ ZtaStatus Graph::run(int timeout) {
       if(timeout>=0)
          break;
    }
-   GraphNode::CheckResponse();
-   if((m_lastResponseId==m_lastRequestId) &&
+   if(ztaIsJobQueueDone(m_queue) &&
       (m_nextNodeToSchedule >= (int)m_nodes.size())) {
       // Done...
       m_nextNodeToSchedule=-1;
@@ -121,6 +119,7 @@ ZtaStatus Graph::run(int timeout) {
 }
 
 GraphNode::GraphNode() {
+   m_parent = 0;
 }
 
 GraphNode::~GraphNode() {
@@ -130,35 +129,14 @@ GraphNodeType GraphNode::GetType() {
    return GraphNodeTypeProcessing;
 }
 
-// Running the graph.
-// Check response queue for any available responses.
-
-
-ZtaStatus GraphNode::CheckResponse() {
-   int queue;
-   uint32_t resp;
-   // Wait for response....
-   while(ztaReadResponse(&resp)) {
-	   queue=(resp>>24);
-	   resp=(resp&0xFFFFFF);
-	   assert(queue < GRAPH_MAX_INSTANCE);
-	   M_graphLst[queue]->m_lastResponseId=resp;
-   }
-   return ZtaStatusOk;
-}
 
 // Allocate and return the next request id
 
 uint32_t GraphNode::GetJobId(int queue) {
-   Graph *g=M_graphLst[queue];
-   g->m_lastRequestId++;
-   if((g->m_lastRequestId & 0xFF000000) != 0)
-      g->m_lastRequestId=0;
-   return g->m_lastRequestId+(queue<<24);
+   return ztaGetNextJobId(queue);
 }
 
 bool GraphNode::AllRequestAreCompleted(int queue) {
-   Graph *g=M_graphLst[queue];
-   return g->m_lastRequestId==g->m_lastResponseId;
+   return ztaIsJobQueueDone(queue);
 }
 

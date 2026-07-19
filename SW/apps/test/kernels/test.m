@@ -67,7 +67,6 @@ static void test(void *_p,int pid) {
 //
 
 void kernel_test_exe() {
-   uint32_t resp;
    REQUEST req; 
    int i;
 
@@ -84,13 +83,8 @@ void kernel_test_exe() {
 
    ztaDualHartExecute(test,&req);
 
-   ztaJobDone(0);
-
-   // Wait for response....
-   for(;;) {
-      if(ztaReadResponse(&resp))
-         break;
-   }   
+   ztaJobDone(ztaGetNextJobId(0));
+   while(!ztaIsJobQueueDone(0));   
 
    for(i=0;i < req.len;i++) {
       if(outbuf[i] != ((i&0xFF)+1)) {

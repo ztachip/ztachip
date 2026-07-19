@@ -39,6 +39,7 @@ typedef enum {
 //    Prepare stage: Send commands to ztachip to perform the functions
 //    Run stage: Run and wait for result to be completed.
 
+class Graph;
 class GraphNode {
 public:
    GraphNode();
@@ -47,9 +48,10 @@ public:
    virtual ZtaStatus Execute(int queue,int stepMode)=0; // Schedule for execution.
    virtual GraphNodeType GetType();
 public:
-   static ZtaStatus CheckResponse();
    bool AllRequestAreCompleted(int queue);
    uint32_t GetJobId(int queue);
+public:
+   Graph *m_parent;
 };
 
 // Graph is a container of GraphNode
@@ -89,15 +91,13 @@ public:
    uint32_t GetElapsedTime() {return m_timeElapsed;}
 private:
    ZtaStatus run(int timeout);
+public:
+   int m_queue;
 private:
    std::vector<GraphNode *> m_nodes;
    int m_nextNodeToSchedule;
    uint32_t m_timeElapsed;
-   int m_queue;
    static GraphPollFunc M_pollFunc;
-public:
-   uint32_t m_lastRequestId;
-   uint32_t m_lastResponseId;
 };
 
 #endif

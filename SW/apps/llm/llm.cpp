@@ -64,10 +64,9 @@ int TIMEGET()
 
 #define K_MAX  100 // Maximum number of highest priority tokens to be chosen from during sampling
 
-
 // Constructor of LLAMA object
 
-llama::llama() {
+GraphNodeLLM::GraphNodeLLM() {
     m_runtime.x=0;
     m_runtime.xq.q=0;
     m_runtime.xq.s=0;
@@ -98,19 +97,29 @@ llama::llama() {
     m_numTokenResponse = 0;
     m_stat.numTokens = 0;
     m_stat.totalTime = 0;
+    m_reset = true;
+    m_state = eLLM_State_Idle;
 }
 
 // Destructor
 
-llama::~llama() {
+GraphNodeLLM::~GraphNodeLLM() {
     Close();
+}
+
+ZtaStatus GraphNodeLLM::Create() {
+    return ZtaStatusOk;
+}
+
+ZtaStatus GraphNodeLLM::Verify() {
+    return ZtaStatusOk;
 }
 
 // Open the ZUF file
 // ZUF file is the model file for ztachip
 // Convert GGUF to ZUF by SW/gguf/quant
 
-ZtaStatus llama::Open(const char* checkpoint_path) {
+ZtaStatus GraphNodeLLM::Open(const char* checkpoint_path) {
     int kv_dim;
     int head_size;
     uint32_t sz;
@@ -333,7 +342,7 @@ ZtaStatus llama::Open(const char* checkpoint_path) {
     return ZtaStatusOk;
 }
 
-void llama::Close() {
+void GraphNodeLLM::Close() {
     if(m_runtime.x != 0) {
         free(m_runtime.x);
         m_runtime.x=0;
@@ -422,7 +431,7 @@ void llama::Close() {
 // p is the accumulate probability threshold that we can choose the tokens. A large
 // p allows less likely tokens to be chosen.
 
-ZtaStatus llama::SetSamplingPolicy(float temperature,float p,float min_p,int k,int maxTokenResponse) {
+ZtaStatus GraphNodeLLM::SetSamplingPolicy(float temperature,float p,float min_p,int k,int maxTokenResponse) {
     if(temperature==0)
         return ZtaStatusFail;
     if(p < 0.0 || p > 1.0)
@@ -441,7 +450,7 @@ ZtaStatus llama::SetSamplingPolicy(float temperature,float p,float min_p,int k,i
 // Set sampling policy to be greedy
 // Meaning tokens with highest probability is always chosen
 //
-ZtaStatus llama::SetSamplingPolicyGreedy() {
+ZtaStatus GraphNodeLLM::SetSamplingPolicyGreedy() {
     m_samplingGreedy = true;
     m_samplingThreshold = 0;
     m_minp = 0.0f;
@@ -454,7 +463,7 @@ ZtaStatus llama::SetSamplingPolicyGreedy() {
 // Matrix multiplication between weights and activations
 // Support weight with Q8 or Q4 quantization
 
-void llama::matmul(int req_id,int N,int D,int gs,int16_t *x_v,float16_t *x_s,WeightTensor *w,float16_t *result) {
+void GraphNodeLLM::matmul(int req_id,int N,int D,int gs,int16_t *x_v,float16_t *x_s,WeightTensor *w,float16_t *result) {
     if(w->quant==ZUF_QUANT_INT4)
         kernel_llm_matmul_q4_exe(req_id,N,D,gs,x_v,x_s,w->q,w->s,result);
     else
@@ -463,7 +472,7 @@ void llama::matmul(int req_id,int N,int D,int gs,int16_t *x_v,float16_t *x_s,Wei
 
 // Main token processing chain
 
-float16_t* llama::forward(int token, int pos) {
+float16_t* GraphNodeLLM::forward(int token, int pos,int timeout) {
     float16_t *x = m_runtime.x;
     float16_t *k_start;
     float16_t *k;
@@ -475,35 +484,44 @@ float16_t* llama::forward(int token, int pos) {
     int head_size = dim / m_config.n_heads;
     uint32_t resp;
     float16_t *att;
+    uint32_t tick,tock;
 
     // copy the token embedding into x
 
-    float16_t* content_row = m_weights.token_embedding_table + (token * dim);
+    tick = TimeGet();
+
+    if(token >= 0) {
+        m_l = 0;
+        m_fwToken = token;
+        m_fwPos = pos;
+    }
+
+    float16_t* content_row = m_weights.token_embedding_table + (m_fwToken * dim);
 
     // forward all the layers
-    for(unsigned long long l = 0; l < m_config.n_layers; l++) {
+    for(;m_l < m_config.n_layers; m_l++) {
 
-        x = (l==0)?content_row:m_runtime.x;
+        x = (m_l==0)?content_row:m_runtime.x;
 
-        kernel_llm_rms_exe(-1,dim,m_config.inv_dim,x,(l==0),m_runtime.xb,m_weights.rms_att_weight[l]);
+        kernel_llm_rms_exe(-1,dim,m_config.inv_dim,x,(m_l==0),m_runtime.xb,m_weights.rms_att_weight[m_l]);
   
         // key and value point to the kv cache
-        int loff = l * m_config.seq_len * kv_dim; // kv cache layer offset for convenience
-        k = m_runtime.key_cache + (loff + pos * kv_dim);
-        v = m_runtime.value_cache + (loff + pos * kv_dim);
+        int loff = m_l * m_config.seq_len * kv_dim; // kv cache layer offset for convenience
+        k = m_runtime.key_cache + (loff + m_fwPos * kv_dim);
+        v = m_runtime.value_cache + (loff + m_fwPos * kv_dim);
 
         kernel_llm_quantize_exe(-1,dim,m_runtime.xb,m_runtime.xbq.s,m_runtime.xbq.q);
 
-        matmul(-1,dim, dim, GS, m_runtime.xbq.q,m_runtime.xbq.s, &m_weights.wqq[l], m_runtime.q);
+        matmul(-1,dim, dim, GS, m_runtime.xbq.q,m_runtime.xbq.s, &m_weights.wqq[m_l], m_runtime.q);
 
-        matmul(-1,dim, kv_dim, GS, m_runtime.xbq.q,m_runtime.xbq.s, &m_weights.wkq[l], k);
+        matmul(-1,dim, kv_dim, GS, m_runtime.xbq.q,m_runtime.xbq.s, &m_weights.wkq[m_l], k);
 
-        matmul(-1,dim, kv_dim, GS, m_runtime.xbq.q,m_runtime.xbq.s, &m_weights.wvq[l], v);
+        matmul(-1,dim, kv_dim, GS, m_runtime.xbq.q,m_runtime.xbq.s, &m_weights.wvq[m_l], v);
 
         // RoPE relative positional encoding: complex-valued rotate q and k in each head
-        kernel_llm_cosine_exe(-1,dim/2,m_runtime.freq,(float)pos,m_runtime.cosine);
+        kernel_llm_cosine_exe(-1,dim/2,m_runtime.freq,(float)m_fwPos,m_runtime.cosine);
 
-        kernel_llm_sine_exe(-1,dim/2,m_runtime.freq,(float)pos,m_runtime.sine); 
+        kernel_llm_sine_exe(-1,dim/2,m_runtime.freq,(float)m_fwPos,m_runtime.sine); 
 
         assert((kv_dim%2)==0);
 
@@ -526,32 +544,32 @@ float16_t* llama::forward(int token, int pos) {
             // iterate over all timesteps, including the current one
             k_start = m_runtime.key_cache + (loff + (h / kv_mul) * head_size);
 
-            kernel_llm_dot_product_exe(-1,head_size,(pos+1),q,k_start,kv_dim,att,m_config.inv_sqrtf_head_size);
+            kernel_llm_dot_product_exe(-1,head_size,(m_fwPos+1),q,k_start,kv_dim,att,m_config.inv_sqrtf_head_size);
         }
         for (h = 0,att=m_runtime.att; h < (int)m_config.n_heads; h++,att+=m_config.seq_len) {
-            kernel_llm_softmax_exe(-1,att,pos + 1);
+            kernel_llm_softmax_exe(-1,att,m_fwPos + 1);
         }
         for (h = 0,att=m_runtime.att; h < (int)m_config.n_heads; h++,att+=m_config.seq_len) {
             // weighted sum of the values, store back into xb
             float16_t* xb = m_runtime.xb + (h * head_size);
             k_start = m_runtime.value_cache + (loff + (h / kv_mul) * head_size);
-            kernel_llm_dot_product2_exe(-1,head_size,(pos+1),att,k_start,kv_dim,xb);
+            kernel_llm_dot_product2_exe(-1,head_size,(m_fwPos+1),att,k_start,kv_dim,xb);
         }
     
 
         kernel_llm_quantize_exe(-1,dim,m_runtime.xb,m_runtime.xbq.s,m_runtime.xbq.q);
 
-        matmul(-1,dim, dim, GS, m_runtime.xbq.q,m_runtime.xbq.s, &m_weights.woq[l], m_runtime.xb2);
+        matmul(-1,dim, dim, GS, m_runtime.xbq.q,m_runtime.xbq.s, &m_weights.woq[m_l], m_runtime.xb2);
 
-        kernel_llm_residual_exe(-1,dim,x,(l==0),m_runtime.x,m_runtime.xb2);
+        kernel_llm_residual_exe(-1,dim,x,(m_l==0),m_runtime.x,m_runtime.xb2);
 
-        kernel_llm_rms_exe(-1,dim,m_config.inv_dim,m_runtime.x,false,m_runtime.xb,m_weights.rms_ffn_weight[l]);
+        kernel_llm_rms_exe(-1,dim,m_config.inv_dim,m_runtime.x,false,m_runtime.xb,m_weights.rms_ffn_weight[m_l]);
 
         kernel_llm_quantize_exe(-1,dim,m_runtime.xb,m_runtime.xbq.s,m_runtime.xbq.q);
 
-        matmul(-1,dim, hidden_dim, GS,m_runtime.xbq.q,m_runtime.xbq.s, &m_weights.w1q[l], m_runtime.hb);
+        matmul(-1,dim, hidden_dim, GS,m_runtime.xbq.q,m_runtime.xbq.s, &m_weights.w1q[m_l], m_runtime.hb);
 
-        matmul(-1,dim, hidden_dim, GS,m_runtime.xbq.q,m_runtime.xbq.s, &m_weights.w3q[l], m_runtime.hb2);
+        matmul(-1,dim, hidden_dim, GS,m_runtime.xbq.q,m_runtime.xbq.s, &m_weights.w3q[m_l], m_runtime.hb2);
 
         // SwiGLU non-linearity
 
@@ -561,13 +579,17 @@ float16_t* llama::forward(int token, int pos) {
 
         kernel_llm_quantize_exe(-1,hidden_dim,m_runtime.hb,m_runtime.hbq.s,m_runtime.hbq.q);
 
-        matmul(-1,hidden_dim, dim, GS,m_runtime.hbq.q,m_runtime.hbq.s, &m_weights.w2q[l],m_runtime.xb);
+        matmul(-1,hidden_dim, dim, GS,m_runtime.hbq.q,m_runtime.hbq.s, &m_weights.w2q[m_l],m_runtime.xb);
 
         kernel_llm_residual_exe(-1,dim,m_runtime.x,false,m_runtime.x,m_runtime.xb); 
 
-#ifndef __WIN32__
-//        while(ztaReadResponse(&resp)) {}
-#endif
+        if(timeout > 0) {
+            tock = TimeGet();
+            if(((int32_t)tock-(int32_t)tick) >= timeout) {
+                m_l++;
+                return 0; // to be continued;
+            }
+        }
     }
 
     kernel_llm_rms_exe(-1,dim,m_config.inv_dim,m_runtime.x,false,m_runtime.x,m_weights.rms_final_weight);
@@ -577,7 +599,8 @@ float16_t* llama::forward(int token, int pos) {
 
     matmul(-1,m_config.dim, m_config.vocab_size, GS,m_runtime.xq.q,m_runtime.xq.s, &m_weights.wclsq,m_runtime.logits);
 
-    kernel_llm_done();
+    if(timeout==0)
+        kernel_llm_done();
 
     return m_runtime.logits;
 }
@@ -592,7 +615,7 @@ float16_t* llama::forward(int token, int pos) {
 // Then we choose a random number
 // Pick a tokens where the total probability upto the chosen tokens is <= random number 
 
-int llama::sampling(float16_t* _logits) {
+int GraphNodeLLM::sampling(float16_t* _logits) {
     static int top[K_MAX];
     static float topp[K_MAX];
     static float16_t toppbf[K_MAX];
@@ -607,13 +630,13 @@ int llama::sampling(float16_t* _logits) {
     FLUSH_DATA_CACHE();
 
     if(m_samplingGreedy)
-        return kernel_llm_find_max(_logits, m_config.vocab_size);
+        return kernel_llm_find_max(GetJobId(m_parent->m_queue),_logits, m_config.vocab_size);
 
-    kernel_llm_find_k_max(_logits,m_config.vocab_size,m_samplingK,m_samplingScale,top,toppbf);
+    kernel_llm_find_k_max(GetJobId(m_parent->m_queue),_logits,m_config.vocab_size,m_samplingK,m_samplingScale,top,toppbf);
 
     kernel_llm_done();  
     
-    kernel_llm_softmax_exe(-1, toppbf, m_samplingK);
+    kernel_llm_softmax_exe(GetJobId(m_parent->m_queue), toppbf, m_samplingK);
         
     kernel_llm_done(); 
 
@@ -656,7 +679,7 @@ int llama::sampling(float16_t* _logits) {
     return top[select];
 }
 
-void llama::safe_printf(char *piece) {
+void GraphNodeLLM::safe_printf(char *piece) {
     // piece might be a raw byte token, and we only want to print printable chars or whitespace
     // because some of the other bytes can be various control codes, backspace, etc.
     if (piece == NULL) { return; }
@@ -674,7 +697,7 @@ void llama::safe_printf(char *piece) {
 
 // Inject system prompt
 
-ZtaStatus llama::SystemPrompt(char *prompt) {
+ZtaStatus GraphNodeLLM::SystemPrompt(char *prompt) {
     char* piece;
     m_output = 0;
     m_promptTokens.clear();
@@ -698,110 +721,228 @@ ZtaStatus llama::SystemPrompt(char *prompt) {
 // Injust user prompt
 // And then wait for the response
 
-ZtaStatus llama::UserPrompt(char *userPrompt,std::string *output) {
-    int token=0;
-    int lastToken=-1;
-    float16_t* logits;
+ZtaStatus GraphNodeLLM::UserPrompt(char *userPrompt,std::string *output) {
+    m_reset = true;
+    m_userPrompt = userPrompt;
+    m_output = output;
+    return ZtaStatusOk;
+}
+
+ZtaStatus GraphNodeLLM::Execute(int queue,int stepMode) {
     char* piece;
-    int pos;
     bool cont=true;
     bool overflow=false;
     uint32_t startTime,endTime;
+    int32_t elapsedTime;
+    ZtaStatus rc=ZtaStatusOk;
+    uint32_t timeout;
+    char *userPrompt;
 
-    m_output = output;
-    if(m_output)
-        m_output->clear();
-    m_promptTokens.clear();
-    m_promptTokens.push_back(m_tokenizer->m_special.BOS);
-    m_tokenizer->StringToToken((char *)"user", 1, 0, m_promptTokens);
-    m_promptTokens.push_back(m_tokenizer->m_special.NL);
-    m_tokenizer->StringToToken(userPrompt, 1, 0, m_promptTokens);
-    m_promptTokens.push_back(m_tokenizer->m_special.EOS);
-    m_promptTokens.push_back(m_tokenizer->m_special.NL);
-    m_promptTokens.push_back(m_tokenizer->m_special.BOS);
-    m_tokenizer->StringToToken((char*)"assistant", 1, 0, m_promptTokens);
-    m_promptTokens.push_back(m_tokenizer->m_special.NL);
-    m_numTokenResponse=0;
-    pos = 0;
-    startTime = TIMEGET();
-    while(cont) {
-        if((pos+m_pos+m_pos2) >= (int)(m_config.seq_len-1)) {
-            overflow = true;
-            break;
+    if(stepMode==0)
+        timeout = 1; // Some minimum timeout
+    else if(stepMode < 0)
+        timeout = 0;
+    else
+        timeout = stepMode;
+    if(m_reset) {
+        userPrompt = (char *)m_userPrompt.c_str();
+        m_reset = false;
+    } else {
+        userPrompt = 0;
+    }
+    if(userPrompt) {
+        if(m_output)
+            m_output->clear();
+        m_token = 0;
+        m_fwInProgress=false;
+        m_fwWaitForCompletion = false;
+        m_promptTokens.clear();
+        m_promptTokens.push_back(m_tokenizer->m_special.BOS);
+        m_tokenizer->StringToToken((char *)"user", 1, 0, m_promptTokens);
+        m_promptTokens.push_back(m_tokenizer->m_special.NL);
+        if(m_tokenizer->StringToToken(userPrompt, 1, 0, m_promptTokens,timeout)==ZtaStatusPending) {
+            m_state = eLLM_State_Tokenizing;
+            return ZtaStatusPending;
         }
-        if(pos < ((int)m_promptTokens.size()-1)) {
-            forward(m_promptTokens[pos],pos+m_pos+m_pos2);
-            m_stat.numTokens++;
-            pos++;
-        } else if(pos == ((int)m_promptTokens.size()-1)) {
-            logits = forward(m_promptTokens[pos], pos+m_pos+m_pos2);
-            m_stat.numTokens++;
-            token = sampling(logits);
-            lastToken = token;
-            piece = m_tokenizer->TokenToString(token, token);
-            safe_printf(piece);
-            fflush(stdout);
-            pos++;
-        } else {
-            logits = forward(token, pos+m_pos+m_pos2);
-            m_stat.numTokens++;
-            m_numTokenResponse++;
-            token = sampling(logits);
-            if(m_maxTokenResponse >= 0 && (m_numTokenResponse > m_maxTokenResponse)) {
-                if(token==m_tokenizer->m_special.NL && lastToken==m_tokenizer->m_special.NL) {
-                    // Good place to break even if it is not EOS token
-                    break;
+        else
+            m_state = eLLM_State_Tokenizing;
+    }
+
+    if(m_state==eLLM_State_Idle)
+        return ZtaStatusOk;
+
+    if(m_state==eLLM_State_Tokenizing) {
+        if(m_tokenizer->StringToToken(0, 1, 0, m_promptTokens,timeout)==ZtaStatusPending)
+            return ZtaStatusPending;
+        m_promptTokens.push_back(m_tokenizer->m_special.EOS);
+        m_promptTokens.push_back(m_tokenizer->m_special.NL);
+        m_promptTokens.push_back(m_tokenizer->m_special.BOS);
+        m_tokenizer->StringToToken((char*)"assistant", 1, 0, m_promptTokens);
+        m_promptTokens.push_back(m_tokenizer->m_special.NL);
+        m_numTokenResponse=0;
+        m_posCurr = 0;
+        m_lastToken = -1;
+        m_state=eLLM_State_Running;
+        m_startTime = TIMEGET();
+    }
+    startTime = TIMEGET();
+    if(m_fwWaitForCompletion) {
+        uint32_t resp;
+        if(AllRequestAreCompleted(m_parent->m_queue))
+            m_fwWaitForCompletion = false;
+        if(m_fwWaitForCompletion)
+            return ZtaStatusPending;
+        if(m_fwShowToken) {
+            m_token = sampling(m_logits);
+            if(m_maxTokenResponse >= 0 && m_numTokenResponse > m_maxTokenResponse &&
+                m_token==m_tokenizer->m_special.NL && m_lastToken==m_tokenizer->m_special.NL) {
+                // Good place to break even if it is not EOS token
+                m_state=eLLM_State_Idle;
+            } else {
+                m_lastToken = m_token;
+                piece = m_tokenizer->TokenToString(m_token,m_token);
+                if(m_token==m_tokenizer->m_special.EOS) {
+                    m_state=eLLM_State_Idle;
+                } else {
+                    safe_printf(piece);
+                    fflush(stdout);
                 }
             }
-            lastToken = token;
-            pos++;
-            piece = m_tokenizer->TokenToString(token,token);
-            if(token==m_tokenizer->m_special.EOS)
-                break;
-            safe_printf(piece);
-            fflush(stdout);
+        }
+    }
+
+    while(cont && m_state==eLLM_State_Running) {
+        if((m_posCurr+m_pos+m_pos2) >= (int)(m_config.seq_len-1)) {
+            overflow = true;
+            m_state=eLLM_State_Idle;
+            break;
+        }
+        if(m_posCurr < ((int)m_promptTokens.size()-1)) {
+            if(!m_fwInProgress) {
+                if(!forward(m_promptTokens[m_posCurr],m_posCurr+m_pos+m_pos2,timeout)) { 
+                    m_fwInProgress=true;
+                    rc=ZtaStatusPending;
+                    break;
+                }
+            } else {
+                if(!forward(-1,-1,timeout)) {
+                    rc=ZtaStatusPending;
+                    break;
+                }
+                m_fwInProgress=false;
+            }
+            m_stat.numTokens++;
+            m_posCurr++;
+            m_jobid = GetJobId(m_parent->m_queue);
+            ztaJobDone(m_jobid);
+            m_fwWaitForCompletion = true;
+            m_fwShowToken = false;
+            rc=ZtaStatusPending;
+            break;
+        } else if(m_posCurr == ((int)m_promptTokens.size()-1)) {
+            if(!m_fwInProgress) {
+                m_logits = forward(m_promptTokens[m_posCurr], m_posCurr+m_pos+m_pos2,timeout);
+                if(!m_logits) {
+                    m_fwInProgress=true;
+                    rc=ZtaStatusPending;
+                    break;
+                }
+            } else {
+                m_logits = forward(-1, -1,timeout);
+                if(!m_logits) {
+                    rc=ZtaStatusPending;
+                    break;
+                }
+                m_fwInProgress=false;
+            }
+            m_stat.numTokens++;
+            m_posCurr++;
+            m_jobid = GetJobId(m_parent->m_queue);
+            ztaJobDone(m_jobid);
+            m_fwWaitForCompletion = true;
+            m_fwShowToken = true;
+            rc=ZtaStatusPending;
+            break;
+        } else {
+            if(!m_fwInProgress) {
+                m_logits = forward(m_token, m_posCurr+m_pos+m_pos2,timeout);
+                if(!m_logits) {
+                    m_fwInProgress=true;
+                    rc=ZtaStatusPending;
+                    break;
+                }
+            } else {
+                m_logits = forward(-1, -1,timeout);
+                if(!m_logits) {
+                    rc=ZtaStatusPending;
+                    break;
+                }
+                m_fwInProgress=false;
+            }
+            m_stat.numTokens++;
+            m_numTokenResponse++;
+            m_posCurr++;
+            m_jobid = GetJobId(m_parent->m_queue);
+            ztaJobDone(m_jobid);
+            m_fwWaitForCompletion = true;
+            m_fwShowToken = true;
+            rc=ZtaStatusPending;
+            break;
         }
 #ifndef __WIN32__
         while (UartReadAvailable()) {
-            if (UartRead() == 0x3) // Ctrl+C
+            if (UartRead() == 0x3) { // Ctrl+C
                 cont=false;
+                m_state=eLLM_State_Idle;
+            }
         }
 #endif
+        if(timeout > 0) {
+            endTime = TIMEGET();
+            elapsedTime = (int32_t)endTime-(int32_t)startTime;
+            timeout -= elapsedTime;
+            if(timeout <= 0) {
+                timeout = 1; // Some minimum timeout
+            }
+        }
     }
-    if(cont) {
+    if(cont && m_state==eLLM_State_Idle) {
         if(overflow) {
             m_pos2 = 0;
             printf("\r\n*** Conversation window grows too large. Clear chat history.\r\n");
         }
         else
-            m_pos2 += pos; // Advance context window pos if there is no abort
+            m_pos2 += m_posCurr; // Advance context window pos if there is no abort
     }
-    endTime = TIMEGET();
-    m_stat.totalTime += (uint64_t)((uint32_t)((int32_t)endTime-(int32_t)startTime));
-    return ZtaStatusOk;
+    if(m_state==eLLM_State_Idle) {
+        endTime = TIMEGET();
+        ztaJobDone(GetJobId(m_parent->m_queue));
+        m_stat.totalTime += (uint64_t)((uint32_t)((int32_t)endTime-(int32_t)m_startTime));
+    }
+    return rc;
 }
 
 // Clear the context window.
 
-void llama::Clear() {
+void GraphNodeLLM::Clear() {
     m_pos2 = 0;
 }
 
 // Clear statistics
 
-void llama::ClearStat() {
+void GraphNodeLLM::ClearStat() {
     m_stat.numTokens=0;
     m_stat.totalTime=0;
 }
 
 // Get statistics about performance tokens/sec
 
-float llama::GetStatTokPerSec() {
+float GraphNodeLLM::GetStatTokPerSec() {
     return (float)((m_stat.numTokens)/(float)(m_stat.totalTime)*1000);
 }
 
 // Get statistics about number of tokens
 
-uint32_t llama::GetStatNumTokens() {
+uint32_t GraphNodeLLM::GetStatNumTokens() {
     return (uint32_t)(m_stat.numTokens);
 }

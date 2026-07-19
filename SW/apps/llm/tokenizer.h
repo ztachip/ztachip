@@ -27,7 +27,7 @@ class Tokenizer {
 public:
     Tokenizer();
     virtual ~Tokenizer();
-    virtual void StringToToken(char* text, int8_t bos, int8_t eos, std::vector<int> &tokens)=0;
+    virtual ZtaStatus StringToToken(char* text, int8_t bos, int8_t eos, std::vector<int> &tokens,int timeout=0)=0;
     virtual char* TokenToString(int prev_token, int token)=0;
 public:
     struct {
@@ -59,7 +59,7 @@ public:
 public:
     virtual void Build(float *scoreLst,char *tokens,uint32_t vocab_size,uint32_t max_token_length);
     virtual char* TokenToString(int prev_token, int token);
-    virtual void StringToToken(char *text, int8_t bos, int8_t eos, std::vector<int> &tokens);
+    virtual ZtaStatus StringToToken(char *text, int8_t bos, int8_t eos, std::vector<int> &tokens,int timeout=0);
 private:
     int lookup(char *str);
 private:
@@ -77,7 +77,7 @@ public:
     TokenizerBFE();
     virtual ~TokenizerBFE();
     void Build(uint32_t vocabSize, char* vocab, uint32_t mergeSize, char* merge,uint32_t max_token_length);
-    virtual void StringToToken(char* text, int8_t bos, int8_t eos, std::vector<int> &tokens);
+    virtual ZtaStatus StringToToken(char* text, int8_t bos, int8_t eos, std::vector<int> &tokens,int timeout=0);
     virtual char* TokenToString(int prev_token, int token);
 private:
     int lookupToken(char *str);
@@ -90,6 +90,11 @@ private:
     BFEMerge* m_merge;
     uint8_t *m_mergeHash;
     BFE_TokenIndex *sorted_vocab;
+    std::vector<std::string> m_s;
+    uint8_t *m_shash;
+    int m_shashLen;
+    int m_nTokens;
+    bool m_inProgress;
 };
 
 #endif

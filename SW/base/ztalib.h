@@ -31,6 +31,10 @@ extern "C" {
 #include "types.h"
 #include "zta.h"
 
+#define MAX_JOB_QUEUE  256
+
+#define JOB_QUEUE(a) ((a)>>24)
+
 // Functions that are implemented in task.S
 
 extern void _taskYield(void);
@@ -77,7 +81,9 @@ extern void ztaInitStream(uint32_t _spu);
 
 extern void ztaJobDone(unsigned int job_id);
 
-extern bool ztaReadResponse(uint32_t *resp);
+extern bool ztaIsJobQueueDone(int queue);
+
+extern uint32_t ztaGetNextJobId(int queue);
 
 // Abort execution
 

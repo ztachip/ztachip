@@ -1459,7 +1459,7 @@ typedef struct  {
 // Find the top-k tokens of highest probability
 //--------------------------------------------------------------------------
 
-int kernel_llm_find_k_max(float16_t *x,uint32_t _N,int K, float scale,int *top,float16_t *topp) {
+int kernel_llm_find_k_max(uint32_t jobId,float16_t *x,uint32_t _N,int K, float scale,int *top,float16_t *topp) {
    uint32_t cnt,cnt2;
    int N;
    int toggle=0;
@@ -1554,7 +1554,7 @@ int kernel_llm_find_k_max(float16_t *x,uint32_t _N,int K, float scale,int *top,f
 // of the max value with find_max function
 //--------------------------------------------------------------------------
 
-int kernel_llm_find_max(float16_t *x,uint32_t N) {
+int kernel_llm_find_max(uint32_t jobId,float16_t *x,uint32_t N) {
    uint32_t i,cnt,cnt2;
    float max;
    int maxi=0;
@@ -1625,14 +1625,8 @@ int kernel_llm_find_max(float16_t *x,uint32_t N) {
 
 void kernel_llm_done()
 {
-   static uint32_t reqid=1000;
-   uint32_t resp;
-   ztaJobDone(reqid); 
-   for(;;) {
-      if(ztaReadResponse(&resp) && resp==reqid)
-         break;
-   }
-   reqid++;
+   ztaJobDone(ztaGetNextJobId(MAX_JOB_QUEUE-1)); 
+   while(!ztaIsJobQueueDone(MAX_JOB_QUEUE-1));
 }
 
 //--------------------------------------------------------------------------
@@ -1643,28 +1637,14 @@ static uint32_t mytick;
 
 void kernel_tick()
 {
-   uint32_t resp;
-   ztaJobDone(98); 
-   for(;;) {
-      if(ztaReadResponse(&resp))
-      {
-         if(resp==98)
-            break;
-      }
-   }
+   ztaJobDone(ztaGetNextJobId(MAX_JOB_QUEUE-1)); 
+   while(!ztaIsJobQueueDone(MAX_JOB_QUEUE-1));
    mytick = Time2Get();
 }
 
 uint32_t kernel_tock()
 {
-   uint32_t resp;
-   ztaJobDone(98); 
-   for(;;) {
-      if(ztaReadResponse(&resp))
-      {
-         if(resp==98)
-            break;
-      }
-   }
+   ztaJobDone(ztaGetNextJobId(MAX_JOB_QUEUE-1)); 
+   while(!ztaIsJobQueueDone(MAX_JOB_QUEUE-1));
    return (((int)Time2Get()-(int)mytick))/120;
 }

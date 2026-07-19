@@ -22,6 +22,7 @@
 #include "stdint.h"
 #include <string>
 #include "../../base/types.h"
+#include "../../base/graph.h"
 #include "kernels/llm_m.h"
 #include "tokenizer.h"
 #include "gguf/zuf.h"
@@ -43,19 +44,28 @@ typedef struct {
     float16_t* s;
 } ActivationTensor;
 
+typedef enum {
+    eLLM_State_Idle=0,
+    eLLM_State_Tokenizing,
+    eLLM_State_Running
+} eLLM_State;
+
 #define MAX_LLM_SEQ_LEN  1024
 
 // This class implements the execution of LLAMA model
 
-class llama {
+class GraphNodeLLM : public GraphNode{
 public:
-    llama();
-    ~llama();
+    GraphNodeLLM();
+    ~GraphNodeLLM();
+    ZtaStatus Create();
     ZtaStatus Open(const char* checkpoint_path);
     ZtaStatus SystemPrompt(char *prompt);
     ZtaStatus UserPrompt(char *userPrompt,std::string *output);
     void Clear();
     void Close();
+    virtual ZtaStatus Verify();
+    virtual ZtaStatus Execute(int queue,int stepMode);
     ZtaStatus SetSamplingPolicy(float temperature,float p,float min_p,int k,int maxTokenResponse);
     ZtaStatus SetSamplingPolicyGreedy();
     void ClearStat();
@@ -64,7 +74,7 @@ public:
     void PrintDebugStat();
 private:
     void matmul(int req_id,int N,int D,int gs,int16_t *x_v,float16_t *x_s,WeightTensor *w,float16_t *result);
-    float16_t* forward(int token, int pos);
+    float16_t* forward(int token, int pos,int timeout=0);
     int sampling(float16_t* logits);
     void safe_printf(char *piece);
 private:
@@ -73,6 +83,7 @@ private:
     std::string *m_output;
     uint32_t m_mergeSize;
     std::vector<int> m_promptTokens;
+    int m_posCurr;
     int m_pos;
     int m_pos2=0;
     struct {
@@ -125,6 +136,17 @@ private:
         int numTokens;
         uint64_t totalTime;
     } m_stat;
+    eLLM_State m_state;
+    int m_lastToken;
+    int m_token;
+    uint32_t m_l;
+    int m_fwPos;
+    int m_fwToken;
+    bool m_fwInProgress;
+    bool m_fwWaitForCompletion;
+    bool m_fwShowToken;
+    uint32_t m_jobid;
+    float16_t* m_logits;
     bool m_samplingGreedy;
     float m_samplingThreshold;
     float m_minp;
@@ -132,6 +154,9 @@ private:
     int m_samplingK;
     int m_maxTokenResponse;
     int m_numTokenResponse;
+    uint32_t m_startTime;
+    bool m_reset;
+    std::string m_userPrompt;
 };
 
 #endif

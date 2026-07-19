@@ -131,9 +131,5 @@ void kernel_objdet_exe(
 
     ztaJobDone(_req_id);
 
-    // Wait for response....
-    for(;;) {
-        if(ztaReadResponse(&resp))
-            break;
-    }  
+    while(!ztaIsJobQueueDone(JOB_QUEUE(_req_id)));
 }

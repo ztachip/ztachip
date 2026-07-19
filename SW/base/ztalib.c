@@ -31,6 +31,9 @@
 
 static bool taskStatus=false;
 
+static uint32_t g_LastResponse[MAX_JOB_QUEUE];
+static uint32_t g_LastJobId[MAX_JOB_QUEUE];
+
 // Task entry point...
 
 static void taskEntry(int thisFunc, void(*func)(int, int), int p1, int p2) {
@@ -49,6 +52,10 @@ static void taskEntry(int thisFunc, void(*func)(int, int), int p1, int p2) {
 
 void ztaInit() {
    taskStatus = false;
+   for(int i=0;i < MAX_JOB_QUEUE;i++) {
+      g_LastResponse[i] = 0xFFFFFF;
+      g_LastJobId[i] = 0;
+   }
    _taskSpawn((uint32_t)taskEntry,0,0,0);
 }
 
@@ -157,15 +164,30 @@ ZTA_SHARED_MEM ztaBuildSpuBundle(int numSpuImg,...) {
 
 // Reading response message from ztachip core
 
-bool ztaReadResponse(uint32_t *resp) {
+inline static bool checkJobComplete() {
+   uint32_t _resp;
+   int queue;
    if(ZTAM_GREG(0,REG_DP_READ_INDICATION_AVAIL,0)==0) {
-      *resp=0;
       return false;
    }
    ZTAM_GREG(0,REG_DP_READ_INDICATION,0);
-   *resp=ZTAM_GREG(0,REG_DP_READ_INDICATION_PARM,0);
+   _resp=ZTAM_GREG(0,REG_DP_READ_INDICATION_PARM,0);
+   queue = (_resp >> 24);
    ZTAM_GREG(0,REG_DP_READ_SYNC,0);
+   g_LastResponse[queue]=(_resp & 0xFFFFFF);
    return true;
+}
+
+// Get the next job-id from a job queue
+uint32_t ztaGetNextJobId(int queue) {
+   g_LastJobId[queue] = (g_LastJobId[queue]+1)&0xFFFFFF;
+   return g_LastJobId[queue]+(queue<<24);
+}
+
+// Check if a job queue is done
+bool ztaIsJobQueueDone(int queue) {
+   while(checkJobComplete());
+   return g_LastJobId[queue]==g_LastResponse[queue];
 }
 
 // Abort all excution

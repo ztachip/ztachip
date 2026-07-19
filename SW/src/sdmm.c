@@ -32,12 +32,6 @@
 #include "../thirdparty/FatFs/ff.h"
 #include "../thirdparty/FatFs/diskio.h"
 
-#define APB ((volatile unsigned int *)0xC0000000) 
-
-#define APB_LED               0  
-
-#define APB_PB                2  
-
 static uint32_t SPI=0;
 
 #define SCK(a)    (SPI=((a)?(SPI|0x20):(SPI&(~0x20))),APB[APB_LED]=SPI)

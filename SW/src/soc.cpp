@@ -215,18 +215,34 @@ int EthernetLiteSend(uint8_t *pkt,int pktLen)
 {
    int cnt;
    uint32_t start;
+   static int nextBuf=0;
    
    start=TimeGet();
    cnt = (pktLen+3)/4;
-   while(APB[APB_ETH_TXPINGCTRL] & 0x1) {
-      while((int)TimeGet()-(int)start > 5000)
-         return 0;
+
+   if(nextBuf==0) {
+      while(APB[APB_ETH_TXPINGCTRL] & 0x1) {
+         while((int)TimeGet()-(int)start > 5000)
+            return 0;
+      }
+      for(int i=0;i < cnt;i++,pkt+=4) {
+         APB[APB_ETH_TXPINGBUF+i] = *((uint32_t*)pkt);
+      }
+      APB[APB_ETH_TXPINGLEN] = pktLen;
+      APB[APB_ETH_TXPINGCTRL] = 1;
+      nextBuf = 1;
+   } else { 
+      while(APB[APB_ETH_TXPONGCTRL] & 0x1) {
+         while((int)TimeGet()-(int)start > 5000)
+            return 0;
+      }
+      for(int i=0;i < cnt;i++,pkt+=4) {
+         APB[APB_ETH_TXPONGBUF+i] = *((uint32_t*)pkt);
+      }
+      APB[APB_ETH_TXPONGLEN] = pktLen;
+      APB[APB_ETH_TXPONGCTRL] = 1;
+      nextBuf = 1;
    }
-   for(int i=0;i < cnt;i++,pkt+=4) {
-      APB[APB_ETH_TXPINGBUF+i] = *((uint32_t*)pkt);
-   }
-   APB[APB_ETH_TXPINGLEN] = pktLen;
-   APB[APB_ETH_TXPINGCTRL] = 1;
    return pktLen;
 }
 

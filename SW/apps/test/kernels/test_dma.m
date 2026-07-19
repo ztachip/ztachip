@@ -151,7 +151,6 @@ static int16_t spuEval(int16_t _in,void *pparm,uint32_t parm,uint32_t parm2) {
 }
 
 void test_dma_1(int testcase,int OFFSET) {
-   uint32_t resp;
    REQUEST req; 
    int i;
    int8_t *inbuf;
@@ -189,12 +188,9 @@ void test_dma_1(int testcase,int OFFSET) {
       assert(0);
    }
 
-   ztaJobDone(0);
+   ztaJobDone(ztaGetNextJobId(0));
+   while(!ztaIsJobQueueDone(0));
 
-   for(;;) {
-      if(ztaReadResponse(&resp))
-         break;
-   } 
    FLUSH_DATA_CACHE();
    for(i=0;i < req.len;i++) {
       if(outbuf[i] != ((i&0x3F)+1+SEED)) {
@@ -305,7 +301,6 @@ static void dma_2_3(void *_p,int pid) {
 }
 
 void test_dma_2(int testcase,int OFFSET) {
-   uint32_t resp;
    REQUEST req; 
    int i;
    int8_t *inbuf;
@@ -339,12 +334,9 @@ void test_dma_2(int testcase,int OFFSET) {
       assert(0);
    }
 
-   ztaJobDone(0);
+   ztaJobDone(ztaGetNextJobId(0));
+   while(!ztaIsJobQueueDone(0));
 
-   for(;;) {
-      if(ztaReadResponse(&resp))
-         break;
-   } 
    FLUSH_DATA_CACHE();
    for(i=0;i < req.len;i++) {
       if(outbuf[i] != ((i&0x3F)+1+SEED)) {
@@ -455,7 +447,6 @@ static void dma_3_3(void *_p,int pid) {
 }
 
 void test_dma_3(int testcase,int OFFSET) {
-   uint32_t resp;
    REQUEST req; 
    int i;
    int16_t *inbuf;
@@ -489,12 +480,9 @@ void test_dma_3(int testcase,int OFFSET) {
       assert(0);
    }
 
-   ztaJobDone(0);
+   ztaJobDone(ztaGetNextJobId(0));
+   while(!ztaIsJobQueueDone(0));
 
-   for(;;) {
-      if(ztaReadResponse(&resp))
-         break;
-   } 
    FLUSH_DATA_CACHE();
    for(i=0;i < req.len;i++) {
       if(outbuf[i] != (i+1+SEED)) {
@@ -512,7 +500,6 @@ void test_dma_3(int testcase,int OFFSET) {
 
 #if 1
 static void test_dma_4_1(int sz,int OFFSET) {
-   uint32_t resp;
    REQUEST req; 
    int i;
    int8_t *inbuf;
@@ -534,12 +521,9 @@ static void test_dma_4_1(int sz,int OFFSET) {
 
    >DTYPE(INT8)MEM((uint32_t)outbuf)[0:sz-1] <= DTYPE(INT8)SCRATCH(0)[0:sz-1];
 
-   ztaJobDone(0);
+   ztaJobDone(ztaGetNextJobId(0));
+   while(!ztaIsJobQueueDone(0));
 
-   for(;;) {
-      if(ztaReadResponse(&resp))
-         break;
-   } 
    FLUSH_DATA_CACHE();
    for(i=0;i < sz;i++) {
       if(outbuf[i] != ((i&0x3f)+SEED)) {
@@ -557,7 +541,6 @@ static void test_dma_4_1(int sz,int OFFSET) {
 //------------------------------
 
 static void test_dma_4_2(int sz,int OFFSET) {
-   uint32_t resp;
    REQUEST req; 
    int i;
    int16_t *inbuf;
@@ -580,12 +563,9 @@ static void test_dma_4_2(int sz,int OFFSET) {
 
    >DTYPE(INT16)MEM((uint32_t)outbuf)[0:sz-1] <= DTYPE(INT16)SCRATCH(0)[0:sz-1];
 
-   ztaJobDone(0);
+   ztaJobDone(ztaGetNextJobId(0));
+   while(!ztaIsJobQueueDone(0));
 
-   for(;;) {
-      if(ztaReadResponse(&resp))
-         break;
-   } 
    FLUSH_DATA_CACHE();
    for(i=0;i < sz;i++) {
       if(outbuf[i] != (i+SEED)) {
@@ -603,7 +583,6 @@ static void test_dma_4_2(int sz,int OFFSET) {
 //------------------------------
 
 static void test_dma_4_3(int sz,int OFFSET) {
-   uint32_t resp;
    REQUEST req; 
    int i;
    int8_t *inbuf;
@@ -625,12 +604,9 @@ static void test_dma_4_3(int sz,int OFFSET) {
 
    >DTYPE(INT8)MEM((uint32_t)outbuf,sz,1)[0:sz-1][0] <= DTYPE(INT8)SCRATCH(0)[0:sz-1];
 
-   ztaJobDone(0);
+   ztaJobDone(ztaGetNextJobId(0));
+   while(!ztaIsJobQueueDone(0));
 
-   for(;;) {
-      if(ztaReadResponse(&resp))
-         break;
-   } 
    FLUSH_DATA_CACHE();
    for(i=0;i < sz;i++) {
       if(outbuf[i] != ((i&0x3f)+SEED)) {
@@ -647,7 +623,6 @@ static void test_dma_4_3(int sz,int OFFSET) {
 //------------------------------
 
 static void test_dma_4_4(int sz,int OFFSET) {
-   uint32_t resp;
    REQUEST req; 
    int i;
    int16_t *inbuf;
@@ -670,12 +645,9 @@ static void test_dma_4_4(int sz,int OFFSET) {
 
    >DTYPE(INT16)MEM((uint32_t)outbuf,sz,1)[0:sz-1][0] <= DTYPE(INT16)SCRATCH(0)[0:sz-1];
 
-   ztaJobDone(0);
+   ztaJobDone(ztaGetNextJobId(0));
+   while(!ztaIsJobQueueDone(0));
 
-   for(;;) {
-      if(ztaReadResponse(&resp))
-         break;
-   } 
    FLUSH_DATA_CACHE();
    for(i=0;i < sz;i++) {
       if(outbuf[i] != (i+SEED)) {

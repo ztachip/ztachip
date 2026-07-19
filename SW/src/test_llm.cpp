@@ -910,7 +910,7 @@ void test_llm_k_max() {
       x[i] = F2BF(x_lo+x_range*randGen());
    }
 
-   kernel_llm_find_k_max(x,N,K,scale,top,topp);
+   kernel_llm_find_k_max(123,x,N,K,scale,top,topp);
 
    kernel_llm_done();
 

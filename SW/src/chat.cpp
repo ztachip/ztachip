@@ -67,7 +67,9 @@ static char *getInput()
 }
 #endif
 
-static llama ai __attribute__((section(".tcm_data")));
+static GraphNodeLLM ai __attribute__((section(".tcm_data")));
+
+static Graph graph;
 
 int chat() {
     static std::string output_ref_0,output_ref_1;
@@ -76,42 +78,15 @@ int chat() {
     int goodCount=0;
     int i;
 
-#if 1
-#ifdef __WIN32__
-    if(ai.Open("c:\\Users\\vuong\\VM\\ztachip\\SW\\gguf\\xxx.ZUF") != ZtaStatusOk)
-        return -1;
-#else
+    ai.Create();
     if(ai.Open("SMOLLM2.ZUF") != ZtaStatusOk)
         return -1;
-#endif
-#endif
-
-//      ai.SetSamplingPolicy(0.8,0.950,40); // temperature=0.8,threshold=0.9;top-k=20
-      ai.SetSamplingPolicy(0.6,0.9,0.05,40,40); // temperature=0.7,p-threshold=0.9;min_p=0.05,top-k=40,maxResp=-1 (no-limit)
-//      ai.SetSamplingPolicyGreedy();
-#ifdef __WIN32__
-    ai.SystemPrompt((char*)"You are a helpful assistant.");
-    for(i=0;;i++) {
-        ai.Clear();
-
-        output.clear();
-        ai.UserPrompt((char*)"Who is Issac Newton", &output);
-
-        if(i==0)
-            output_ref_0 = output;
-        if (output_ref_0 != output) {
-            failCount++;
-        }
-        else {
-            goodCount++;
-        }
-        printf("\r\n--> SUCESS fail=%d good=%d \r\n",failCount,goodCount);
-    }
-    ai.Close();
-#endif
-#ifndef __WIN32__
-    printf("I am a chatbot. Hit Ctrl+C to interrupt me.\r\n");
+//  ai.SetSamplingPolicyGreedy();
+    graph.Add(&ai);
+    graph.Verify();
+    ai.SetSamplingPolicy(0.6,0.9,0.05,40,40); // temperature=0.7,p-threshold=0.9;min_p=0.05,
     ai.SystemPrompt((char*)"You answer questions briefly");
+
     for(;;) {
         char *prompt = getInput();
         if(prompt) {
@@ -123,10 +98,17 @@ int chat() {
                 ai.Clear(); 
                 ai.ClearStat();
                 ai.UserPrompt(prompt,0);
+                graph.Prepare();
+                for(;;) {
+                    graph.Run(20);
+                    if(!graph.IsRunning())
+                        break;
+                }
+//                while(ai.UserPrompt(0,0,20)==ZtaStatusPending);
                 printf(" (tok=%d tok/sec=%.2f)",ai.GetStatNumTokens(),ai.GetStatTokPerSec());
             }
         }
     }
-#endif
+
     return 0;
 }
