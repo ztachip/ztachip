@@ -111,8 +111,9 @@ sudo make
 git clone https://github.com/ztachip/ztachip.git
 ```
 
-## Build procedure for demo #1 - AI+Vision
-This demo demonstrates many vision and AI capabilities using a native [C/C++ library interface](https://github.com/ztachip/ztachip/raw/master/Documentation/visionai_programmer_guide.pdf)
+## Build procedure for demo #1 - AI+Vision+LLM
+This demo demonstrates many vision ,AI (including LLM) capabilities using a native [C/C++ library interface](https://github.com/ztachip/ztachip/raw/master/Documentation/visionai_programmer_guide.pdf)
+This demo also demonstrates a LLM chatbot whenever a LLM model is available for download. Reference demo#3 on how to prepare the LLM model and make it available for ztachip to download via TFTP.
 
 This demo is shown in this [video](https://www.youtube.com/watch?v=amubm828YGs)
 
