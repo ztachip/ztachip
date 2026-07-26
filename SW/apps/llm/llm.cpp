@@ -728,6 +728,17 @@ ZtaStatus GraphNodeLLM::UserPrompt(char *userPrompt,std::string *output) {
     return ZtaStatusOk;
 }
 
+// Break current LLM processing
+void GraphNodeLLM::Break() {
+    if(m_output)
+        m_output->clear();
+    m_token = 0;
+    m_fwInProgress=false;
+    m_fwWaitForCompletion = false;
+    m_promptTokens.clear();
+    m_state = eLLM_State_Idle;
+}
+
 ZtaStatus GraphNodeLLM::Execute(int queue,int stepMode) {
     char* piece;
     bool cont=true;

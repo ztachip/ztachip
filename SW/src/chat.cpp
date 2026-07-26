@@ -67,7 +67,7 @@ static char *getInput()
 }
 #endif
 
-static GraphNodeLLM ai __attribute__((section(".tcm_data")));
+static GraphNodeLLM ai;
 
 static Graph graph;
 

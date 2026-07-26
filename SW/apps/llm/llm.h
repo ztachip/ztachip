@@ -62,6 +62,7 @@ public:
     ZtaStatus Open(const char* checkpoint_path);
     ZtaStatus SystemPrompt(char *prompt);
     ZtaStatus UserPrompt(char *userPrompt,std::string *output);
+    void Break();
     void Clear();
     void Close();
     virtual ZtaStatus Verify();

@@ -38,6 +38,7 @@
 #include "../apps/equalize/equalize.h"
 #include "../apps/nn/tf.h"
 #include "../apps/gdi/gdi.h"
+#include "../apps/llm/llm.h"
 
 //---------------------------------------------------------------------
 // Example on how to use ztachip for vision AI applications
@@ -58,6 +59,12 @@
 
 #define GRAPH_EXE_TIMEOUT 15 // 15msec
 
+#define GRAPH_AI_EXE_TIMEOUT 15 // 15msec
+
+#define AI_OUTPUT_NUM_LINE 3 // Number of lines to show AI output
+
+#define AI_OUTPUT_LINE_WIDTH (WEBCAM_WIDTH/ALPHABET_DIM)
+
 typedef struct {
    int x1,y1;
    int x2,y2;
@@ -72,6 +79,7 @@ typedef enum
   TestCaseEdgeDetection,
   TestCaseHarrisCorner,
   TestCaseOpticalFlow,
+  TestCaseChatbot,
   TestCaseAll,
   TestCaseMax
 } TestCase;
@@ -82,13 +90,219 @@ static const char *testcase_label[TestCaseMax]= {
    "EdgeDetect",
    "PointOfInterest",
    "MotionDectect",
+   "Chatbot",
    "MultiTasking"
 };
 
 #define NUM_PROGRESS  8
+
 static const char *progress_str[NUM_PROGRESS]={"|","/","-","\\","|","/","-","\\"};
 
 static TestCase testcase=TestCaseObjectDetection;
+
+static Graph graphLLM;
+
+static GraphNodeLLM nodeLLM;
+
+static std::string outputLLM;
+
+// Class to implement chatbot UI
+class Chatbot_UI {
+public:
+   Chatbot_UI();
+   ~Chatbot_UI();
+   ZtaStatus Create(bool _active);
+   char *GetInput();
+   void BlinkCursor();
+   void SwitchToUser();
+   void ShowResponse(std::string &output);
+public:
+   char m_aiOutputLine[AI_OUTPUT_NUM_LINE][AI_OUTPUT_LINE_WIDTH+1];
+   int m_aiOutputLineLen[AI_OUTPUT_NUM_LINE];
+   bool m_inputPending;
+   bool m_active;
+   int m_inputLen;   
+   char m_input[256];
+};
+
+static Chatbot_UI chatbotUI;
+
+// Chatbot UI constructor
+Chatbot_UI::Chatbot_UI() {
+   m_inputLen = 0;
+   m_inputPending = true;
+   m_active = false;
+   for(int i=0;i < AI_OUTPUT_NUM_LINE;i++)
+      m_aiOutputLineLen[i] = 0; 
+}
+
+Chatbot_UI::~Chatbot_UI() {
+}
+
+ZtaStatus Chatbot_UI::Create(bool _active) {
+   m_inputLen = 0;
+   m_inputPending = true;
+   m_active = _active;
+   for(int i=0;i < AI_OUTPUT_NUM_LINE;i++) {
+      memset(m_aiOutputLine[i],' ',AI_OUTPUT_LINE_WIDTH);
+      m_aiOutputLine[i][AI_OUTPUT_LINE_WIDTH] = 0;
+      m_aiOutputLineLen[i] = 0; 
+   }
+   if(_active) {
+      m_aiOutputLine[0][0]='_';
+      m_aiOutputLineLen[0]=1;
+      strcpy(m_aiOutputLine[1],"Ask LLM a question");
+      m_aiOutputLineLen[1]=strlen(m_aiOutputLine[1]);
+      m_aiOutputLine[1][m_aiOutputLineLen[1]]=' ';
+   }
+   else {
+      strcpy(m_aiOutputLine[1],"LLM is not available.");
+      m_aiOutputLineLen[1]=strlen(m_aiOutputLine[1]);
+      m_aiOutputLine[1][m_aiOutputLineLen[1]]=' ';
+
+      strcpy(m_aiOutputLine[0],"Error download model.");
+      m_aiOutputLineLen[0]=strlen(m_aiOutputLine[0]);
+      m_aiOutputLine[0][m_aiOutputLineLen[0]]=' ';
+   }
+   return ZtaStatusOk;
+}
+
+// If Im in user input mode then blink the cursor
+void Chatbot_UI::BlinkCursor() {
+   if(!m_active)
+      return;
+   if(m_inputPending) {
+      if(m_aiOutputLine[0][m_aiOutputLineLen[0]-1]=='_')
+         m_aiOutputLine[0][m_aiOutputLineLen[0]-1]=' ';
+      else
+         m_aiOutputLine[0][m_aiOutputLineLen[0]-1]='_';
+   }
+}
+
+// If Im not in user input mode then show the LLM response
+void Chatbot_UI::ShowResponse(std::string &output) {
+   if(!m_active)
+      return;
+   if(!m_inputPending) {
+      const char *str = output.c_str();
+      for(int i=0;i < (int)output.size();i++) {
+         m_aiOutputLine[0][m_aiOutputLineLen[0]] = str[i];
+         m_aiOutputLineLen[0]++;
+         if(m_aiOutputLineLen[0] >= AI_OUTPUT_LINE_WIDTH) {
+            for(int i=AI_OUTPUT_NUM_LINE-1;i >= 1;i--) {
+               memcpy(m_aiOutputLine[i],m_aiOutputLine[i-1],sizeof(m_aiOutputLine[1]));
+               m_aiOutputLineLen[i] = m_aiOutputLineLen[i-1];
+            }
+            m_aiOutputLineLen[0] = 0;
+            memset(m_aiOutputLine[0],' ',AI_OUTPUT_LINE_WIDTH);
+         }
+      }
+   }
+}
+
+// Get and process keyboard input
+char *Chatbot_UI::GetInput()
+{
+   char ch;
+
+   if(!m_active) {
+      // LLM not available.
+      // Flush serial input queue
+      while(UartReadAvailable()) {
+         UartRead();
+      }
+      return 0;
+   }
+   for(;;) {    
+      if(UartReadAvailable()) {
+         if(!m_inputPending) {
+            for(int i=AI_OUTPUT_NUM_LINE-1;i >= 1;i--) {
+               memcpy(m_aiOutputLine[i],m_aiOutputLine[i-1],AI_OUTPUT_LINE_WIDTH);
+               m_aiOutputLineLen[i] = m_aiOutputLineLen[i-1];
+            }
+            memset(m_aiOutputLine[0],' ',AI_OUTPUT_LINE_WIDTH);
+            m_aiOutputLineLen[0] = 1;
+            m_aiOutputLine[0][0] = '_';
+            m_inputPending = true;
+         }
+         ch = UartRead();
+         printf("%c",ch);
+         fflush(stdout);
+         if(ch==0x3) {
+            memset(m_aiOutputLine[0],' ',AI_OUTPUT_LINE_WIDTH);
+            m_aiOutputLineLen[0]=1;
+            m_aiOutputLine[0][0]='_';
+            m_inputLen = 0;
+         }
+         else if(ch=='\n' || ch=='\r') {
+            printf("\r\n");
+            fflush(stdout);
+            m_input[m_inputLen]=0;
+            m_inputLen = 0;
+            m_inputPending = false;
+            for(int i=AI_OUTPUT_NUM_LINE-1;i >= 1;i--) {
+               memcpy(m_aiOutputLine[i],m_aiOutputLine[i-1],AI_OUTPUT_LINE_WIDTH);
+               m_aiOutputLineLen[i] = m_aiOutputLineLen[i-1];
+            }
+            if(m_aiOutputLineLen[1]>0) {
+               m_aiOutputLine[1][m_aiOutputLineLen[1]-1]=' ';
+               m_aiOutputLineLen[1]--;
+            }
+            memset(m_aiOutputLine[0],' ',AI_OUTPUT_LINE_WIDTH);
+            m_aiOutputLineLen[0] = 0;
+            return m_input;
+         } else if(ch=='\b') {
+            if(m_inputLen > 0) {
+               m_inputLen--;
+               if(m_aiOutputLineLen[0] > 1) {
+                  m_aiOutputLine[0][m_aiOutputLineLen[0]-1] = ' ';
+                  m_aiOutputLine[0][m_aiOutputLineLen[0]-2] = '_';
+                  m_aiOutputLineLen[0]--;
+               }
+            }
+         } else {
+            if(m_inputLen < (int)(sizeof(m_input)-1)) {
+               m_input[m_inputLen++]=ch;
+               m_aiOutputLine[0][m_aiOutputLineLen[0]-1]=ch;
+               if(m_aiOutputLineLen[0] < AI_OUTPUT_LINE_WIDTH) {
+                  m_aiOutputLine[0][m_aiOutputLineLen[0]]='_';
+                  m_aiOutputLineLen[0]++;
+               } 
+               else {
+                  for(int i=AI_OUTPUT_NUM_LINE-1;i >= 1;i--) {
+                     memcpy(m_aiOutputLine[i],m_aiOutputLine[i-1],AI_OUTPUT_LINE_WIDTH);
+                     m_aiOutputLineLen[i] = m_aiOutputLineLen[i-1];
+                  }
+                  memset(m_aiOutputLine[0],' ',AI_OUTPUT_LINE_WIDTH); 
+                  m_aiOutputLine[0][0] = '_';
+                  m_aiOutputLineLen[0] = 1;
+               }
+            }
+         } 
+      }
+      else
+         break;
+   }
+   return 0;
+}
+
+// Switch chatbot to user entering query mode
+void Chatbot_UI::SwitchToUser() {
+   if(!m_active)
+      return;
+   if(!m_inputPending) {
+      for(int i=AI_OUTPUT_NUM_LINE-1;i >= 1;i--) {
+         memcpy(m_aiOutputLine[i],m_aiOutputLine[i-1],AI_OUTPUT_LINE_WIDTH);
+         m_aiOutputLineLen[i] = m_aiOutputLineLen[i-1];
+      }
+      memset(m_aiOutputLine[0],' ',AI_OUTPUT_LINE_WIDTH);
+      m_aiOutputLineLen[0] = 1;
+      m_aiOutputLine[0][0] = '_';
+      m_inputPending = true;
+      printf("\r\n>");
+      fflush(stdout);
+   }
+}
 
 // Main loop
 
@@ -103,6 +317,8 @@ int vision_ai() {
    GraphNodeColorAndReshape nodeOutput;
    GraphNodeColorAndReshape nodeOutputs[MAX_OUTPUT];
    GraphNodeColorAndReshape nodeConvert2Mono;
+   static bool initLLM=false;
+   static bool runLLM=false;
    GraphNodeResize nodeResize;
    GraphNodeResize nodeResizeNN;
    GraphNodeGaussian nodeGaussian;
@@ -136,8 +352,33 @@ int vision_ai() {
    int ssd_result_cnt=0;
    bool readyToSwitch=false;
    uint32_t buttonStatus;
+   int buttonIsPressed=0;
    int progress_cnt=0;
    uint8_t *displayBuffer;
+
+   if(!initLLM) {
+      // LLM is a large Graph node with long weight download so so create
+      // LLM graph just once...
+      nodeLLM.Create();
+
+      rc=nodeLLM.Open("SMOLLM2.ZUF");
+      if(rc==ZtaStatusOk)
+         runLLM = true;
+      else
+         runLLM = false;
+      if(runLLM) {
+         chatbotUI.Create(true);
+         printf("\r\n>");
+         fflush(stdout);
+         graphLLM.Add(&nodeLLM);
+         graphLLM.Verify();
+         nodeLLM.SetSamplingPolicy(0.6,0.9,0.05,40,40); // temperature=0.7,p-threshold=0.9;min_p=0.05,
+         nodeLLM.SystemPrompt((char*)"You answer questions briefly");
+      } else {
+         chatbotUI.Create(false);
+      }
+      initLLM = true;
+   }
 
    std::vector<int> dim={3,WEBCAM_HEIGHT,WEBCAM_WIDTH};
    rc=tensorInput.Create(TensorDataTypeUint8,TensorFormatInterleaved,TensorObjTypeRGB,dim);
@@ -222,6 +463,14 @@ int vision_ai() {
       assert(rc==ZtaStatusOk);
       graph.Add(&nodeOutput);
       graph.Verify();
+   } else if(testcase==TestCaseChatbot) {
+      // IN chat mode, we like to show what the camera input so that we can ask LLM about
+      // what is sees
+      // LLM graph is only created once since it is large with long weight download
+      rc=nodeOutput.Create(&tensorInput,&tensorOutput,TensorObjTypeRGB,TensorFormatInterleaved);
+      assert(rc==ZtaStatusOk);
+      graph.Add(&nodeOutput);
+      graph.Verify();
    } else if(testcase==TestCaseObjectDetection) {
       // Graph for object detection using SSD-Mobinet model.
       rc=nodeInput.Create(&tensorInput,&tensor[1],TensorObjTypeRGB,TensorFormatSplit);
@@ -237,6 +486,7 @@ int vision_ai() {
       graphNN.Add(&nodeResize);
       graphNN.Add(&nodeNN);
       graphNN.Verify();
+
       // Graph to show background camera capture when doing object detection
       rc=nodeOutput.Create(&tensorInput,&tensorOutput,TensorObjTypeRGB,TensorFormatInterleaved);
       assert(rc==ZtaStatusOk);
@@ -336,19 +586,19 @@ int vision_ai() {
    while(1) {
       // Check push button to see if it is time to switch demos
       buttonStatus=PushButtonGetState();
+      if(buttonStatus)
+         buttonIsPressed=10;
+      else if(buttonIsPressed>0)
+         buttonIsPressed--;
       if(!readyToSwitch) {
-         if((buttonStatus&1) == 0)
+         if(buttonStatus)
             readyToSwitch=true;
       }
       if(!graphNN.IsRunning() && readyToSwitch) {
-         if((buttonStatus&1) != 0) {
-            if(buttonStatus&1) {
-               testcase=(TestCase)((int)testcase+1);
-               if(testcase >= TestCaseMax)
-                  testcase=(TestCase)0;
-            } else {
-               testcase=((int)testcase==0)?(TestCase)((int)TestCaseMax-1):(TestCase)((int)testcase-1);
-            }
+         if(buttonIsPressed==0) {
+            testcase=(TestCase)((int)testcase+1);
+            if(testcase >= TestCaseMax)
+               testcase=(TestCase)0;
             return 0;
          }
       }
@@ -368,6 +618,7 @@ int vision_ai() {
          }
 
          // Execute first graph to completion since these are fast tasks
+
          graph.Prepare();
          graph.RunUntilCompletion();
 
@@ -417,6 +668,15 @@ int vision_ai() {
                }
             }
          }
+         if(testcase==TestCaseAll || testcase==TestCaseChatbot) {
+            // Display chatbot window
+            chatbotUI.BlinkCursor();
+            for(int i=0;i < AI_OUTPUT_NUM_LINE;i++) {
+               GdiDrawText((const char *)chatbotUI.m_aiOutputLine[i],
+                           WEBCAM_HEIGHT-ALPHABET_DIM*(i+1)-1,
+                           0);
+            }
+         }
          // Update screen label
          sprintf(buf,"%s %s", (char *)testcase_label[testcase],progress_str[progress_cnt]);
          GdiDrawText(buf,0,WEBCAM_WIDTH-strlen(buf)*ALPHABET_DIM-8);
@@ -425,6 +685,34 @@ int vision_ai() {
          // Update video memory
          DisplayUpdateBuffer();
       } 
+      if(testcase==TestCaseAll || testcase==TestCaseChatbot) {
+         // In these test cases, process LLM graph
+         char *prompt = chatbotUI.GetInput();
+         if(prompt) {
+            // Got a new query from user
+            nodeLLM.Clear(); 
+            nodeLLM.ClearStat();
+            nodeLLM.UserPrompt(prompt,&outputLLM);
+            graphLLM.Prepare(); // Restart LLM graph execution for new query
+            printf("\r\n");
+            fflush(stdout);
+         }
+         if(graphLLM.IsRunning()) {
+            // Continu with LLM execution
+            graphLLM.Run(GRAPH_AI_EXE_TIMEOUT);
+         }
+         else {
+            // If LLM is not running then swith to user input mode to get
+            // next query from users
+            chatbotUI.SwitchToUser();
+         }
+         if(outputLLM.size() > 0) {
+            // Update chatbot UI for any LLM responses.
+            chatbotUI.ShowResponse(outputLLM);
+            outputLLM.clear();
+         }
+      }
+
       // There is no new images. Continue to process the second graph
       // for AI processing.
       if(testcase==TestCaseImageClassifier) {
