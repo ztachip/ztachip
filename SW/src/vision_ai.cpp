@@ -104,8 +104,6 @@ static Graph graphLLM;
 
 static GraphNodeLLM nodeLLM;
 
-static std::string outputLLM;
-
 // Class to implement chatbot UI
 class Chatbot_UI {
 public:
@@ -692,7 +690,7 @@ int vision_ai() {
             // Got a new query from user
             nodeLLM.Clear(); 
             nodeLLM.ClearStat();
-            nodeLLM.UserPrompt(prompt,&outputLLM);
+            nodeLLM.UserPrompt(prompt);
             graphLLM.Prepare(); // Restart LLM graph execution for new query
             printf("\r\n");
             fflush(stdout);
@@ -706,10 +704,10 @@ int vision_ai() {
             // next query from users
             chatbotUI.SwitchToUser();
          }
-         if(outputLLM.size() > 0) {
+         if(nodeLLM.m_output.size() > 0) {
             // Update chatbot UI for any LLM responses.
-            chatbotUI.ShowResponse(outputLLM);
-            outputLLM.clear();
+            chatbotUI.ShowResponse(nodeLLM.m_output);
+            nodeLLM.m_output.clear();
          }
       }
 

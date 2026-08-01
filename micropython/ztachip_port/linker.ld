@@ -16,7 +16,7 @@ MEMORY {
 }
 
 _stack_size = 12000;
-_heap_size = 200000000;
+_heap_size = 254000000;
 
 SECTIONS {
 

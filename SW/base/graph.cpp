@@ -62,7 +62,6 @@ ZtaStatus Graph::Clear() {
 // to Graph...
 
 ZtaStatus Graph::Add(GraphNode *node) {
-   node->m_parent = this;
    m_nodes.push_back(node);
    return ZtaStatusOk;
 }
@@ -119,7 +118,6 @@ ZtaStatus Graph::run(int timeout) {
 }
 
 GraphNode::GraphNode() {
-   m_parent = 0;
 }
 
 GraphNode::~GraphNode() {

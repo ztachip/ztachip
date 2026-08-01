@@ -82,11 +82,11 @@ int chat() {
     if(ai.Open("SMOLLM2.ZUF") != ZtaStatusOk)
         return -1;
 //  ai.SetSamplingPolicyGreedy();
-    graph.Add(&ai);
-    graph.Verify();
     ai.SetSamplingPolicy(0.6,0.9,0.05,40,40); // temperature=0.7,p-threshold=0.9;min_p=0.05,
     ai.SystemPrompt((char*)"You answer questions briefly");
-
+    graph.Add(&ai);
+    graph.Verify();
+    
     for(;;) {
         char *prompt = getInput();
         if(prompt) {
@@ -97,7 +97,7 @@ int chat() {
                 // Clear previous context before answering new query
                 ai.Clear(); 
                 ai.ClearStat();
-                ai.UserPrompt(prompt,0);
+                ai.UserPrompt(prompt);
                 graph.Prepare();
                 for(;;) {
                     graph.Run(20);

@@ -50,8 +50,6 @@ public:
 public:
    bool AllRequestAreCompleted(int queue);
    uint32_t GetJobId(int queue);
-public:
-   Graph *m_parent;
 };
 
 // Graph is a container of GraphNode

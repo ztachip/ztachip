@@ -580,9 +580,9 @@ void test_llm_softmax() {
       xin[i] = f;
    }
 
-   kernel_ref_llm_softmax_exe(0,x0,N);
+   kernel_ref_llm_softmax_exe(x0,N);
 
-   kernel_llm_softmax_exe(0,x1,N);
+   kernel_llm_softmax_exe(x1,N);
 
    kernel_llm_done();
 
@@ -910,7 +910,7 @@ void test_llm_k_max() {
       x[i] = F2BF(x_lo+x_range*randGen());
    }
 
-   kernel_llm_find_k_max(123,x,N,K,scale,top,topp);
+   kernel_llm_find_k_max(x,N,K,scale,top,topp);
 
    kernel_llm_done();
 

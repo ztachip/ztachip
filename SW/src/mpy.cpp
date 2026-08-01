@@ -39,6 +39,7 @@
 #include "../apps/equalize/equalize.h"
 #include "../apps/gdi/gdi.h"
 #include "../apps/nn/tf.h"
+#include "../apps/llm/llm.h"
 #include "../../micropython/ztachip_port/mpy.h"
 static std::vector<MPY_HANDLE> tensorLst;
 static std::vector<MPY_HANDLE> tensorDisplayLst;
@@ -46,6 +47,9 @@ static std::vector<MPY_HANDLE> tensorCameraLst;
 static std::vector<MPY_HANDLE> graphNodeLst;
 static std::vector<MPY_HANDLE> graphLst;
 
+static std::string llm_output;
+
+static bool consoleCapture=false;
 
 //
 // Initialize ztachip from micropython
@@ -93,12 +97,18 @@ uint32_t MPY_PushButtonState() {
 
 // Get number of characters available in UART RX FIFO
 int MPY_UartReadAvail() {
-   return (int)APB[APB_UART_READ_AVAIL];
+   if(consoleCapture)
+      return 0;
+   else
+      return (int)APB[APB_UART_READ_AVAIL];
 }
 
 // Get UART character received
 uint8_t MPY_UartRead() {
-   return (uint8_t)APB[APB_UART_READ];
+   if(consoleCapture)
+      return 0;
+   else
+      return (uint8_t)APB[APB_UART_READ];
 }
 
 // Get FIFO room available for UART to accept new transmit characters
@@ -111,8 +121,6 @@ int MPY_UartWriteAvail() {
 void MPY_UartWrite(const uint8_t ch) {
    APB[APB_UART_WRITE]=(uint32_t)ch; 
 }
-
-
 
 // Get time
 uint32_t MPY_GetTimeMsec() {
@@ -128,6 +136,19 @@ uint32_t MPY_GetElapsedTimeMsec() {
    elapsed=(int32_t)now-(int32_t)lastTime;
    lastTime=now;
    return elapsed;
+}
+
+void MPY_Console_Capture(bool _capture) {
+   consoleCapture = _capture;
+}
+
+int MPY_Console_Read() {
+   if(!consoleCapture)
+      return 0;
+   if(APB[APB_UART_READ_AVAIL] == 0)
+      return 0;
+   else
+      return (uint8_t)APB[APB_UART_READ];
 }
 
 // API for camera
@@ -482,6 +503,45 @@ MPY_HANDLE MPY_GraphNodeNeuralNet_Create(const char *modelFile,
 const char *MPY_GraphNodeNeuralNet_GetLabel(MPY_HANDLE hwd,int idx) {
    TfliteNn *node=(TfliteNn *)hwd;
    return node->LabelGet(idx);
+}
+
+// Create LLM graph node
+
+MPY_HANDLE MPY_GraphNodeLLM_Create(const char *modelFile,
+                                 const char *systemPrompt,
+                                 float temperature,
+                                 float p_threshold,
+                                 float min_p,
+                                 int k,
+                                 int maxTokenResponse) {
+   GraphNodeLLM *node;
+   node = new GraphNodeLLM();
+   node->Create();
+   if(node->Open(modelFile)==ZtaStatusOk) {
+      node->SetSamplingPolicy(temperature,p_threshold,min_p,k,maxTokenResponse); 
+      node->SystemPrompt((char*)systemPrompt);   
+   }
+   graphNodeLst.push_back((MPY_HANDLE)node);
+   return (MPY_HANDLE)node;
+}
+
+void MPY_GraphNodeLLM_ClearContext(MPY_HANDLE hwd) {
+   GraphNodeLLM *node=(GraphNodeLLM *)hwd;
+   node->Clear();
+}
+
+void MPY_GraphNodeLLM_UserPrompt(MPY_HANDLE hwd,const char *userPrompt) {
+   GraphNodeLLM *node=(GraphNodeLLM *)hwd;
+   node->Clear();
+   node->ClearStat();
+   node->UserPrompt((char *)userPrompt);
+}
+
+char *MPY_GraphNodeLLM_GetResponse(MPY_HANDLE hwd) {
+   GraphNodeLLM *node=(GraphNodeLLM *)hwd;
+   llm_output = node->m_output;
+   node->m_output.clear();
+   return (char *)llm_output.c_str();
 }
 
 // Delete a graph node

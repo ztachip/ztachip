@@ -547,7 +547,7 @@ float16_t* GraphNodeLLM::forward(int token, int pos,int timeout) {
             kernel_llm_dot_product_exe(-1,head_size,(m_fwPos+1),q,k_start,kv_dim,att,m_config.inv_sqrtf_head_size);
         }
         for (h = 0,att=m_runtime.att; h < (int)m_config.n_heads; h++,att+=m_config.seq_len) {
-            kernel_llm_softmax_exe(-1,att,m_fwPos + 1);
+            kernel_llm_softmax_exe(att,m_fwPos + 1);
         }
         for (h = 0,att=m_runtime.att; h < (int)m_config.n_heads; h++,att+=m_config.seq_len) {
             // weighted sum of the values, store back into xb
@@ -630,13 +630,13 @@ int GraphNodeLLM::sampling(float16_t* _logits) {
     FLUSH_DATA_CACHE();
 
     if(m_samplingGreedy)
-        return kernel_llm_find_max(GetJobId(m_parent->m_queue),_logits, m_config.vocab_size);
+        return kernel_llm_find_max(_logits, m_config.vocab_size);
 
-    kernel_llm_find_k_max(GetJobId(m_parent->m_queue),_logits,m_config.vocab_size,m_samplingK,m_samplingScale,top,toppbf);
+    kernel_llm_find_k_max(_logits,m_config.vocab_size,m_samplingK,m_samplingScale,top,toppbf);
 
     kernel_llm_done();  
     
-    kernel_llm_softmax_exe(GetJobId(m_parent->m_queue), toppbf, m_samplingK);
+    kernel_llm_softmax_exe(toppbf, m_samplingK);
         
     kernel_llm_done(); 
 
@@ -691,15 +691,13 @@ void GraphNodeLLM::safe_printf(char *piece) {
         }
     }
     printf("%s", piece);
-    if(m_output)
-        m_output->append(piece);
+    m_output.append(piece);
 }
 
 // Inject system prompt
 
 ZtaStatus GraphNodeLLM::SystemPrompt(char *prompt) {
     char* piece;
-    m_output = 0;
     m_promptTokens.clear();
     m_promptTokens.push_back(m_tokenizer->m_special.BOS);
     m_tokenizer->StringToToken((char *)"system", 1, 0, m_promptTokens);
@@ -721,22 +719,11 @@ ZtaStatus GraphNodeLLM::SystemPrompt(char *prompt) {
 // Injust user prompt
 // And then wait for the response
 
-ZtaStatus GraphNodeLLM::UserPrompt(char *userPrompt,std::string *output) {
+ZtaStatus GraphNodeLLM::UserPrompt(char *userPrompt) {
     m_reset = true;
     m_userPrompt = userPrompt;
-    m_output = output;
+    m_output.clear();
     return ZtaStatusOk;
-}
-
-// Break current LLM processing
-void GraphNodeLLM::Break() {
-    if(m_output)
-        m_output->clear();
-    m_token = 0;
-    m_fwInProgress=false;
-    m_fwWaitForCompletion = false;
-    m_promptTokens.clear();
-    m_state = eLLM_State_Idle;
 }
 
 ZtaStatus GraphNodeLLM::Execute(int queue,int stepMode) {
@@ -762,8 +749,7 @@ ZtaStatus GraphNodeLLM::Execute(int queue,int stepMode) {
         userPrompt = 0;
     }
     if(userPrompt) {
-        if(m_output)
-            m_output->clear();
+        m_output.clear();
         m_token = 0;
         m_fwInProgress=false;
         m_fwWaitForCompletion = false;
@@ -799,7 +785,7 @@ ZtaStatus GraphNodeLLM::Execute(int queue,int stepMode) {
     startTime = TIMEGET();
     if(m_fwWaitForCompletion) {
         uint32_t resp;
-        if(AllRequestAreCompleted(m_parent->m_queue))
+        if(AllRequestAreCompleted(queue))
             m_fwWaitForCompletion = false;
         if(m_fwWaitForCompletion)
             return ZtaStatusPending;
@@ -815,8 +801,10 @@ ZtaStatus GraphNodeLLM::Execute(int queue,int stepMode) {
                 if(m_token==m_tokenizer->m_special.EOS) {
                     m_state=eLLM_State_Idle;
                 } else {
+#if 1
                     safe_printf(piece);
                     fflush(stdout);
+#endif
                 }
             }
         }
@@ -844,7 +832,7 @@ ZtaStatus GraphNodeLLM::Execute(int queue,int stepMode) {
             }
             m_stat.numTokens++;
             m_posCurr++;
-            m_jobid = GetJobId(m_parent->m_queue);
+            m_jobid = GetJobId(queue);
             ztaJobDone(m_jobid);
             m_fwWaitForCompletion = true;
             m_fwShowToken = false;
@@ -868,7 +856,7 @@ ZtaStatus GraphNodeLLM::Execute(int queue,int stepMode) {
             }
             m_stat.numTokens++;
             m_posCurr++;
-            m_jobid = GetJobId(m_parent->m_queue);
+            m_jobid = GetJobId(queue);
             ztaJobDone(m_jobid);
             m_fwWaitForCompletion = true;
             m_fwShowToken = true;
@@ -893,7 +881,7 @@ ZtaStatus GraphNodeLLM::Execute(int queue,int stepMode) {
             m_stat.numTokens++;
             m_numTokenResponse++;
             m_posCurr++;
-            m_jobid = GetJobId(m_parent->m_queue);
+            m_jobid = GetJobId(queue);
             ztaJobDone(m_jobid);
             m_fwWaitForCompletion = true;
             m_fwShowToken = true;
@@ -927,7 +915,7 @@ ZtaStatus GraphNodeLLM::Execute(int queue,int stepMode) {
     }
     if(m_state==eLLM_State_Idle) {
         endTime = TIMEGET();
-        ztaJobDone(GetJobId(m_parent->m_queue));
+        ztaJobDone(GetJobId(queue));
         m_stat.totalTime += (uint64_t)((uint32_t)((int32_t)endTime-(int32_t)m_startTime));
     }
     return rc;

@@ -61,7 +61,7 @@ public:
     ZtaStatus Create();
     ZtaStatus Open(const char* checkpoint_path);
     ZtaStatus SystemPrompt(char *prompt);
-    ZtaStatus UserPrompt(char *userPrompt,std::string *output);
+    ZtaStatus UserPrompt(char *userPrompt);
     void Break();
     void Clear();
     void Close();
@@ -78,10 +78,11 @@ private:
     float16_t* forward(int token, int pos,int timeout=0);
     int sampling(float16_t* logits);
     void safe_printf(char *piece);
+public:
+    std::string m_output;
 private:
     ZUF m_zuf;
     Tokenizer *m_tokenizer;
-    std::string *m_output;
     uint32_t m_mergeSize;
     std::vector<int> m_promptTokens;
     int m_posCurr;

@@ -72,6 +72,25 @@ static mp_obj_t zta_CameraCapture() {
 static MP_DEFINE_CONST_FUN_OBJ_0(zta_CameraCapture_obj, zta_CameraCapture);
 
 //-----------------------------------------------------------
+// Console capture function
+//-----------------------------------------------------------
+
+static mp_obj_t zta_ConsoleCapture(mp_obj_t _capture) {
+    MPY_Console_Capture(mp_obj_is_true(_capture));
+    return mp_const_none;
+}
+// Define a Python reference to the function above.
+static MP_DEFINE_CONST_FUN_OBJ_1(zta_ConsoleCapture_obj, zta_ConsoleCapture);
+
+
+static mp_obj_t zta_ConsoleRead() {
+    uint8_t ch=MPY_Console_Read();
+    return mp_obj_new_int((int)ch);
+}
+// Define a Python reference to the function above.
+static MP_DEFINE_CONST_FUN_OBJ_0(zta_ConsoleRead_obj, zta_ConsoleRead);
+
+//-----------------------------------------------------------
 // Display update function
 //-----------------------------------------------------------
 
@@ -848,6 +867,71 @@ MP_DEFINE_CONST_OBJ_TYPE(
     );
 
 //----------------------------------------------------------
+// Create GraphNodeLLM
+// This node performs inferencing
+//-----------------------------------------------------------
+
+static mp_obj_t zta_GraphNodeLLM_Print(mp_obj_t self_in) {
+    zta_GraphNode_obj_t *self = MP_OBJ_TO_PTR(self_in);
+    return mp_obj_new_bool(true);
+}
+static MP_DEFINE_CONST_FUN_OBJ_1(zta_GraphNodeLLM_Print_obj, zta_GraphNodeLLM_Print);
+
+static mp_obj_t zta_GraphNodeLLM_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
+    zta_GraphNode_obj_t *self = mp_obj_malloc(zta_GraphNode_obj_t, type);
+    self->hwd=MPY_GraphNodeLLM_Create(mp_obj_str_get_str(args[0]),
+                                    mp_obj_str_get_str(args[1]),
+                                    mp_obj_get_float(args[2]),
+                                    mp_obj_get_float(args[3]),
+                                    mp_obj_get_float(args[4]),
+                                    mp_obj_get_int(args[5]),
+                                    mp_obj_get_int(args[6]));
+    self->numTensor=0;
+    return MP_OBJ_FROM_PTR(self);
+}
+
+static mp_obj_t zta_GraphNodeLLM_UserPrompt(mp_obj_t self_in,mp_obj_t _userPrompt) {
+    zta_GraphNode_obj_t *self = MP_OBJ_TO_PTR(self_in);
+    MPY_GraphNodeLLM_UserPrompt(self->hwd,mp_obj_str_get_str(_userPrompt));
+    return mp_const_none;
+}
+static MP_DEFINE_CONST_FUN_OBJ_2(zta_GraphNodeLLM_UserPrompt_obj, zta_GraphNodeLLM_UserPrompt);
+
+static mp_obj_t zta_GraphNodeLLM_Response(mp_obj_t self_in) {
+    zta_GraphNode_obj_t *self = MP_OBJ_TO_PTR(self_in);
+    char *s=MPY_GraphNodeLLM_GetResponse(self->hwd);
+    mp_obj_t resp=mp_obj_new_str(s,strlen(s));
+    return resp;
+}
+static MP_DEFINE_CONST_FUN_OBJ_1(zta_GraphNodeLLM_Response_obj, zta_GraphNodeLLM_Response);
+
+// DEL operator
+
+static mp_obj_t zta_GraphNodeLLM_Delete(mp_obj_t self_in) {
+    zta_GraphNode_obj_t *self = MP_OBJ_TO_PTR(self_in);
+    MPY_GraphNode_Delete(self->hwd);
+    self->hwd=0;
+    return mp_const_none;
+}
+static MP_DEFINE_CONST_FUN_OBJ_1(zta_GraphNodeLLM_Delete_obj, zta_GraphNodeLLM_Delete);
+
+static const mp_rom_map_elem_t zta_GraphNodeLLM_locals_dict_table[] = {
+    { MP_ROM_QSTR(MP_QSTR_Delete), MP_ROM_PTR(&zta_GraphNodeLLM_Delete_obj) },
+    { MP_ROM_QSTR(MP_QSTR_UserPrompt), MP_ROM_PTR(&zta_GraphNodeLLM_UserPrompt_obj)},
+    { MP_ROM_QSTR(MP_QSTR_Response), MP_ROM_PTR(&zta_GraphNodeLLM_Response_obj)},
+    { MP_ROM_QSTR(MP_QSTR_Print), MP_ROM_PTR(&zta_GraphNodeLLM_Print_obj) },
+};
+static MP_DEFINE_CONST_DICT(zta_GraphNodeLLM_locals_dict, zta_GraphNodeLLM_locals_dict_table);
+
+MP_DEFINE_CONST_OBJ_TYPE(
+    zta_type_GraphNodeLLM,
+    MP_QSTR_GraphNodeLLM,
+    MP_TYPE_FLAG_NONE,
+    make_new, zta_GraphNodeLLM_make_new,
+    locals_dict, &zta_GraphNodeLLM_locals_dict
+    );
+
+//----------------------------------------------------------
 // Create Graph
 
 typedef struct _zta_Graph_obj_t {
@@ -947,6 +1031,8 @@ static const mp_rom_map_elem_t zta_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_GetTimeMsec), MP_ROM_PTR(&zta_GetTimeMsec_obj) },
     { MP_ROM_QSTR(MP_QSTR_GetElapsedTimeMsec), MP_ROM_PTR(&zta_GetElapsedTimeMsec_obj) },
     { MP_ROM_QSTR(MP_QSTR_CameraCapture), MP_ROM_PTR(&zta_CameraCapture_obj) },
+    { MP_ROM_QSTR(MP_QSTR_ConsoleCapture), MP_ROM_PTR(&zta_ConsoleCapture_obj) },
+    { MP_ROM_QSTR(MP_QSTR_ConsoleRead), MP_ROM_PTR(&zta_ConsoleRead_obj) },
     { MP_ROM_QSTR(MP_QSTR_DisplayFlushCanvas), MP_ROM_PTR(&zta_DisplayFlushCanvas_obj) },
     { MP_ROM_QSTR(MP_QSTR_CanvasDrawText), MP_ROM_PTR(&zta_CanvasDrawText_obj) },
     { MP_ROM_QSTR(MP_QSTR_CanvasDrawPoint), MP_ROM_PTR(&zta_CanvasDrawPoint_obj) },
@@ -962,6 +1048,7 @@ static const mp_rom_map_elem_t zta_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_GraphNodeResize), MP_ROM_PTR(&zta_type_GraphNodeResize) },
     { MP_ROM_QSTR(MP_QSTR_GraphNodeImageClassifier), MP_ROM_PTR(&zta_type_GraphNodeImageClassifier) },
     { MP_ROM_QSTR(MP_QSTR_GraphNodeObjectDetection), MP_ROM_PTR(&zta_type_GraphNodeObjectDetection) },
+    { MP_ROM_QSTR(MP_QSTR_GraphNodeLLM), MP_ROM_PTR(&zta_type_GraphNodeLLM) },
     { MP_ROM_QSTR(MP_QSTR_Graph), MP_ROM_PTR(&zta_type_Graph) },
     { MP_ROM_QSTR(MP_QSTR_INTERLEAVED), MP_ROM_INT(CONST_INTERLEAVED)},
     { MP_ROM_QSTR(MP_QSTR_PLANAR), MP_ROM_INT(CONST_PLANAR)},

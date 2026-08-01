@@ -54,7 +54,7 @@ extern void kernel_llm_sine_exe(int reqId,int N,float *x,float scale,float *y);
 
 extern void kernel_llm_SwiGLU_exe(int reqId,float16_t *hb,float16_t *hb2,int N); 
 
-extern void kernel_llm_softmax_exe(int reqId,float16_t *x,int N);
+extern void kernel_llm_softmax_exe(float16_t *x,int N);
 
 extern void kernel_llm_rms_exe(int reqId,int N,float N_reciprocal,float16_t *x,bool x_is_fp16,float16_t *o,float *w);
 
@@ -62,9 +62,9 @@ extern void kernel_llm_rope_exe(int reqId,int N,float *fcr,float *fci,float16_t 
 
 extern void kernel_llm_residual_exe(int reqId,int N,float16_t *x,bool x_is_fp16,float16_t *y,float16_t *xb);
 
-extern int kernel_llm_find_max(uint32_t jobId,float16_t *x,uint32_t N);
+extern int kernel_llm_find_max(float16_t *x,uint32_t N);
 
-extern int kernel_llm_find_k_max(uint32_t jobId,float16_t *x,uint32_t N,int K,float scale,int *top,float16_t *topp);
+extern int kernel_llm_find_k_max(float16_t *x,uint32_t N,int K,float scale,int *top,float16_t *topp);
 
 extern void kernel_llm_done();
 

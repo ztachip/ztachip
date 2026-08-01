@@ -64,6 +64,8 @@ extern int MPY_UartWriteAvail(void);
 extern void MPY_UartWrite(const uint8_t ch);
 extern uint32_t MPY_GetTimeMsec();
 extern uint32_t MPY_GetElapsedTimeMsec();
+extern void MPY_Console_Capture(bool _capture);
+extern int MPY_Console_Read();
 extern bool MPY_Camera_Capture();
 extern void MPY_Display_FlushScreenCanvas();
 extern void MPY_Canvas_DrawText(const char *str,int r,int c);
@@ -82,6 +84,16 @@ extern MPY_HANDLE MPY_GraphNodeCanny_Create(MPY_HANDLE _inputTensor,MPY_HANDLE _
 extern void MPY_GraphNodeCanny_SetThreshold(MPY_HANDLE _node,int _loThreshold,int _hiThreshold);
 extern MPY_HANDLE MPY_GraphNodeOpticalFlow_Create(MPY_HANDLE _input,MPY_HANDLE _output);
 extern MPY_HANDLE MPY_GraphNodeResize_Create(MPY_HANDLE _inputTensor,MPY_HANDLE _outputTensor,int w,int h);
+extern MPY_HANDLE MPY_GraphNodeLLM_Create(const char *modelFile,
+                                            const char *systemPrompt,
+                                            float temperature,
+                                            float p_threshold,
+                                            float min_p,
+                                            int k,
+                                            int maxTokenResponse);
+extern void MPY_GraphNodeLLM_ClearContext(MPY_HANDLE hwd);
+extern void MPY_GraphNodeLLM_UserPrompt(MPY_HANDLE hwd,const char *userPrompt);
+char *MPY_GraphNodeLLM_GetResponse(MPY_HANDLE hwd);
 extern MPY_HANDLE MPY_GraphNodeNeuralNet_Create(const char *modelFile,
                                                 const char *labelFile,
                                                 MPY_HANDLE _inputTensor,
