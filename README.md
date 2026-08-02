@@ -256,7 +256,7 @@ Reference design example required the hardware components below...
 
 - [VGA module](https://digilent.com/shop/pmod-vga-video-graphics-array/)
 
-- [Camera module](https://www.amazon.ca/640X480-Interface-Exposure-Control-Display/dp/B07PX4N3YS/ref=sr_1_2_sspa?gclid=EAIaIQobChMIttra8bjo-QIVCMqzCh27tA5XEAAYASAAEgKJTPD_BwE&hvadid=596026577980&hvdev=c&hvlocphy=9000555&hvnetw=g&hvqmt=e&hvrand=6338354247560979516&hvtargid=kwd-296249713094&hydadcr=13589_13421122&keywords=ov7670+camera+module&qid=1661652319&sr=8-2-spons&psc=1&spLa=ZW5jcnlwdGVkUXVhbGlmaWVyPUEzVDhCRUlYWEJZUU8xJmVuY3J5cHRlZElkPUEwMDExNDE5M1ZRSEw3WDdEWk9VWiZlbmNyeXB0ZWRBZElkPUEwMTgwOTYwWTFXWUNPWE8xQzk2JndpZGdldE5hbWU9c3BfYXRmJmFjdGlvbj1jbGlja1JlZGlyZWN0JmRvTm90TG9nQ2xpY2s9dHJ1ZQ==)
+- [Camera module](https://www.aliexpress.com/item/1005009373256992.html?src=google&src=google&albch=shopping&acnt=603-455-9033&isdl=y&slnk=&plac=&mtctp=&albbt=Google_7_shopping&aff_platform=google&aff_short_key=_oFgTQeV&gclsrc=aw.ds&albagn=888888&ds_e_adid=&ds_e_matchtype=&ds_e_device=c&ds_e_network=x&ds_e_product_group_id=&ds_e_product_id=en1005009373256992&ds_e_product_merchant_id=5445730461&ds_e_product_country=CA&ds_e_product_language=en&ds_e_product_channel=online&ds_e_product_store_id=&ds_url_v=2&albcp=23541693768&albag=&isSmbAutoCall=false&needSmbHouyi=false&gad_source=1&gad_campaignid=23546808899&gbraid=0AAAABCRFad9mvAHB4TSXwyJe-26kItMYF&gclid=CjwKCAjw1bvTBhBbEiwAzbP8L7uGk2ZsaMEruqJy88fXzSv_ymCxoNGRwqF0V9_r31PD_ODI-n-FORoCH2MQAvD_BwE)
 
 If camera module shown above not available, you may substitute with any other OV7670 module. This is a popular low-end camera so it should be widely available.
 
