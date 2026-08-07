@@ -1,8 +1,12 @@
-#
-# Running LLM model smolLM2-135M-Instruct from Hugging face
-# Reference ztachip github page on how to generate SMOLLM2.ZUF from SmolLM2-135M-Instruct.gguf
-# Then copy SMOLLM2.ZUF to TFTP download directory
-# Then chat with the chatbot
+
+# This python script is running a finetuned LLM model that do function calling
+# The finetuning is based on Lora with base model is SmolLM2-135M-Instruct
+# The fine tuned version recognize commands to turn on or off light.
+#    Download SMOLFC.ZUF from ztachip github release assets
+#    Copy SMOLFC.ZUF to the TFTP download directory
+#    Ask: Turn on light --> LED is turned on
+#    Ask: Turn off light --> LED is turned off
+# Reference LORA documentation on procedure to finetune model. 
 # Reference ztachip/micropython/MicropythonUserGuide.md documentation for more details.
 #
 
@@ -13,7 +17,7 @@ FONTSZ=16
 
 LINE_MAX_LEN=40-1
 
-lines=["","Enter a question","ztachip chatbot"]
+lines=["","Ask LLM to turn on or off the LED",""]
 
 inputMode=True;
 
@@ -52,7 +56,7 @@ tensorInput = zta.TensorCamera()
 tensorOutput = zta.TensorDisplay()
 n1=zta.GraphNodeCopyAndTransform(tensorInput,tensorOutput,zta.COLOR,zta.INTERLEAVED)
 graph=zta.Graph(n1)
-n2=zta.GraphNodeLLM("SMOLLM2.ZUF",SYSTEM_PROMPT,0.6,0.9,0.05,40,500)
+n2=zta.GraphNodeLLM("SMOLFC.ZUF",SYSTEM_PROMPT,0.6,0.9,0.05,40,500)
 graphLLM=zta.Graph(n2)
 while (zta.ButtonState()==0):
     if(zta.CameraCapture()) :

@@ -7,7 +7,12 @@
 #   - Edge detection (top-right display tile)
 #   - Harris-Corner for point of interests (bottom-left display tile)
 #   - OpticalFlow (bottom-right display tile)
-#   - LLM chatbot
+#   - Running a finetuned LLM model SmolLM2-135M-Instruct so that it can do function calling 
+#       Download SMOLFC.ZUF from ztachip github release assets
+#       Copy SMOLFC.ZUF to the TFTP download directory
+#       Ask: Turn on light --> LED is turned on
+#       Ask: Turn off light --> LED is turned off
+#       Reference LORA documentation on how to fine tune model 
 # Reference on other examples on how the graph is setup for each of the tasks above.
 # This example also demonstrates the use of multi graph processing. There are 2 graphs...
 # Graph1:
@@ -30,7 +35,7 @@ FONTSZ=16
 
 LINE_MAX_LEN=40-1
 
-lines=["","Enter a question","ztachip chatbot"]
+lines=["","Ask LLM to turn on or off the LED",""]
 
 inputMode=True;
 
@@ -88,7 +93,7 @@ n10=zta.GraphNodeCopyAndTransform(t5,tensorOutput,zta.COLOR,zta.INTERLEAVED,240,
 n11=zta.GraphNodeCopyAndTransform(tensorInput,t6,zta.COLOR,zta.PLANAR);
 n12=zta.GraphNodeResize(t6,t7,300,300)
 n13=zta.GraphNodeObjectDetection(t7)
-n14=zta.GraphNodeLLM("SMOLLM2.ZUF","You answer questions briefly",0.6,0.9,0.05,40,40)
+n14=zta.GraphNodeLLM("SMOLFC.ZUF","You are a helpful assistant",0.6,0.9,0.05,40,40)
 graph=zta.Graph(n1,n2,n3,n4,n5,n6,n7,n8,n9,n10)
 graphNN=zta.Graph(n11,n12,n13)
 graphLLM=zta.Graph(n14)
@@ -147,6 +152,10 @@ while (zta.ButtonState()==0):
 	else :
 		if(inputMode==False) :
 			inputMode=True
+			if "!LED_ON" in lines[0]:
+				zta.SetLed(15)
+			elif "!LED_OFF" in lines[0] :
+				zta.SetLed(0)
 			ui("\n")
 
 zta.ConsoleCapture(False);

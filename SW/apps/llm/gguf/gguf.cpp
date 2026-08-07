@@ -654,8 +654,11 @@ ZtaStatus GGUF::SaveAsZUF(const char* modelName,bool forSim,ZUF_QUANT quant) {
         return ZtaStatusFail;
     zuf.WriteItemU32("llama.context_length", seq_len);
 
-    if (!ReadKeyFloat("llama.rope.freq_base", &freq_base))
-        return ZtaStatusFail;
+    if (!ReadKeyFloat("llama.rope.freq_base", &freq_base)) {
+        printf("WARNING: No llama.rope.freq_base defined. Set to 100000 for default of SmolLM2 family\r\n");
+        freq_base=100000.0;
+    }
+	
     zuf.WriteItemFloat("llama.rope.freq_base", freq_base);
 
     // w->rms_att_weight. Should be F32
