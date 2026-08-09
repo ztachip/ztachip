@@ -33,7 +33,7 @@ The software provided consists of
 
 ## Demo
 
-[![ztachip demo video](Documentation/images/demo_video.bmp)](https://www.youtube.com/watch?v=ng0nCEYE6fc&t=499s)
+[![ztachip demo video](https://www.youtube.com/watch?v=ng0nCEYE6fc&t=499s)
 
 # Documentation
 
@@ -232,7 +232,7 @@ cd <Micropython installation folder>/ports/ztachip_port
 riscv32-unknown-elf-gdb ./build/firmware.elf
 ```
 
-### Start the image transfer
+## Start the image transfer
 
 From GDB debugger prompt, issue the commands below
 This step takes some time since some AI models are also transfered.
@@ -254,7 +254,7 @@ After sucessfully loading the program, issue command below at GDB prompt
 continue
 ```
 
-The demo is demonstrated in this [video](https://www.youtube.com/watch?v=ng0nCEYE6fc&t=499s)
+Demonstration on how to run the demo is shown in this [video](https://www.youtube.com/watch?v=ng0nCEYE6fc&t=499s)
 
 # Benchmark
 
