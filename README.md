@@ -12,7 +12,7 @@ that tend to accelerate only a narrow range of applications only (for example co
 
 A new tensor programming paradigm is introduced to allow programmers to leverage the massive processing/data parallelism enabled by ztachip tensor processor.
 
-![Ztachip Architecture](./Documentation/images/ztachip_arch.png)
+![Ztachip Architecture](./Documentation/images/ztachip_ai_agent.png)
 
 # Features
 ## Hardware
@@ -33,7 +33,7 @@ The software provided consists of
 
 ## Demo
 
-[![ztachip demo video](Documentation/images/demo_video.bmp)](https://www.youtube.com/watch?v=nLGmmw7-PYs)
+[![ztachip demo video](Documentation/images/demo_video.bmp)](https://www.youtube.com/watch?v=ng0nCEYE6fc&t=499s)
 
 # Documentation
 
@@ -46,41 +46,6 @@ The software provided consists of
 4. [VisionAI Stack Programmers Guide](https://github.com/ztachip/ztachip/raw/master/Documentation/visionai_programmer_guide.pdf)
 
 5. [MicroPython Programmers Guide](micropython/MicropythonUserGuide.md)
-
-# Code structure
-
-```
-.
-├── Documentation         Overview on HW/SW and programmer's guide for ztachip, pcore, visionai and tensor
-├── HW                    Hardware
-│   ├── examples          Reference Design: Integration of Vexriscv, Ztachip, DDR3, VGA, Camera, LEDs & Buttons
-│   ├── platform          Memory IP depenedencies for different FPGA synthesis (e.g. XIlinx, Altera) or ASIC
-│   ├── simulation        RTL Simulation
-│   └── src               RTL of Ztachip's top design, Scalar/Vector ALU, Dataplane, Pcore, SoC integration etc
-├── LICENSE.md
-├── micropython           Micropython Support
-│   ├── examples          edge_detection, image_classification, motion_detect, object_detect, point_of_interest etc
-│   ├── micropython       micropython
-│   └── ztachip_port      ztachip micropython port
-├── README.md
-├── SW                    Software
-│   ├── apps              AI kernel libraries of canny edge detector, harris corner, neural nets, optical flow etc
-│   ├── base              C runtime zero, Ztachip application libraries and other utilities
-│   ├── compiler          Ztachip C-like DSL compiler that generates instructions for the tensor processor
-│   ├── fs                File for data inference to be downloaded together with the build image
-│   ├── linker.ld         linker script for Ztachip
-│   ├── makefile          Main project makefile
-│   ├── makefile.kernels  Kernel makefile
-│   ├── makefile.sim      Makefile to test Kernels
-│   ├── sim               C source to test kernels
-│   └── src               SW Main (visionai and unit test entry points), SoC drivers and Zta's micropython API
-│                         This is a good place to learn on how to use ztachip prebuilt vision and AI stack.
-└── tools                 openocd and vexriscv interface descriptions
-```
-
-In `HW/platform`, a generic implementation is also provided for simulation environment. Any FPGA/ASIC can be supported with the appropriate implementation of this wrapper layer. Choose the appropriate sub-folder that corresponds to your FPGA target.
-
-Also, in `SW/apps`, many prebuilt acceleration functions are provided to provide programmers with a fast path to leverage ztachip acceleration. This folder is also a good place to learn on how to program your own custom acceleration functions.
 
 # SW build procedure
 
@@ -121,10 +86,6 @@ git clone https://github.com/ztachip/ztachip.git
 ```
 
 ## Build procedure 
-This demo demonstrates many vision ,AI (including LLM) capabilities using a native [C/C++ library interface](https://github.com/ztachip/ztachip/raw/master/Documentation/visionai_programmer_guide.pdf)
-This demo also demonstrates a LLM chatbot whenever a LLM model is available for download.
-
-This demo is shown in this [video](https://www.youtube.com/watch?v=ng0nCEYE6fc&t=499s)
 
 ```
 export PATH=/opt/riscv/bin:$PATH
@@ -138,7 +99,7 @@ make clean all -f makefile.kernels
 make clean all
 ```
 
-### Micropython integration
+### Micropython integration (recommended)
 Continue the build with steps below if you like to run ztachip under micropython [Python programming interface](micropython/MicropythonUserGuide.md)
 
 ```
@@ -253,7 +214,7 @@ The files above are the quantized version of LLM model. Click [here](Documentati
 
 ## Uploading SW image via GDB debugger
 
-### Upload procedure for ztachip without micro-python integratin (bare-metal mode)
+### Upload procedure for ztachip without micropython integration (bare-metal mode)
 Open another terminal, then issue commands below to upload the standalone image
 
 ```
@@ -262,7 +223,7 @@ cd <ztachip installation folder>/SW/src
 riscv32-unknown-elf-gdb ../build/ztachip.elf
 ```
 
-### Upload procedure for ztachip running with micro-python integration
+### Upload procedure for ztachip running with micro-python integration (recommended)
 Open another terminal, then issue commands below to upload the micropython image.
 
 ```
