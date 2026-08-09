@@ -96,7 +96,16 @@ pip3 install numpy
 
 ## Download and build RISCV tool chain
 
-The build below is a pretty long.
+Download riscv [toolchain](https://github.com/ztachip/ztachip/releases/download/AI_agents/riscv.tar.gz)
+
+Then unarchive as shown below
+
+```
+sudo tar -xzvf riscv.tar.gz -C /
+```
+
+
+If you like to build it yourself, below is the procedure...
 
 ```
 export PATH=/opt/riscv/bin:$PATH
@@ -111,11 +120,11 @@ sudo make
 git clone https://github.com/ztachip/ztachip.git
 ```
 
-## Build procedure for demo #1 - AI+Vision+LLM
+## Build procedure 
 This demo demonstrates many vision ,AI (including LLM) capabilities using a native [C/C++ library interface](https://github.com/ztachip/ztachip/raw/master/Documentation/visionai_programmer_guide.pdf)
-This demo also demonstrates a LLM chatbot whenever a LLM model is available for download. Reference demo#3 on how to prepare the LLM model and make it available for ztachip to download via TFTP.
+This demo also demonstrates a LLM chatbot whenever a LLM model is available for download.
 
-This demo is shown in this [video](https://www.youtube.com/watch?v=amubm828YGs)
+This demo is shown in this [video](https://www.youtube.com/watch?v=ng0nCEYE6fc&t=499s)
 
 ```
 export PATH=/opt/riscv/bin:$PATH
@@ -129,13 +138,8 @@ make clean all -f makefile.kernels
 make clean all
 ```
 
-## Build procedure for demo #2 - AI+Vision+Micropython
-This example is similar to example 1 except that the program is using a [Python programming interface](micropython/MicropythonUserGuide.md)
-
-This demo is shown in this [video](https://www.youtube.com/watch?v=nLGmmw7-PYs)
-
-You are required to complete first the build procedure for demo #1 above.
-Then follow with a micropython build below.
+### Micropython integration
+Continue the build with steps below if you like to run ztachip under micropython [Python programming interface](micropython/MicropythonUserGuide.md)
 
 ```
 git clone https://github.com/micropython/micropython.git
@@ -147,80 +151,6 @@ export ZTACHIP=<ztachip installation folder>
 make clean
 make
 ```
-
-## Build procedure for demo #3 - LLM chatbot 
-This demo demonstrates a LLM chatbot running SmolLM2 model. SmolLM2 is based LLAMA architecture but trained by HuggingFace team.
-
-Update the following variable in SW/makefile
-```
-LLM_TEST=yes
-```
-Then proceed with similar build procedure of demo #1.
-
-### Quantizing LLM model required by demo #3
-
-Demo #3 requires a quantized LLM model to be prepared. Follow the steps below.
-
-- Download SmolLM2-135M-Instruct from HuggingFace
-
-```
-git clone git@hf.co:HuggingFaceTB/SmolLM2-135M-Instruct
-```
-
-- Install [llama.cpp](https://github.com/ggml-org/llama.cpp)
-
-- From llama.cpp installation, convert the downloaded model to GGUF format (FP32). GGUF format is the LLM format used by the popular Ollama inferencing engine.
-
-```
-cd <llama_cpp-install-folder>
-python convert_hf_to_gguf.py <model-download-folder>/SmolLM2-135M-Instruct --outfile SmolLM2-135M-Instruct.gguf --outtype f32
-```
-
-- Quantize the model to ztachip ZUF format.
-
-```
-export PATH=/opt/riscv/bin:$PATH
-cd ztachip/SW
-make clean all -f makefile.quant
-./build/quant ZTA Q4 SmolLM2-135M-Instruct.gguf SMOLLM2.ZUF
-```
-
-- SMOLLM2.ZUF will be transfered from PC to FPGA board over Ethernet. A TFTP server is required to run on a PC that is connecting to the ArtyBoard by Ethernet.
-PC Ethernet interface is expected to be configured with an ip address=10.10.10.10 
-
-### Performance Comparison
-
-Small LLM model performance running on edge devices is largely constrained by memory bandwidth. In these scenarios, a GPU offers minimal advantage because the compute cores spend most of their time waiting for memory operations to complete. 
-
-A more accurate metric for comparing performance is **tokens per second (TPS) per GB/s of memory bandwidth**.
-
-#### Benchmark Results
-
-The following data compares **ztachip** running on Arty hardware against the Raspberry Pi 4 and Raspberry Pi 5. 
-
-LLM performance can be divided into two distinct components:
-
-* **Fixed Component:** Dominated by matrix multiplication and model weight transfers. This is the primary bottleneck and cost driver for edge AI applications, where long chat histories or large contexts are rarely used.
-* **Variable Component:** Driven by attention mechanisms and softmax calculations across the context window. **ztachip's** with dedicated FPU computing unit, which matches context memory DDR transfer rates, this component remains memory-bound.
-
-The comparison below isolates and focuses on the **fixed cost** component by utilizing shorter prompts and questions.
-
-*(Data sourced from [arXiv:2511.07425v1](https://arxiv.org/html/2511.07425v1))*
-
-| Platform | Performance (TPS) | Memory Bandwidth (MemBW) | Efficiency (TPS per GB/s) |
-| :--- | :---: | :---: | :---: |
-| **Raspberry Pi 4** | 11 TPS | 12 GB/s | 0.92 |
-| **Raspberry Pi 5** | 32 TPS | 17 GB/s | 1.88 |
-| **ztachip (Arty)** | 8 TPS | 1.2 GB/s | **6.70** |
-
----
-
-#### Conclusion
-
-While the Raspberry Pi platforms achieve higher raw TPS due to significantly higher hardware specs, **ztachip** is vastly more efficient at utilizing available memory bandwidth. 
-
-* **7.2x more efficient** than the Raspberry Pi 4.
-* **3.5x more efficient** than the Raspberry Pi 5.
 
 # FPGA build procedure
 
@@ -257,9 +187,7 @@ Reference design example required the hardware components below...
 - [VGA module](https://digilent.com/shop/pmod-vga-video-graphics-array/)
 
 - [Camera module](https://www.aliexpress.com/item/1005009373256992.html?src=google&src=google&albch=shopping&acnt=603-455-9033&isdl=y&slnk=&plac=&mtctp=&albbt=Google_7_shopping&aff_platform=google&aff_short_key=_oFgTQeV&gclsrc=aw.ds&albagn=888888&ds_e_adid=&ds_e_matchtype=&ds_e_device=c&ds_e_network=x&ds_e_product_group_id=&ds_e_product_id=en1005009373256992&ds_e_product_merchant_id=5445730461&ds_e_product_country=CA&ds_e_product_language=en&ds_e_product_channel=online&ds_e_product_store_id=&ds_url_v=2&albcp=23541693768&albag=&isSmbAutoCall=false&needSmbHouyi=false&gad_source=1&gad_campaignid=23546808899&gbraid=0AAAABCRFad9mvAHB4TSXwyJe-26kItMYF&gclid=CjwKCAjw1bvTBhBbEiwAzbP8L7uGk2ZsaMEruqJy88fXzSv_ymCxoNGRwqF0V9_r31PD_ODI-n-FORoCH2MQAvD_BwE)
-
-If camera module shown above not available, you may substitute with any other OV7670 module. This is a popular low-end camera so it should be widely available.
-
+ 
 Attach the VGA and Camera modules to Arty-A7 board according to picture below 
 
 ![arty_board](Documentation/images/arty_board.bmp)
@@ -306,9 +234,26 @@ cd <openocd_riscv installation folder>
 sudo src/openocd -f usb_connect.cfg -c 'set MURAX_CPU0_YAML cpu0.yaml' -f soc_init.cfg
 ```
 
+## Demo preparation
+
+The demo requires some LLM model to be available.
+
+The demo requires you to start a TFTP server on the PC Ethernet interface connected to Arty board.
+
+The PC Ethernet interface is expected to be configured for address 10.10.10.10
+
+Then copy these 2 files to the TBTP download directory.
+
+[SMOLLM2.ZUF](https://github.com/ztachip/ztachip/releases/download/AI_agents/SMOLLM2.ZUF)
+
+[SMOLFC.ZUF](https://github.com/ztachip/ztachip/releases/download/AI_agents/SMOLFC.ZUF)
+
+The files above are the quantized version of LLM model. Click [here](Documentation/QuantizeProcedure.md) for procedure on how to build the quantized models.
+
+
 ## Uploading SW image via GDB debugger
 
-### Upload procedure for demo#1 and demo#3 (without micro-python)
+### Upload procedure for ztachip without micro-python integratin (bare-metal mode)
 Open another terminal, then issue commands below to upload the standalone image
 
 ```
@@ -317,7 +262,7 @@ cd <ztachip installation folder>/SW/src
 riscv32-unknown-elf-gdb ../build/ztachip.elf
 ```
 
-### Upload procedure for demo#2 (micro-python)
+### Upload procedure for ztachip running with micro-python integration
 Open another terminal, then issue commands below to upload the micropython image.
 
 ```
@@ -348,20 +293,42 @@ After sucessfully loading the program, issue command below at GDB prompt
 continue
 ```
 
-### Running demo #1
-If you are running demo #1, press button0 to switch between different AI/vision applications. The sample application running is implemented in [vision_ai.cpp](SW/src/vision_ai.cpp)
+The demo is demonstrated in this [video](https://www.youtube.com/watch?v=ng0nCEYE6fc&t=499s)
 
-### Running demo #2
-If you are running the micropython image, Micropython allows for entering python code in paste mode at the serial port.  
-To use the paste mode, hit Ctrl+E then paste one of the [examples](micropython/examples/) to the serial port, then hit ctrl+D to execute the python code.
+# Benchmark
 
-Hit any button to return back to Micropython prompt.
+Small LLM model performance running on edge devices is largely constrained by memory bandwidth. In these scenarios, a GPU offers minimal advantage because the compute cores spend most of their time waiting for memory operations to complete.
 
-### Running demo #3
-You will be presented with a prompt on the serial port.
-Enter a question then hit enter.
-There will be a response from LLM model.
-Hit Ctrl-C to break the response.
+A more accurate metric for comparing performance is **tokens per second (TPS) per GB/s of memory bandwidth**.
+
+#### Benchmark Results
+
+The following data compares **ztachip** running on Arty hardware against the Raspberry Pi 4 and Raspberry Pi 5.
+
+LLM performance can be divided into two distinct components:
+
+* **Fixed Component:** Dominated by matrix multiplication and model weight transfers. This is the primary bottleneck and cost driver for edge AI applications, where long chat histories or large contexts are rarely used.
+* **Variable Component:** Driven by attention mechanisms and softmax calculations across the context window. **ztachip's** with dedicated FPU computing unit, which matches context memory DDR transfer rates, this component remains memory-bound.
+
+The comparison below isolates and focuses on the **fixed cost** component by utilizing shorter prompts and questions.
+
+*(Data sourced from [arXiv:2511.07425v1](https://arxiv.org/html/2511.07425v1))*
+
+| Platform | Performance (TPS) | Memory Bandwidth (MemBW) | Efficiency (TPS per GB/s) |
+| :--- | :---: | :---: | :---: |
+| **Raspberry Pi 4** | 11 TPS | 12 GB/s | 0.92 |
+| **Raspberry Pi 5** | 32 TPS | 17 GB/s | 1.88 |
+| **ztachip (Arty)** | 8 TPS | 1.2 GB/s | **6.70** |
+
+---
+
+## Conclusion
+
+While the Raspberry Pi platforms achieve higher raw TPS due to significantly higher hardware specs, **ztachip** is vastly more efficient at utilizing available memory bandwidth.
+
+* **7.2x more efficient** than the Raspberry Pi 4.
+* **3.5x more efficient** than the Raspberry Pi 5.
+
 
 # How to port ztachip to other FPGA,ASIC and SOC 
 
