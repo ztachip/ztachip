@@ -2,7 +2,8 @@
 # This python script is running a finetuned LLM model that do function calling
 # The finetuning is based on Lora with base model is SmolLM2-135M-Instruct
 # The fine tuned version recognize commands to turn on or off light.
-#    Download SMOLFC.ZUF from ztachip github release assets
+# Fine tuning is performed with Lora framework with SmolLM2-135M-Instruct as base model
+#    Download SMOLFC.ZUF from https://github.com/ztachip/ztachip/releases/download/AI_agents/SMOLFC.ZUF
 #    Copy SMOLFC.ZUF to the TFTP download directory
 #    Ask: Turn on light --> LED is turned on
 #    Ask: Turn off light --> LED is turned off

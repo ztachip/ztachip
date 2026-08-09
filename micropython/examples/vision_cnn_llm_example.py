@@ -8,7 +8,7 @@
 #   - Harris-Corner for point of interests (bottom-left display tile)
 #   - OpticalFlow (bottom-right display tile)
 #   - Running a finetuned LLM model SmolLM2-135M-Instruct so that it can do function calling 
-#       Download SMOLFC.ZUF from ztachip github release assets
+#       Download SMOLFC.ZUF from https://github.com/ztachip/ztachip/releases/download/AI_agents/SMOLFC.ZUF 
 #       Copy SMOLFC.ZUF to the TFTP download directory
 #       Ask: Turn on light --> LED is turned on
 #       Ask: Turn off light --> LED is turned off
@@ -148,7 +148,7 @@ while (zta.ButtonState()==0):
 			ui(chr(ch))
 			userPrompt = userPrompt+chr(ch)
 	if(graphLLM.IsBusy()) :
-		graphLLM.RunWithTimeout(10)
+		graphLLM.RunWithTimeout(40)
 	else :
 		if(inputMode==False) :
 			inputMode=True
