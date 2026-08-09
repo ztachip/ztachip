@@ -1,39 +1,16 @@
 # Introduction
 
-Ztachip is a Multicore, Data-Aware, Embedded RISC-V AI Accelerator for Edge Inferencing running on low-end FPGA devices or custom ASIC.
+ztachip is a multicore, data-aware embedded RISC-V AI accelerator for edge inference, designed for low-end FPGAs and custom ASICs.
 
-Acceleration provided by ztachip can be up to 20-50x compared with a non-accelerated RISCV implementation
-on many vision/AI tasks. ztachip performs also better when compared with a RISCV that is equipped with vector extension.
+ztachip can deliver 20–50× acceleration over non-accelerated RISC-V implementations on many vision and AI workloads including LLM, while also outperforming RISC-V processors with vector extensions.
 
-An innovative tensor processor hardware is implemented to accelerate a wide range of different tasks from
-many common vision tasks such as edge-detection, optical-flow, motion-detection, color-conversion
-to executing TensorFlow AI models. This is one key difference of ztachip when compared with other accelerators
-that tend to accelerate only a narrow range of applications only (for example convolution neural network only).
+Its innovative tensor processor accelerates a broad range of workloads—from edge detection, optical flow, motion detection, and color conversion to TensorFlow AI models to LLM —rather than being limited to a narrow class of applications.
 
-A new tensor programming paradigm is introduced to allow programmers to leverage the massive processing/data parallelism enabled by ztachip tensor processor.
+A new tensor programming paradigm enables developers to efficiently exploit the massive processing and data parallelism of the ztachip architecture.
+
+[Demo video](https://www.youtube.com/watch?v=ng0nCEYE6fc&t=499s)
 
 ![Ztachip Architecture](./Documentation/images/ztachip_ai_agent.png)
-
-# Features
-## Hardware
-Ztachip consists of the following functional units tied via an AXI Bus to a VexRicsv CPU, a DRAM and other
-peripherals as follows
-1. The Mcore, a Scheduling Processor
-2. A Dataplane, to stream the next data and instruction to the Tensor Engine .
-3. A Scratch-Pad Memory to temporarily hold data
-4. A Stream Processor to manage data IO
-5. Tensor Engine with 28x Pcores that can be configured to act like a systolic array to perform in memory compute each containing a Scalar and Vector ALU, with 16 Threads of execution on private memory.
-
-## Software
-The software provided consists of 
-1. Ztachip DSL C-like compiler
-2. AI vision libraries
-3. Application examples
-4. Micropython port and examples
-
-## Demo
-
-[![ztachip demo video](https://www.youtube.com/watch?v=ng0nCEYE6fc&t=499s)
 
 # Documentation
 
@@ -121,23 +98,6 @@ make
 [FPGA build procedure](Documentation/Vivado.md)
 
 # Running the demos.
-
-The following demos are demonstrated on the [ArtyA7-100T FPGA development board](https://digilent.com/shop/arty-a7-artix-7-fpga-development-board/).
-
-- Image classification with TensorFlow's Mobinet
-
-- Object detection with TensorFlow's SSD-Mobinet
-
-- Edge detection using Canny algorithm
-
-- Point-of-interest using Harris-Corner algorithm
-
-- Motion detection
-
-- Multi-tasking with ObjectDetection, edge detection, Harris-Corner, Motion Detection running at
-same time
-
-To run the demo, press button0 to switch between different AI/vision applications.
 
 ## Preparing hardware
 
