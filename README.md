@@ -56,8 +56,6 @@ The following documentation provides more information about the ztachip architec
 
 # Software Build Procedure
 
-Several demos are available to demonstrate the different capabilities of ztachip. Choose one of the three demos and build the software using the procedure below.
-
 ## Prerequisites (Ubuntu)
 
 Install the required Ubuntu packages:
@@ -332,8 +330,6 @@ monitor reset halt
 load
 ```
 
-The transfer can take some time because the software image includes AI-related components.
-
 ---
 
 ## Run the Program
@@ -343,6 +339,10 @@ After the program has been successfully loaded, run it from the GDB prompt:
 ```gdb
 continue
 ```
+
+If running in bare-metal mode, press any button to move between different vision/LLM demos.
+
+If running in micropython mode, at serial console, hit CTRL+E and then paste one of the python programs from this [folder](micropython/examples) and then hit CTRL+D to run. Then hit any button to stop and return to python console. 
 
 A demonstration showing how to run the demo is available in this [video](https://www.youtube.com/watch?v=ng0nCEYE6fc&t=499s).
 
