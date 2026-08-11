@@ -25,7 +25,6 @@ source_suffix = {
 
 myst_enable_extensions = [
     "colon_fence",
-    "linkify",
 ]
 myst_heading_anchors = 3
 
