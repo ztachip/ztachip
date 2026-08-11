@@ -1,0 +1,55 @@
+name: docs
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "docs/**"
+      - "Documentation/**"
+      - "micropython/MicropythonUserGuide.md"
+      - ".github/workflows/docs.yml"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docs-publish
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout ztachip
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: docs/requirements.txt
+
+      - name: Install Sphinx toolchain
+        run: pip install -r docs/requirements.txt
+
+      - name: Build HTML docs
+        run: sphinx-build -b html docs/source docs/build/html
+
+      # Publishes docs/build/html to the ztachip/ztachip.github.io repo.
+      # Requires a repo secret PAGES_DEPLOY_TOKEN: a Personal Access Token
+      # (classic, "repo" scope) belonging to an account with push access to
+      # ztachip/ztachip.github.io. Create it under
+      # Settings > Secrets and variables > Actions on this repo.
+      - name: Publish to ztachip.github.io
+        if: github.ref == 'refs/heads/master'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          personal_token: ${{ secrets.PAGES_DEPLOY_TOKEN }}
+          external_repository: ztachip/ztachip.github.io
+          publish_branch: master
+          publish_dir: docs/build/html
+          user_name: "github-actions[bot]"
+          user_email: "github-actions[bot]@users.noreply.github.com"
+          commit_message: "docs: publish from ztachip/ztachip@${{ github.sha }}"

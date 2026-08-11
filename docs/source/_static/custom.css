@@ -1,0 +1,95 @@
+/* Light polish on top of sphinx_rtd_theme for a cleaner, more "product docs"
+   feel, in the spirit of https://spinalhdl.github.io/VexiiRiscv-RTD/ */
+
+:root {
+  --zta-ink: #1e293b;
+  --zta-accent: #0d9488;
+  --zta-accent-dark: #0f766e;
+}
+
+/* Sidebar branding */
+.wy-side-nav-search {
+  background-color: var(--zta-ink);
+}
+.wy-side-nav-search input[type="text"] {
+  border-radius: 4px;
+}
+.wy-nav-top {
+  background-color: var(--zta-ink);
+}
+.wy-menu-vertical a:hover,
+.wy-menu-vertical li.current a:hover {
+  background-color: rgba(13, 148, 136, 0.12);
+}
+.wy-menu-vertical li.toctree-l1.current > a {
+  border-left: 3px solid var(--zta-accent);
+}
+
+/* Links */
+a,
+a:visited {
+  color: var(--zta-accent-dark);
+}
+a:hover {
+  color: var(--zta-accent);
+}
+
+/* Headings get a touch more breathing room */
+.rst-content h1,
+.rst-content h2,
+.rst-content h3 {
+  font-weight: 700;
+}
+.rst-content h1 {
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 0.3em;
+}
+
+/* Hero block used on the landing page */
+.zta-hero {
+  background: linear-gradient(135deg, #0f172a 0%, #0d9488 140%);
+  color: #f8fafc;
+  border-radius: 8px;
+  padding: 1.6em 1.8em;
+  margin-bottom: 1.6em;
+}
+.zta-hero p {
+  color: #e2e8f0;
+  margin-bottom: 0;
+}
+.zta-hero a {
+  color: #99f6e4;
+}
+
+/* Simple feature card grid on the landing page */
+.zta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1em;
+  margin: 1.4em 0;
+}
+.zta-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 1em 1.2em;
+  background: #fafafa;
+}
+.zta-card h3 {
+  margin-top: 0 !important;
+  font-size: 1.05em !important;
+  border-bottom: none !important;
+}
+
+/* Nicer code blocks */
+.rst-content div[class^="highlight"] {
+  border-radius: 6px;
+}
+
+/* Copy-button tweak so it matches the accent color */
+.copybtn {
+  opacity: 0.55;
+}
+.copybtn:hover {
+  opacity: 1;
+  background-color: var(--zta-accent);
+}
