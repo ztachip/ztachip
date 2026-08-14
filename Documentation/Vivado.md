@@ -1,8 +1,8 @@
-# Installing Vivado Free WebPack Edition.
+# Installing Vivado Free WebPACK Edition
 
-Vivado WebPack edition is free IDE for the Artix7 FPGA family.
+Vivado WebPACK edition is a free IDE for the Artix7 FPGA family.
 
-[Installing Vivado WebPack edition](https://www.xilinx.com/support/download.html)
+[Installing Vivado WebPACK edition](https://www.xilinx.com/support/download.html)
 
 # Create project file
 
@@ -27,7 +27,7 @@ Then start with synthesis step as shown below
 
 ![vivado step1](images/vivado_step1.bmp)
 
-After systhesis step has been completed, Vivado will prompt you to continue with Implementation step. Choose the option and click OK.
+After the synthesis step has been completed, Vivado will prompt you to continue with Implementation step. Choose the option and click OK.
 
 ![vivado step2](images/vivado_step2.bmp)
 
@@ -35,11 +35,11 @@ After Implementation step has been completed, Vivado will prompt you to continue
 
 ![vivado step3](images/vivado_step3.bmp)
 
-After Bistream Generation step has been completed, Vivado will prompt you to Open Hardware Manager. Choose the option and click OK.
+After the Bitstream Generation step has been completed, Vivado will prompt you to Open Hardware Manager. Choose the option and click OK.
 
 ![vivado step4](images/vivado_step4.bmp)
 
-Make sure your board is connected to PC with provided USB cable by Arty Devlopment package.
+Make sure your board is connected to PC with provided USB cable by Arty Development package.
 
 From Hardware Manager, connect to target as shown below 
 
@@ -51,15 +51,15 @@ On the left panel, click on "Add Configuration Memory Device" menu option and th
 
 Then program the board as shown below. The image to be flashed is ztachip/HW/examples/GHRD/ztachip.runs/impl_1/main.bin
 
-If the file is not there, verify that -bin option is selected under ProjectSettngs/BitStream and then rerun the BitStream Generation step.
+If the file is not there, verify that -bin option is selected under Project Settings/Bitstream and then rerun the BitStream Generation step.
 
 ![vivado step7](images/vivado_step7.bmp)
 
 That's it. Your board's FPGA will be programmed with the new image automatically after power reboot.
 
-# Support for opensource toolchain
+# Support for open-source toolchain
 
-Opensource tool chain normally supports only Verilog.
+Open-source toolchains normally support only Verilog.
 
 You can convert ztachip rtl to verilog using ghdl
 

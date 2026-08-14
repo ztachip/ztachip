@@ -1,4 +1,4 @@
-# Procedue to quantize LLM model
+# Procedure to quantize LLM model
 
 ztachip requires LLM model in GGUF format to be quantized in format unique to ztachip.
 

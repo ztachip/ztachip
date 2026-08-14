@@ -10,7 +10,7 @@ With DSA, the first goal is to define a domain of applications where
 the DSA can be applied to efficiently compared to a more general purpose computing
 architecture.
 
-ztachip domain are applications that can be expressed as a sequential steps of tensor
+ztachip's domain is applications that can be expressed as a sequence of tensor
 operations. There are 2 primary types of tensor operations defined:
 
 - Tensor data operations: Involving operations such as tensor data copy, 
@@ -27,7 +27,7 @@ The goal for DSL is to provide a programming language that is:
 
 - Hide the complexity of hardware implementation from software users.
 
-- Flexible enough to cover as wide range of applications as possible.
+- Flexible enough to cover as wide a range of applications as possible.
 
 ztachip's DSL is composed of 2 elements: 
 
@@ -41,7 +41,7 @@ Tensor-core programs are codes that run on RISCV
 
 Tensor-core programs have suffix *.m
 
-Tensor-core programs are C-program but with some special extentions. There is a compiler
+Tensor-core programs are C-program but with some special extensions. There is a compiler
 provided with ztachip that converts these special extension to tensor instructions before
 the program can then be compiled with standard RISCV C compiler.
 With tensor-core programs, programmers express the problem as a sequence of high level 
@@ -112,10 +112,10 @@ for the case of vector extension) to be
 loaded first to memory one at a time and then followed by addition. But this would create a lot of 
 memory round trip delay and stall cycles when data is not readily available in L1 cache.
 
-But with ztachip, data are loaded from external memory into internal memory in a streaming fashion with 
+But with ztachip, data is loaded from external memory into internal memory in a streaming fashion with 
 prefetching and no round-trip delay. This results in huge gain in memory bandwidth
 usage efficiencies.
 
 Also in the example above, each vector element additions are carried out by
-seperate threads and pcores, enable huge processing parallelism.
+separate threads and pcores, enable huge processing parallelism.
 

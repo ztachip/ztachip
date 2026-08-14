@@ -59,7 +59,7 @@ Users can use this graph framework to integrate their own custom acceleration fu
 
 ## 2. GRAPH FRAMEWORK
 
-Graph is a ztachip framework used to connect different processing nodes together. It is particular popular framework used by many other AI and vision frameworks such as OpenCV, TensorFLow, OpenVX, etc...
+Graph is a ztachip framework used to connect different processing nodes together. It is a particularly popular framework used by many other AI and vision frameworks such as OpenCV, TensorFLow, OpenVX, etc.
 
 Each ztachip acceleration functions are packaged as a graph node.
 
@@ -118,7 +118,7 @@ Parameters are like 1.2.1.2
 
 Output:
 
-- ZtaStatusOk if sucessful
+- ZtaStatusOk if successful
 - ZtaStatusFail otherwise.
 
 ##### 2.2.1.4 ZtaStatus Clone(TENSOR *other)
@@ -312,7 +312,7 @@ Input
 | Name | Description |
 | --- | --- |
 | queue | There may be multiple graphs running simultaneously.<br>Each graph has a unique queue id.<br>Graph node will use this queue id to generate a unique job-id which will then be passed to ztachip for task completion notification. |
-| stepMode | If false, then execute this node till completion.<br>If true, then partially execute this node. This function will be invoked again for the node to continue with the execution.<br>This is useful when a graph node may take a long execution time, and step mode allows execution of a slow graph to be pre-empted by other more critical graph. |
+| stepMode | If false, then execute this node until completion.<br>If true, then partially execute this node. This function will be invoked again for the node to continue with the execution.<br>This is useful when a graph node may take a long execution time, and step mode allows execution of a slow graph to be pre-empted by other more critical graph. |
 
 Output:
 
@@ -687,7 +687,7 @@ Input:
 | Name | Description |
 | --- | --- |
 | input | Input tensor. |
-| output | Output tensor with width=input's width, height=input's height, dataType=int16.<br>Data elements are feature detection scores. zero for no detection. |
+| output | Output tensor with width=input's width, height=input's height, dataType=int16.<br>Data elements are feature detection scores. Zero for no detection. |
 
 #### 3.4.2 ZtaStatus Create(TENSOR *input,TENSOR *output)
 

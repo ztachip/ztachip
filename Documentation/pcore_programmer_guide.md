@@ -19,7 +19,7 @@ There can be multiple *.p files and they are dynamically loaded to PCORE process
 
 There can only be one active PCORE program running at a time. 
 
-At a highlevel view, they implement TENSOR operators that can then be invoked by MCORE programs. TENSOR operators can be viewed as functions with TENSORs as inputs and outputs.
+At a high-level view, they implement TENSOR operators that can then be invoked by MCORE programs. TENSOR operators can be viewed as functions with TENSORs as inputs and outputs.
 
 PCORE processors all execute the same instructions in lock-step.
 PCORE execution is then further scheduled into thread block. There are 16 threads per PCORE processor. Threads scheduling are hardware based with zero-overhead.
@@ -29,7 +29,7 @@ PCORE also has a VLIW architecture. Meaning each VLIW instructions contain multi
 
 ## 3. VLIW instructions
 
-PCORE processor has a VLIW architecture. Each instructions can perform upto 3 operations:
+PCORE processor has a VLIW architecture. Each instruction can perform up to 3 operations:
 
 ### 3.1 Vector operations
 Vector operations are executed in the vector ALU units.
@@ -49,7 +49,7 @@ Perform conditional branching
 
 PCORE programs define TENSOR operators as objects with their own attributes and operations.
 
-All objects are defined as single instance objects. Meaning you dont have to allocate the objects and the objects are automatically created and destroyed.
+All objects are defined as single instance objects. Meaning you do not have to allocate the objects and the objects are automatically created and destroyed.
 
 Example below is a PCORE program which defines matrix addition operation.
 
@@ -67,7 +67,7 @@ Example below is a PCORE program which defines matrix addition operation.
 
 ### 4.2 Memory layout
 
-Different classes defined within the same *.p file are overlayed in the same memory region.
+Different classes defined within the same *.p file are overlaid in the same memory region.
 
 Which means when you switch to using a different class, the current class variable values will be overwritten. 
 

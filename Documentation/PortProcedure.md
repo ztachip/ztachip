@@ -4,7 +4,7 @@ The example provided with this repo is meant to be reference design and it is im
 
 ## Porting Hardware stack
 
-- Update [HW/src/config.vhd](../HW/src/config.vhd) to match your platform/FPGA capabilties such as resource availability, memory block size, SDRAM bus width.
+- Update [HW/src/config.vhd](../HW/src/config.vhd) to match your platform/FPGA capabilities such as resource availability, memory block size, SDRAM bus width.
 
 - Compile all files under [HW/src](../HW/src). They are generic VHDL codes without any special primitives so it is ready to be ported to any FPGA/ASIC
 

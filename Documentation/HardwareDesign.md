@@ -127,7 +127,7 @@ to DDR external memory can occur at the same time as data transfer from the scra
 
 - Tensor operator execution is forwarded to [core](../HW/src/pcore/core.vhd) via interface signal task*
 
-- Before tensor operator execution can be issued, all memory transfer with [core](../HW/src/pcore/core.vhd)'s internal memory must be completed. Since there is a seperate [core](../HW/src/pcore/core.vhd)'s internal memory for each hardware thread, for example, memory transfer to [core](../HW/src/pcore/core.vhd)'s internal memory belonging to thread#1 can still be running at the same time while [core](../HW/src/pcore/core.vhd) is busy performing tensor operator execution but on thread#2.
+- Before tensor operator execution can be issued, all memory transfer with [core](../HW/src/pcore/core.vhd)'s internal memory must be completed. Since there is a separate [core](../HW/src/pcore/core.vhd)'s internal memory for each hardware thread, for example, memory transfer to [core](../HW/src/pcore/core.vhd)'s internal memory belonging to thread#1 can still be running at the same time while [core](../HW/src/pcore/core.vhd) is busy performing tensor operator execution but on thread#2.
 
 ## 3. ztachip.fpu
 
@@ -138,8 +138,8 @@ to DDR external memory can occur at the same time as data transfer from the scra
 | Name | Description |
 | --- | --- |
 | bus* | AXI interface for RISCV to push FPU instructions to FPU. |
-| fpu_read* | Read interface to [sram_core](../HW/src/top/sram_core.vhd). FPU operates only from SRAM memory. Data input for FPU must first be transfered from DDR or PCORE memory space to SRAM space by DP instructions. |
-| fpu_write* | Write interface to [sram_core](../HW/src/top/sram_core.vhd). FPU results are written only to SRAM memory. Results must then be transfered to DDR or PCORE memory space from SRAM space by DP intructions. |
+| fpu_read* | Read interface to [sram_core](../HW/src/top/sram_core.vhd). FPU operates only from SRAM memory. Data input for FPU must first be transferred from DDR or PCORE memory space to SRAM space by DP instructions. |
+| fpu_write* | Write interface to [sram_core](../HW/src/top/sram_core.vhd). FPU results are written only to SRAM memory. Results must then be transferred to DDR or PCORE memory space from SRAM space by DP instructions. |
 
 ### 3.2 Subcomponents
 
@@ -149,7 +149,7 @@ to DDR external memory can occur at the same time as data transfer from the scra
 | [B_fifo_i](../HW/src/util/fifo.vhd) | used to store B parameters associated with B+C*X*Y opcode. FPU executions are pipelined with all data input being prefetched and pipelined. |
 | [X_fifo_i](../HW/src/util/fifo.vhd) | used to store X parameters associated with B+C*X*Y opcode. FPU executions are pipelined with all data input being prefetched and pipelined. |
 | [Y_fifo_i](../HW/src/util/fifo.vhd) | used to store Y parameters associated with B+C*X*Y opcode. FPU executions are pipelined with all data input being prefetched and pipelined. |
-| [falu_vector](../HW/src/fpu/falu_vector.vhd) | Perform FPU operations in vector mode by nstantiating an array of falu_core. |
+| [falu_vector](../HW/src/fpu/falu_vector.vhd) | Perform FPU operations in vector mode by instantiating an array of falu_core. |
 | [falu_core](../HW/src/fpu/falu_core.vhd) | Perform FPU operations for each vector elements |
 | [falu](../HW/src/fpu/falu.vhd) | performs all falu_core functions except for the SUM opcode which is executed by falu2 instead. |
 | [falu2](../HW/src/fpu/falu.vhd) | performs the SUM part after the MAC operations from falu. For example with the operation SUM(X*Y*C), the X*Y*C is performed by falu and results from falu are summed together by falu2 |
@@ -178,9 +178,9 @@ Data fetching is streamed to FPU from SRAM. Data fetching are overlapped with ex
 
 FPU operates from SRAM memory space only
 
-- FPU data input must first be transfered from PCORE or DDR space to SRAM space by DP instructions
+- FPU data input must first be transferred from PCORE or DDR space to SRAM space by DP instructions
 
-- FPU results must be transfered to PCORE or DDR space from SRAM space by DP instructions
+- FPU results must be transferred to PCORE or DDR space from SRAM space by DP instructions
 
 For highest performance, FPU should be used under both HART context. There is 1 FPU hardware instance but it can operate under different HART context. One can use one HART context to transfer data between SRAM and DDR/PCORE while the other HART context is still busy executing FPU instructions. This way, all memory overhead are overlapped with FPU execution.
 

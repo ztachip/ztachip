@@ -78,7 +78,7 @@ Parameters:
 | input | input tensor to this GraphNode |
 | output | output tensor from this GraphNode |
 | color | color of the resulted output tensor<br>zta.MONO1: Single channel monochrome<br>zta.MONO3: 3-channel monochrome where R,G,B channels have same value.<br>zta.COLOR: 3-channel RGB color. |
-| format | Format of the resulted output tensor<br>zta.PLANAR: channels are seperated as RRR....GGG....BBB....<br>zta.INTERLEAVED: channels are seperated as RGBRGBRGB.... |
+| format | Format of the resulted output tensor<br>zta.PLANAR: channels are separated as RRR....GGG....BBB....<br>zta.INTERLEAVED: channels are separated as RGBRGBRGB.... |
 | row,col | Apply when output tensor is DisplayTensor. Specify where on the display to copy the tensor to. If not specified then [0,0] is assumed. |
 
 #### 1.2.2 GraphNodeCanny(input,output)
@@ -121,7 +121,7 @@ Parameters:
 
 #### 1.2.5 GraphNodeOpticalFlow(input,output)
 
-This GraphNoode performs motion detection using OpticalFlow algo.
+This GraphNode performs motion detection using OpticalFlow algo.
 
 Parameters:
 
@@ -187,7 +187,7 @@ Parameters:
 
 ### 2.3 Graph.IsBusy()
 
-To check if graph is still busy running. Normally used in conjection with RunWithTimeout.
+To check if graph is still busy running. Normally used in conjunction with RunWithTimeout.
 
 ## 3. Drawing functions
 

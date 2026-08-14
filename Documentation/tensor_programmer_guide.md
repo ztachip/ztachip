@@ -228,7 +228,7 @@ Example above transfers data from DDR tensor data object to scratch-pad tensor d
 
 SCRATCH-PAD tensor is a 1 dimensional tensor of dimension 100.
 
-DDR tensor is a 1 dimensional tensor of dimention 100
+DDR tensor is a 1 dimensional tensor of dimension 100
 
 The result of the transfer is listed below
 ```
@@ -295,7 +295,7 @@ PCORE   THREAD    var   <=   DDR
 0          2        3        p[0][2][3] <- (Out of bound-Replace with zero)
 ```
 
-### Tensor dimenstion casting
+### Tensor dimension casting
 
 You can cast the dimension of the components of PCORE tensor to different dimension.
 
@@ -361,9 +361,9 @@ This is one of the key and unique capabilities of ztachip.
 
 SIMD in general is very economical to implement in hardware. But to work efficiently, it requires data to be formatted in vector format.
 
-However this restriction may not match application data format. And also transfering non-vector formatted data is not efficient since transfer cannot be done in vector mode.
+However this restriction may not match application data format. And also transferring non-vector formatted data is not efficient since transfer cannot be done in vector mode.
 
-Scatter transfer is the solution to this problem by transfering/transforming non-vector formatted data to vector formatted data in an efficient way.
+Scatter transfer is the solution to this problem by transferring/transforming non-vector formatted data to vector formatted data in an efficient way.
 
 This method is used extensively in the provided vision and AI stack.
 
@@ -399,7 +399,7 @@ Scatter operation is performed automatically by TensorEngine and application doe
 
 In example above, transfer units of innermost loop is a vector word (float8) but scattered among consecutive vector words.
 
-This is not efficient since the innerloop takes 8 clocks to complete each float8 vector transfer.
+This is not efficient since the inner loop takes 8 clocks to complete each float8 vector transfer.
 
 By adding SCATTER(0) directive, the transfer is rearranged and interleaved among all the PCOREs so that the 8-clock cycles required for each unit transfers are overlapped between all the PCOREs. 
 
@@ -419,7 +419,7 @@ The transfer now becomes...
 
 In example above, transfer units of innermost loop is a vector word (float8) but scattered among different threads.
 
-This is not efficient since the innerloop takes 8 clocks to complete each float8 vector.
+This is not efficient since the inner loop takes 8 clocks to complete each float8 vector.
 
 By adding SCATTER(0) directive, the transfer is rearranged and interleaved among all the PCOREs so that the 8-clock cycles required for each unit transfers are overlapped between all the PCOREs. 
 
@@ -445,15 +445,15 @@ Repeat example in 4.5, but now we add '+' after the last 2 dimension of DDR tens
 
 Now, indexes of the last 2 dimensions of DDR tensor are no longer used for dimension boundary check. Read/Write access to out-of-bound index are carried out as if the index is valid.
 
-This capability is commonly used to transfer tensors that are partially overlaped.
+This capability is commonly used to transfer tensors that are partially overlapped.
 
 ### Tensor transfer with overlapped dimension
 
 Tensor can be defined to have 2 overlapped dimension definitions.
 
-This is useful in-order to add additional boundary checks on the tensor read/write access.
+This is useful in order to add additional boundary checks on the tensor read/write access.
 
-#### Tensor transfer with overlapped dimension - Usecase 1
+#### Tensor transfer with overlapped dimension - Use case 1
 
 ```
 DDR(p,1000(100,200))[:][:]
@@ -466,7 +466,7 @@ In addition to the index boundary check for dimension 100x200, any access beyond
 
 This syntax is useful in mapping arbitrary dimensioned tensor in DDR to a tensor in PCORE memory space where tensor dimensions are regular.
 
-#### Tensor transfer with overlapped dimension - Usecase 2
+#### Tensor transfer with overlapped dimension - Use case 2
 
 ```
 DDR(p,100,32,152(10,16))[:][:][:]
@@ -521,7 +521,7 @@ Tensor operators are functions defined in PCORE programs.
 
 These functions operate on tensors allocated within PCORE memory space.
 
-Input and results associated with tensor operators are then transfered to/from PCORE memory space to/from external DDR or sratch-pad memory space by TensorEngine under the instructions of tensor program.
+Input and results associated with tensor operators are then transferred to/from PCORE memory space to/from external DDR or scratch-pad memory space by TensorEngine under the instructions of tensor program.
 
 ### Syntax
 
@@ -573,9 +573,9 @@ Example:
 
 Example above loads 2 stream programs from DDR memory. The stream programs are lookup/interpolation tables between input and output values.
 
-In the example, as data being transfered from DDR to PCORE, data is also being processed by stream processor's program #0
+In the example, as data is being transferred from DDR to PCORE, data is also being processed by stream processor's program #0
 
-And as data being transfered from PCORE to DDR, data is also being processed by stream processor's program #1
+And as data is being transferred from PCORE to DDR, data is also being processed by stream processor's program #1
 
 ## CALLBACK
 
@@ -602,7 +602,7 @@ Tensor processor can have 2 processing threads: a main thread and a child thread
 
 Thread switching is not automatic but manual by calling to ztamTaskYield function below.
 
-Normally, each thread will manage a seperate PCORE process space. 
+Normally, each thread will manage a separate PCORE process space. 
 
 This way you can interleave between memory cycle and execution cycle of the 2 PCORE processes. That means TensorEngine is setting up/retrieving results from one PCORE memory space 
 while PCOREs are executing tensor operators on the other PCORE memory space.

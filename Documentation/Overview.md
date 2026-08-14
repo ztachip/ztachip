@@ -59,7 +59,7 @@ the vision preprocessing steps are often just as computing intensive as the AI s
 
 ## 3. DSA with ztachip
 
-ztachip is an opensourse DSA architecture. It is a novel architecture as far as we
+ztachip is an open-source DSA architecture. It is a novel architecture as far as we
 know.
 
 The primary objective for ztachip is to provide DSA that covers a wide range of
@@ -69,7 +69,7 @@ and simple.
 ztachip targets applications that can be expressed as a sequence of tensor operations.
 Tensor operations include data operation and computing operation. Data operations involving
 tensors may also involve complex operations such as tensor transpose, tensor dimension resize,
-data remapping, etc...
+data remapping, etc.
 
 **Typical sequence of a ztachip application**
 
@@ -84,7 +84,7 @@ TENSOR_B <= DATA_TRANSFORMATION <= TENSOR_A
 ```
 
 The reason for the above constraints is that we would like data plane operations to be
-decoupled from computing operations. Tensor data operations are used to moved
+decoupled from computing operations. Tensor data operations are used to move
 data between external memory and internal memory. And tensor computing operations are performed
 strictly from internal memory only. This strategy provides many advantages to the hardware
 design including
@@ -98,8 +98,8 @@ eliminates the need for caching.
 to specify algorithm parallelism. Many hardware threads can then be mapped to a large number
 of parallel tasks. For example with vector addition, each element-wise addition can be mapped to a thread.
 
-- Tensor computing involves only with internal memory, greatly simplifying
-the hardware design since there is no memory stall cycles to contend with.
+- Tensor computing involves only internal memory, greatly simplifying
+the hardware design since there are no memory stall cycles to contend with.
 
 ## 4. What are provided with ztachip
 

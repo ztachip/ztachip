@@ -105,11 +105,11 @@
 
 ## 1. Introduction
 
-Domain-Specific-Architecture (DSA) is a general trend in computing research in-order to keep up with the future computing demand fuelled by the exponential growth of AI.
+Domain-Specific-Architecture (DSA) is a general trend in computing research in order to keep up with the future computing demand fueled by the exponential growth of AI.
 
 With DSA, the goal is to define a domain of applications where a special computing architecture will be more efficient compared to a more general-purpose computing architecture.
 
-ztachip domain are applications that can be expressed as a sequential steps of tensor operations. There are 2 primary types of tensor operations defined:
+ztachip's domain is applications that can be expressed as a sequence of tensor operations. There are 2 primary types of tensor operations defined:
 
 - Tensor data operations: Involving tensor operations such as tensor data copy, tensor transpose, dimensions resize, data remapping...
 - Tensor operator operations: Performing computational tasks on a set of tensors.
@@ -119,8 +119,8 @@ But to be productive, DSA would also require a Special-Domain-Language (DSL) to 
 The goal for DSL is to provide a programming language that is:
 
 - Easy to use and learn.
-- The language hides the complexity of hardware implementation from software users.
-- Flexible enough to cover as wide range of applications as possible.
+- Able to hide the complexity of hardware implementation from software users.
+- Flexible enough to cover as wide a range of applications as possible.
 
 ztachip's DSL is composed of 2 elements:
 
@@ -129,7 +129,7 @@ ztachip's DSL is composed of 2 elements:
 
 ### 1.1 tensor programs
 
-Tensor programs are codes that run on host processor such as RISCV. It generates and sends proprietary tensor instructions to ztachip's master processor called tensor-core.
+Tensor programs are code that runs on a host processor such as RISCV. They generate and send proprietary tensor instructions to ztachip's master processor called tensor-core.
 
 Tensor programs have suffix *.m
 
@@ -147,7 +147,7 @@ pcore programs implement the tensor operators that can be invoked by tensor prog
 
 pcore programs are executed on an array of ztachip's proprietary VLIW processors called p-cores. VLIW stands for very-long-instruction-word where each instruction can perform many operations at the same time.
 
-pcore programs are files with suffix *.p pcore programs are multi-threaded with 16 threads. These threads are hardware-based threads without overhead and dispatched in a round-robin fashion. We call these threads to be p-threads.
+pcore programs are files with suffix *.p pcore programs are multi-threaded with 16 threads. These threads are hardware-based threads without overhead and dispatched in a round-robin fashion. We call these p-threads.
 
 Tensor operators are presented as operators of C++ object class. Related tensor operators are then grouped together under the same C++ object class. These object classes are single instance objects so they are statically allocated. Due to limited memory available, these objects are overlapped in memory allocation. Therefore, users must partition these objects in such a way that they are not in use at the same time.
 
@@ -159,7 +159,7 @@ Traditional architecture requires data to be loaded first from memory to on-chip
 
 But with ztachip, computation and data transfer with external memory are decoupled from one another.
 
-With ztachip, data are loaded/saved between external memory and pcore's internal memory in a streaming fashion with advanced data fetching and no round-trip delay. This results in huge gain in memory bandwidth usage efficiencies. Computational steps are also very efficient without any memory stall cycles since computation reference pcore's internal memory only.
+With ztachip, data is loaded/saved between external memory and pcore's internal memory in a streaming fashion with advanced data fetching and no round-trip delay. This results in huge gain in memory bandwidth usage efficiencies. Computational steps are also very efficient without any memory stall cycles since computation references pcore's internal memory only.
 
 Also, computational steps being represented as tensor operators provide a natural way to express algorithm parallelism where many computational units can perform similar computation on many different elements of tensors.
 
@@ -174,7 +174,7 @@ Tensor program emits tensor instructions to the tensor-core. Tensor instructions
 
 Tensor programs are C programs with special embedded tensor syntax extensions. Tensor extensions are lines that begin with character '>'.
 
-ztachip special compiler replaces these special extensions with appropriate tensor instruction binary that are then being pushed to tensor processor's instruction queue.
+ztachip special compiler replaces these special extensions with appropriate tensor instruction binaries that are then pushed to tensor processor's instruction queue.
 
 There can be up to 2 hardware-based threads running in the tensor core. We call these t-threads.
 
@@ -352,7 +352,7 @@ Example below is an example of a tensor variable declaration and definition.
 > $coef_pcore := PCORE(8)[0:7].convolution::coef[0:1][0:7];
 ```
 
-Whereever $coef_pcore being referenced, the expression representing the variable will be substituted in its place.
+Wherever $coef_pcore being referenced, the expression representing the variable will be substituted in its place.
 
 Tensor variables can also have an argument. The argument is specified when tensor variables are being referenced. '$' is tensor variable's argument place holder.
 
@@ -796,7 +796,7 @@ Now boundary check of the last 2 dimensions of DDR tensor is disabled. Read/Writ
 
 Tensor can be defined to have an overlapping dimension definition.
 
-This is useful in-order to add additional boundary checks on the tensor read/write access.
+This is useful in order to add additional boundary checks on the tensor read/write access.
 
 ##### 2.3.17.1 Tensor transfer with overlapped dimension - Example 1
 
@@ -974,7 +974,7 @@ Tensor operators are executed under one of the two t-threads with each t-thread 
 
 #### 2.4.1 Tensor operator syntax
 
-Example below invokes a tensor operator defined as covolution::exe in pcore program
+Example below invokes a tensor operator defined as convolution::exe in pcore program
 
 ```c
 > EXE_LOCKSTEP(convolution::exe);
@@ -1008,11 +1008,11 @@ ztachip has a dedicated unit to perform various floating point operators.
 
 FPU unit operates on data resides in SCRATCH space only. FPU data input must first be transferred from PCORE or DDR space to SCRATCH space.
 
-FPU results are written to SCRACH space only. FPU results must then be transferred to PCORE or DDR space from SCRATCH space.
+FPU results are written to SCRATCH space only. FPU results must then be transferred to PCORE or DDR space from SCRATCH space.
 
 In similar way as other MCORE operations, FPU operators are assigned to a HART context depending on when it is being issued.
 
-FPU waits for all data transfers to/from SCRACH space to be completed before FPU can begin with execution. FPU only waits for the completion of SCRACH data transfer with the same HART context as FPU HART context.
+FPU waits for all data transfers to/from SCRATCH space to be completed before FPU can begin with execution. FPU only waits for the completion of SCRATCH data transfer with the same HART context as FPU HART context.
 
 #### 2.5.1 FPU operators definitions
 
@@ -1277,7 +1277,7 @@ Example 2:
 
 ### 2.6 HOST SUPPORTING FUNCTIONS
 
-Functions described in following sections are functions running on host processors in-order to support ztachip execution framework.
+Functions described in the following sections run on the host processor in order to support the ztachip execution framework.
 
 #### 2.6.1 void ztaInit()
 
@@ -1312,7 +1312,7 @@ None
 
 #### 2.6.3 void ztaTaskYield()
 
-For thread spawned by ztaDualHardExecute to yield control to the other thread.
+For thread spawned by ztaDualHartExecute to yield control to the other thread.
 
 Parameters:
 
@@ -2275,7 +2275,7 @@ The following tensor/pcore programs are available.
 | Example | Source files |
 | --- | --- |
 | Canny edge detection | ztachip/SW/apps/canny/kernels/canny.m<br>ztachip/SW/apps/canny/kernels/canny.p |
-| Colour space conversion | ztachip/SW/apps/color/kernels/color.m<br>ztachip/SW/apps/color/kernels/color.p |
+| Color space conversion | ztachip/SW/apps/color/kernels/color.m<br>ztachip/SW/apps/color/kernels/color.p |
 | Contrast equalizer | ztachip/SW/apps/equalize/kernels/equalize.m<br>ztachip/SW/apps/equalize/kernels/equalize.p |
 | Gaussian blurring | ztachip/SW/apps/gaussian/kernels/gaussian.m<br>ztachip/SW/apps/gaussian/kernels/gaussian.p |
 | Harris Corner detector | ztachip/SW/apps/harris/kernels/harris.m<br>ztachip/SW/apps/harris/kernels/harris.p |
