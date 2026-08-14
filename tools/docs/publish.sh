@@ -3,9 +3,9 @@
 #
 #   sh tools/docs/publish.sh [path-to-ztachip.github.io]
 #
-# Default destination is ../ztachip.github.io. Everything in that working copy
-# except .git and .nojekyll is replaced: the site is generated, nothing there is
-# edited by hand. Review, then commit and push from that repository.
+# Default destination is ../ztachip.github.io. The generated pages replace what
+# is there: only .git, .github (the publishing workflow) and .nojekyll are kept.
+# Review, then commit and push from that repository.
 set -e
 
 SITE=${1:-../ztachip.github.io}
@@ -18,7 +18,8 @@ fi
 
 sh tools/docs/build.sh
 
-find "$SITE" -mindepth 1 -maxdepth 1 ! -name .git ! -name .nojekyll -exec rm -rf {} +
+find "$SITE" -mindepth 1 -maxdepth 1 \
+     ! -name .git ! -name .github ! -name .nojekyll -exec rm -rf {} +
 cp -r Documentation/html/. "$SITE"/
 
 echo
