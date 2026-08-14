@@ -224,6 +224,25 @@ body.nav-hidden .side { display:none; }
 .navbtn.off { opacity:.38; cursor:default; box-shadow:none; }
 .navbtn.off:hover { background:#1f2937; }
 
+/* one section at a time, with a pager below it */
+.sec { display:none; }
+.sec.on { display:block; }
+.pagerbar { display:flex; align-items:center; justify-content:space-between;
+        gap:12px; margin:38px 0 44px 0; padding-top:16px;
+        border-top:1px solid #d8dee4; }
+.pbtn { display:inline-flex; align-items:center; gap:8px; max-width:42%;
+        padding:9px 14px; cursor:pointer; font-family:inherit; font-size:14px;
+        color:#0a4a8f; background:#f6f8fa; border:1px solid #d0d7de;
+        border-radius:7px; text-align:left; }
+.pbtn:hover { background:#eaf2fb; border-color:#0a6abf; }
+.pbtn.off { opacity:.4; cursor:default; }
+.pbtn.off:hover { background:#f6f8fa; border-color:#d0d7de; }
+.pbtn .lbl { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.pbtn .arrow { flex:0 0 auto; color:#57606a; }
+.pgcount { flex:0 0 auto; color:#57606a; font-size:13px; white-space:nowrap; }
+/* the section being read, marked in the contents panel */
+.side a.here { color:#7fc4ff; font-weight:bold; }
+
 /* phones: the panel covers the screen, and closes once a section is chosen */
 @media (max-width:820px) {
   .layout { display:block; }
@@ -232,10 +251,12 @@ body.nav-hidden .side { display:none; }
           font-size:16px; z-index:30; }
   .main { padding:52px 18px 0 18px; max-width:none; }
   .page { padding:52px 18px 0 18px; }
-  /* the arrows would scroll the document behind the contents overlay */
+  /* the arrows would act on the document behind the contents overlay */
   body:not(.nav-hidden) .navbar .gap,
   body:not(.nav-hidden) #secprev,
   body:not(.nav-hidden) #secnext { display:none; }
+  .pgcount { display:none; }
+  .pbtn { max-width:48%; }
 }
 """
 
@@ -259,6 +280,98 @@ document.addEventListener('click', function (e) {
 # Stepping through the sections with the two arrow buttons. Set PAGER to False
 # and rebuild to take the buttons out again.
 PAGER = True
+# One chapter or section on screen at a time, with a pager below it. Set PAGED
+# to False and rebuild for a single scrolling document, arrows still stepping
+# from heading to heading.
+PAGED = True
+
+PAGED_JS = """
+<script>
+(function () {
+    var secs = [].slice.call(document.querySelectorAll('.main .sec')),
+        up = document.getElementById('secprev'),
+        down = document.getElementById('secnext'),
+        bprev = document.getElementById('pgprev'),
+        bnext = document.getElementById('pgnext'),
+        plabel = document.getElementById('pgprevlbl'),
+        nlabel = document.getElementById('pgnextlbl'),
+        count = document.getElementById('pgcount'),
+        page = {},                       // heading id -> page holding it
+        cur = 0;
+    if (secs.length < 2) { return; }
+    secs.forEach(function (s, i) {
+        [].slice.call(s.querySelectorAll('[id]')).forEach(function (el) {
+            page[el.id] = i;
+        });
+    });
+
+    function heading(s) {
+        return s.querySelector('h2, h3') || s.querySelector('h1, h4');
+    }
+    function label(s) {
+        var h = heading(s);
+        return h ? h.textContent.replace(/\\s+/g, ' ').trim() : '';
+    }
+    function show(i, hash) {
+        if (i < 0 || i >= secs.length) { return; }
+        secs[cur].classList.remove('on');
+        cur = i;
+        secs[cur].classList.add('on');
+        window.scrollTo(0, 0);
+        if (hash !== false) { stamp(heading(secs[cur])); }
+        mark();
+    }
+    function stamp(el) {
+        if (el && el.id) {
+            try { history.replaceState(null, '', '#' + el.id); } catch (e) { }
+        }
+    }
+    // label the pager with its destinations, and dim it at either end
+    function mark() {
+        var back = cur > 0, on = cur < secs.length - 1;
+        [up, bprev].forEach(function (b) { b.classList.toggle('off', !back); });
+        [down, bnext].forEach(function (b) { b.classList.toggle('off', !on); });
+        up.title = back ? 'Previous: ' + label(secs[cur - 1]) : 'Previous section';
+        down.title = on ? 'Next: ' + label(secs[cur + 1]) : 'Next section';
+        plabel.textContent = back ? label(secs[cur - 1]) : 'Previous';
+        nlabel.textContent = on ? label(secs[cur + 1]) : 'Next';
+        count.textContent = (cur + 1) + ' of ' + secs.length;
+        var was = document.querySelectorAll('.side a.here');
+        for (var k = 0; k < was.length; k++) { was[k].classList.remove('here'); }
+        var h = heading(secs[cur]),
+            link = h && document.querySelector('.side a[href="#' + h.id + '"]');
+        if (link) {
+            link.classList.add('here');
+            if (link.scrollIntoView) { link.scrollIntoView({block: 'nearest'}); }
+        }
+    }
+    window.secStep = function (d) { show(cur + d); };
+
+    // a link to a heading opens the page holding it, then scrolls to it
+    document.addEventListener('click', function (e) {
+        var a = e.target.closest && e.target.closest('a[href^="#"]');
+        if (!a) { return; }
+        var id = a.getAttribute('href').slice(1), i = page[id];
+        if (i === undefined) { return; }
+        e.preventDefault();
+        if (i !== cur) { show(i, false); }
+        var el = document.getElementById(id);
+        if (el && el !== heading(secs[i])) { el.scrollIntoView(); }
+        stamp(el);
+    });
+    // arriving with #section in the address bar opens that page
+    function fromHash() {
+        var id = decodeURIComponent(location.hash.slice(1)), i = page[id];
+        if (i === undefined) { mark(); return; }
+        show(i, false);
+        var el = document.getElementById(id);
+        if (el && el !== heading(secs[i])) { el.scrollIntoView(); }
+    }
+    window.addEventListener('hashchange', fromHash);
+    fromHash();
+})();
+</script>
+"""
 
 PAGER_JS = """
 <script>
@@ -363,6 +476,44 @@ def nav_bar(home):
                    f'{ICON_DOWN}</button>')
     out.append('</div>')
     return ''.join(out)
+
+
+PAGER_BAR = (
+    '<nav class="pagerbar">'
+    '<button class="pbtn" id="pgprev" onclick="secStep(-1)">'
+    '<span class="arrow">&#9664;</span>'
+    '<span class="lbl" id="pgprevlbl">Previous</span></button>'
+    '<span class="pgcount" id="pgcount"></span>'
+    '<button class="pbtn" id="pgnext" onclick="secStep(1)">'
+    '<span class="lbl" id="pgnextlbl">Next</span>'
+    '<span class="arrow">&#9654;</span></button>'
+    '</nav>')
+
+
+def paginate(body):
+    """Split the document into pages: one per chapter and per section.
+
+    Sub-subsections stay with the section they belong to. A chapter heading
+    with no text of its own shares a page with the section that follows it,
+    so paging never lands on a page holding nothing but a title.
+    """
+    parts = re.split(r'(<h[23] id="[^"]+">)', body)
+    if len(parts) < 4:                            # one section: nothing to page
+        return body
+    pages = []
+    for i in range(1, len(parts), 2):
+        chunk = parts[i] + parts[i + 1]
+        own = re.sub(r'^<h[23][^>]*>.*?</h[23]>', '', chunk, flags=re.S)
+        own = re.sub(r'<[^>]+>', '', own).strip()
+        if pages and not pages[-1][1]:            # previous page was title-only
+            pages[-1] = (pages[-1][0] + chunk, own)
+        else:
+            pages.append((chunk, own))
+    # whatever precedes the first heading — the title and its lead-in
+    html = [parts[0] + pages[0][0]] + [p[0] for p in pages[1:]]
+    return '\n'.join(
+        f'<section class="sec{" on" if n == 0 else ""}">{p}</section>'
+        for n, p in enumerate(html)) + PAGER_BAR
 
 
 # The project mark: a tile grid with one live cell, as on the old site.
@@ -524,9 +675,13 @@ for src in sources:
         body = build_landing(body)
 
     if panel:
+        if PAGED:
+            body, step = paginate(body), PAGED_JS
+        else:
+            step = PAGER_JS if PAGER else ''
         body = (f'<div class="layout">{panel}'
                 f'<div class="main">{nav_bar(home)}{body}</div></div>'
-                f'{NAV_JS}{PAGER_JS if PAGER else ""}')
+                f'{NAV_JS}{step}')
     else:
         body = f'<div class="page">{body}</div>'
     dest = os.path.join(out_dir, doc_names[os.path.basename(src)])
