@@ -2,31 +2,29 @@
 
 **An open-source AI accelerator for edge devices — computer vision and AI inference, including state-of-the-art LLM/VLM models, on a low-cost FPGA or a custom ASIC**
 
-ztachip is an AI accelerator you can build yourself. Attach a camera and a VGA
-display to an Artix-7 development board, load the image, and it runs real
-workloads: edge detection, optical flow, motion detection and colour conversion,
-TensorFlow models, and large vision/language models generating text locally, with
-nothing sent to a server.
+ztachip is an AI accelerator you build into your own hardware, targeting **FPGAs**
+and **ASICs**. An FPGA is where most people start: attach a camera and a VGA
+display to a low-cost Artix-7 development board, load the image, and it runs real
+workloads — edge detection, optical flow, motion detection and colour conversion,
+TensorFlow models, and large vision/language models, with nothing sent to a
+server. For more advanced users with more resources, the same design is easy to
+port into a **custom ASIC**, a larger FPGA, or an SoC alongside your own logic.
 
-An FPGA is where you start, not where you have to stop. The design is easy to
-port, so the same hardware and software stack can go into a custom **ASIC**, a
-larger FPGA, or an SoC alongside your own logic.
-
-What makes it interesting is efficiency rather than peak speed. AI inference at
-the edge is limited by memory bandwidth, not compute — the cores spend most of
-their time waiting for model weights to arrive from memory. ztachip is built
-around moving that data well, which is what *data-aware* means in practice. It is
-**3.5× more efficient than a Raspberry Pi 5** in how well it uses the memory
-bandwidth available to it, and it runs vision and AI workloads **20–50× faster**
-than the same RISC-V processor without it.
+What makes it interesting is efficiency rather than peak speed. Modern AI
+inference with LLM/VLM at the edge is limited by memory bandwidth, not compute —
+the cores spend most of their time waiting for model weights to arrive from
+memory. ztachip is built around moving that data well, which is what *data-aware*
+means in practice. It is **3.5× more efficient than a Raspberry Pi 5** in how well
+it uses the memory bandwidth available to it.
 
 It is also general-purpose within its domain. Most accelerators handle one narrow
 class of workload; ztachip runs classical computer vision, neural-network
 inference and transformer models on the same hardware, through the same
 programming model.
 
-It is easy to program and use. A few lines of MicroPython are enough to run a
-vision or LLM workload on it — no hardware knowledge required, just Python.
+It is easy to program and use. A few lines of MicroPython are enough to run
+vision or state-of-the-art AI on it — no hardware knowledge required, just
+Python.
 
 Everything is open source under the Apache 2.0 license — RTL, compiler, software
 stack and demos.
