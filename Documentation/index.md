@@ -1,17 +1,3 @@
-<style>
-pre { background:#e4e6e8 !important;
-      padding:12px 14px; border:1px solid #d8dce0; border-radius:6px; }
-pre, pre code, pre span, pre * {
-      background:transparent !important; color:#1f2328 !important; }
-code { background:#e4e6e8 !important; color:#1f2328 !important;
-       padding:1px 4px; border-radius:4px; }
-table { border-collapse:collapse !important; margin:6px 0 14px 0; }
-table th, table td { border:1px solid #c9ced4 !important;
-       padding:10px 12px !important; vertical-align:top; }
-table tr, table tbody tr:nth-child(2n) {
-       background:#ffffff !important; color:#1f2328 !important; }
-</style>
-
 <div style="background:#ffffff; color:#24292f; padding:0 24px 24px 24px;">
 
 <div style="background:#d6e8ff; color:#0b2545; padding:16px; border-radius:8px; text-align:center; font-weight:bold; font-size:20px; line-height:1.35; margin:16px 0 6px 0;">ztachip Documentation</div>

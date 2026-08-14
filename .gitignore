@@ -20,3 +20,6 @@ HW/examples/GHRD/ztachip.sim
 HW/examples/GHRD/ztachip.ip_user_files
 tools/ghdl/build
 tools/ghdl/soc.v
+
+# Generated documentation (build with: sh tools/docs/build.sh)
+Documentation/html
