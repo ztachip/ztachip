@@ -219,6 +219,10 @@ SIDE = """
 body:not(.nav-hidden) .navtoggle { background:#0c131b; border-color:#26313f;
         box-shadow:inset 0 2px 5px rgba(0,0,0,.7); transform:translateY(2px); }
 body.nav-hidden .side { display:none; }
+/* step to the previous or next section; dimmed at the ends of the document */
+.navbar .gap { width:10px; }
+.navbtn.off { opacity:.38; cursor:default; box-shadow:none; }
+.navbtn.off:hover { background:#1f2937; }
 
 /* phones: the panel covers the screen, and closes once a section is chosen */
 @media (max-width:820px) {
@@ -228,6 +232,10 @@ body.nav-hidden .side { display:none; }
           font-size:16px; z-index:30; }
   .main { padding:52px 18px 0 18px; max-width:none; }
   .page { padding:52px 18px 0 18px; }
+  /* the arrows would scroll the document behind the contents overlay */
+  body:not(.nav-hidden) .navbar .gap,
+  body:not(.nav-hidden) #secprev,
+  body:not(.nav-hidden) #secnext { display:none; }
 }
 """
 
@@ -248,6 +256,80 @@ document.addEventListener('click', function (e) {
 </script>
 """
 
+# Stepping through the sections with the two arrow buttons. Set PAGER to False
+# and rebuild to take the buttons out again.
+PAGER = True
+
+PAGER_JS = """
+<script>
+(function () {
+    var heads = [].slice.call(document.querySelectorAll(
+                    '.main h2[id], .main h3[id], .main h4[id]')),
+        prev = document.getElementById('secprev'),
+        next = document.getElementById('secnext'),
+        OFF = 12,      // gap left above a heading once it has been jumped to
+        CUR = 40;      // a heading this near the top counts as the one being read
+    if (!heads.length || !prev || !next) { return; }
+
+    function top(el) {
+        return el.getBoundingClientRect().top + window.pageYOffset;
+    }
+    // index of the section being read, or -1 while above the first heading
+    function here() {
+        var y = window.pageYOffset + CUR, at = -1;
+        for (var i = 0; i < heads.length; i++) {
+            if (top(heads[i]) <= y) { at = i; }
+        }
+        return at;
+    }
+    function label(el) {
+        return el.textContent.replace(/\\s+/g, ' ').trim();
+    }
+    function go(y, hash) {
+        window.scrollTo(0, y);
+        if (hash) {
+            try { history.replaceState(null, '', hash); } catch (e) { /* file:// */ }
+        }
+        mark();
+    }
+    function step(dir) {
+        var i = here(), j;
+        if (i < 0) {                       // above the first heading
+            if (dir > 0) { go(top(heads[0]) - OFF, '#' + heads[0].id); }
+            return;
+        }
+        // part-way down a section, Previous returns to that section's heading
+        if (dir < 0 && window.pageYOffset + OFF - top(heads[i]) > CUR - OFF) {
+            go(top(heads[i]) - OFF, '#' + heads[i].id);
+            return;
+        }
+        j = i + dir;
+        if (j < 0) { go(0, ''); return; }   // back past the first: page top
+        if (j >= heads.length) { return; }
+        go(top(heads[j]) - OFF, '#' + heads[j].id);
+    }
+    // dim an arrow when there is nowhere to go, and name the target section
+    function mark() {
+        var i = here();
+        prev.classList.toggle('off', window.pageYOffset < 8);
+        next.classList.toggle('off', i >= heads.length - 1);
+        prev.title = i > 0 ? 'Previous section: ' + label(heads[i - 1])
+                           : 'Back to the top';
+        next.title = i < heads.length - 1
+                     ? 'Next section: ' + label(heads[i + 1]) : 'Next section';
+    }
+    window.secStep = step;
+    var pending = false;
+    window.addEventListener('scroll', function () {
+        if (pending) { return; }
+        pending = true;
+        window.requestAnimationFrame(function () { pending = false; mark(); });
+    });
+    mark();
+})();
+</script>
+"""
+
 # Four bars for the contents button, a house for the home button.
 ICON_BARS = ('<svg class="ico" viewBox="0 0 16 16" aria-hidden="true">'
              '<rect x="1" y="1" width="14" height="2" rx="1"/>'
@@ -256,10 +338,14 @@ ICON_BARS = ('<svg class="ico" viewBox="0 0 16 16" aria-hidden="true">'
              '<rect x="1" y="13" width="14" height="2" rx="1"/></svg>')
 ICON_HOME = ('<svg class="ico" viewBox="0 0 16 16" aria-hidden="true">'
              '<path d="M8 1.2 0.7 7.6h1.9V14.6h4V10.4h2.8v4.2h4V7.6h1.9z"/></svg>')
+ICON_UP = ('<svg class="ico" viewBox="0 0 16 16" aria-hidden="true">'
+           '<path d="M8 3.4 14.1 9.5 12.7 10.9 8 6.2 3.3 10.9 1.9 9.5z"/></svg>')
+ICON_DOWN = ('<svg class="ico" viewBox="0 0 16 16" aria-hidden="true">'
+             '<path d="M8 12.6 1.9 6.5 3.3 5.1 8 9.8 12.7 5.1 14.1 6.5z"/></svg>')
 
 
 def nav_bar(home):
-    """The floating toolbar: contents toggle, then the home button."""
+    """The floating toolbar: contents toggle, home, then the section arrows."""
     out = ['<div class="navbar">',
            '<button class="navbtn navtoggle" onclick="navToggle()"'
            ' title="Show or hide the contents" aria-label="Contents">'
@@ -267,6 +353,14 @@ def nav_bar(home):
     if home:
         out.append(f'<a class="navbtn" href="{home}" title="Home"'
                    f' aria-label="Home">{ICON_HOME}</a>')
+    if PAGER:
+        out.append('<span class="gap"></span>'
+                   '<button class="navbtn" id="secprev" onclick="secStep(-1)"'
+                   ' title="Previous section" aria-label="Previous section">'
+                   f'{ICON_UP}</button>'
+                   '<button class="navbtn" id="secnext" onclick="secStep(1)"'
+                   ' title="Next section" aria-label="Next section">'
+                   f'{ICON_DOWN}</button>')
     out.append('</div>')
     return ''.join(out)
 
@@ -431,7 +525,8 @@ for src in sources:
 
     if panel:
         body = (f'<div class="layout">{panel}'
-                f'<div class="main">{nav_bar(home)}{body}</div></div>{NAV_JS}')
+                f'<div class="main">{nav_bar(home)}{body}</div></div>'
+                f'{NAV_JS}{PAGER_JS if PAGER else ""}')
     else:
         body = f'<div class="page">{body}</div>'
     dest = os.path.join(out_dir, doc_names[os.path.basename(src)])
