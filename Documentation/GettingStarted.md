@@ -29,9 +29,9 @@
     - [3.6.2 MicroPython Mode (Recommended)](#362-micropython-mode-recommended)
   - [3.7 Start the Image Transfer](#37-start-the-image-transfer)
   - [3.8 Run the Program](#38-run-the-program)
-- [4. Benchmark](#4-benchmark)
-  - [4.1 Benchmark Results](#41-benchmark-results)
-  - [4.2 Conclusion](#42-conclusion)
+  - [3.9 Benchmark](#39-benchmark)
+    - [3.9.1 Benchmark Results](#391-benchmark-results)
+    - [3.9.2 Conclusion](#392-conclusion)
 
 </details>
 
@@ -380,7 +380,7 @@ If running in MicroPython mode, at the serial console, hit CTRL+E, then paste on
 
 A demonstration showing how to run the demo is available in this [video](https://www.youtube.com/watch?v=ng0nCEYE6fc&t=499s).
 
-## 4. Benchmark
+### 3.9 Benchmark
 
 Small LLM inference performance on edge devices is largely constrained by **memory bandwidth**. In these scenarios, additional compute capability provides limited benefit when processing cores spend most of their time waiting for model data to be transferred from memory.
 
@@ -388,7 +388,7 @@ For this reason, a useful metric for comparing edge LLM implementations is:
 
 **Tokens per second (TPS) per GB/s of memory bandwidth**
 
-### 4.1 Benchmark Results
+#### 3.9.1 Benchmark Results
 
 The following results compare **ztachip running on the Arty platform** with the Raspberry Pi 4 and Raspberry Pi 5.
 
@@ -408,7 +408,7 @@ The comparison below focuses on the **fixed-cost component** by using shorter pr
 | **Raspberry Pi 5** | 32 TPS | 17 GB/s | 1.88 TPS/(GB/s) |
 | **ztachip (Arty)** | 8 TPS | 1.2 GB/s | **6.70 TPS/(GB/s)** |
 
-### 4.2 Conclusion
+#### 3.9.2 Conclusion
 
 The Raspberry Pi platforms achieve higher raw token-generation rates because they provide substantially higher overall hardware and memory-bandwidth resources.
 
