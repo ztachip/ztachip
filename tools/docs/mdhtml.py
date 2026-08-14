@@ -1,15 +1,20 @@
 #!/usr/bin/env python3
 """Build styled HTML pages from the documentation Markdown.
 
+The output directory is self-contained: images are copied in beside the pages
+and links to repository files are rewritten to github.com, so the same build
+works opened from disk and published to GitHub Pages.
+
 The Markdown files carry their layout as inline HTML (sidebar, buttons, content
 column) but cannot carry a stylesheet: GitHub strips <style> and prints its text.
 Here the same content is wrapped in a real HTML document, so the code blocks,
 tables and syntax colours that GitHub cannot show are available locally.
 
-    mdhtml.py out_dir file.md[:prefix] ...
+    mdhtml.py out_dir file.md ...
 """
 import html
 import os
+import shutil
 import re
 import sys
 
@@ -258,30 +263,45 @@ PAGE = """<!DOCTYPE html>
 """
 
 # ------------------------------------------------------------------- build ----
+GITHUB = 'https://github.com/ztachip/ztachip/blob/master/'
+MEDIA = 'media'
+
 out_dir = sys.argv[1]
-os.makedirs(out_dir, exist_ok=True)
-doc_names = {}
-for spec in sys.argv[2:]:
-    src = spec.split(':')[0]
-    doc_names[os.path.basename(src)] = os.path.basename(src)[:-3] + '.html'
+os.makedirs(os.path.join(out_dir, MEDIA), exist_ok=True)
+sources = sys.argv[2:]
+doc_names = {os.path.basename(s): os.path.basename(s)[:-3] + '.html' for s in sources}
 
-for spec in sys.argv[2:]:
-    src, _, prefix = spec.partition(':')
+for src in sources:
+    doc_dir = os.path.dirname(src)
     md = open(src, encoding='utf-8').read()
+    copied = {}
 
-    # links between documents point at the html build; everything else is a
-    # repository path that has to climb back out of the html directory
-    def fix(path):
-        base = os.path.basename(path)
-        if base in doc_names:
-            return doc_names[base]
+    def repo_path(path):
+        return os.path.normpath(os.path.join(doc_dir, path))
+
+    def fix(path, is_image=False):
         if path.startswith(('http', '#', 'mailto:')):
             return path
-        return prefix + path
+        base = os.path.basename(path)
+        if base in doc_names:                    # another document
+            return doc_names[base]
+        target = repo_path(path)
+        if is_image:                             # copy it in beside the pages
+            name = target.replace(os.sep, '_')
+            if target not in copied and os.path.exists(target):
+                shutil.copyfile(target, os.path.join(out_dir, MEDIA, name))
+                copied[target] = True
+            return f'{MEDIA}/{name}'
+        return GITHUB + target.replace(os.sep, '/')
 
-    md = re.sub(r'(\]\()([^)]+)(\))', lambda m: m.group(1) + fix(m.group(2)) + m.group(3), md)
-    md = re.sub(r'(<a href=")([^"]+)(")', lambda m: m.group(1) + fix(m.group(2)) + m.group(3), md)
-    md = re.sub(r'(<img src=")([^"]+)(")', lambda m: m.group(1) + fix(m.group(2)) + m.group(3), md)
+    md = re.sub(r'(!\[[^\]]*\]\()([^)]+)(\))',
+                lambda m: m.group(1) + fix(m.group(2), True) + m.group(3), md)
+    md = re.sub(r'(?<!!)(\[[^\]]*\]\()([^)]+)(\))',
+                lambda m: m.group(1) + fix(m.group(2)) + m.group(3), md)
+    md = re.sub(r'(<a href=")([^"]+)(")',
+                lambda m: m.group(1) + fix(m.group(2)) + m.group(3), md)
+    md = re.sub(r'(<img src=")([^"]+)(")',
+                lambda m: m.group(1) + fix(m.group(2), True) + m.group(3), md)
 
     m = re.search(r'^#\s+(.*)$', md, re.M)
     title = m.group(1).strip() if m else os.path.basename(src)
