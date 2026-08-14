@@ -73,9 +73,9 @@
     <text x="32" y="360" font-size="17" font-weight="700" fill="#0b2545">20&#8211;50&#215;</text>
     <text x="32" y="380" font-size="11.5" fill="#55636f">faster than RISC-V alone</text>
     <text x="266" y="360" font-size="17" font-weight="700" fill="#0b2545">3.5&#215; more efficient</text>
-    <text x="266" y="380" font-size="11.5" fill="#55636f">than a Raspberry Pi 5, per GB/s</text>
-    <text x="500" y="360" font-size="17" font-weight="700" fill="#0b2545">3 ways to program</text>
-    <text x="500" y="380" font-size="11.5" fill="#55636f">Python · node graph · tensor language</text>
+    <text x="266" y="380" font-size="11.5" fill="#55636f">than a Raspberry Pi 5</text>
+    <text x="500" y="360" font-size="17" font-weight="700" fill="#0b2545">Easy to program</text>
+    <text x="500" y="380" font-size="11.5" fill="#55636f">MicroPython, no hardware knowledge</text>
     <text x="750" y="360" font-size="17" font-weight="700" fill="#0b2545">Apache 2.0</text>
     <text x="750" y="380" font-size="11.5" fill="#55636f">RTL, compiler and software stack</text>
   </g>

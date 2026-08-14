@@ -15,20 +15,18 @@ larger FPGA, or an SoC alongside your own logic.
 What makes it interesting is efficiency rather than peak speed. AI inference at
 the edge is limited by memory bandwidth, not compute — the cores spend most of
 their time waiting for model weights to arrive from memory. ztachip is built
-around moving that data well, which is what *data-aware* means in practice. At
-turning memory bandwidth into tokens it is **3.5× more efficient than a Raspberry
-Pi 5** — 6.70 tokens per second per GB/s — and it runs vision and AI workloads
-**20–50× faster** than the same RISC-V processor without it.
+around moving that data well, which is what *data-aware* means in practice. It is
+**3.5× more efficient than a Raspberry Pi 5** in how well it uses the memory
+bandwidth available to it, and it runs vision and AI workloads **20–50× faster**
+than the same RISC-V processor without it.
 
 It is also general-purpose within its domain. Most accelerators handle one narrow
 class of workload; ztachip runs classical computer vision, neural-network
 inference and transformer models on the same hardware, through the same
 programming model.
 
-There are three ways to program it, and you can start with the easiest: a few
-lines of MicroPython, a graph of ready-made processing nodes, or the tensor
-language directly, where you control how data moves through memory and how the
-cores work on it.
+It is easy to program and use. A few lines of MicroPython are enough to run a
+vision or LLM workload on it — no hardware knowledge required, just Python.
 
 Everything is open source under the Apache 2.0 license — RTL, compiler, software
 stack and demos.
