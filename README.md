@@ -1,11 +1,11 @@
 # ztachip
 
-**An open-source AI accelerator for edge devices — computer vision and LLM inference on a low-cost FPGA or a custom ASIC**
+**An open-source AI accelerator for edge devices — computer vision and AI inference, including state-of-the-art LLM/VLM models, on a low-cost FPGA or a custom ASIC**
 
 ztachip is an AI accelerator you can build yourself. Attach a camera and a VGA
 display to an Artix-7 development board, load the image, and it runs real
 workloads: edge detection, optical flow, motion detection and colour conversion,
-TensorFlow models, and small language models generating text locally, with
+TensorFlow models, and large vision/language models generating text locally, with
 nothing sent to a server.
 
 An FPGA is where you start, not where you have to stop. The design is easy to
@@ -33,7 +33,7 @@ stack and demos.
 
 [▶ Watch the demo video](https://www.youtube.com/watch?v=ng0nCEYE6fc&t=499s)
 
-![ztachip: camera and sensors in, computer vision, neural networks and language models out, on an FPGA or ASIC](./Documentation/images/ztachip_hero.svg)
+![ztachip Architecture](./Documentation/images/ztachip_ai_agent.png)
 
 ---
 
