@@ -43,11 +43,6 @@ code { background:#e4e6e8; color:#1f2328; padding:1px 4px; border-radius:4px;
        font-family:'Cascadia Code',Consolas,'Liberation Mono',monospace;
        font-size:13px; }
 
-.c-com { color:#6a737d; font-style:italic; }
-.c-str { color:#032f62; }
-.c-key { color:#d73a49; }
-.c-num { color:#005cc5; }
-.c-pre { color:#e36209; }
 
 table { border-collapse:collapse; margin:8px 0 16px 0; }
 th, td { border:1px solid #c9ced4; padding:6px 10px; vertical-align:top; }
@@ -56,38 +51,9 @@ th { background:#eef1f4; text-align:left; }
 details > summary { cursor:pointer; }
 """
 
-# --------------------------------------------------------- syntax colouring ----
-KEYWORDS = set("""auto break case char const continue default do double else enum
-extern float for goto if inline int long register return short signed sizeof static
-struct switch typedef union unsigned void volatile while bool true false uint8_t
-uint16_t uint32_t int8_t int16_t int32_t size_t class public private virtual new
-delete this namespace using template import from def lambda None True False and or
-not in is elif except raise with as pass global nonlocal yield assert""".split())
-
-TOKEN = re.compile(r"""
-    (?P<com>//[^\n]*|\#[^\n]*|/\*.*?\*/)
-  | (?P<str>"[^"\n]*"|'[^'\n]*')
-  | (?P<pre>^\s*\#\s*(?:include|define|ifdef|ifndef|endif)\b[^\n]*)
-  | (?P<num>\b\d+\b)
-  | (?P<word>[A-Za-z_]\w*)
-""", re.X | re.S | re.M)
-
-
 def highlight(code, lang):
-    out, last = [], 0
-    for m in TOKEN.finditer(code):
-        out.append(html.escape(code[last:m.start()]))
-        kind = m.lastgroup
-        text = html.escape(m.group())
-        if kind == 'word':
-            out.append(f'<span class="c-key">{text}</span>'
-                       if m.group() in KEYWORDS else text)
-        else:
-            cls = {'com': 'c-com', 'str': 'c-str', 'num': 'c-num', 'pre': 'c-pre'}[kind]
-            out.append(f'<span class="{cls}">{text}</span>')
-        last = m.end()
-    out.append(html.escape(code[last:]))
-    return ''.join(out)
+    """Code is rendered as plain text: no token colouring."""
+    return html.escape(code)
 
 
 # ------------------------------------------------------------ inline markup ----
@@ -341,7 +307,9 @@ for src in sources:
                 '', md, flags=re.S)
 
     body = render(md)
-    panel = sidebar(body, html.escape(title), home)
+    # the launcher is the navigation; it needs no panel of its own
+    panel = ('' if os.path.basename(src) == 'index.md'
+             else sidebar(body, html.escape(title), home))
     body = (f'<div class="layout">{panel}<div class="main">{body}</div></div>'
             if panel else body)
     dest = os.path.join(out_dir, doc_names[os.path.basename(src)])
