@@ -791,8 +791,3 @@ Same as 2.7.1
 #### 4.1.3 ZtaStatus Unload()
 
 Unload and close the current TensorFlowLite model.
-
-
-</div>
-
-</div>

@@ -17,6 +17,7 @@ import os
 import shutil
 import re
 import sys
+from urllib.parse import quote
 
 # ------------------------------------------------------------------- style ----
 CSS = """
@@ -182,15 +183,13 @@ SIDE = """
 .side .plate { background:#d6e8ff; color:#0b2545; padding:9px 10px;
         border-radius:6px; text-align:center; font-weight:bold;
         margin:0 0 14px 0; line-height:1.35; }
-.side .home { display:inline-block; margin-bottom:12px; padding:5px 10px;
-        background:#1f2937; color:#e8eaed; border:1px solid #3a4553;
-        border-radius:5px; font-size:12px; }
 .main { flex:1 1 auto; min-width:0; padding:0 30px; max-width:940px; }
 .page { padding:0 40px; max-width:960px; margin:0 auto; }
 
 /* landing page */
-.hero { text-align:center; padding:44px 24px 30px 24px; margin:0 0 6px 0;
+.hero { text-align:center; padding:38px 24px 30px 24px; margin:0 0 6px 0;
         background:#0b2545; color:#ffffff; border-radius:12px; }
+.hero .mark { width:66px; height:66px; display:block; margin:0 auto 16px auto; }
 .hero h1 { margin:0 0 12px 0; font-size:36px; color:#ffffff;
         border:0; letter-spacing:-0.5px; }
 .hero p { margin:0 auto; max-width:640px; font-size:17px; color:#c8d6e8;
@@ -206,16 +205,20 @@ SIDE = """
         margin-bottom:7px; }
 .card .d { display:block; color:#41484f; font-size:14px; line-height:1.55; }
 
-/* show / hide the navigation panel */
-.navbtn { position:fixed; top:10px; left:10px; z-index:40; cursor:pointer;
+/* toolbar: show / hide the navigation panel, and return home */
+.navbar { position:fixed; top:10px; left:10px; z-index:40;
+        display:flex; align-items:flex-start; gap:8px; }
+.navbtn { display:inline-flex; align-items:center; justify-content:center;
+        width:36px; height:31px; padding:0; cursor:pointer;
         background:#1f2937; color:#e8eaed; border:1px solid #3a4553;
-        border-radius:6px; padding:7px 12px; font-size:13px;
-        font-family:inherit; }
+        border-radius:6px;
+        box-shadow:0 2px 0 #080d13, inset 0 1px 0 rgba(255,255,255,.10); }
 .navbtn:hover { background:#2b3a4d; }
+.navbtn .ico { width:17px; height:17px; fill:currentColor; display:block; }
+/* the contents button sits pressed in while the panel is open */
+body:not(.nav-hidden) .navtoggle { background:#0c131b; border-color:#26313f;
+        box-shadow:inset 0 2px 5px rgba(0,0,0,.7); transform:translateY(2px); }
 body.nav-hidden .side { display:none; }
-.navbtn .lbl-show { display:none; }
-body.nav-hidden .navbtn .lbl-show { display:inline; }
-body.nav-hidden .navbtn .lbl-hide { display:none; }
 
 /* phones: the panel covers the screen, and closes once a section is chosen */
 @media (max-width:820px) {
@@ -245,9 +248,45 @@ document.addEventListener('click', function (e) {
 </script>
 """
 
-NAV_BUTTON = ('<button class="navbtn" onclick="navToggle()">'
-              '<span class="lbl-hide">&#9776; Hide contents</span>'
-              '<span class="lbl-show">&#9776; Contents</span></button>')
+# Four bars for the contents button, a house for the home button.
+ICON_BARS = ('<svg class="ico" viewBox="0 0 16 16" aria-hidden="true">'
+             '<rect x="1" y="1" width="14" height="2" rx="1"/>'
+             '<rect x="1" y="5" width="14" height="2" rx="1"/>'
+             '<rect x="1" y="9" width="14" height="2" rx="1"/>'
+             '<rect x="1" y="13" width="14" height="2" rx="1"/></svg>')
+ICON_HOME = ('<svg class="ico" viewBox="0 0 16 16" aria-hidden="true">'
+             '<path d="M8 1.2 0.7 7.6h1.9V14.6h4V10.4h2.8v4.2h4V7.6h1.9z"/></svg>')
+
+
+def nav_bar(home):
+    """The floating toolbar: contents toggle, then the home button."""
+    out = ['<div class="navbar">',
+           '<button class="navbtn navtoggle" onclick="navToggle()"'
+           ' title="Show or hide the contents" aria-label="Contents">'
+           f'{ICON_BARS}</button>']
+    if home:
+        out.append(f'<a class="navbtn" href="{home}" title="Home"'
+                   f' aria-label="Home">{ICON_HOME}</a>')
+    out.append('</div>')
+    return ''.join(out)
+
+
+# The project mark: a tile grid with one live cell, as on the old site.
+LOGO_TILES = [(2, 2), (22, 2), (42, 2),
+              (2, 22), (22, 22), (42, 22),
+              (2, 42), (22, 42), (42, 42)]
+
+
+def logo(tile, live):
+    cells = ''.join(
+        f'<rect x="{x}" y="{y}" width="16" height="16" rx="4" fill="'
+        f'{live if (x, y) == (22, 22) else tile}"/>' for x, y in LOGO_TILES)
+    return f'<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">{cells}</svg>'
+
+
+HERO_LOGO = logo('#ffffff', '#2fd3c0').replace(
+    '<svg ', '<svg class="mark" aria-hidden="true" ')
+FAVICON = 'data:image/svg+xml,' + quote(logo('#454f5f', '#2fd3c0'))
 
 
 def build_landing(body):
@@ -257,7 +296,7 @@ def build_landing(body):
         r'<h3[^>]*><a href="([^"]+)">(.*?)</a></h3>\s*<p>(.*?)</p>', body, re.S)
     if not (hero and cards):
         return body
-    out = [f'<div class="hero">{hero.group(1)}{hero.group(2)}</div>',
+    out = [f'<div class="hero">{HERO_LOGO}{hero.group(1)}{hero.group(2)}</div>',
            '<div class="cards">']
     for href, title, desc in cards:
         out.append(f'<a class="card" href="{href}">'
@@ -267,14 +306,12 @@ def build_landing(body):
     return '\n'.join(out)
 
 
-def sidebar(body, title, home):
+def sidebar(body, title):
     """Build the navigation panel from the headings of the rendered page."""
     heads = re.findall(r'<h([2-4]) id="([^"]+)">(.*?)</h\1>', body)
     if not heads:
         return ''
     out = ['<div class="side">']
-    if home:
-        out.append(f'<a class="home" href="{home}">&#8592; Home</a>')
     out.append(f'<div class="plate">{title}</div>')
     out.append('<b>Contents</b>')
     depth = 0
@@ -298,6 +335,7 @@ PAGE = """<!DOCTYPE html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{title}</title>
+<link rel="icon" href="{favicon}">
 <style>{css}{side}</style>
 </head>
 <body>
@@ -387,18 +425,19 @@ for src in sources:
     body = render(md)
     # the launcher is the navigation; it needs no panel of its own
     panel = ('' if os.path.basename(src) == 'index.md'
-             else sidebar(body, html.escape(title), home))
+             else sidebar(body, html.escape(title)))
     if os.path.basename(src) == 'index.md':
         body = build_landing(body)
 
     if panel:
         body = (f'<div class="layout">{panel}'
-                f'<div class="main">{NAV_BUTTON}{body}</div></div>{NAV_JS}')
+                f'<div class="main">{nav_bar(home)}{body}</div></div>{NAV_JS}')
     else:
         body = f'<div class="page">{body}</div>'
     dest = os.path.join(out_dir, doc_names[os.path.basename(src)])
     open(dest, 'w', encoding='utf-8').write(
-        PAGE.format(title=html.escape(title), css=CSS, side=SIDE, body=body))
+        PAGE.format(title=html.escape(title), css=CSS, side=SIDE,
+                    favicon=FAVICON, body=body))
     print(f'  {dest}')
 
 # redirects from the old site's page names

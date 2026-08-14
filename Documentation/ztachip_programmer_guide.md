@@ -2283,8 +2283,3 @@ The following tensor/pcore programs are available.
 | Image resize | ztachip/SW/apps/resize/kernels/resize.m<br>ztachip/SW/apps/resize/kernels/resize.p |
 | TensorFlow's CONV layer | ztachip/SW/apps/nn/kernels/conv.m<br>ztachip/SW/apps/nn/kernels/conv.p |
 | TensorFlow's FCN layer. | ztachip/SW/apps/nn/kernels/fcn.m<br>ztachip/SW/apps/nn/kernels/fcn.p |
-
-
-</div>
-
-</div>
