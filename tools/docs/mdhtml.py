@@ -266,6 +266,32 @@ PAGE = """<!DOCTYPE html>
 GITHUB = 'https://github.com/ztachip/ztachip/blob/master/'
 MEDIA = 'media'
 
+# Page names used by the previous documentation site. Links to them are still
+# out in the wild, so the build leaves a redirect at each old name.
+REDIRECTS = {
+    'overview.html': 'Overview.html',
+    'hardware_design.html': 'HardwareDesign.html',
+    'programmer_guide.html': 'ztachip_programmer_guide.html',
+    'visionai_guide.html': 'visionai_programmer_guide.html',
+    'micropython_guide.html': 'MicropythonUserGuide.html',
+    'genindex.html': 'index.html',
+    'search.html': 'index.html',
+}
+
+REDIRECT_PAGE = '''<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="refresh" content="0; url={target}">
+<link rel="canonical" href="{target}">
+<title>Moved</title>
+</head>
+<body>
+<p>This page has moved to <a href="{target}">{target}</a>.</p>
+</body>
+</html>
+'''
+
 out_dir = sys.argv[1]
 os.makedirs(os.path.join(out_dir, MEDIA), exist_ok=True)
 sources = sys.argv[2:]
@@ -322,3 +348,11 @@ for src in sources:
     open(dest, 'w', encoding='utf-8').write(
         PAGE.format(title=html.escape(title), css=CSS, side=SIDE, body=body))
     print(f'  {dest}')
+
+# redirects from the old site's page names
+for old, new in REDIRECTS.items():
+    if old in doc_names.values():          # never shadow a real page
+        continue
+    with open(os.path.join(out_dir, old), 'w', encoding='utf-8') as fh:
+        fh.write(REDIRECT_PAGE.format(target=new))
+    print(f'  {os.path.join(out_dir, old)} -> {new}')
