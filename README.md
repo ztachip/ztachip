@@ -2,13 +2,14 @@
 
 **An open-source AI accelerator for edge devices — computer vision and AI inference, including state-of-the-art LLM/VLM models, on a low-cost FPGA or a custom ASIC**
 
-ztachip is an AI accelerator you build into your own hardware, targeting **FPGAs**
-and **ASICs**. An FPGA is where most people start: attach a camera and a VGA
-display to a low-cost Artix-7 development board, load the image, and it runs real
-workloads — edge detection, optical flow, motion detection and colour conversion,
-TensorFlow models, and large vision/language models, with nothing sent to a
-server. For more advanced users with more resources, the same design is easy to
-port into a **custom ASIC**, a larger FPGA, or an SoC alongside your own logic.
+ztachip is an AI accelerator for **RISC-V** running on edge devices. It is built
+primarily for **FPGAs** — programmable chips you configure yourself, so no chip
+fabrication is involved and a low-cost development board is all you need to get
+started. Attach a camera and a VGA display to an Artix-7 board, load the image,
+and it runs real workloads: edge detection, optical flow, motion detection and
+colour conversion, TensorFlow models, and large vision/language models, with
+nothing sent to a server. The same design can also be taken into a **custom
+ASIC**, for advanced users with the resources for it.
 
 What makes it interesting is efficiency rather than peak speed. Modern AI
 inference with LLM/VLM at the edge is limited by memory bandwidth, not compute —
