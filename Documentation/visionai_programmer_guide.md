@@ -1,115 +1,53 @@
-<div style="display:flex; align-items:flex-start; gap:0; background:#ffffff; color:#24292f;">
+[&#8592; Home](index.md)
 
-<div style="flex:0 0 auto; width:200px; min-width:120px; max-width:70%; resize:horizontal; overflow:auto; height:100vh; box-sizing:border-box; position:sticky; top:0; padding:12px 14px 24px 14px; background:#000000; color:#e8eaed; font-size:13px; line-height:1.7;">
+# ztachip Vision-AI Stack Programmer Guide
 
-<a href="index.md" style="display:inline-block; margin-bottom:12px; padding:5px 10px; background:#1f2937; color:#e8eaed; border:1px solid #3a4553; border-radius:5px; text-decoration:none; font-size:12px;">&#8592; Home</a>
+<details>
+<summary><b>Contents</b></summary>
 
-<div style="background:#d6e8ff; color:#0b2545; padding:9px 10px; border-radius:6px; text-align:center; font-weight:bold; font-size:13px; line-height:1.35; margin-bottom:14px;">ZTACHIP Vision-AI Stack<br>Programmer Guide</div>
+- [1. INTRODUCTION](#1-introduction)
+- [2. GRAPH FRAMEWORK](#2-graph-framework)
+  - [2.1 Graph structure](#21-graph-structure)
+  - [2.2 TENSOR](#22-tensor)
+    - [2.2.1 Class Interface](#221-class-interface)
+    - [2.2.2 Data Types](#222-data-types)
+  - [2.3 GraphNode Class](#23-graphnode-class)
+    - [2.3.1 Class Interface](#231-class-interface)
+    - [2.3.2 Example of implementing a graph node.](#232-example-of-implementing-a-graph-node)
+  - [2.4 Graph](#24-graph)
+    - [2.4.1 Class Interface](#241-class-interface)
+    - [2.4.2 Example running a single graph](#242-example-running-a-single-graph)
+    - [2.4.3 Example running multiple graphs](#243-example-running-multiple-graphs)
+- [3. VISION STACK](#3-vision-stack)
+  - [3.1 GraphNodeCanny](#31-graphnodecanny)
+    - [3.1.1 GraphNodeCanny(TENSOR *input,TENSOR *output)](#311-graphnodecannytensor-inputtensor-output)
+    - [3.1.2 Create(TENSOR *input,TENSOR *output)](#312-createtensor-inputtensor-output)
+    - [3.1.3 void SetThreshold(int _loThreshold,int _hiThreshold)](#313-void-setthresholdint-_lothresholdint-_hithreshold)
+    - [3.1.4 void GetThreshold(int *_loThreshold,int *_hiThreshold)](#314-void-getthresholdint-_lothresholdint-_hithreshold)
+  - [3.2 GraphNodeColorAndReshape](#32-graphnodecolorandreshape)
+    - [3.2.1 GraphNodeColorAndReshape( TENSOR *input, TENSOR *output, TensorObjType _dstColorSpace, TensorFormat _dstFormat, int clip_x=0, int clip_y=0, int clip_w=0, int clip_h=0, int dst_x=0, int dst_y=0, int dst_w=0, int dst_h=0)](#321-graphnodecolorandreshape-tensor-input-tensor-output-tensorobjtype-_dstcolorspace-tensorformat-_dstformat-int-clip_x0-int-clip_y0-int-clip_w0-int-clip_h0-int-dst_x0-int-dst_y0-int-dst_w0-int-dst_h0)
+    - [3.2.2 Create( TENSOR *input, TENSOR *output, TensorObjType _dstColorSpace, TensorFormat _dstFormat, int clip_x=0, int clip_y=0, int clip_w=0, int clip_h=0, int dst_x=0, int dst_y=0, int dst_w=0, int dst_h=0)](#322-create-tensor-input-tensor-output-tensorobjtype-_dstcolorspace-tensorformat-_dstformat-int-clip_x0-int-clip_y0-int-clip_w0-int-clip_h0-int-dst_x0-int-dst_y0-int-dst_w0-int-dst_h0)
+  - [3.3 GraphNodeGaussian](#33-graphnodegaussian)
+    - [3.3.1 GraphNodeGaussian(TENSOR *input,TENSOR *output)](#331-graphnodegaussiantensor-inputtensor-output)
+    - [3.3.2 ZtaStatus Create(TENSOR *input,TENSOR *output)](#332-ztastatus-createtensor-inputtensor-output)
+    - [3.3.3 void SetSigma(float _sigma)](#333-void-setsigmafloat-_sigma)
+    - [3.3.4 float GetSigma()](#334-float-getsigma)
+  - [3.4 GraphNodeHarris](#34-graphnodeharris)
+    - [3.4.1 GraphNodeHarris(TENSOR *input,TENSOR *output)](#341-graphnodeharristensor-inputtensor-output)
+    - [3.4.2 ZtaStatus Create(TENSOR *input,TENSOR *output)](#342-ztastatus-createtensor-inputtensor-output)
+  - [3.5 GraphNodeOpticalFlow](#35-graphnodeopticalflow)
+    - [3.5.1 GraphNodeOpticalFlow(TENSOR *input1, TENSOR *x_gradient, TENSOR *y_gradient, TENSOR *t_gradient, TENSOR *x_vect, TENSOR *y_vect, TENSOR *display)](#351-graphnodeopticalflowtensor-input1-tensor-x_gradient-tensor-y_gradient-tensor-t_gradient-tensor-x_vect-tensor-y_vect-tensor-display)
+    - [3.5.2 ZtaStatus Create(TENSOR *input1, TENSOR *x_gradient, TENSOR *y_gradient, TENSOR *t_gradient, TENSOR *x_vect, TENSOR *y_vect, TENSOR *display)](#352-ztastatus-createtensor-input1-tensor-x_gradient-tensor-y_gradient-tensor-t_gradient-tensor-x_vect-tensor-y_vect-tensor-display)
+  - [3.6 GraphNodeResize](#36-graphnoderesize)
+    - [3.6.1 GraphNodeResize(TENSOR *input,TENSOR *output,int w,int h)](#361-graphnoderesizetensor-inputtensor-outputint-wint-h)
+    - [3.6.2 ZtaStatus Create(TENSOR *input,TENSOR *output,int w,int h)](#362-ztastatus-createtensor-inputtensor-outputint-wint-h)
+- [4. AI STACK](#4-ai-stack)
+  - [4.1 TfliteNn](#41-tflitenn)
+    - [4.1.1 ZtaStatus Create(const char *fname,TENSOR *_input, int numOutput,...)](#411-ztastatus-createconst-char-fnametensor-_input-int-numoutput)
+    - [4.1.2 ZtaStatus Load(const char *fname,TENSOR *_input, int numOutput,...)](#412-ztastatus-loadconst-char-fnametensor-_input-int-numoutput)
+    - [4.1.3 ZtaStatus Unload()](#413-ztastatus-unload)
 
-<b>Contents</b>
-
-<details open>
-<summary><b><a href="#1-introduction" style="color:#e8eaed; text-decoration:none;">1. INTRODUCTION</a></b></summary>
 </details>
-
-<details open>
-<summary><b><a href="#2-graph-framework" style="color:#e8eaed; text-decoration:none;">2. GRAPH FRAMEWORK</a></b></summary>
-<ul style="margin:4px 0 4px 6px; padding-left:14px;">
-<li><a href="#21-graph-structure" style="color:#e8eaed; text-decoration:none;">2.1 Graph structure</a></li>
-<li><details>
-<summary><a href="#22-tensor" style="color:#e8eaed; text-decoration:none;">2.2 TENSOR</a></summary>
-<ul style="margin:2px 0 2px 4px; padding-left:14px;">
-<li><a href="#221-class-interface" style="color:#e8eaed; text-decoration:none;">2.2.1 Class Interface</a></li>
-<li><a href="#222-data-types" style="color:#e8eaed; text-decoration:none;">2.2.2 Data Types</a></li>
-</ul>
-</details></li>
-<li><details>
-<summary><a href="#23-graphnode-class" style="color:#e8eaed; text-decoration:none;">2.3 GraphNode Class</a></summary>
-<ul style="margin:2px 0 2px 4px; padding-left:14px;">
-<li><a href="#231-class-interface" style="color:#e8eaed; text-decoration:none;">2.3.1 Class Interface</a></li>
-<li><a href="#232-example-of-implementing-a-graph-node" style="color:#e8eaed; text-decoration:none;">2.3.2 Example of implementing a graph node.</a></li>
-</ul>
-</details></li>
-<li><details>
-<summary><a href="#24-graph" style="color:#e8eaed; text-decoration:none;">2.4 Graph</a></summary>
-<ul style="margin:2px 0 2px 4px; padding-left:14px;">
-<li><a href="#241-class-interface" style="color:#e8eaed; text-decoration:none;">2.4.1 Class Interface</a></li>
-<li><a href="#242-example-running-a-single-graph" style="color:#e8eaed; text-decoration:none;">2.4.2 Example running a single graph</a></li>
-<li><a href="#243-example-running-multiple-graphs" style="color:#e8eaed; text-decoration:none;">2.4.3 Example running multiple graphs</a></li>
-</ul>
-</details></li>
-</ul>
-</details>
-
-<details open>
-<summary><b><a href="#3-vision-stack" style="color:#e8eaed; text-decoration:none;">3. VISION STACK</a></b></summary>
-<ul style="margin:4px 0 4px 6px; padding-left:14px;">
-<li><details>
-<summary><a href="#31-graphnodecanny" style="color:#e8eaed; text-decoration:none;">3.1 GraphNodeCanny</a></summary>
-<ul style="margin:2px 0 2px 4px; padding-left:14px;">
-<li><a href="#311-graphnodecannytensor-inputtensor-output" style="color:#e8eaed; text-decoration:none;">3.1.1 GraphNodeCanny(TENSOR *input,TENSOR *output)</a></li>
-<li><a href="#312-createtensor-inputtensor-output" style="color:#e8eaed; text-decoration:none;">3.1.2 Create(TENSOR *input,TENSOR *output)</a></li>
-<li><a href="#313-void-setthresholdint-_lothresholdint-_hithreshold" style="color:#e8eaed; text-decoration:none;">3.1.3 void SetThreshold(int _loThreshold,int _hiThreshold)</a></li>
-<li><a href="#314-void-getthresholdint-_lothresholdint-_hithreshold" style="color:#e8eaed; text-decoration:none;">3.1.4 void GetThreshold(int *_loThreshold,int *_hiThreshold)</a></li>
-</ul>
-</details></li>
-<li><details>
-<summary><a href="#32-graphnodecolorandreshape" style="color:#e8eaed; text-decoration:none;">3.2 GraphNodeColorAndReshape</a></summary>
-<ul style="margin:2px 0 2px 4px; padding-left:14px;">
-<li><a href="#321-graphnodecolorandreshape-tensor-input-tensor-output-tensorobjtype-_dstcolorspace-tensorformat-_dstformat-int-clip_x0-int-clip_y0-int-clip_w0-int-clip_h0-int-dst_x0-int-dst_y0-int-dst_w0-int-dst_h0" style="color:#e8eaed; text-decoration:none;">3.2.1 GraphNodeColorAndReshape( TENSOR *input, TENSOR *output, TensorObjType _dstColorSpace, TensorFormat _dstFormat, int clip_x=0, int clip_y=0, int clip_w=0, int clip_h=0, int dst_x=0, int dst_y=0, int dst_w=0, int dst_h=0)</a></li>
-<li><a href="#322-create-tensor-input-tensor-output-tensorobjtype-_dstcolorspace-tensorformat-_dstformat-int-clip_x0-int-clip_y0-int-clip_w0-int-clip_h0-int-dst_x0-int-dst_y0-int-dst_w0-int-dst_h0" style="color:#e8eaed; text-decoration:none;">3.2.2 Create( TENSOR *input, TENSOR *output, TensorObjType _dstColorSpace, TensorFormat _dstFormat, int clip_x=0, int clip_y=0, int clip_w=0, int clip_h=0, int dst_x=0, int dst_y=0, int dst_w=0, int dst_h=0)</a></li>
-</ul>
-</details></li>
-<li><details>
-<summary><a href="#33-graphnodegaussian" style="color:#e8eaed; text-decoration:none;">3.3 GraphNodeGaussian</a></summary>
-<ul style="margin:2px 0 2px 4px; padding-left:14px;">
-<li><a href="#331-graphnodegaussiantensor-inputtensor-output" style="color:#e8eaed; text-decoration:none;">3.3.1 GraphNodeGaussian(TENSOR *input,TENSOR *output)</a></li>
-<li><a href="#332-ztastatus-createtensor-inputtensor-output" style="color:#e8eaed; text-decoration:none;">3.3.2 ZtaStatus Create(TENSOR *input,TENSOR *output)</a></li>
-<li><a href="#333-void-setsigmafloat-_sigma" style="color:#e8eaed; text-decoration:none;">3.3.3 void SetSigma(float _sigma)</a></li>
-<li><a href="#334-float-getsigma" style="color:#e8eaed; text-decoration:none;">3.3.4 float GetSigma()</a></li>
-</ul>
-</details></li>
-<li><details>
-<summary><a href="#34-graphnodeharris" style="color:#e8eaed; text-decoration:none;">3.4 GraphNodeHarris</a></summary>
-<ul style="margin:2px 0 2px 4px; padding-left:14px;">
-<li><a href="#341-graphnodeharristensor-inputtensor-output" style="color:#e8eaed; text-decoration:none;">3.4.1 GraphNodeHarris(TENSOR *input,TENSOR *output)</a></li>
-<li><a href="#342-ztastatus-createtensor-inputtensor-output" style="color:#e8eaed; text-decoration:none;">3.4.2 ZtaStatus Create(TENSOR *input,TENSOR *output)</a></li>
-</ul>
-</details></li>
-<li><details>
-<summary><a href="#35-graphnodeopticalflow" style="color:#e8eaed; text-decoration:none;">3.5 GraphNodeOpticalFlow</a></summary>
-<ul style="margin:2px 0 2px 4px; padding-left:14px;">
-<li><a href="#351-graphnodeopticalflowtensor-input1-tensor-x_gradient-tensor-y_gradient-tensor-t_gradient-tensor-x_vect-tensor-y_vect-tensor-display" style="color:#e8eaed; text-decoration:none;">3.5.1 GraphNodeOpticalFlow(TENSOR *input1, TENSOR *x_gradient, TENSOR *y_gradient, TENSOR *t_gradient, TENSOR *x_vect, TENSOR *y_vect, TENSOR *display)</a></li>
-<li><a href="#352-ztastatus-createtensor-input1-tensor-x_gradient-tensor-y_gradient-tensor-t_gradient-tensor-x_vect-tensor-y_vect-tensor-display" style="color:#e8eaed; text-decoration:none;">3.5.2 ZtaStatus Create(TENSOR *input1, TENSOR *x_gradient, TENSOR *y_gradient, TENSOR *t_gradient, TENSOR *x_vect, TENSOR *y_vect, TENSOR *display)</a></li>
-</ul>
-</details></li>
-<li><details>
-<summary><a href="#36-graphnoderesize" style="color:#e8eaed; text-decoration:none;">3.6 GraphNodeResize</a></summary>
-<ul style="margin:2px 0 2px 4px; padding-left:14px;">
-<li><a href="#361-graphnoderesizetensor-inputtensor-outputint-wint-h" style="color:#e8eaed; text-decoration:none;">3.6.1 GraphNodeResize(TENSOR *input,TENSOR *output,int w,int h)</a></li>
-<li><a href="#362-ztastatus-createtensor-inputtensor-outputint-wint-h" style="color:#e8eaed; text-decoration:none;">3.6.2 ZtaStatus Create(TENSOR *input,TENSOR *output,int w,int h)</a></li>
-</ul>
-</details></li>
-</ul>
-</details>
-
-<details open>
-<summary><b><a href="#4-ai-stack" style="color:#e8eaed; text-decoration:none;">4. AI STACK</a></b></summary>
-<ul style="margin:4px 0 4px 6px; padding-left:14px;">
-<li><details>
-<summary><a href="#41-tflitenn" style="color:#e8eaed; text-decoration:none;">4.1 TfliteNn</a></summary>
-<ul style="margin:2px 0 2px 4px; padding-left:14px;">
-<li><a href="#411-ztastatus-createconst-char-fnametensor-_input-int-numoutput" style="color:#e8eaed; text-decoration:none;">4.1.1 ZtaStatus Create(const char *fname,TENSOR *_input, int numOutput,...)</a></li>
-<li><a href="#412-ztastatus-loadconst-char-fnametensor-_input-int-numoutput" style="color:#e8eaed; text-decoration:none;">4.1.2 ZtaStatus Load(const char *fname,TENSOR *_input, int numOutput,...)</a></li>
-<li><a href="#413-ztastatus-unload" style="color:#e8eaed; text-decoration:none;">4.1.3 ZtaStatus Unload()</a></li>
-</ul>
-</details></li>
-</ul>
-</details>
-
-</div>
-
-<div style="flex:1 1 auto; min-width:0; background:#ffffff; color:#24292f; padding:0 24px;">
 
 ## 1. INTRODUCTION
 
@@ -144,7 +82,7 @@ ztachip graph framework is composed of the following C++ classes:
 
 Diagram below illustrates how the main objects of a Graph are interconnected.
 
-![Main objects of a Graph: TENSOR INPUT feeding a Graph of GraphNodes with intermediate tensors, producing TENSOR OUTPUT](assets/visionai-graph-objects.svg)
+![Main objects of a Graph](assets/visionai-graph-objects.svg)
 
 ### 2.2 TENSOR
 

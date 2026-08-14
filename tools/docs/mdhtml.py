@@ -198,13 +198,57 @@ def render(md):
     return '\n'.join(out)
 
 
+SIDE = """
+.layout { display:flex; align-items:flex-start; gap:0; }
+.side { flex:0 0 auto; width:230px; min-width:130px; max-width:70%;
+        resize:horizontal; overflow:auto; height:100vh; box-sizing:border-box;
+        position:sticky; top:0; background:#000000; color:#e8eaed;
+        padding:12px 14px 24px 14px; font-size:13px; line-height:1.7; }
+.side a { color:#e8eaed; text-decoration:none; }
+.side a:hover { text-decoration:underline; }
+.side ul { list-style:none; margin:4px 0 4px 4px; padding-left:12px; }
+.side .plate { background:#d6e8ff; color:#0b2545; padding:9px 10px;
+        border-radius:6px; text-align:center; font-weight:bold;
+        margin:0 0 14px 0; line-height:1.35; }
+.side .home { display:inline-block; margin-bottom:12px; padding:5px 10px;
+        background:#1f2937; color:#e8eaed; border:1px solid #3a4553;
+        border-radius:5px; font-size:12px; }
+.main { flex:1 1 auto; min-width:0; padding:0 26px; max-width:900px; }
+"""
+
+
+def sidebar(body, title, home):
+    """Build the navigation panel from the headings of the rendered page."""
+    heads = re.findall(r'<h([2-4]) id="([^"]+)">(.*?)</h\1>', body)
+    if not heads:
+        return ''
+    out = ['<div class="side">']
+    if home:
+        out.append(f'<a class="home" href="{home}">&#8592; Home</a>')
+    out.append(f'<div class="plate">{title}</div>')
+    out.append('<b>Contents</b>')
+    depth = 0
+    for lvl, hid, text in heads:
+        lvl = int(lvl) - 1
+        text = re.sub(r'<[^>]+>', '', text)
+        text = re.sub(r'\s*[(\[].*$', '', text).strip() or text
+        while depth < lvl:
+            out.append('<ul>'); depth += 1
+        while depth > lvl:
+            out.append('</ul>'); depth -= 1
+        out.append(f'<li><a href="#{hid}">{text}</a></li>')
+    out += ['</ul>'] * depth
+    out.append('</div>')
+    return '\n'.join(out)
+
+
 PAGE = """<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{title}</title>
-<style>{css}</style>
+<style>{css}{side}</style>
 </head>
 <body>
 {body}
@@ -238,9 +282,22 @@ for spec in sys.argv[2:]:
     md = re.sub(r'(<a href=")([^"]+)(")', lambda m: m.group(1) + fix(m.group(2)) + m.group(3), md)
     md = re.sub(r'(<img src=")([^"]+)(")', lambda m: m.group(1) + fix(m.group(2)) + m.group(3), md)
 
-    title = re.search(r'>([^<>]+?)</div>', md)
-    title = re.sub(r'<br>', ' ', title.group(1)).strip() if title else os.path.basename(src)
+    m = re.search(r'^#\s+(.*)$', md, re.M)
+    title = m.group(1).strip() if m else os.path.basename(src)
+    # the link rewrite above already points this at the html build
+    home = re.search(r'\[&#8592; Home\]\(([^)]+)\)', md)
+    home = home.group(1) if home else ''
+
+    # the panel replaces the in-page contents block and the home link
+    md = re.sub(r'\[&#8592; Home\]\([^)]+\)\n', '', md)
+    md = re.sub(r'<details>\s*\n<summary><b>Contents</b></summary>.*?</details>',
+                '', md, flags=re.S)
+
+    body = render(md)
+    panel = sidebar(body, html.escape(title), home)
+    body = (f'<div class="layout">{panel}<div class="main">{body}</div></div>'
+            if panel else body)
     dest = os.path.join(out_dir, doc_names[os.path.basename(src)])
     open(dest, 'w', encoding='utf-8').write(
-        PAGE.format(title=html.escape(title), css=CSS, body=render(md)))
+        PAGE.format(title=html.escape(title), css=CSS, side=SIDE, body=body))
     print(f'  {dest}')

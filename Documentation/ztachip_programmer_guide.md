@@ -1,195 +1,107 @@
-<div style="display:flex; align-items:flex-start; gap:0; background:#ffffff; color:#24292f;">
+[&#8592; Home](index.md)
 
-<div style="flex:0 0 auto; width:200px; min-width:120px; max-width:70%; resize:horizontal; overflow:auto; height:100vh; box-sizing:border-box; position:sticky; top:0; padding:12px 14px 24px 14px; background:#000000; color:#e8eaed; font-size:13px; line-height:1.7;">
+# ztachip Programmer's Guide
 
-<a href="index.md" style="display:inline-block; margin-bottom:12px; padding:5px 10px; background:#1f2937; color:#e8eaed; border:1px solid #3a4553; border-radius:5px; text-decoration:none; font-size:12px;">&#8592; Home</a>
+<details>
+<summary><b>Contents</b></summary>
 
-<div style="background:#d6e8ff; color:#0b2545; padding:9px 10px; border-radius:6px; text-align:center; font-weight:bold; font-size:13px; line-height:1.35; margin-bottom:14px;">ztachip<br>Programmer's Guide</div>
+- [1. Introduction](#1-introduction)
+  - [1.1 tensor programs](#11-tensor-programs)
+  - [1.2 pcore programs](#12-pcore-programs)
+  - [1.3 Compare ztachip DSL with traditional programming](#13-compare-ztachip-dsl-with-traditional-programming)
+- [2. TENSOR PROGRAMS](#2-tensor-programs)
+  - [2.1 Tensor data object definition](#21-tensor-data-object-definition)
+    - [2.1.1 Tensor data objects in DDR memory space](#211-tensor-data-objects-in-ddr-memory-space)
+    - [2.1.2 Tensor data objects in PCORE private memory space](#212-tensor-data-objects-in-pcore-private-memory-space)
+    - [2.1.3 Tensor data objects in p-core shared memory space](#213-tensor-data-objects-in-p-core-shared-memory-space)
+    - [2.1.4 Tensor data objects in SCRATCH memory space](#214-tensor-data-objects-in-scratch-memory-space)
+  - [2.2 Tensor variables.](#22-tensor-variables)
+    - [2.2.1 Tensor variables - example 1](#221-tensor-variables---example-1)
+    - [2.2.2 Tensor variables – example 2](#222-tensor-variables-example-2)
+  - [2.3 Tensor data transfer instructions](#23-tensor-data-transfer-instructions)
+    - [2.3.1 Tensor data transfer from DDR to PCORE private memory space](#231-tensor-data-transfer-from-ddr-to-pcore-private-memory-space)
+    - [2.3.2 Tensor data transfer from DDR to PCORE shared memory space.](#232-tensor-data-transfer-from-ddr-to-pcore-shared-memory-space)
+    - [2.3.3 Tensor data transfer from DDR to tensor operator's parameters](#233-tensor-data-transfer-from-ddr-to-tensor-operators-parameters)
+    - [2.3.4 Tensor data transfer from tensor operator's parameters to DDR](#234-tensor-data-transfer-from-tensor-operators-parameters-to-ddr)
+    - [2.3.5 Tensor data transfer from DDR to SCRATCH](#235-tensor-data-transfer-from-ddr-to-scratch)
+    - [2.3.6 Tensor data transfer from SCRATCH to DDR](#236-tensor-data-transfer-from-scratch-to-ddr)
+    - [2.3.7 Tensor data transfer from SCRATCH to DDR](#237-tensor-data-transfer-from-scratch-to-ddr)
+    - [2.3.8 Setting tensor operator's global parameters](#238-setting-tensor-operators-global-parameters)
+    - [2.3.9 Broadcast transfer to PCORE memory space.](#239-broadcast-transfer-to-pcore-memory-space)
+    - [2.3.10 Multi-cast transfer to PCORE memory space.](#2310-multi-cast-transfer-to-pcore-memory-space)
+    - [2.3.11 Tensor reshaping](#2311-tensor-reshaping)
+    - [2.3.12 Setting Out-of-bound access values](#2312-setting-out-of-bound-access-values)
+    - [2.3.13 Dimension casting](#2313-dimension-casting)
+    - [2.3.14 Data reordering](#2314-data-reordering)
+    - [2.3.15 Concurrent transfer](#2315-concurrent-transfer)
+    - [2.3.16 Tensor transfer with boundary check disabled.](#2316-tensor-transfer-with-boundary-check-disabled)
+    - [2.3.17 Tensor transfer with overlay dimension](#2317-tensor-transfer-with-overlay-dimension)
+    - [2.3.18 Tensor padding values](#2318-tensor-padding-values)
+    - [2.3.19 Tensor transfer data types](#2319-tensor-transfer-data-types)
+    - [2.3.20 Tensor data transfer in REPEAT mode](#2320-tensor-data-transfer-in-repeat-mode)
+    - [2.3.21 Tensor data remap](#2321-tensor-data-remap)
+    - [2.3.22 BARRIER](#2322-barrier)
+    - [2.3.23 LATEST](#2323-latest)
+    - [2.3.24 CONSTANT FILLER](#2324-constant-filler)
+  - [2.4 Tensor operator execution](#24-tensor-operator-execution)
+    - [2.4.1 Tensor operator syntax](#241-tensor-operator-syntax)
+  - [2.5 FPU operators](#25-fpu-operators)
+    - [2.5.1 FPU operators definitions](#251-fpu-operators-definitions)
+    - [2.5.2 FPU memory-access/execution overlay](#252-fpu-memory-accessexecution-overlay)
+    - [2.5.3 FPU grouping](#253-fpu-grouping)
+  - [2.6 HOST SUPPORTING FUNCTIONS](#26-host-supporting-functions)
+    - [2.6.1 void ztaInit()](#261-void-ztainit)
+    - [2.6.2 void ztaDualHartExecute(void(*func)(void *,int),void *pparm)](#262-void-ztadualhartexecutevoidfuncvoid-intvoid-pparm)
+    - [2.6.3 void ztaTaskYield()](#263-void-ztataskyield)
+    - [2.6.4 uint32_t ztaBuildKernelFunc(uint32_t _func,int num_pcore,int num_tid)](#264-uint32_t-ztabuildkernelfuncuint32_t-_funcint-num_pcoreint-num_tid)
+    - [2.6.5 void *ztaAllocSharedMem(int _size)](#265-void-ztaallocsharedmemint-_size)
+    - [2.6.6 void *ztaFreeSharedMem(void *p)](#266-void-ztafreesharedmemvoid-p)
+    - [2.6.7 void *ztaBuildSpuBundle(int numSpuImg,...)](#267-void-ztabuildspubundleint-numspuimg)
+    - [2.6.8 void ztaInitPcore(uint16_t *_image)](#268-void-ztainitpcoreuint16_t-_image)
+    - [2.6.9 void ztaInitStream(uint16_t *_spu)](#269-void-ztainitstreamuint16_t-_spu)
+    - [2.6.10 void ztaJobDone(unsigned int job_id)](#2610-void-ztajobdoneunsigned-int-job_id)
+    - [2.6.11 bool ztaReadResponse(uint32_t *resp)](#2611-bool-ztareadresponseuint32_t-resp)
+- [3. PCORE PROGRAMS](#3-pcore-programs)
+  - [3.1 VLIW instructions](#31-vliw-instructions)
+    - [3.1.1 vector operations](#311-vector-operations)
+    - [3.1.2 scalar operations](#312-scalar-operations)
+    - [3.1.3 control operations](#313-control-operations)
+  - [3.2 General syntax](#32-general-syntax)
+  - [3.3 Class declaration](#33-class-declaration)
+  - [3.4 Memory layout](#34-memory-layout)
+  - [3.5 Tensor variables](#35-tensor-variables)
+    - [3.5.1 Data types](#351-data-types)
+    - [3.5.2 Variable types](#352-variable-types)
+  - [3.6 Tensor operators](#36-tensor-operators)
+  - [3.7 _VMASK](#37-_vmask)
+  - [3.8 COMPARISON OPERATORS](#38-comparison-operators)
+    - [3.8.1 GE(v1,v2)](#381-gev1v2)
+    - [3.8.2 GT(v1,v2)](#382-gtv1v2)
+    - [3.8.3 LE(v1,v2)](#383-lev1v2)
+    - [3.8.4 LT(v1,v2)](#384-ltv1v2)
+    - [3.8.5 EQ(v1,v2)](#385-eqv1v2)
+    - [3.8.6 NE(v1,v2)](#386-nev1v2)
+  - [3.9 FLOATING POINT OPERATORS](#39-floating-point-operators)
+    - [3.9.1 CONV_FLOAT](#391-conv_float)
+  - [3.10 SUBFIELD OPERATORS](#310-subfield-operators)
+    - [3.10.1 N0-N1](#3101-n0-n1)
+    - [3.10.2 B0-B1](#3102-b0-b1)
+- [4. DEBUGGING](#4-debugging)
+- [5. BUILD PROCEDURES](#5-build-procedures)
+  - [5.1 Example](#51-example)
+- [6. EXAMPLES](#6-examples)
+  - [6.1 Basic example](#61-basic-example)
+    - [6.1.1 Tensor program code (example.m)](#611-tensor-program-code-examplem)
+    - [6.1.2 pcore program code (example.p)](#612-pcore-program-code-examplep)
+  - [6.2 Example running dual tensor-threads](#62-example-running-dual-tensor-threads)
+    - [6.2.1 example.m](#621-examplem)
+    - [6.2.2 pcore program code (example.p)](#622-pcore-program-code-examplep)
+  - [6.3 Example of using tensor data-remap function.](#63-example-of-using-tensor-data-remap-function)
+    - [6.3.1 Tensor program code (example.m)](#631-tensor-program-code-examplem)
+    - [6.3.2 pcore program code (example.p)](#632-pcore-program-code-examplep)
+  - [6.4 More examples](#64-more-examples)
 
-<b>Contents</b>
-
-<details open>
-<summary><b><a href="#1-introduction" style="color:#e8eaed; text-decoration:none;">1. Introduction</a></b></summary>
-<ul style="margin:4px 0 4px 6px; padding-left:14px;">
-<li><a href="#11-tensor-programs" style="color:#e8eaed; text-decoration:none;">1.1 tensor programs</a></li>
-<li><a href="#12-pcore-programs" style="color:#e8eaed; text-decoration:none;">1.2 pcore programs</a></li>
-<li><a href="#13-compare-ztachip-dsl-with-traditional-programming" style="color:#e8eaed; text-decoration:none;">1.3 Compare ztachip DSL with traditional programming</a></li>
-</ul>
 </details>
-
-<details open>
-<summary><b><a href="#2-tensor-programs" style="color:#e8eaed; text-decoration:none;">2. TENSOR PROGRAMS</a></b></summary>
-<ul style="margin:4px 0 4px 6px; padding-left:14px;">
-<li><details>
-<summary><a href="#21-tensor-data-object-definition" style="color:#e8eaed; text-decoration:none;">2.1 Tensor data object definition</a></summary>
-<ul style="margin:2px 0 2px 4px; padding-left:14px;">
-<li><a href="#211-tensor-data-objects-in-ddr-memory-space" style="color:#e8eaed; text-decoration:none;">2.1.1 Tensor data objects in DDR memory space</a></li>
-<li><a href="#212-tensor-data-objects-in-pcore-private-memory-space" style="color:#e8eaed; text-decoration:none;">2.1.2 Tensor data objects in PCORE private memory space</a></li>
-<li><a href="#213-tensor-data-objects-in-p-core-shared-memory-space" style="color:#e8eaed; text-decoration:none;">2.1.3 Tensor data objects in p-core shared memory space</a></li>
-<li><a href="#214-tensor-data-objects-in-scratch-memory-space" style="color:#e8eaed; text-decoration:none;">2.1.4 Tensor data objects in SCRATCH memory space</a></li>
-</ul>
-</details></li>
-<li><details>
-<summary><a href="#22-tensor-variables" style="color:#e8eaed; text-decoration:none;">2.2 Tensor variables.</a></summary>
-<ul style="margin:2px 0 2px 4px; padding-left:14px;">
-<li><a href="#221-tensor-variables---example-1" style="color:#e8eaed; text-decoration:none;">2.2.1 Tensor variables - example 1</a></li>
-<li><a href="#222-tensor-variables-example-2" style="color:#e8eaed; text-decoration:none;">2.2.2 Tensor variables – example 2</a></li>
-</ul>
-</details></li>
-<li><details>
-<summary><a href="#23-tensor-data-transfer-instructions" style="color:#e8eaed; text-decoration:none;">2.3 Tensor data transfer instructions</a></summary>
-<ul style="margin:2px 0 2px 4px; padding-left:14px;">
-<li><a href="#231-tensor-data-transfer-from-ddr-to-pcore-private-memory-space" style="color:#e8eaed; text-decoration:none;">2.3.1 Tensor data transfer from DDR to PCORE private memory space</a></li>
-<li><a href="#232-tensor-data-transfer-from-ddr-to-pcore-shared-memory-space" style="color:#e8eaed; text-decoration:none;">2.3.2 Tensor data transfer from DDR to PCORE shared memory space.</a></li>
-<li><a href="#233-tensor-data-transfer-from-ddr-to-tensor-operators-parameters" style="color:#e8eaed; text-decoration:none;">2.3.3 Tensor data transfer from DDR to tensor operator's parameters</a></li>
-<li><a href="#234-tensor-data-transfer-from-tensor-operators-parameters-to-ddr" style="color:#e8eaed; text-decoration:none;">2.3.4 Tensor data transfer from tensor operator's parameters to DDR</a></li>
-<li><a href="#235-tensor-data-transfer-from-ddr-to-scratch" style="color:#e8eaed; text-decoration:none;">2.3.5 Tensor data transfer from DDR to SCRATCH</a></li>
-<li><a href="#236-tensor-data-transfer-from-scratch-to-ddr" style="color:#e8eaed; text-decoration:none;">2.3.6 Tensor data transfer from SCRATCH to DDR</a></li>
-<li><a href="#237-tensor-data-transfer-from-scratch-to-ddr" style="color:#e8eaed; text-decoration:none;">2.3.7 Tensor data transfer from SCRATCH to DDR</a></li>
-<li><a href="#238-setting-tensor-operators-global-parameters" style="color:#e8eaed; text-decoration:none;">2.3.8 Setting tensor operator's global parameters</a></li>
-<li><a href="#239-broadcast-transfer-to-pcore-memory-space" style="color:#e8eaed; text-decoration:none;">2.3.9 Broadcast transfer to PCORE memory space.</a></li>
-<li><a href="#2310-multi-cast-transfer-to-pcore-memory-space" style="color:#e8eaed; text-decoration:none;">2.3.10 Multi-cast transfer to PCORE memory space.</a></li>
-<li><a href="#2311-tensor-reshaping" style="color:#e8eaed; text-decoration:none;">2.3.11 Tensor reshaping</a></li>
-<li><a href="#2312-setting-out-of-bound-access-values" style="color:#e8eaed; text-decoration:none;">2.3.12 Setting Out-of-bound access values</a></li>
-<li><a href="#2313-dimension-casting" style="color:#e8eaed; text-decoration:none;">2.3.13 Dimension casting</a></li>
-<li><a href="#2314-data-reordering" style="color:#e8eaed; text-decoration:none;">2.3.14 Data reordering</a></li>
-<li><a href="#2315-concurrent-transfer" style="color:#e8eaed; text-decoration:none;">2.3.15 Concurrent transfer</a></li>
-<li><a href="#2316-tensor-transfer-with-boundary-check-disabled" style="color:#e8eaed; text-decoration:none;">2.3.16 Tensor transfer with boundary check disabled.</a></li>
-<li><a href="#2317-tensor-transfer-with-overlay-dimension" style="color:#e8eaed; text-decoration:none;">2.3.17 Tensor transfer with overlay dimension</a></li>
-<li><a href="#2318-tensor-padding-values" style="color:#e8eaed; text-decoration:none;">2.3.18 Tensor padding values</a></li>
-<li><a href="#2319-tensor-transfer-data-types" style="color:#e8eaed; text-decoration:none;">2.3.19 Tensor transfer data types</a></li>
-<li><a href="#2320-tensor-data-transfer-in-repeat-mode" style="color:#e8eaed; text-decoration:none;">2.3.20 Tensor data transfer in REPEAT mode</a></li>
-<li><a href="#2321-tensor-data-remap" style="color:#e8eaed; text-decoration:none;">2.3.21 Tensor data remap</a></li>
-<li><a href="#2322-barrier" style="color:#e8eaed; text-decoration:none;">2.3.22 BARRIER</a></li>
-<li><a href="#2323-latest" style="color:#e8eaed; text-decoration:none;">2.3.23 LATEST</a></li>
-<li><a href="#2324-constant-filler" style="color:#e8eaed; text-decoration:none;">2.3.24 CONSTANT FILLER</a></li>
-</ul>
-</details></li>
-<li><details>
-<summary><a href="#24-tensor-operator-execution" style="color:#e8eaed; text-decoration:none;">2.4 Tensor operator execution</a></summary>
-<ul style="margin:2px 0 2px 4px; padding-left:14px;">
-<li><a href="#241-tensor-operator-syntax" style="color:#e8eaed; text-decoration:none;">2.4.1 Tensor operator syntax</a></li>
-</ul>
-</details></li>
-<li><details>
-<summary><a href="#25-fpu-operators" style="color:#e8eaed; text-decoration:none;">2.5 FPU operators</a></summary>
-<ul style="margin:2px 0 2px 4px; padding-left:14px;">
-<li><a href="#251-fpu-operators-definitions" style="color:#e8eaed; text-decoration:none;">2.5.1 FPU operators definitions</a></li>
-<li><a href="#252-fpu-memory-accessexecution-overlay" style="color:#e8eaed; text-decoration:none;">2.5.2 FPU memory-access/execution overlay</a></li>
-<li><a href="#253-fpu-grouping" style="color:#e8eaed; text-decoration:none;">2.5.3 FPU grouping</a></li>
-</ul>
-</details></li>
-<li><details>
-<summary><a href="#26-host-supporting-functions" style="color:#e8eaed; text-decoration:none;">2.6 HOST SUPPORTING FUNCTIONS</a></summary>
-<ul style="margin:2px 0 2px 4px; padding-left:14px;">
-<li><a href="#261-void-ztainit" style="color:#e8eaed; text-decoration:none;">2.6.1 void ztaInit()</a></li>
-<li><a href="#262-void-ztadualhartexecutevoidfuncvoid-intvoid-pparm" style="color:#e8eaed; text-decoration:none;">2.6.2 void ztaDualHartExecute(void(*func)(void *,int),void *pparm)</a></li>
-<li><a href="#263-void-ztataskyield" style="color:#e8eaed; text-decoration:none;">2.6.3 void ztaTaskYield()</a></li>
-<li><a href="#264-uint32_t-ztabuildkernelfuncuint32_t-_funcint-num_pcoreint-num_tid" style="color:#e8eaed; text-decoration:none;">2.6.4 uint32_t ztaBuildKernelFunc(uint32_t _func,int num_pcore,int num_tid)</a></li>
-<li><a href="#265-void-ztaallocsharedmemint-_size" style="color:#e8eaed; text-decoration:none;">2.6.5 void *ztaAllocSharedMem(int _size)</a></li>
-<li><a href="#266-void-ztafreesharedmemvoid-p" style="color:#e8eaed; text-decoration:none;">2.6.6 void *ztaFreeSharedMem(void *p)</a></li>
-<li><a href="#267-void-ztabuildspubundleint-numspuimg" style="color:#e8eaed; text-decoration:none;">2.6.7 void *ztaBuildSpuBundle(int numSpuImg,...)</a></li>
-<li><a href="#268-void-ztainitpcoreuint16_t-_image" style="color:#e8eaed; text-decoration:none;">2.6.8 void ztaInitPcore(uint16_t *_image)</a></li>
-<li><a href="#269-void-ztainitstreamuint16_t-_spu" style="color:#e8eaed; text-decoration:none;">2.6.9 void ztaInitStream(uint16_t *_spu)</a></li>
-<li><a href="#2610-void-ztajobdoneunsigned-int-job_id" style="color:#e8eaed; text-decoration:none;">2.6.10 void ztaJobDone(unsigned int job_id)</a></li>
-<li><a href="#2611-bool-ztareadresponseuint32_t-resp" style="color:#e8eaed; text-decoration:none;">2.6.11 bool ztaReadResponse(uint32_t *resp)</a></li>
-</ul>
-</details></li>
-</ul>
-</details>
-
-<details open>
-<summary><b><a href="#3-pcore-programs" style="color:#e8eaed; text-decoration:none;">3. PCORE PROGRAMS</a></b></summary>
-<ul style="margin:4px 0 4px 6px; padding-left:14px;">
-<li><details>
-<summary><a href="#31-vliw-instructions" style="color:#e8eaed; text-decoration:none;">3.1 VLIW instructions</a></summary>
-<ul style="margin:2px 0 2px 4px; padding-left:14px;">
-<li><a href="#311-vector-operations" style="color:#e8eaed; text-decoration:none;">3.1.1 vector operations</a></li>
-<li><a href="#312-scalar-operations" style="color:#e8eaed; text-decoration:none;">3.1.2 scalar operations</a></li>
-<li><a href="#313-control-operations" style="color:#e8eaed; text-decoration:none;">3.1.3 control operations</a></li>
-</ul>
-</details></li>
-<li><a href="#32-general-syntax" style="color:#e8eaed; text-decoration:none;">3.2 General syntax</a></li>
-<li><a href="#33-class-declaration" style="color:#e8eaed; text-decoration:none;">3.3 Class declaration</a></li>
-<li><a href="#34-memory-layout" style="color:#e8eaed; text-decoration:none;">3.4 Memory layout</a></li>
-<li><details>
-<summary><a href="#35-tensor-variables" style="color:#e8eaed; text-decoration:none;">3.5 Tensor variables</a></summary>
-<ul style="margin:2px 0 2px 4px; padding-left:14px;">
-<li><a href="#351-data-types" style="color:#e8eaed; text-decoration:none;">3.5.1 Data types</a></li>
-<li><a href="#352-variable-types" style="color:#e8eaed; text-decoration:none;">3.5.2 Variable types</a></li>
-</ul>
-</details></li>
-<li><a href="#36-tensor-operators" style="color:#e8eaed; text-decoration:none;">3.6 Tensor operators</a></li>
-<li><a href="#37-_vmask" style="color:#e8eaed; text-decoration:none;">3.7 _VMASK</a></li>
-<li><details>
-<summary><a href="#38-comparison-operators" style="color:#e8eaed; text-decoration:none;">3.8 COMPARISON OPERATORS</a></summary>
-<ul style="margin:2px 0 2px 4px; padding-left:14px;">
-<li><a href="#381-gev1v2" style="color:#e8eaed; text-decoration:none;">3.8.1 GE(v1,v2)</a></li>
-<li><a href="#382-gtv1v2" style="color:#e8eaed; text-decoration:none;">3.8.2 GT(v1,v2)</a></li>
-<li><a href="#383-lev1v2" style="color:#e8eaed; text-decoration:none;">3.8.3 LE(v1,v2)</a></li>
-<li><a href="#384-ltv1v2" style="color:#e8eaed; text-decoration:none;">3.8.4 LT(v1,v2)</a></li>
-<li><a href="#385-eqv1v2" style="color:#e8eaed; text-decoration:none;">3.8.5 EQ(v1,v2)</a></li>
-<li><a href="#386-nev1v2" style="color:#e8eaed; text-decoration:none;">3.8.6 NE(v1,v2)</a></li>
-</ul>
-</details></li>
-<li><details>
-<summary><a href="#39-floating-point-operators" style="color:#e8eaed; text-decoration:none;">3.9 FLOATING POINT OPERATORS</a></summary>
-<ul style="margin:2px 0 2px 4px; padding-left:14px;">
-<li><a href="#391-conv_float" style="color:#e8eaed; text-decoration:none;">3.9.1 CONV_FLOAT</a></li>
-</ul>
-</details></li>
-<li><details>
-<summary><a href="#310-subfield-operators" style="color:#e8eaed; text-decoration:none;">3.10 SUBFIELD OPERATORS</a></summary>
-<ul style="margin:2px 0 2px 4px; padding-left:14px;">
-<li><a href="#3101-n0-n1" style="color:#e8eaed; text-decoration:none;">3.10.1 N0-N1</a></li>
-<li><a href="#3102-b0-b1" style="color:#e8eaed; text-decoration:none;">3.10.2 B0-B1</a></li>
-</ul>
-</details></li>
-</ul>
-</details>
-
-<details open>
-<summary><b><a href="#4-debugging" style="color:#e8eaed; text-decoration:none;">4. DEBUGGING</a></b></summary>
-</details>
-
-<details open>
-<summary><b><a href="#5-build-procedures" style="color:#e8eaed; text-decoration:none;">5. BUILD PROCEDURES</a></b></summary>
-<ul style="margin:4px 0 4px 6px; padding-left:14px;">
-<li><a href="#51-example" style="color:#e8eaed; text-decoration:none;">5.1 Example</a></li>
-</ul>
-</details>
-
-<details open>
-<summary><b><a href="#6-examples" style="color:#e8eaed; text-decoration:none;">6. EXAMPLES</a></b></summary>
-<ul style="margin:4px 0 4px 6px; padding-left:14px;">
-<li><details>
-<summary><a href="#61-basic-example" style="color:#e8eaed; text-decoration:none;">6.1 Basic example</a></summary>
-<ul style="margin:2px 0 2px 4px; padding-left:14px;">
-<li><a href="#611-tensor-program-code-examplem" style="color:#e8eaed; text-decoration:none;">6.1.1 Tensor program code (example.m)</a></li>
-<li><a href="#612-pcore-program-code-examplep" style="color:#e8eaed; text-decoration:none;">6.1.2 pcore program code (example.p)</a></li>
-</ul>
-</details></li>
-<li><details>
-<summary><a href="#62-example-running-dual-tensor-threads" style="color:#e8eaed; text-decoration:none;">6.2 Example running dual tensor-threads</a></summary>
-<ul style="margin:2px 0 2px 4px; padding-left:14px;">
-<li><a href="#621-examplem" style="color:#e8eaed; text-decoration:none;">6.2.1 example.m</a></li>
-<li><a href="#622-pcore-program-code-examplep" style="color:#e8eaed; text-decoration:none;">6.2.2 pcore program code (example.p)</a></li>
-</ul>
-</details></li>
-<li><details>
-<summary><a href="#63-example-of-using-tensor-data-remap-function" style="color:#e8eaed; text-decoration:none;">6.3 Example of using tensor data-remap function.</a></summary>
-<ul style="margin:2px 0 2px 4px; padding-left:14px;">
-<li><a href="#631-tensor-program-code-examplem" style="color:#e8eaed; text-decoration:none;">6.3.1 Tensor program code (example.m)</a></li>
-<li><a href="#632-pcore-program-code-examplep" style="color:#e8eaed; text-decoration:none;">6.3.2 pcore program code (example.p)</a></li>
-</ul>
-</details></li>
-<li><a href="#64-more-examples" style="color:#e8eaed; text-decoration:none;">6.4 More examples</a></li>
-</ul>
-</details>
-
-</div>
-
-<div style="flex:1 1 auto; min-width:0; background:#ffffff; color:#24292f; padding:0 24px;">
 
 ## 1. Introduction
 

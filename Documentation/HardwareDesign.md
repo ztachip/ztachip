@@ -1,85 +1,39 @@
-<div style="display:flex; align-items:flex-start; gap:0; background:#ffffff; color:#24292f;">
+[&#8592; Home](index.md)
 
-<div style="flex:0 0 auto; width:200px; min-width:120px; max-width:70%; resize:horizontal; overflow:auto; height:100vh; box-sizing:border-box; position:sticky; top:0; padding:12px 14px 24px 14px; background:#000000; color:#e8eaed; font-size:13px; line-height:1.7;">
+# ztachip Hardware Architecture
 
-<a href="index.md" style="display:inline-block; margin-bottom:12px; padding:5px 10px; background:#1f2937; color:#e8eaed; border:1px solid #3a4553; border-radius:5px; text-decoration:none; font-size:12px;">&#8592; Home</a>
+<details>
+<summary><b>Contents</b></summary>
 
-<div style="background:#d6e8ff; color:#0b2545; padding:9px 10px; border-radius:6px; text-align:center; font-weight:bold; font-size:13px; line-height:1.35; margin-bottom:14px;">ztachip<br>Hardware Architecture</div>
+- [1. ztachip](#1-ztachip-top)
+  - [1.1 Interfaces](#11-interfaces)
+  - [1.2 Subcomponents](#12-subcomponents)
+  - [1.3 Functions](#13-functions)
+- [2. ztachip.dp_core](#2-ztachipdp_core)
+  - [2.1 Interfaces](#21-interfaces)
+  - [2.2 Subcomponents](#22-subcomponents)
+  - [2.3 Functions](#23-functions)
+- [3. ztachip.fpu](#3-ztachipfpu)
+  - [3.1 Interfaces](#31-interfaces)
+  - [3.2 Subcomponents](#32-subcomponents)
+  - [3.3 Functions](#33-functions)
+- [4. ztachip.core](#4-ztachipcore)
+  - [4.1 Interfaces](#41-interfaces)
+  - [4.2 Subcomponents](#42-subcomponents)
+  - [4.3 Functions](#43-functions)
+- [5. ztachip.core.stream](#5-ztachipcorestream)
+- [6. ztachip.core.pcore](#6-ztachipcorepcore)
+  - [6.1 Interfaces](#61-interfaces)
+  - [6.2 Subcomponents](#62-subcomponents)
+  - [6.3 Functions](#63-functions)
+- [7. ztachip.core.pcore.register_bank](#7-ztachipcorepcoreregister_bank)
+- [8. ztachip.core.pcore.instr_decoder2](#8-ztachipcorepcoreinstr_decoder2)
+- [9. ztachip.core.pcore.ialu](#9-ztachipcorepcoreialu)
+- [10. ztachip.core.pcore.alu](#10-ztachipcorepcorealu)
+  - [10.1 Interfaces](#101-interfaces)
+  - [10.2 Functions](#102-functions)
 
-<b>Contents</b>
-
-<details open>
-<summary><b><a href="#1-ztachip-top" style="color:#e8eaed; text-decoration:none;">1. ztachip</a></b></summary>
-<ul style="margin:4px 0 4px 6px; padding-left:14px;">
-<li><a href="#11-interfaces" style="color:#e8eaed; text-decoration:none;">1.1 Interfaces</a></li>
-<li><a href="#12-subcomponents" style="color:#e8eaed; text-decoration:none;">1.2 Subcomponents</a></li>
-<li><a href="#13-functions" style="color:#e8eaed; text-decoration:none;">1.3 Functions</a></li>
-</ul>
 </details>
-
-<details open>
-<summary><b><a href="#2-ztachipdp_core" style="color:#e8eaed; text-decoration:none;">2. ztachip.dp_core</a></b></summary>
-<ul style="margin:4px 0 4px 6px; padding-left:14px;">
-<li><a href="#21-interfaces" style="color:#e8eaed; text-decoration:none;">2.1 Interfaces</a></li>
-<li><a href="#22-subcomponents" style="color:#e8eaed; text-decoration:none;">2.2 Subcomponents</a></li>
-<li><a href="#23-functions" style="color:#e8eaed; text-decoration:none;">2.3 Functions</a></li>
-</ul>
-</details>
-
-<details open>
-<summary><b><a href="#3-ztachipfpu" style="color:#e8eaed; text-decoration:none;">3. ztachip.fpu</a></b></summary>
-<ul style="margin:4px 0 4px 6px; padding-left:14px;">
-<li><a href="#31-interfaces" style="color:#e8eaed; text-decoration:none;">3.1 Interfaces</a></li>
-<li><a href="#32-subcomponents" style="color:#e8eaed; text-decoration:none;">3.2 Subcomponents</a></li>
-<li><a href="#33-functions" style="color:#e8eaed; text-decoration:none;">3.3 Functions</a></li>
-</ul>
-</details>
-
-<details open>
-<summary><b><a href="#4-ztachipcore" style="color:#e8eaed; text-decoration:none;">4. ztachip.core</a></b></summary>
-<ul style="margin:4px 0 4px 6px; padding-left:14px;">
-<li><a href="#41-interfaces" style="color:#e8eaed; text-decoration:none;">4.1 Interfaces</a></li>
-<li><a href="#42-subcomponents" style="color:#e8eaed; text-decoration:none;">4.2 Subcomponents</a></li>
-<li><a href="#43-functions" style="color:#e8eaed; text-decoration:none;">4.3 Functions</a></li>
-</ul>
-</details>
-
-<details open>
-<summary><b><a href="#5-ztachipcorestream" style="color:#e8eaed; text-decoration:none;">5. ztachip.core.stream</a></b></summary>
-</details>
-
-<details open>
-<summary><b><a href="#6-ztachipcorepcore" style="color:#e8eaed; text-decoration:none;">6. ztachip.core.pcore</a></b></summary>
-<ul style="margin:4px 0 4px 6px; padding-left:14px;">
-<li><a href="#61-interfaces" style="color:#e8eaed; text-decoration:none;">6.1 Interfaces</a></li>
-<li><a href="#62-subcomponents" style="color:#e8eaed; text-decoration:none;">6.2 Subcomponents</a></li>
-<li><a href="#63-functions" style="color:#e8eaed; text-decoration:none;">6.3 Functions</a></li>
-</ul>
-</details>
-
-<details open>
-<summary><b><a href="#7-ztachipcorepcoreregister_bank" style="color:#e8eaed; text-decoration:none;">7. ztachip.core.pcore.register_bank</a></b></summary>
-</details>
-
-<details open>
-<summary><b><a href="#8-ztachipcorepcoreinstr_decoder2" style="color:#e8eaed; text-decoration:none;">8. ztachip.core.pcore.instr_decoder2</a></b></summary>
-</details>
-
-<details open>
-<summary><b><a href="#9-ztachipcorepcoreialu" style="color:#e8eaed; text-decoration:none;">9. ztachip.core.pcore.ialu</a></b></summary>
-</details>
-
-<details open>
-<summary><b><a href="#10-ztachipcorepcorealu" style="color:#e8eaed; text-decoration:none;">10. ztachip.core.pcore.alu</a></b></summary>
-<ul style="margin:4px 0 4px 6px; padding-left:14px;">
-<li><a href="#101-interfaces" style="color:#e8eaed; text-decoration:none;">10.1 Interfaces</a></li>
-<li><a href="#102-functions" style="color:#e8eaed; text-decoration:none;">10.2 Functions</a></li>
-</ul>
-</details>
-
-</div>
-
-<div style="flex:1 1 auto; min-width:0; background:#ffffff; color:#24292f; padding:0 24px;">
 
 
 ## 1. ztachip (top)
@@ -589,8 +543,3 @@ With the above blocks, the following opcodes are supported
   INT12 SHR        : y_out=(x1_in >> x_scalar_in)
   INT12 SHL        : y_out=(x1_in << x_scalar_in)
 ```
-
-
-</div>
-
-</div>

@@ -1,6 +1,18 @@
-<div style="background:#ffffff; color:#24292f; padding:0 24px;">
+[&#8592; Home](index.md)
 
-<a href="index.md" style="display:inline-block; margin:14px 0; padding:5px 12px; background:#eef1f4; color:#24292f; border:1px solid #c9ced4; border-radius:5px; text-decoration:none; font-size:13px;">&#8592; Home</a>
+<details>
+<summary><b>Contents</b></summary>
+
+- [1. Abstract](#1-abstract)
+- [2. Challenges](#2-challenges)
+- [3. DSA with ztachip](#3-dsa-with-ztachip)
+- [4. What are provided with ztachip](#4-what-are-provided-with-ztachip)
+- [5. Results](#5-results)
+  - [5.1 Domain coverage](#51-domain-coverage)
+  - [5.2 Performance and power consumption](#52-performance-and-power-consumption)
+- [6. Future developments](#6-future-developments)
+
+</details>
 
 # 1. Abstract
 
@@ -154,6 +166,3 @@ The logical next step is for native support of matrix data types (8 x 8 x 8/12/1
 ALU (Arithmetic Logical Units) sub-system is extended from a 8 unit wide vector of ALU units to a 8x8 matrix of ALU units. This will provide an 8x improvement in computing density when bus width is limited to 8 data elements. An improvement of 32x from current implementation is possible when bus width is extended to 16 data elements.
 
 To provide an intuitive programming syntax to support matrix data types.
-
-
-</div>

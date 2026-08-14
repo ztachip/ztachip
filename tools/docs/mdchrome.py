@@ -218,112 +218,25 @@ for level, number, title in headings:
     elif level == 3 and tree and tree[-1][2]:
         tree[-1][2][-1][2].append((number, title))
 
-nav = ['<div style="display:flex; align-items:flex-start; gap:0;'
-       ' background:#ffffff; color:#24292f;">',
-       '',
-       '<div style="flex:0 0 auto; width:200px; min-width:120px; max-width:70%;'
-       ' resize:horizontal; overflow:auto; height:100vh; box-sizing:border-box;'
-       ' position:sticky;'
-       ' top:0; padding:12px 14px 24px 14px; background:#000000; color:#e8eaed;'
-       ' font-size:13px; line-height:1.7;">',
-       '',
-       '<div style="background:#d6e8ff; color:#0b2545; padding:9px 10px;'
-       ' border-radius:6px; text-align:center; font-weight:bold;'
-       f' font-size:13px; line-height:1.35; margin-bottom:14px;">{DOC_TITLE}</div>',
-       '',
-       '<b>Contents</b>',
-       '']
-if HOME:
-    nav.insert(4, f'<a href="{HOME}" style="display:inline-block;'
-                  ' margin-bottom:12px; padding:5px 10px; background:#1f2937;'
-                  ' color:#e8eaed; border:1px solid #3a4553; border-radius:5px;'
-                  ' text-decoration:none; font-size:12px;">&#8592; Home</a>')
-    nav.insert(5, '')
-for number, title, sections in tree:
-    nav.append('<details open>')
-    nav.append(f'<summary><b>{link(number, title)}</b></summary>')
-    if sections:
-        nav.append('<ul style="margin:4px 0 4px 6px; padding-left:14px;">')
-        for snum, stitle, subs in sections:
-            if subs:
-                nav.append('<li><details>')
-                nav.append(f'<summary>{link(snum, stitle)}</summary>')
-                nav.append('<ul style="margin:2px 0 2px 4px; padding-left:14px;">')
-                for tnum, ttitle in subs:
-                    nav.append(f'<li>{link(tnum, ttitle)}</li>')
-                nav.append('</ul>')
-                nav.append('</details></li>')
-            else:
-                nav.append(f'<li>{link(snum, stitle)}</li>')
-        nav.append('</ul>')
-    nav.append('</details>')
-    nav.append('')
-nav.append('</div>')
+home = [f'[&#8592; Home]({HOME})', ''] if HOME else []
 
-STYLE = '''<style>
-pre { background:#e4e6e8 !important;
-      padding:12px 14px; border:1px solid #d8dce0; border-radius:6px; }
+title_line = []
+if PANEL:                      # PANEL now means "this document has a title"
+    title_line = ['# ' + DOC_TITLE.replace('<br>', ' '), '']
 
-/* Base: the highlighter paints tokens with the editor theme, which on a dark
-   theme is far too light for this grey. Everything starts near-black ... */
-pre, pre code, pre span, pre * {
-      background:transparent !important; color:#1f2328 !important; }
+# A collapsed contents block: renders on GitHub, and the html build turns the
+# same headings into a side panel.
+toc = []
+if headings:
+    toc = ['<details>', '<summary><b>Contents</b></summary>', '']
+    for level, number, title in headings:
+        if level > 3:
+            continue
+        toc.append(f'{"  " * (level - 1)}- [{number} {short(title)}]'
+                   f'(#{anchor(number, title)})')
+    toc += ['', '</details>', '']
 
-/* ... then the token classes take over, in a palette meant for a light
-   background. These are more specific, so they win over the rule above. */
-pre code .hljs-comment, pre code .hljs-quote {
-      color:#6a737d !important; font-style:italic; }
-pre code .hljs-keyword, pre code .hljs-selector-tag,
-pre code .hljs-literal, pre code .hljs-doctag {
-      color:#d73a49 !important; }
-pre code .hljs-string, pre code .hljs-meta-string,
-pre code .hljs-regexp { color:#032f62 !important; }
-pre code .hljs-number, pre code .hljs-built_in,
-pre code .hljs-type, pre code .hljs-variable,
-pre code .hljs-template-variable { color:#005cc5 !important; }
-pre code .hljs-title, pre code .hljs-section,
-pre code .hljs-function .hljs-title { color:#6f42c1 !important; }
-pre code .hljs-meta, pre code .hljs-meta-keyword {
-      color:#e36209 !important; }
-pre code .hljs-attr, pre code .hljs-attribute,
-pre code .hljs-name { color:#22863a !important; }
-pre code .pl-c, pre code .pl-c span {
-      color:#6a737d !important; font-style:italic; }
-pre code .pl-k { color:#d73a49 !important; }
-pre code .pl-s, pre code .pl-s span, pre code .pl-pds {
-      color:#032f62 !important; }
-pre code .pl-c1, pre code .pl-cce { color:#005cc5 !important; }
-pre code .pl-en, pre code .pl-entl { color:#6f42c1 !important; }
-
-/* inline code: !important so a dark editor theme cannot repaint it */
-code { background:#e4e6e8 !important; color:#1f2328 !important;
-       padding:1px 4px; border-radius:4px; }
-
-/* tables need visible rules on the white page */
-table { border-collapse:collapse !important; margin:6px 0 14px 0; }
-table th, table td { border:1px solid #c9ced4 !important;
-       padding:6px 10px !important; }
-table th { background:#eef1f4 !important; color:#1f2328 !important;
-       text-align:left; }
-table tr, table tbody tr:nth-child(2n) {
-       background:#ffffff !important; color:#1f2328 !important; }
-</style>'''
-
-if PANEL:
-    out = (nav +
-           ['', '<div style="flex:1 1 auto; min-width:0; background:#ffffff;'
-            ' color:#24292f; padding:0 24px;">', ''] +
-           clean + ['', '</div>', '', '</div>'])
-else:
-    # no sidebar, but the same stylesheet and the same white page
-    home = ([f'<a href="{HOME}" style="display:inline-block; margin:14px 0;'
-             ' padding:5px 12px; background:#eef1f4; color:#24292f;'
-             ' border:1px solid #c9ced4; border-radius:5px;'
-             ' text-decoration:none; font-size:13px;">&#8592; Home</a>', '']
-            if HOME else [])
-    out = ([
-            '<div style="background:#ffffff; color:#24292f; padding:0 24px;">',
-            ''] + home + clean + ['', '</div>'])
+out = home + title_line + toc + clean
 
 open(OUT, 'w', encoding='utf-8').write('\n'.join(out).rstrip() + '\n')
 print(f'{OUT}: {len(out)} lines, {len(headings)} headings')

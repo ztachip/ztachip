@@ -576,74 +576,24 @@ for level, number, title in headings:
     elif level == 3 and tree and tree[-1][2]:
         tree[-1][2][-1][2].append((number, title))
 
-nav = ['<div style="display:flex; align-items:flex-start; gap:0;'
-       ' background:#ffffff; color:#24292f;">',
-       '',
-       # resize:horizontal puts a drag handle on the bottom-right corner of the
-       # panel; the content column is flex:1 so it reflows as the panel changes
-       '<div style="flex:0 0 auto; width:200px; min-width:120px; max-width:70%;'
-       ' resize:horizontal; overflow:auto; height:100vh; box-sizing:border-box;'
-       ' position:sticky;'
-       ' top:0; padding:12px 14px 24px 14px; background:#000000; color:#e8eaed;'
-       ' font-size:13px; line-height:1.7;">',
-       '',
-       # the guide's title now lives here, at the head of the panel
-       '<div style="background:#d6e8ff; color:#0b2545; padding:9px 10px;'
-       ' border-radius:6px; text-align:center; font-weight:bold;'
-       ' font-size:13px; line-height:1.35; margin-bottom:14px;">'
-       + DOC_TITLE + '</div>',
-       '',
-       '<b>Contents</b>',
-       '']
-if HOME:
-    nav.insert(4, f'<a href="{HOME}" style="display:inline-block;'
-                  ' margin-bottom:12px; padding:5px 10px; background:#1f2937;'
-                  ' color:#e8eaed; border:1px solid #3a4553; border-radius:5px;'
-                  ' text-decoration:none; font-size:12px;">&#8592; Home</a>')
-    nav.insert(5, '')
-for number, title, sections in tree:
-    nav.append('<details open>')
-    nav.append(f'<summary><b>{link(number, title)}</b></summary>')
-    if sections:
-        nav.append('<ul style="margin:4px 0 4px 6px; padding-left:14px;">')
-        for snum, stitle, subs in sections:
-            if subs:
-                nav.append('<li><details>')
-                nav.append(f'<summary>{link(snum, stitle)}</summary>')
-                nav.append('<ul style="margin:2px 0 2px 4px; padding-left:14px;">')
-                for tnum, ttitle in subs:
-                    nav.append(f'<li>{link(tnum, ttitle)}</li>')
-                nav.append('</ul>')
-                nav.append('</details></li>')
-            else:
-                nav.append(f'<li>{link(snum, stitle)}</li>')
-        nav.append('</ul>')
-    nav.append('</details>')
-    nav.append('')
-nav.append('</div>')
+home = [f'[&#8592; Home]({HOME})', ''] if HOME else []
 
-front = [
-] + nav + [
-    '',
-    '<div style="flex:1 1 auto; min-width:0; background:#ffffff; color:#24292f;'
-    ' padding:0 24px;">',
-    '',
-]
+toc = ['<details>', '<summary><b>Contents</b></summary>', '']
+for level, number, title in headings:
+    if level > 3:
+        continue
+    toc.append(f'{"  " * (level - 1)}- [{number} {title}](#{anchor(number, title)})')
+toc += ['', '</details>', '']
+
+front = home + ['# ' + DOC_TITLE.replace('<br>', ' '), ''] + toc
 
 # tighten lists: the source keeps every bullet in its own list element, which
 # would otherwise render with a blank line between items
-merged = []
-for ln in front + lines:
-    if (ln.strip() == '' and merged and re.match(r'^\s*- ', merged[-1])):
-        merged.append(ln)
-        continue
-    if (ln.strip() == '' and merged and merged[-1].strip() == ''):
-        pass
-    merged.append(ln)
 tight = []
-for i, ln in enumerate(merged):
+for i, ln in enumerate(front + lines):
     if ln.strip() == '' and tight and re.match(r'^(\s*)- ', tight[-1]):
-        nxt = next((m for m in merged[i + 1:] if m.strip() != ''), '')
+        rest = (front + lines)[i + 1:]
+        nxt = next((m for m in rest if m.strip() != ''), '')
         if re.match(r'^(\s*)- ', nxt):
             continue
     tight.append(ln)
