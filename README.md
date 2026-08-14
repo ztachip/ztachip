@@ -44,13 +44,7 @@ A new tensor programming paradigm enables developers to efficiently exploit the 
 
 # Documentation
 
-The following documentation provides more information about the ztachip architecture, hardware, software, programming model, VisionAI stack, and MicroPython interface. All of it is also reachable from the [documentation index](Documentation/index.md).
-
-1. [Technical Overview](Documentation/Overview.md)
-2. [Hardware Architecture](Documentation/HardwareDesign.md)
-3. [Programmer's Guide](Documentation/ztachip_programmer_guide.md)
-4. [VisionAI Stack Programmer's Guide](Documentation/visionai_programmer_guide.md)
-5. [MicroPython Programmer's Guide](micropython/MicropythonUserGuide.md)
+See the [ztachip Documentation](Documentation/index.md) for the technical overview, hardware architecture, programmer's guides and the MicroPython interface.
 
 ---
 
