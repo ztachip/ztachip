@@ -35,12 +35,20 @@
 - [4. Porting ztachip to Other FPGAs, ASICs, and SoCs](#4-porting-ztachip-to-other-fpgas-asics-and-socs)
   - [4.1 Porting the Hardware Stack](#41-porting-the-hardware-stack)
   - [4.2 Porting the Software Stack](#42-porting-the-software-stack)
+- [5. Running ztachip in Simulation](#5-running-ztachip-in-simulation)
+  - [5.1 Build the Simulation Image](#51-build-the-simulation-image)
+  - [5.2 Compile and Run the RTL](#52-compile-and-run-the-rtl)
 
 </details>
 
 This guide walks through everything needed to see ztachip running: building the
 software, building the FPGA image, and loading and running the vision and AI
-demos on a Digilent Arty A7 board.
+demos on a Digilent Arty A7 board, together with the benchmark results measured
+on that board.
+
+The Arty A7 is only the reference platform. The last two chapters cover the two
+other ways to run ztachip: **porting it to another FPGA, ASIC or SoC**, and
+**running it in simulation**, which needs no hardware at all.
 
 ## 1. Software Build Procedure
 
@@ -449,3 +457,74 @@ The example provided with this repository is a reference design, implemented on 
 - Your SoC may have different peripherals, with new drivers to be implemented. All peripheral drivers are implemented in [SW/src/soc.cpp](../SW/src/soc.cpp).
 
 - Refer [here](../HW/riscv/README.md) if you would like to use a different RISC-V implementation. ztachip uses [VexRiscv](https://github.com/SpinalHDL/VexRiscv) by default.
+
+## 5. Running ztachip in Simulation
+
+ztachip can also be run under an RTL simulator, without any board. The example
+test programs exercise the tensor processor and report their results by blinking
+a simulated LED.
+
+### 5.1 Build the Simulation Image
+
+First, build the example test program used for simulation.
+
+The example test applications are located under:
+
+```text
+SW/apps/test
+SW/sim
+```
+
+Build the simulation image:
+
+```bash
+export PATH=/opt/riscv/bin:$PATH
+
+cd ztachip
+
+cd SW/compiler
+make clean all
+
+cd ..
+make clean all -f makefile.kernels
+make clean all -f makefile.sim
+```
+
+The generated simulation memory image is:
+
+```text
+<ztachip>/SW/build/ztachip_sim.hex
+```
+
+Copy this file into the directory where you run your simulator.
+
+The image will be loaded into the simulated memory.
+
+### 5.2 Compile and Run the RTL
+
+Compile the RTL sources from the following directories:
+
+```text
+HW/src
+HW/platform/simulation
+HW/simulation
+HW/riscv/sim
+```
+
+The top-level simulation component is:
+
+```text
+HW/simulation/main.vhd
+```
+
+Provide a clock to:
+
+```text
+main:clk
+```
+
+The following output should blink each time a test successfully passes:
+
+```text
+main:led_out
+```

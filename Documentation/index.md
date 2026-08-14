@@ -8,7 +8,9 @@ Fully open source — hardware and software — under the Apache 2.0 license.
 Everything needed to see ztachip working on real hardware: building the software
 and the RISC-V toolchain, building the FPGA image, wiring up the camera and VGA
 modules on a Digilent Arty A7 board, and loading and running the vision and LLM
-demos.
+demos, with the benchmark results measured on that board. The Arty A7 is only the
+reference platform — the guide also covers porting ztachip to another FPGA, ASIC
+or SoC, and running it in simulation with no hardware at all.
 
 ### [Technical Overview](Overview.md)
 
