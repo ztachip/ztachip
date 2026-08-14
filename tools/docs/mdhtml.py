@@ -100,6 +100,7 @@ def inline(text):
 
 
 def slug(title):
+    title = re.sub(r'\[([^\]]+)\]\([^)]+\)', r'\1', title)   # [text](link) -> text
     s = re.sub(r'[^\w\s-]', '', title.lower())
     return re.sub(r'\s+', '-', s.strip())
 
