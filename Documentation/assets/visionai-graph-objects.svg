@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 520 686" width="366" height="483" role="img" aria-label="Main objects of a Graph: TENSOR INPUT feeds a Graph containing three GraphNodes, which exchange TENSOR INTERMEDIATE objects and produce TENSOR OUTPUT">
+  <title>Main objects of a Graph</title>
+  <desc>A TENSOR INPUT object feeds a Graph. The Graph holds three GraphNode objects connected in sequence. Successive GraphNodes exchange TENSOR INTERMEDIATE objects. The last GraphNode produces a TENSOR OUTPUT object.</desc>
+
+  <defs>
+    <style>
+      .edge   { stroke: #111111; stroke-width: 2.5; fill: none; }
+      .box    { stroke: #111111; stroke-width: 2.5; }
+      .tensor { fill: #c9ccd1; }
+      .node   { fill: #a9d5e8; }
+      .label  { font-family: Verdana, Arial, Helvetica, sans-serif; font-weight: 700;
+                text-anchor: middle; }
+      .t-lbl  { font-size: 14px; fill: #10233f; letter-spacing: 0.5px; }
+      .n-lbl  { font-size: 17px; fill: #0d2f56; }
+      .g-lbl  { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 17px;
+                font-weight: 700; fill: #111111; }
+    </style>
+
+    <!-- a tensor object: three stacked plates, since there may be several -->
+    <g id="tensor">
+      <rect class="box tensor" x="24" y="-12" width="150" height="56" rx="2"/>
+      <rect class="box tensor" x="12" y="-6"  width="150" height="56" rx="2"/>
+      <rect class="box tensor" x="0"  y="0"   width="150" height="56" rx="2"/>
+    </g>
+  </defs>
+
+  <!-- the graph -->
+  <rect class="box" x="30" y="132" width="450" height="462" rx="4" fill="#ffe94d"/>
+  <text class="g-lbl" x="46" y="158">Graph</text>
+
+  <!-- spine: input into the graph, node to node, and out to the output -->
+  <path class="edge" d="M 155 88 V 175"/>
+  <path class="edge" d="M 155 268 V 316"/>
+  <path class="edge" d="M 155 409 V 457"/>
+  <path class="edge" d="M 155 550 V 612"/>
+
+  <!-- first and second node exchange the first intermediate tensor -->
+  <path class="edge" d="M 250 236 H 274 V 258 H 300"/>
+  <path class="edge" d="M 300 284 H 287 V 344 H 250"/>
+
+  <!-- second and third node exchange the second intermediate tensor -->
+  <path class="edge" d="M 250 377 H 274 V 399 H 300"/>
+  <path class="edge" d="M 300 425 H 287 V 485 H 250"/>
+
+  <!-- graph nodes -->
+  <rect class="box node" x="60" y="175" width="190" height="93" rx="3"/>
+  <text class="label n-lbl" x="155" y="227">GraphNode</text>
+
+  <rect class="box node" x="60" y="316" width="190" height="93" rx="3"/>
+  <text class="label n-lbl" x="155" y="368">GraphNode</text>
+
+  <rect class="box node" x="60" y="457" width="190" height="93" rx="3"/>
+  <text class="label n-lbl" x="155" y="509">GraphNode</text>
+
+  <!-- intermediate tensors -->
+  <g transform="translate(300,236)">
+    <use href="#tensor" xlink:href="#tensor"/>
+    <text class="label t-lbl" x="75" y="24">TENSOR</text>
+    <text class="label t-lbl" x="75" y="42">INTERMEDIATE</text>
+  </g>
+
+  <g transform="translate(300,377)">
+    <use href="#tensor" xlink:href="#tensor"/>
+    <text class="label t-lbl" x="75" y="24">TENSOR</text>
+    <text class="label t-lbl" x="75" y="42">INTERMEDIATE</text>
+  </g>
+
+  <!-- input and output tensors -->
+  <g transform="translate(80,32)">
+    <use href="#tensor" xlink:href="#tensor"/>
+    <text class="label t-lbl" x="75" y="24">TENSOR</text>
+    <text class="label t-lbl" x="75" y="42">INPUT</text>
+  </g>
+
+  <g transform="translate(80,612)">
+    <use href="#tensor" xlink:href="#tensor"/>
+    <text class="label t-lbl" x="75" y="24">TENSOR</text>
+    <text class="label t-lbl" x="75" y="42">OUTPUT</text>
+  </g>
+</svg>
