@@ -16,17 +16,6 @@ A new tensor programming paradigm enables developers to efficiently exploit the 
 
 ---
 
-## Table of Contents
-
-- [Documentation](#documentation)
-- [Getting Started](#getting-started)
-- [Benchmark](#benchmark)
-- [Porting ztachip](#porting-ztachip-to-other-fpgas-asics-and-socs)
-- [Running ztachip in Simulation](#run-ztachip-in-simulation)
-- [Contact](#contact)
-
----
-
 # Documentation
 
 See the **[ztachip Documentation](https://ztachip.github.io/)** for the technical overview, hardware architecture, programmer's guides and the MicroPython interface.
@@ -79,14 +68,6 @@ However, **ztachip achieves significantly higher utilization of the available me
 - **3.5× more efficient** than the Raspberry Pi 5
 
 This efficiency is particularly important for low-cost and resource-constrained edge AI platforms, where memory bandwidth and power are often more limited than compute capability.
-
----
-
-# Porting ztachip to Other FPGAs, ASICs, and SoCs
-
-ztachip is designed so that the architecture and its applications can be ported to other hardware platforms.
-
-See the [ztachip Porting Procedure](Documentation/PortProcedure.md) for instructions on porting ztachip and its applications to other **FPGA, ASIC, and SoC platforms**.
 
 ---
 

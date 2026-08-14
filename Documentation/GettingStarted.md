@@ -32,6 +32,9 @@
   - [3.9 Benchmark](#39-benchmark)
     - [3.9.1 Benchmark Results](#391-benchmark-results)
     - [3.9.2 Conclusion](#392-conclusion)
+- [4. Porting ztachip to Other FPGAs, ASICs, and SoCs](#4-porting-ztachip-to-other-fpgas-asics-and-socs)
+  - [4.1 Porting the Hardware Stack](#41-porting-the-hardware-stack)
+  - [4.2 Porting the Software Stack](#42-porting-the-software-stack)
 
 </details>
 
@@ -418,3 +421,31 @@ However, **ztachip achieves significantly higher utilization of the available me
 - **3.5× more efficient** than the Raspberry Pi 5
 
 This efficiency is particularly important for low-cost and resource-constrained edge AI platforms, where memory bandwidth and power are often more limited than compute capability.
+
+## 4. Porting ztachip to Other FPGAs, ASICs, and SoCs
+
+ztachip is designed so that the architecture and its applications can be ported to other hardware platforms.
+
+The example provided with this repository is a reference design, implemented on the Arty A7 development kit from Digilent and based on the Xilinx Artix-7 FPGA. However, ztachip — both the software and the hardware stack — can be ported to any FPGA, ASIC or SoC platform by following the procedure described below.
+
+### 4.1 Porting the Hardware Stack
+
+- Update [HW/src/config.vhd](../HW/src/config.vhd) to match your platform or FPGA capabilities, such as resource availability, memory block size and SDRAM bus width.
+
+- Compile all files under [HW/src](../HW/src). They are generic VHDL code without any special primitives, so they are ready to be ported to any FPGA or ASIC.
+
+- Have a version of the [wrapper library](../HW/platform) for your FPGA or ASIC. There are 6 components that you need to map to your FPGA or ASIC library. They are mostly basic memory block primitives, so any FPGA or ASIC toolchain will have them. There is also a [wrapper version for simulation](../HW/platform/simulation) that you can reference for the expected behaviour.
+
+- Reference [HW/examples/GHRD/main.v](../HW/examples/GHRD/main.v). This is the top component of the reference design. Base the top component of your own design on this example.
+
+### 4.2 Porting the Software Stack
+
+- Update `NUM_PCORE` in [SW/base/zta.h](../SW/base/zta.h) to be 8 for the large version and 4 for the small version. This must be the same value as `pid_gen_max_c` configured in [HW/src/config.vhd](../HW/src/config.vhd).
+
+- Update the linker file [SW/linker.ld](../SW/linker.ld) to match your SoC's DDR memory size. The important parameters are `RAM`, `_heap_size` and `_stack_size`.
+
+- Update the boot loader [SW/base/crt.S](../SW/base/crt.S) if your SoC has any special boot-loading method. In the provided example, the boot loader is simple, since it expects code and data to be loaded by JTAG before execution begins.
+
+- Your SoC may have different peripherals, with new drivers to be implemented. All peripheral drivers are implemented in [SW/src/soc.cpp](../SW/src/soc.cpp).
+
+- Refer [here](../HW/riscv/README.md) if you would like to use a different RISC-V implementation. ztachip uses [VexRiscv](https://github.com/SpinalHDL/VexRiscv) by default.

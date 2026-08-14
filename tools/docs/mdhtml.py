@@ -201,6 +201,9 @@ SIDE = """
         transition:border-color .15s, box-shadow .15s, transform .15s; }
 .card:hover { border-color:#0a6abf; box-shadow:0 4px 14px rgba(10,37,69,.10);
         transform:translateY(-2px); }
+/* the starting point, picked out from the reference guides */
+.card.start { background:#e8f7ec; border-color:#9fd3ae; }
+.card.start:hover { border-color:#2f8f4e; box-shadow:0 4px 14px rgba(47,143,78,.18); }
 .card .t { display:block; color:#0a4a8f; font-weight:700; font-size:17px;
         margin-bottom:7px; }
 .card .d { display:block; color:#41484f; font-size:14px; line-height:1.55; }
@@ -544,7 +547,9 @@ def build_landing(body):
     out = [f'<div class="hero">{HERO_LOGO}{hero.group(1)}{hero.group(2)}</div>',
            '<div class="cards">']
     for href, title, desc in cards:
-        out.append(f'<a class="card" href="{href}">'
+        # the guide that gets a reader running is highlighted
+        cls = 'card start' if 'GettingStarted' in href else 'card'
+        out.append(f'<a class="{cls}" href="{href}">'
                    f'<span class="t">{title} &#8594;</span>'
                    f'<span class="d">{desc}</span></a>')
     out.append('</div>')
