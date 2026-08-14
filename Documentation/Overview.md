@@ -1,5 +1,7 @@
 [&#8592; Home](index.md)
 
+# ztachip Technical Overview
+
 <details>
 <summary><b>Contents</b></summary>
 
@@ -14,7 +16,7 @@
 
 </details>
 
-# 1. Abstract
+## 1. Abstract
 
 The recent explosion in AI creates an almost limitless demand for computing power.
 AI workload is especially challenging since it is demanding in both computing power
@@ -28,7 +30,7 @@ Domain-Specific-Architecture (DSA).
 
 ztachip is one such DSA particularly optimized for vision and AI workload.
 
-# 2. Challenges
+## 2. Challenges
 
 DSA also presents many challenges including
 
@@ -55,7 +57,7 @@ most ASICs with SA still require a powerful CPU and GPU to perform other
 tasks such as vision preprocessing. For many edge AI applications involving vision,
 the vision preprocessing steps are often just as computing intensive as the AI steps.
 
-# 3. DSA with ztachip
+## 3. DSA with ztachip
 
 ztachip is an opensourse DSA architecture. It is a novel architecture as far as we
 know.
@@ -99,7 +101,7 @@ of parallel tasks. For example with vector addition, each element-wise addition 
 - Tensor computing involves only with internal memory, greatly simplifying
 the hardware design since there is no memory stall cycles to contend with.
 
-# 4. What are provided with ztachip
+## 4. What are provided with ztachip
 
 ztachip provides the following DSA components:
 
@@ -116,11 +118,11 @@ for TensorFlow without retraining is also provided.
 
 ![dsa_component](images/dsa_component.bmp)
 
-# 5. Results
+## 5. Results
 
 The 2 metrics of interest are domain coverage and performance.
 
-## 5.1 Domain coverage
+### 5.1 Domain coverage
 
 For domain coverage, ztachip's DSL has been proven on a wide range of applications,
 from transformer models through to vision preprocessing and classic AI tasks.
@@ -145,7 +147,7 @@ from transformer models through to vision preprocessing and classic AI tasks.
 
 - Image resizing
 
-## 5.2 Performance and power consumption
+### 5.2 Performance and power consumption
 
 Performance is also very promising. Using the popular Mobinet-SSD AI model as a reference point,
 ztachip achieves a performance of 10fps at a 20GOPS of hardware computing resource.
@@ -157,7 +159,7 @@ power consumption.
 
 Memory requirements for ztachip are also much lower due to the efficient use of memory.
 
-# 6. Future developments
+## 6. Future developments
 
 ztachip current implementation operates on vector data types (8 x 8/12/16-bit).
 
