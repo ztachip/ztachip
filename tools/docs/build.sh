@@ -10,6 +10,7 @@ set -e
 rm -rf Documentation/html
 python3 tools/docs/mdhtml.py Documentation/html \
     Documentation/index.md \
+    Documentation/GettingStarted.md \
     Documentation/Overview.md \
     Documentation/HardwareDesign.md \
     Documentation/ztachip_programmer_guide.md \

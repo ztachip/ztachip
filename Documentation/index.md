@@ -3,6 +3,13 @@
 A multicore, data-aware, embedded RISC-V accelerator for edge vision and AI inference.
 Fully open source — hardware and software — under the Apache 2.0 license.
 
+### [Getting Started: Running a Vision/AI Demo on Artix-7 FPGA](GettingStarted.md)
+
+Everything needed to see ztachip working on real hardware: building the software
+and the RISC-V toolchain, building the FPGA image, wiring up the camera and VGA
+modules on a Digilent Arty A7 board, and loading and running the vision and LLM
+demos.
+
 ### [Technical Overview](Overview.md)
 
 What ztachip is, the problem it solves and what it achieves. Explains why a
