@@ -8,19 +8,17 @@ workloads: edge detection, optical flow, motion detection and colour conversion,
 TensorFlow models, and small language models generating text locally, with
 nothing sent to a server.
 
-An FPGA is where you start, not where you have to stop. The RTL is generic VHDL
-with no vendor-specific primitives, so the same design can go into a custom
-**ASIC**, or a larger FPGA, or an SoC alongside your own logic — porting means
-mapping six small memory primitives to the new target and setting the core count
-to match the silicon you have.
+An FPGA is where you start, not where you have to stop. The design is easy to
+port, so the same hardware and software stack can go into a custom **ASIC**, a
+larger FPGA, or an SoC alongside your own logic.
 
 What makes it interesting is efficiency rather than peak speed. AI inference at
 the edge is limited by memory bandwidth, not compute — the cores spend most of
 their time waiting for model weights to arrive from memory. ztachip is built
-around moving that data well, which is what *data-aware* means in practice. It
-delivers **6.70 tokens per second for every GB/s of memory bandwidth, 3.5× what a
-Raspberry Pi 5 achieves**, and runs vision and AI workloads **20–50× faster** than
-the same RISC-V processor without it.
+around moving that data well, which is what *data-aware* means in practice. At
+turning memory bandwidth into tokens it is **3.5× more efficient than a Raspberry
+Pi 5** — 6.70 tokens per second per GB/s — and it runs vision and AI workloads
+**20–50× faster** than the same RISC-V processor without it.
 
 It is also general-purpose within its domain. Most accelerators handle one narrow
 class of workload; ztachip runs classical computer vision, neural-network
