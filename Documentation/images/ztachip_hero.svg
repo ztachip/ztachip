@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 450" width="1000" height="450"
+     font-family="Segoe UI, Helvetica Neue, Arial, sans-serif">
+
+  <rect width="1000" height="450" fill="#ffffff"/>
+
+  <!-- header: project mark and one line of what this is -->
+  <g>
+    <rect x="32" y="20" width="11" height="11" rx="3" fill="#3f4a5a"/>
+    <rect x="47" y="20" width="11" height="11" rx="3" fill="#3f4a5a"/>
+    <rect x="62" y="20" width="11" height="11" rx="3" fill="#3f4a5a"/>
+    <rect x="32" y="35" width="11" height="11" rx="3" fill="#3f4a5a"/>
+    <rect x="47" y="35" width="11" height="11" rx="3" fill="#2fd3c0"/>
+    <rect x="62" y="35" width="11" height="11" rx="3" fill="#3f4a5a"/>
+    <rect x="32" y="50" width="11" height="11" rx="3" fill="#3f4a5a"/>
+    <rect x="47" y="50" width="11" height="11" rx="3" fill="#3f4a5a"/>
+    <rect x="62" y="50" width="11" height="11" rx="3" fill="#3f4a5a"/>
+    <text x="88" y="52" font-size="31" font-weight="700" fill="#0b2545">ztachip</text>
+    <text x="968" y="38" font-size="14" fill="#55636f" text-anchor="end">Open-source AI acceleration for the edge</text>
+    <text x="968" y="58" font-size="14" fill="#55636f" text-anchor="end">Computer vision and LLM inference on a low-cost FPGA or a custom ASIC</text>
+  </g>
+
+  <!-- what goes in -->
+  <text x="32" y="112" font-size="10.5" font-weight="700" fill="#7b8794" letter-spacing="1.3">INPUT</text>
+  <g>
+    <rect x="32" y="124" width="158" height="64" rx="8" fill="#f1f5f9" stroke="#d3dce6"/>
+    <text x="48" y="150" font-size="13.5" font-weight="700" fill="#0b2545">Camera</text>
+    <text x="48" y="170" font-size="11.5" fill="#55636f">live video frames</text>
+    <rect x="32" y="204" width="158" height="64" rx="8" fill="#f1f5f9" stroke="#d3dce6"/>
+    <text x="48" y="230" font-size="13.5" font-weight="700" fill="#0b2545">Sensors · GPIO</text>
+    <text x="48" y="250" font-size="11.5" fill="#55636f">audio, buttons, I/O</text>
+  </g>
+  <path d="M196 196 H236" stroke="#9aa8b5" stroke-width="2"/>
+  <path d="M236 190 L246 196 L236 202 Z" fill="#9aa8b5"/>
+
+  <!-- the accelerator itself -->
+  <rect x="250" y="104" width="410" height="196" rx="14" fill="#0b2545" stroke="#123a63"/>
+  <text x="266" y="134" font-size="19" font-weight="700" fill="#ffffff">ztachip</text>
+  <text x="644" y="134" font-size="11.5" fill="#8fb6dd" text-anchor="end">tensor processor + RISC-V</text>
+
+  <rect x="266" y="146" width="120" height="34" rx="6" fill="#14314f" stroke="#2b5580"/>
+  <text x="326" y="167" font-size="11.5" fill="#cfe3f7" text-anchor="middle">RISC-V core</text>
+  <rect x="396" y="146" width="110" height="34" rx="6" fill="#14314f" stroke="#2b5580"/>
+  <text x="451" y="167" font-size="11.5" fill="#cfe3f7" text-anchor="middle">FPU</text>
+  <rect x="516" y="146" width="128" height="34" rx="6" fill="#14314f" stroke="#2b5580"/>
+  <text x="580" y="167" font-size="11.5" fill="#cfe3f7" text-anchor="middle">Stream / DMA</text>
+
+  <rect x="266" y="192" width="378" height="72" rx="6" fill="#14314f" stroke="#2b5580"/>
+  <g fill="#2fd3c0">
+    <rect x="274" y="200" width="40" height="18" rx="3"/>
+    <rect x="320" y="200" width="40" height="18" rx="3"/>
+    <rect x="366" y="200" width="40" height="18" rx="3"/>
+    <rect x="412" y="200" width="40" height="18" rx="3"/>
+    <rect x="458" y="200" width="40" height="18" rx="3"/>
+    <rect x="504" y="200" width="40" height="18" rx="3"/>
+    <rect x="550" y="200" width="40" height="18" rx="3"/>
+    <rect x="596" y="200" width="40" height="18" rx="3"/>
+    <rect x="274" y="224" width="40" height="18" rx="3"/>
+    <rect x="320" y="224" width="40" height="18" rx="3"/>
+    <rect x="366" y="224" width="40" height="18" rx="3"/>
+    <rect x="412" y="224" width="40" height="18" rx="3"/>
+    <rect x="458" y="224" width="40" height="18" rx="3"/>
+    <rect x="504" y="224" width="40" height="18" rx="3"/>
+    <rect x="550" y="224" width="40" height="18" rx="3"/>
+    <rect x="596" y="224" width="40" height="18" rx="3"/>
+  </g>
+  <text x="455" y="257" font-size="11.5" fill="#cfe3f7" text-anchor="middle">array of tensor cores · massively parallel</text>
+  <text x="455" y="286" font-size="12" fill="#8fb6dd" text-anchor="middle">generic VHDL · synthesise to FPGA or ASIC</text>
+
+  <!-- memory, which is what the design is really built around -->
+  <path d="M449 302 V314" stroke="#9aa8b5" stroke-width="2"/>
+  <path d="M443 302 L449 296 L455 302 Z" fill="#9aa8b5"/>
+  <path d="M443 314 L449 320 L455 314 Z" fill="#9aa8b5"/>
+  <rect x="250" y="320" width="410" height="30" rx="7" fill="#eef2f6" stroke="#cbd5e0"/>
+  <text x="455" y="340" font-size="11.5" fill="#3f4a5a" text-anchor="middle">External DDR · weights, activations, KV cache</text>
+
+  <path d="M666 196 H706" stroke="#9aa8b5" stroke-width="2"/>
+  <path d="M706 190 L716 196 L706 202 Z" fill="#9aa8b5"/>
+
+  <!-- what comes out -->
+  <text x="722" y="112" font-size="10.5" font-weight="700" fill="#7b8794" letter-spacing="1.3">RUNS</text>
+  <g>
+    <rect x="722" y="124" width="246" height="52" rx="8" fill="#f1f5f9" stroke="#d3dce6"/>
+    <text x="738" y="146" font-size="13.5" font-weight="700" fill="#0b2545">Computer vision</text>
+    <text x="738" y="164" font-size="11.5" fill="#55636f">edge detection · optical flow · motion</text>
+    <rect x="722" y="186" width="246" height="52" rx="8" fill="#f1f5f9" stroke="#d3dce6"/>
+    <text x="738" y="208" font-size="13.5" font-weight="700" fill="#0b2545">Neural networks</text>
+    <text x="738" y="226" font-size="11.5" fill="#55636f">TensorFlow models, quantized</text>
+    <rect x="722" y="248" width="246" height="52" rx="8" fill="#e8f7ec" stroke="#9fd3ae"/>
+    <text x="738" y="270" font-size="13.5" font-weight="700" fill="#0b2545">Language models</text>
+    <text x="738" y="288" font-size="11.5" fill="#55636f">LLM and VLM tokens, generated locally</text>
+  </g>
+
+  <!-- the numbers that matter -->
+  <path d="M32 376 H968" stroke="#e2e8ee" stroke-width="1"/>
+  <g>
+    <text x="32" y="406" font-size="17" font-weight="700" fill="#0b2545">20&#8211;50&#215;</text>
+    <text x="32" y="426" font-size="11.5" fill="#55636f">faster than RISC-V alone</text>
+    <text x="266" y="406" font-size="17" font-weight="700" fill="#0b2545">6.70 TPS/(GB/s)</text>
+    <text x="266" y="426" font-size="11.5" fill="#55636f">3.5&#215; a Raspberry Pi 5</text>
+    <text x="500" y="406" font-size="17" font-weight="700" fill="#0b2545">3 ways to program</text>
+    <text x="500" y="426" font-size="11.5" fill="#55636f">Python · node graph · tensor language</text>
+    <text x="750" y="406" font-size="17" font-weight="700" fill="#0b2545">Apache 2.0</text>
+    <text x="750" y="426" font-size="11.5" fill="#55636f">RTL, compiler and software stack</text>
+  </g>
+
+</svg>
