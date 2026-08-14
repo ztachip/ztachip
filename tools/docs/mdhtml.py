@@ -23,11 +23,11 @@ CSS = """
 :root { color-scheme: light; }
 body { margin:0; background:#ffffff; color:#24292f;
        font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
-       font-size:15px; line-height:1.6; }
+       font-size:17px; line-height:1.65; }
 h1,h2,h3,h4,h5,h6 { line-height:1.3; margin:26px 0 10px 0; }
-h1 { font-size:26px; } h2 { font-size:22px; border-bottom:1px solid #d8dce0;
-     padding-bottom:6px; } h3 { font-size:18px; } h4 { font-size:16px; }
-h5,h6 { font-size:15px; }
+h1 { font-size:30px; } h2 { font-size:25px; border-bottom:1px solid #d8dce0;
+     padding-bottom:6px; } h3 { font-size:20px; } h4 { font-size:18px; }
+h5,h6 { font-size:17px; }
 a { color:#0a58ca; }
 img { max-width:100%; }
 p { margin:10px 0; }
@@ -38,10 +38,10 @@ hr { border:0; border-top:1px solid #d8dce0; margin:24px 0; }
 pre { background:#e4e6e8; padding:12px 14px; border:1px solid #d8dce0;
       border-radius:6px; overflow-x:auto; }
 pre code { background:transparent; color:#1f2328; padding:0;
-           font-size:13px; line-height:1.5; }
+           font-size:14px; line-height:1.55; }
 code { background:#e4e6e8; color:#1f2328; padding:1px 4px; border-radius:4px;
        font-family:'Cascadia Code',Consolas,'Liberation Mono',monospace;
-       font-size:13px; }
+       font-size:14px; }
 
 
 table { border-collapse:collapse; margin:8px 0 16px 0; }
@@ -172,10 +172,10 @@ def render(md):
 
 SIDE = """
 .layout { display:flex; align-items:flex-start; gap:0; }
-.side { flex:0 0 auto; width:230px; min-width:130px; max-width:70%;
+.side { flex:0 0 auto; width:290px; min-width:150px; max-width:70%;
         resize:horizontal; overflow:auto; height:100vh; box-sizing:border-box;
         position:sticky; top:0; background:#000000; color:#e8eaed;
-        padding:12px 14px 24px 14px; font-size:13px; line-height:1.7; }
+        padding:14px 16px 26px 16px; font-size:14px; line-height:1.7; }
 .side a { color:#e8eaed; text-decoration:none; }
 .side a:hover { text-decoration:underline; }
 .side ul { list-style:none; margin:4px 0 4px 4px; padding-left:12px; }
@@ -185,7 +185,9 @@ SIDE = """
 .side .home { display:inline-block; margin-bottom:12px; padding:5px 10px;
         background:#1f2937; color:#e8eaed; border:1px solid #3a4553;
         border-radius:5px; font-size:12px; }
-.main { flex:1 1 auto; min-width:0; padding:0 26px; max-width:900px; }
+.main { flex:1 1 auto; min-width:0; padding:0 30px; max-width:940px; }
+/* pages without a navigation panel still need breathing room */
+.page { padding:0 40px; max-width:940px; }
 """
 
 
@@ -311,7 +313,7 @@ for src in sources:
     panel = ('' if os.path.basename(src) == 'index.md'
              else sidebar(body, html.escape(title), home))
     body = (f'<div class="layout">{panel}<div class="main">{body}</div></div>'
-            if panel else body)
+            if panel else f'<div class="page">{body}</div>')
     dest = os.path.join(out_dir, doc_names[os.path.basename(src)])
     open(dest, 'w', encoding='utf-8').write(
         PAGE.format(title=html.escape(title), css=CSS, side=SIDE, body=body))
