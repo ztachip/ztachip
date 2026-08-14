@@ -29,6 +29,9 @@
     - [3.6.2 MicroPython Mode (Recommended)](#362-micropython-mode-recommended)
   - [3.7 Start the Image Transfer](#37-start-the-image-transfer)
   - [3.8 Run the Program](#38-run-the-program)
+- [4. Benchmark](#4-benchmark)
+  - [4.1 Benchmark Results](#41-benchmark-results)
+  - [4.2 Conclusion](#42-conclusion)
 
 </details>
 
@@ -376,3 +379,42 @@ If running in bare-metal mode, press any button to move between different vision
 If running in MicroPython mode, at the serial console, hit CTRL+E, then paste one of the Python programs from this [folder](../micropython/examples) and hit CTRL+D to run. Then hit any button to stop and return to the Python console.
 
 A demonstration showing how to run the demo is available in this [video](https://www.youtube.com/watch?v=ng0nCEYE6fc&t=499s).
+
+## 4. Benchmark
+
+Small LLM inference performance on edge devices is largely constrained by **memory bandwidth**. In these scenarios, additional compute capability provides limited benefit when processing cores spend most of their time waiting for model data to be transferred from memory.
+
+For this reason, a useful metric for comparing edge LLM implementations is:
+
+**Tokens per second (TPS) per GB/s of memory bandwidth**
+
+### 4.1 Benchmark Results
+
+The following results compare **ztachip running on the Arty platform** with the Raspberry Pi 4 and Raspberry Pi 5.
+
+LLM inference performance can be divided into two main components:
+
+- **Fixed component:** Dominated by matrix multiplication and model-weight transfers. This represents the primary bottleneck and cost for many edge AI applications, where long chat histories and large context windows are less common.
+
+- **Variable component:** Dominated by attention mechanisms and softmax calculations across the context window. ztachip includes a dedicated FPU compute unit capable of processing context operations at rates that match the available DDR memory-transfer bandwidth, keeping this component primarily memory-bound.
+
+The comparison below focuses on the **fixed-cost component** by using shorter prompts and questions.
+
+*Raspberry Pi benchmark data sourced from [arXiv:2511.07425v1](https://arxiv.org/html/2511.07425v1).*
+
+| Platform | Performance | Memory Bandwidth | Efficiency |
+| :--- | ---: | ---: | ---: |
+| **Raspberry Pi 4** | 11 TPS | 12 GB/s | 0.92 TPS/(GB/s) |
+| **Raspberry Pi 5** | 32 TPS | 17 GB/s | 1.88 TPS/(GB/s) |
+| **ztachip (Arty)** | 8 TPS | 1.2 GB/s | **6.70 TPS/(GB/s)** |
+
+### 4.2 Conclusion
+
+The Raspberry Pi platforms achieve higher raw token-generation rates because they provide substantially higher overall hardware and memory-bandwidth resources.
+
+However, **ztachip achieves significantly higher utilization of the available memory bandwidth**:
+
+- **7.2× more efficient** than the Raspberry Pi 4
+- **3.5× more efficient** than the Raspberry Pi 5
+
+This efficiency is particularly important for low-cost and resource-constrained edge AI platforms, where memory bandwidth and power are often more limited than compute capability.
