@@ -175,7 +175,7 @@ SIDE = """
 .side { flex:0 0 auto; width:290px; min-width:150px; max-width:70%;
         resize:horizontal; overflow:auto; height:100vh; box-sizing:border-box;
         position:sticky; top:0; background:#000000; color:#e8eaed;
-        padding:14px 16px 26px 16px; font-size:14px; line-height:1.7; }
+        padding:56px 16px 26px 16px; font-size:14px; line-height:1.7; }
 .side a { color:#e8eaed; text-decoration:none; }
 .side a:hover { text-decoration:underline; }
 .side ul { list-style:none; margin:4px 0 4px 4px; padding-left:12px; }
@@ -186,9 +186,85 @@ SIDE = """
         background:#1f2937; color:#e8eaed; border:1px solid #3a4553;
         border-radius:5px; font-size:12px; }
 .main { flex:1 1 auto; min-width:0; padding:0 30px; max-width:940px; }
-/* pages without a navigation panel still need breathing room */
-.page { padding:0 40px; max-width:940px; }
+.page { padding:0 40px; max-width:960px; margin:0 auto; }
+
+/* landing page */
+.hero { text-align:center; padding:44px 24px 30px 24px; margin:0 0 6px 0;
+        background:#0b2545; color:#ffffff; border-radius:12px; }
+.hero h1 { margin:0 0 12px 0; font-size:36px; color:#ffffff;
+        border:0; letter-spacing:-0.5px; }
+.hero p { margin:0 auto; max-width:640px; font-size:17px; color:#c8d6e8;
+        line-height:1.55; }
+.cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+        gap:16px; margin:26px 0 40px 0; }
+.card { display:block; text-decoration:none; background:#f6f8fa;
+        border:1px solid #d0d7de; border-radius:10px; padding:18px 20px;
+        transition:border-color .15s, box-shadow .15s, transform .15s; }
+.card:hover { border-color:#0a6abf; box-shadow:0 4px 14px rgba(10,37,69,.10);
+        transform:translateY(-2px); }
+.card .t { display:block; color:#0a4a8f; font-weight:700; font-size:17px;
+        margin-bottom:7px; }
+.card .d { display:block; color:#41484f; font-size:14px; line-height:1.55; }
+
+/* show / hide the navigation panel */
+.navbtn { position:fixed; top:10px; left:10px; z-index:40; cursor:pointer;
+        background:#1f2937; color:#e8eaed; border:1px solid #3a4553;
+        border-radius:6px; padding:7px 12px; font-size:13px;
+        font-family:inherit; }
+.navbtn:hover { background:#2b3a4d; }
+body.nav-hidden .side { display:none; }
+.navbtn .lbl-show { display:none; }
+body.nav-hidden .navbtn .lbl-show { display:inline; }
+body.nav-hidden .navbtn .lbl-hide { display:none; }
+
+/* phones: the panel covers the screen, and closes once a section is chosen */
+@media (max-width:820px) {
+  .layout { display:block; }
+  .side { position:fixed; inset:0; width:100% !important; max-width:none;
+          height:100vh; resize:none; padding:60px 20px 30px 20px;
+          font-size:16px; z-index:30; }
+  .main { padding:52px 18px 0 18px; max-width:none; }
+  .page { padding:52px 18px 0 18px; }
+}
 """
+
+NAV_JS = """
+<script>
+function navToggle() { document.body.classList.toggle('nav-hidden'); }
+// on a phone the panel starts hidden, so the document is what you see first
+if (window.matchMedia('(max-width:820px)').matches) {
+    document.body.classList.add('nav-hidden');
+}
+// choosing a section on a phone closes the panel again
+document.addEventListener('click', function (e) {
+    var link = e.target.closest && e.target.closest('.side a');
+    if (link && window.matchMedia('(max-width:820px)').matches) {
+        document.body.classList.add('nav-hidden');
+    }
+});
+</script>
+"""
+
+NAV_BUTTON = ('<button class="navbtn" onclick="navToggle()">'
+              '<span class="lbl-hide">&#9776; Hide contents</span>'
+              '<span class="lbl-show">&#9776; Contents</span></button>')
+
+
+def build_landing(body):
+    """Lay the landing page out as a hero panel above a grid of cards."""
+    hero = re.search(r'(<h1[^>]*>.*?</h1>)\s*(<p>.*?</p>)', body, re.S)
+    cards = re.findall(
+        r'<h3[^>]*><a href="([^"]+)">(.*?)</a></h3>\s*<p>(.*?)</p>', body, re.S)
+    if not (hero and cards):
+        return body
+    out = [f'<div class="hero">{hero.group(1)}{hero.group(2)}</div>',
+           '<div class="cards">']
+    for href, title, desc in cards:
+        out.append(f'<a class="card" href="{href}">'
+                   f'<span class="t">{title} &#8594;</span>'
+                   f'<span class="d">{desc}</span></a>')
+    out.append('</div>')
+    return '\n'.join(out)
 
 
 def sidebar(body, title, home):
@@ -312,8 +388,14 @@ for src in sources:
     # the launcher is the navigation; it needs no panel of its own
     panel = ('' if os.path.basename(src) == 'index.md'
              else sidebar(body, html.escape(title), home))
-    body = (f'<div class="layout">{panel}<div class="main">{body}</div></div>'
-            if panel else f'<div class="page">{body}</div>')
+    if os.path.basename(src) == 'index.md':
+        body = build_landing(body)
+
+    if panel:
+        body = (f'<div class="layout">{panel}'
+                f'<div class="main">{NAV_BUTTON}{body}</div></div>{NAV_JS}')
+    else:
+        body = f'<div class="page">{body}</div>'
     dest = os.path.join(out_dir, doc_names[os.path.basename(src)])
     open(dest, 'w', encoding='utf-8').write(
         PAGE.format(title=html.escape(title), css=CSS, side=SIDE, body=body))
