@@ -44,7 +44,7 @@ A new tensor programming paradigm enables developers to efficiently exploit the 
 
 # Documentation
 
-See the **[ztachip Documentation](https://ztachip.github.io/ztachip/)** for the technical overview, hardware architecture, programmer's guides and the MicroPython interface.
+See the **[ztachip Documentation](https://ztachip.github.io/)** for the technical overview, hardware architecture, programmer's guides and the MicroPython interface.
 
 The same documents are also readable [in this repository](Documentation/index.md).
 
