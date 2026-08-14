@@ -1,14 +1,33 @@
 # ztachip
 
-**A Multicore, Data-Aware, Embedded RISC-V AI Accelerator for Edge Inference**
+**An open-source AI accelerator for edge devices — computer vision and LLM inference on a low-cost FPGA**
 
-ztachip is a multicore, data-aware embedded RISC-V AI accelerator designed for edge inference on low-end FPGAs and custom ASICs.
+ztachip is an AI accelerator you can build yourself. Attach a camera and a VGA
+display to an Artix-7 development board, load the image, and it runs real
+workloads: edge detection, optical flow, motion detection and colour conversion,
+TensorFlow models, and small language models generating text locally, with
+nothing sent to a server.
 
-ztachip can deliver **20–50× acceleration** over non-accelerated RISC-V implementations on many vision and AI workloads, including LLM inference. It can also outperform RISC-V processors equipped with vector extensions.
+What makes it interesting is efficiency rather than peak speed. AI inference at
+the edge is limited by memory bandwidth, not compute — the cores spend most of
+their time waiting for model weights to arrive from memory. ztachip is built
+around moving that data well, which is what *data-aware* means in practice. It
+delivers **6.70 tokens per second for every GB/s of memory bandwidth, 3.5× what a
+Raspberry Pi 5 achieves**, and runs vision and AI workloads **20–50× faster** than
+the same RISC-V processor without it.
 
-Its innovative tensor processor accelerates a broad range of workloads—from traditional computer-vision operations such as edge detection, optical flow, motion detection, and color conversion to TensorFlow AI models and LLM inference. Unlike accelerators designed for only a narrow class of applications, ztachip provides a more general-purpose acceleration architecture for edge AI and vision workloads.
+It is also general-purpose within its domain. Most accelerators handle one narrow
+class of workload; ztachip runs classical computer vision, neural-network
+inference and transformer models on the same hardware, through the same
+programming model.
 
-A new tensor programming paradigm enables developers to efficiently exploit the massive processing and data parallelism available in the ztachip architecture.
+There are three ways to program it, and you can start with the easiest: a few
+lines of MicroPython, a graph of ready-made processing nodes, or the tensor
+language directly, where you control how data moves through memory and how the
+cores work on it.
+
+Everything is open source under the Apache 2.0 license — RTL, compiler, software
+stack and demos.
 
 [▶ Watch the demo video](https://www.youtube.com/watch?v=ng0nCEYE6fc&t=499s)
 
