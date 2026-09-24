@@ -79,16 +79,28 @@ int chat() {
     int i;
 
     ai.Create();
+#ifdef __WIN32__
+    if (ai.Open("C:\\Users\\vuong\\VM\\XXX.ZUF") != ZtaStatusOk)
+        return -1;
+#else
     if(ai.Open("SMOLLM2.ZUF") != ZtaStatusOk)
         return -1;
-//  ai.SetSamplingPolicyGreedy();
+#endif
+#ifdef __WIN32__
+    ai.SetSamplingPolicyGreedy();
+#else
     ai.SetSamplingPolicy(0.6,0.9,0.05,40,40); // temperature=0.7,p-threshold=0.9;min_p=0.05,
+#endif
     ai.SystemPrompt((char*)"You answer questions briefly");
     graph.Add(&ai);
     graph.Verify();
     
     for(;;) {
+#ifdef __WIN32__
+        char* prompt = (char *)"Who is Issac Newton";
+#else
         char *prompt = getInput();
+#endif
         if(prompt) {
             if(prompt[0]==0x3)
                 ai.Clear();
@@ -99,11 +111,15 @@ int chat() {
                 ai.ClearStat();
                 ai.UserPrompt(prompt);
                 graph.Prepare();
+#ifdef __WIN32__
+                graph.RunUntilCompletion();
+#else
                 for(;;) {
                     graph.Run(20);
                     if(!graph.IsRunning())
                         break;
                 }
+#endif
 //                while(ai.UserPrompt(0,0,20)==ZtaStatusPending);
                 printf(" (tok=%d tok/sec=%.2f)",ai.GetStatNumTokens(),ai.GetStatTokPerSec());
             }
