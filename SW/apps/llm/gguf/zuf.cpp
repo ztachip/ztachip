@@ -126,8 +126,7 @@ ZtaStatus ZUF::Open(const char* fname) {
     m_buf = (uint8_t*)malloc(sz+2*BYTE_ALIGNMENT);
     m_top = (uint8_t *)((((size_t)m_buf+BYTE_ALIGNMENT-1)/BYTE_ALIGNMENT)*BYTE_ALIGNMENT);
     p = (uint8_t*)m_top;
-
-    sz2 = _read(fd, p, sz);
+    _read(fd, p, sz);
     m_top += sizeof(ZUF_HEADER);
     _close(fd);
 #else

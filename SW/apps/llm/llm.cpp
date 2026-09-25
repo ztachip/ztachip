@@ -488,7 +488,8 @@ float16_t* GraphNodeLLM::forward(int token, int pos,int timeout) {
 
     // copy the token embedding into x
 
-    tick = TimeGet();
+    if(timeout > 0)
+        tick = TimeGet();
 
     if(token >= 0) {
         m_l = 0;

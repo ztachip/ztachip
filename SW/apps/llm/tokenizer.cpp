@@ -326,8 +326,9 @@ ZtaStatus TokenizerBFE::StringToToken(char* text,int8_t bos,int8_t eos,std::vect
     int match1=0;
     int match2=0;
     uint8_t *p,*p2;
-
-    tick = TimeGet();
+    
+    if(timeout > 0)
+        tick = TimeGet();
 
     // Convert text into tokens, keeping space as its own symbol
     if(text) {

@@ -18,7 +18,7 @@
 
 #include <time.h>
 #include <stdarg.h>
-#include <unistd.h>
+//#include <unistd.h>
 #include <assert.h>
 #include "ztalib.h"
 #include "../src/soc.h"
