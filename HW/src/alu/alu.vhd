@@ -339,7 +339,7 @@ end process;
 -- these opcodes extract nibble or byte field from a 16-bitw word
 ---------------------
 
-process(mu_opcode_in,x1_in)
+process(mu_opcode_in,x1_in,x1_sf_in,x2_sf_in,x1_in,x2_in)
 begin
    case x1_sf_in is
          when register_sf_nibble0 =>
